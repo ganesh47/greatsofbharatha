@@ -1,25 +1,31 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var appModel: AppModel
+
     var body: some View {
-        NavigationStack {
-            List {
-                Section("Shivaji Arc Vertical Slice") {
-                    NavigationLink("Scene 1, Shivneri") {
-                        Text("Scene 1 placeholder")
-                    }
-                    NavigationLink("Scene 2, Torna and Rajgad") {
-                        Text("Scene 2 placeholder")
-                    }
-                    NavigationLink("Fort Map Learning") {
-                        Text("Map learning placeholder")
-                    }
-                    NavigationLink("Royal Chronicle") {
-                        Text("Royal Chronicle placeholder")
-                    }
-                }
+        TabView {
+            NavigationStack {
+                StoryHomeView(scenes: appModel.content.scenes)
             }
-            .navigationTitle("Greats of Bharatha")
+            .tabItem {
+                Label("Story", systemImage: "book.closed")
+            }
+
+            NavigationStack {
+                PlacesHubView(places: appModel.content.corePlaces)
+            }
+            .tabItem {
+                Label("Places", systemImage: "map")
+            }
+
+            NavigationStack {
+                ChronicleView(rewards: appModel.content.rewards)
+            }
+            .tabItem {
+                Label("Chronicle", systemImage: "sparkles.rectangle.stack")
+            }
         }
+        .tint(.orange)
     }
 }
