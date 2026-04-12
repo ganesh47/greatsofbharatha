@@ -1,0 +1,17 @@
+# Research Index
+
+Use this directory for product, market, domain, and technical research.
+
+## Rules
+
+- Track active research with a GitHub issue
+- Add `Linked issue: #...` near the top of each research note
+- Capture sources and implications, not just raw facts
+- Convert important findings into specs or roadmap issues
+
+## Suggested workflow
+
+1. Open a research issue
+2. Draft note from `docs/templates/research-template.md`
+3. Add sources and findings
+4. Summarize implications and next actions
