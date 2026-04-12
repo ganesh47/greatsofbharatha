@@ -16,7 +16,13 @@ The app should not just present facts. It should make historical figures memorab
 
 ## Initial vision
 
-Greats of Bharatha is a kid-friendly learning app focused on one historical personality at a time, for example Shivaji Maharaj or the Pandya kings. It should combine storytelling, recall practice, maps, timelines, and playful interaction so children learn both facts and meaning.
+Greats of Bharatha is a kid-friendly learning app focused on one historical personality at a time, beginning with **Shivaji Maharaj**. It should combine storytelling, recall practice, maps, timelines, and playful interaction so children learn both facts and meaning.
+
+A major part of the experience should be **place-based learning**:
+- identifying important places on the map
+- pinning forts, regions, routes, and events
+- understanding where a figure lived, ruled, traveled, or fought
+- optionally learning top-level route understanding from the child’s current location to a historical site, including broad direction, approximate distance, and major cities/towns along the way
 
 ## Core hypotheses
 
@@ -25,6 +31,7 @@ Greats of Bharatha is a kid-friendly learning app focused on one historical pers
 3. Spatial and temporal context, maps and timelines, will improve understanding.
 4. Age-sensitive interaction design matters more than one-size-fits-all content.
 5. Modern iPhone capabilities can deepen immersion without making older or lower-end devices feel broken.
+6. Shivaji Maharaj is a strong first flagship because forts, geography, routes, strategy, and regional identity naturally fit map-led learning.
 
 ## Research tracks
 
@@ -60,11 +67,13 @@ Greats of Bharatha is a kid-friendly learning app focused on one historical pers
 ### 4. Historical learning interaction ideas
 - one-hero learning paths
 - place-based exploration across India
+- Shivaji Maharaj forts, regions, campaigns, and routes
 - dynasty and relationship views
 - event timelines
 - audio storytelling
 - memory palace inspired map journeys
 - quiz loops after story consumption
+- child-safe top-level route understanding from current location to historical sites
 
 ### 5. Experience design and delight
 - fun without trivializing history
@@ -78,12 +87,14 @@ Greats of Bharatha is a kid-friendly learning app focused on one historical pers
 - research synthesis on learning methods suitable for the app
 - iPhone capability matrix and compatibility strategy
 - list of promising game/learning mechanics
+- place-learning and route-learning recommendations
 - concept directions for MVP vs advanced experiences
-- recommendations for first historical-character learning loop
+- recommendations for first historical-character learning loop centered on Shivaji Maharaj
 
 ## Follow-up questions
 
 - Which age bands should be explicit in V1?
 - How much narration should be on-device vs bundled media?
 - Should the app support multilingual storytelling from the start?
-- Which historical figures should define the first content pack?
+- Which Shivaji Maharaj locations, forts, and episodes should define the first content pack?
+- What is the safest and most useful way to expose current-location-aware route learning for children?
