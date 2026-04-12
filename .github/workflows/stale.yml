@@ -1,0 +1,19 @@
+name: Stale issues
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: 'This issue has gone quiet. Update it if still active.'
+          stale-pr-message: 'This PR has gone quiet. Update it if still active.'
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-label: status/stale
+          exempt-issue-labels: pinned,priority/critical,status/active

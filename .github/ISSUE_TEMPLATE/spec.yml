@@ -1,0 +1,40 @@
+name: Spec
+description: Define a new product or technical spec
+labels: [spec]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: One-line summary of the spec
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+  - type: textarea
+    id: delivery
+    attributes:
+      label: Delivery notes
+  - type: input
+    id: spec_doc
+    attributes:
+      label: Spec doc path
+      placeholder: docs/specs/2026-04-12-example.md

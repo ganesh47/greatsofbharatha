@@ -1,0 +1,25 @@
+name: Research
+description: Track a research task or investigation
+labels: [research]
+body:
+  - type: input
+    id: question
+    attributes:
+      label: Research question
+      placeholder: What are we trying to learn?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Expected outputs
+      description: Notes, comparisons, recommendations, linked doc
+  - type: input
+    id: research_doc
+    attributes:
+      label: Research doc path
+      placeholder: docs/research/2026-04-12-topic.md

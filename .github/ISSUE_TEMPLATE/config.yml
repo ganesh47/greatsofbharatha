@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Product docs
+    url: https://github.com/ganesh47/greatsofbharatha/tree/main/docs
+    about: Review specs and research docs before opening duplicate issues.

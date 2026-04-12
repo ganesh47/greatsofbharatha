@@ -1,0 +1,24 @@
+name: Feature
+description: Track a product feature
+labels: [feature]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: textarea
+    id: user_value
+    attributes:
+      label: User value
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+  - type: input
+    id: linked_spec
+    attributes:
+      label: Linked spec/issue

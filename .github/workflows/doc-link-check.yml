@@ -1,0 +1,31 @@
+name: Doc link check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-doc-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify docs mention linked issue
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          failures = []
+          for folder in [Path('docs/specs'), Path('docs/research')]:
+              if not folder.exists():
+                  continue
+              for path in folder.glob('*.md'):
+                  text = path.read_text(encoding='utf-8')
+                  if 'linked issue' not in text.lower() and 'closes #' not in text.lower() and 'refs #' not in text.lower():
+                      failures.append(str(path))
+          if failures:
+              print('Docs missing issue linkage:')
+              for item in failures:
+                  print('-', item)
+              raise SystemExit(1)
+          print('All checked docs include issue linkage text.')
+          PY
