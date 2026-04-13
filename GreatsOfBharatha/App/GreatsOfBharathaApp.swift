@@ -1,10 +1,10 @@
 import SwiftUI
 
 @main
-struct GreatsOfBharathaApp: App {
+struct GreatsOfBharathaApp: SwiftUI.App {
     @StateObject private var appModel = AppModel()
 
-    var body: some Scene {
+    var body: some SwiftUI.Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(appModel)
