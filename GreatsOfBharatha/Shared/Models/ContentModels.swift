@@ -61,12 +61,6 @@ enum PlaceProgress: String, CaseIterable, Equatable {
     case masteredLightly = "Mastered lightly"
 }
 
-enum MasteryState: String, CaseIterable, Equatable {
-    case witnessed = "Witnessed"
-    case understood = "Understood"
-    case observedClosely = "Observed Closely"
-}
-
 enum RewardCategory: String, CaseIterable, Equatable {
     case storyCard = "Story Card"
     case emblemFragment = "Emblem Fragment"
