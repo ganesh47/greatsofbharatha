@@ -39,6 +39,17 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BF73B710E3B0072602FD8B4A"
+               BuildableName = "GreatsOfBharathaTests.xctest"
+               BlueprintName = "GreatsOfBharathaTests"
+               ReferencedContainer = "container:GreatsOfBharatha.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

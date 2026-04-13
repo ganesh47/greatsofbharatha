@@ -19,18 +19,31 @@
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
 		E18D0C357341C6F095CCC3F2 /* ShivajiLessonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C857F8C6F22867D7E8B067F /* ShivajiLessonViews.swift */; };
+		E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */; };
 		EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */; };
 		EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */; };
 		EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413C33179A188AA0729938F /* AppModel.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1B8E81FBEF4EDFBA191D91EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A262F71F3F0F07F3FD4F4D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEED15624C2241F4B6CD0477;
+			remoteInfo = GreatsOfBharatha;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
 		0C857F8C6F22867D7E8B067F /* ShivajiLessonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonViews.swift; sourceTree = "<group>"; };
+		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
 		6413C33179A188AA0729938F /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		71BEDED465CA437D09ADDCD5 /* SampleContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleContent.swift; sourceTree = "<group>"; };
 		842D0166597E3756A21D8739 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModels.swift; sourceTree = "<group>"; };
+		85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTests.swift; sourceTree = "<group>"; };
 		8A94778E49C1F68D8BA267FB /* GreatsOfBharatha.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GreatsOfBharatha.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
@@ -62,6 +75,14 @@
 				5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */,
 			);
 			path = Chronicle;
+			sourceTree = "<group>";
+		};
+		29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */ = {
+			isa = PBXGroup;
+			children = (
+				85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */,
+			);
+			path = GreatsOfBharathaTests;
 			sourceTree = "<group>";
 		};
 		2CAF176D76684F7BB625884A /* Lesson */ = {
@@ -97,6 +118,7 @@
 			isa = PBXGroup;
 			children = (
 				EBB69AAB1E89F302C4DD2B65 /* GreatsOfBharatha */,
+				29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */,
 				C38600D9652E838D51F7049E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -122,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				8A94778E49C1F68D8BA267FB /* GreatsOfBharatha.app */,
+				38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -141,6 +164,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		BF73B710E3B0072602FD8B4A /* GreatsOfBharathaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 38045A41A54DB3EEEEBB5A32 /* Build configuration list for PBXNativeTarget "GreatsOfBharathaTests" */;
+			buildPhases = (
+				34B6B8D62B58E67D977A8894 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9AC98C2115D20D2C2A79F0DD /* PBXTargetDependency */,
+			);
+			name = GreatsOfBharathaTests;
+			packageProductDependencies = (
+			);
+			productName = GreatsOfBharathaTests;
+			productReference = 38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C44C21608E4054D77ED127F3 /* Build configuration list for PBXNativeTarget "GreatsOfBharatha" */;
@@ -168,6 +209,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					BF73B710E3B0072602FD8B4A = {
+						DevelopmentTeam = J3387FUR8X;
+						ProvisioningStyle = Automatic;
+					};
 					EEED15624C2241F4B6CD0477 = {
 						DevelopmentTeam = J3387FUR8X;
 						ProvisioningStyle = Automatic;
@@ -189,6 +234,7 @@
 			projectRoot = "";
 			targets = (
 				EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */,
+				BF73B710E3B0072602FD8B4A /* GreatsOfBharathaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -226,9 +272,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		34B6B8D62B58E67D977A8894 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		9AC98C2115D20D2C2A79F0DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */;
+			targetProxy = 1B8E81FBEF4EDFBA191D91EF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0A6D3554A070EEDF6B1BD7CC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha";
+			};
+			name = Release;
+		};
 		16FAE0FC0AED394000D72DA9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -400,9 +479,35 @@
 			};
 			name = Release;
 		};
+		C96C93902DF0FE2E6ED2A42A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		38045A41A54DB3EEEEBB5A32 /* Build configuration list for PBXNativeTarget "GreatsOfBharathaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C96C93902DF0FE2E6ED2A42A /* Debug */,
+				0A6D3554A070EEDF6B1BD7CC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		452A9856857D7E37DC084E72 /* Build configuration list for PBXProject "GreatsOfBharatha" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

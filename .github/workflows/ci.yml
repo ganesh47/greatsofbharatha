@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build iOS app slice
+  build-and-test:
+    name: Build and test iOS app slice
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -40,4 +40,12 @@ jobs:
             -project GreatsOfBharatha.xcodeproj \
             -scheme GreatsOfBharatha \
             -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run unit tests
+        run: |
+          xcodebuild test \
+            -project GreatsOfBharatha.xcodeproj \
+            -scheme GreatsOfBharatha \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
             CODE_SIGNING_ALLOWED=NO
