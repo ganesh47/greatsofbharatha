@@ -302,6 +302,8 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.tests;
+				PRODUCT_MODULE_NAME = GreatsOfBharathaTests;
+				PRODUCT_NAME = GreatsOfBharathaTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha";
@@ -490,6 +492,8 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.tests;
+				PRODUCT_MODULE_NAME = GreatsOfBharathaTests;
+				PRODUCT_NAME = GreatsOfBharathaTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha";

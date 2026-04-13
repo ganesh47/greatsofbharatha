@@ -42,6 +42,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ganesh47.greatsofbharatha.tests
+        PRODUCT_NAME: GreatsOfBharathaTests
+        PRODUCT_MODULE_NAME: GreatsOfBharathaTests
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha"
         BUNDLE_LOADER: "$(TEST_HOST)"
