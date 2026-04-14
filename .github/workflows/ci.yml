@@ -47,5 +47,5 @@ jobs:
           xcodebuild test \
             -project GreatsOfBharatha.xcodeproj \
             -scheme GreatsOfBharatha \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
