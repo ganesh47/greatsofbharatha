@@ -21,6 +21,8 @@ targets:
     platform: iOS
     sources:
       - path: GreatsOfBharatha
+        excludes:
+          - Features/Lesson/ShivajiLessonViews.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.ganesh47.greatsofbharatha
