@@ -44,8 +44,21 @@ jobs:
 
       - name: Run unit tests
         run: |
+          DESTINATION=$(xcodebuild -showdestinations -project GreatsOfBharatha.xcodeproj -scheme GreatsOfBharatha 2>/dev/null | python3 - <<'PY'
+import sys
+for line in sys.stdin:
+    line = line.strip()
+    if "platform:iOS Simulator" in line and "name:" in line and "error:" not in line:
+        start = line.find("{ ")
+        end = line.rfind(" }")
+        if start != -1 and end != -1:
+            print(line[start+2:end])
+            break
+PY
+)
+          echo "Using test destination: ${DESTINATION}"
           xcodebuild test \
             -project GreatsOfBharatha.xcodeproj \
             -scheme GreatsOfBharatha \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "${DESTINATION}" \
             CODE_SIGNING_ALLOWED=NO
