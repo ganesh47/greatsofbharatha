@@ -85,7 +85,9 @@ struct SceneDetailView: View {
             .padding()
         }
         .navigationTitle("Scene \(scene.number)")
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 
     @ViewBuilder

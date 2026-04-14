@@ -5,12 +5,10 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
-            NavigationStack {
-                StoryHomeView(scenes: appModel.content.scenes)
-            }
-            .tabItem {
-                Label("Story", systemImage: "book.closed")
-            }
+            LessonHomeView()
+                .tabItem {
+                    Label("Learn", systemImage: "book.closed")
+                }
 
             NavigationStack {
                 PlacesHubView(places: appModel.content.corePlaces)

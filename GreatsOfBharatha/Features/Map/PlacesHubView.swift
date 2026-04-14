@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PlacesHubView: View {
+    @EnvironmentObject private var appModel: AppModel
     let places: [Place]
 
     var body: some View {
@@ -11,10 +12,10 @@ struct PlacesHubView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Core 5 places") {
+            Section("Core places") {
                 ForEach(places) { place in
                     NavigationLink {
-                        PlaceDetailView(place: place)
+                        PlaceDetailView(place: place, progress: appModel.lessonStore.progress(for: place))
                     } label: {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 6) {
@@ -28,12 +29,12 @@ struct PlacesHubView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Text(place.progress.rawValue)
+                            Text(appModel.lessonStore.progress(for: place).rawValue)
                                 .font(.caption2.weight(.semibold))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 6)
-                                .background(progressColor(place.progress).opacity(0.15), in: Capsule())
-                                .foregroundStyle(progressColor(place.progress))
+                                .background(progressColor(appModel.lessonStore.progress(for: place)).opacity(0.15), in: Capsule())
+                                .foregroundStyle(progressColor(appModel.lessonStore.progress(for: place)))
                         }
                         .padding(.vertical, 4)
                     }
@@ -55,6 +56,7 @@ struct PlacesHubView: View {
 
 struct PlaceDetailView: View {
     let place: Place
+    let progress: PlaceProgress
 
     var body: some View {
         ScrollView {
@@ -71,6 +73,7 @@ struct PlaceDetailView: View {
                 infoRow(title: "Why it matters", value: place.whyItMatters)
                 infoRow(title: "Region", value: place.regionLabel)
                 infoRow(title: "Educational pin", value: String(format: "%.4f, %.4f", place.latitude, place.longitude))
+                infoRow(title: "Current progress", value: progress.rawValue)
 
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Pin challenge loop")
@@ -84,7 +87,9 @@ struct PlaceDetailView: View {
             .padding()
         }
         .navigationTitle(place.name)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 
     @ViewBuilder
