@@ -45,12 +45,8 @@ jobs:
       - name: Run unit tests
         shell: bash
         run: |
-          DESTINATION=$(python3 -c 'import subprocess, sys; r = subprocess.run(["xcodebuild", "-showdestinations", "-project", "GreatsOfBharatha.xcodeproj", "-scheme", "GreatsOfBharatha"], capture_output=True, text=True, check=False); lines = [ln.strip() for ln in r.stdout.splitlines() if "platform:iOS Simulator" in ln and "name:" in ln and "error:" not in ln];
-for line in lines:
-    start = line.find("{ "); end = line.rfind(" }");
-    if start != -1 and end != -1:
-        print(line[start + 2:end]); sys.exit(0)
-raise SystemExit("No concrete iOS Simulator destination found")')
+          DESTINATION=$(xcodebuild -showdestinations -project GreatsOfBharatha.xcodeproj -scheme GreatsOfBharatha 2>/dev/null | grep 'platform:iOS Simulator' | grep 'name:' | head -n 1 | sed -E 's/^.*\{ (.*) \}.*$/\1/')
+          test -n "${DESTINATION}"
           echo "Using test destination: ${DESTINATION}"
           xcodebuild test \
             -project GreatsOfBharatha.xcodeproj \
