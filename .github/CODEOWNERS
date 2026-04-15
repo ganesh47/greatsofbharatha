@@ -1,0 +1,13 @@
+# Default ownership
+* @ganesh47
+
+# App code
+/GreatsOfBharatha/ @ganesh47
+/GreatsOfBharathaTests/ @ganesh47
+/project.yml @ganesh47
+/GreatsOfBharatha.xcodeproj/ @ganesh47
+
+# GitHub automation and release paths
+/.github/ @ganesh47
+/.github/workflows/ @ganesh47
+/ci_scripts/ @ganesh47
