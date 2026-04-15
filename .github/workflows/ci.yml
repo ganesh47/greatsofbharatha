@@ -45,7 +45,9 @@ jobs:
       - name: Run unit tests
         shell: bash
         run: |
-          DESTINATION=$(xcodebuild -showdestinations -project GreatsOfBharatha.xcodeproj -scheme GreatsOfBharatha 2>/dev/null | grep 'platform:iOS Simulator' | grep 'name:' | grep -v 'Any iOS Simulator Device' | grep -v 'id:dvtdevice-' | head -n 1 | sed -E 's/^.*\{ (.*) \}.*$/\1/')
+          DESTINATIONS=$(xcodebuild -showdestinations -project GreatsOfBharatha.xcodeproj -scheme GreatsOfBharatha 2>/dev/null)
+          echo "$DESTINATIONS"
+          DESTINATION=$(printf '%s\n' "$DESTINATIONS" | grep 'platform:iOS Simulator' | grep 'OS:' | grep 'name:iPhone' | grep -v 'id:dvtdevice-' | head -n 1 | sed -E 's/^.*\{ (.*) \}.*$/\1/' | sed 's/, /,/g' | sed 's/platform:/platform=/; s/id:/id=/; s/OS:/OS=/; s/name:/name=/')
           test -n "${DESTINATION}"
           echo "Using test destination: ${DESTINATION}"
           xcodebuild test \
