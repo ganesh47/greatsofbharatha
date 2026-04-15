@@ -3,7 +3,11 @@ on:
   workflow_dispatch:
     inputs:
       target_version:
-        default: "0.1.0-alpha"
+        default: "0.1.0"
+
+concurrency:
+  group: testflight-poll-${{ github.event.inputs.target_version || github.run_id }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -12,6 +16,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    environment: release
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - run: pip3 install PyJWT cryptography requests
