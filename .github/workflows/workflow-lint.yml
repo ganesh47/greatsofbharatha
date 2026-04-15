@@ -1,0 +1,21 @@
+name: Workflow Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Run actionlint
+        uses: raven-actions/actionlint@8b2d7d7f745c6a06c4e712a5f9df984fd8ab4e2c
