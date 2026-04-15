@@ -9,7 +9,7 @@ jobs:
   check-doc-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Verify docs mention linked issue
         run: |
           python3 - <<'PY'
