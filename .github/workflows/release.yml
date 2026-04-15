@@ -33,7 +33,8 @@ jobs:
             --notes "$(cat <<'TXT'
           ## Greats Of Bharatha ${{ steps.version.outputs.tag }}
 
-          TestFlight distribution is expected to flow through Xcode Cloud once the project is wired there.
+          This release is intended to drive the Xcode Cloud and TestFlight alpha flow for Greats Of Bharatha.
+          The shipped version should be stamped from the release tag through the post-clone bootstrap script.
           This release tracks the alpha slice centered on Shivaji Maharaj.
           TXT
           )"
