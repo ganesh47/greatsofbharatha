@@ -35,12 +35,12 @@ jobs:
         run: xcodegen generate
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@da8674e05c1e502a3dfeaecadfb7b8de2a24b6ff
+        uses: github/codeql-action/init@v3
         with:
           languages: swift
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@da8674e05c1e502a3dfeaecadfb7b8de2a24b6ff
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@da8674e05c1e502a3dfeaecadfb7b8de2a24b6ff
+        uses: github/codeql-action/analyze@v3
