@@ -34,7 +34,14 @@ for build in data:
     version = attrs.get("version")
     processing = attrs.get("processingState")
     print(json.dumps({"version": version, "processingState": processing}))
-    if version == target_version and processing in {"PROCESSING", "VALID", "FAILED", "INVALID"}:
-        sys.exit(0 if processing in {"VALID", "PROCESSING"} else 1)
+    if version != target_version:
+        continue
+    if processing == "VALID":
+        sys.exit(0)
+    if processing in {"FAILED", "INVALID"}:
+        sys.exit(1)
+    if processing == "PROCESSING":
+        print("Target build found, still processing")
+        sys.exit(1)
 print("Target build not found yet")
 sys.exit(1)

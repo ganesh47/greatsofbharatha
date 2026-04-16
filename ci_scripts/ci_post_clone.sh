@@ -16,6 +16,11 @@ else
   echo "--- ci_post_clone: no tag, keeping dev MARKETING_VERSION ---"
 fi
 
+BUILD_NUMBER="${CI_BUILD_NUMBER:-${GITHUB_RUN_NUMBER:-$(date +%s)}}"
+echo "--- ci_post_clone: stamping CURRENT_PROJECT_VERSION=${BUILD_NUMBER} ---"
+sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: ${BUILD_NUMBER}/" \
+  "$CI_PRIMARY_REPOSITORY_PATH/project.yml"
+
 echo "--- ci_post_clone: regenerating GreatsOfBharatha.xcodeproj ---"
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 xcodegen generate
