@@ -4,9 +4,13 @@ final class ShivajiLessonStore: ObservableObject {
     @Published private(set) var masteryByScene: [String: MasteryState] = [:]
 
     private let content: AppContent
+    private let defaults: UserDefaults
+    private let storageKey = "shivajiLessonStore.masteryByScene"
 
-    init(content: AppContent = SampleContent.shivajiVerticalSlice) {
+    init(content: AppContent = SampleContent.shivajiVerticalSlice, defaults: UserDefaults = .standard) {
         self.content = content
+        self.defaults = defaults
+        self.masteryByScene = Self.loadMastery(from: defaults, key: storageKey)
     }
 
     func mastery(for sceneID: String) -> MasteryState? {
@@ -16,14 +20,17 @@ final class ShivajiLessonStore: ObservableObject {
     func markScene(_ sceneID: String, mastery: MasteryState) {
         let current = masteryByScene[sceneID] ?? .witnessed
         masteryByScene[sceneID] = higherMastery(current, mastery)
+        persist()
     }
 
     func resetScene(_ sceneID: String) {
         masteryByScene.removeValue(forKey: sceneID)
+        persist()
     }
 
     func isUnlocked(_ reward: ChronicleReward) -> Bool {
-        masteryByScene[reward.unlockedBySceneID] != nil
+        guard let mastery = masteryByScene[reward.unlockedBySceneID] else { return false }
+        return masteryRank(mastery) >= masteryRank(.understood)
     }
 
     func unlockedRewards(from rewards: [ChronicleReward]) -> [ChronicleReward] {
@@ -70,12 +77,33 @@ final class ShivajiLessonStore: ObservableObject {
     }
 
     private func higherMastery(_ lhs: MasteryState, _ rhs: MasteryState) -> MasteryState {
-        let rank: [MasteryState: Int] = [
-            .witnessed: 0,
-            .understood: 1,
-            .observedClosely: 2
-        ]
+        masteryRank(lhs) >= masteryRank(rhs) ? lhs : rhs
+    }
 
-        return (rank[lhs] ?? 0) >= (rank[rhs] ?? 0) ? lhs : rhs
+    private func masteryRank(_ mastery: MasteryState) -> Int {
+        switch mastery {
+        case .witnessed:
+            return 0
+        case .understood:
+            return 1
+        case .observedClosely:
+            return 2
+        }
+    }
+
+    private func persist() {
+        let encoded = masteryByScene.mapValues(\ .rawValue)
+        defaults.set(encoded, forKey: storageKey)
+    }
+
+    private static func loadMastery(from defaults: UserDefaults, key: String) -> [String: MasteryState] {
+        guard let stored = defaults.dictionary(forKey: key) as? [String: String] else {
+            return [:]
+        }
+
+        return stored.reduce(into: [:]) { result, item in
+            guard let mastery = MasteryState(rawValue: item.value) else { return }
+            result[item.key] = mastery
+        }
     }
 }
