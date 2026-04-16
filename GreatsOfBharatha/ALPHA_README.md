@@ -29,12 +29,14 @@ This app folder now packages a smallest believable SwiftUI alpha around the exis
 
 ## Xcode target wiring
 
-This repo still does not include an `.xcodeproj`, so the quickest path to a runnable alpha is:
+This repo now includes a generated `GreatsOfBharatha.xcodeproj` alongside `project.yml`.
 
-1. Create a new iOS SwiftUI app target named `GreatsOfBharatha` in Xcode.
-2. Drag the `GreatsOfBharatha/` folder into the target.
-3. Ensure all Swift files under `App/`, `Features/`, and `Shared/Models/` are included in the app target.
-4. Build on iPhone 15 / iOS 17+ first.
+Current runnable path:
+
+1. Regenerate the project with `xcodegen generate` if `project.yml` changes.
+2. Open `GreatsOfBharatha.xcodeproj`.
+3. Build the `GreatsOfBharatha` scheme on an iPhone simulator or device.
+4. Use `ci_scripts/ci_post_clone.sh` for Xcode Cloud tag-driven version stamping.
 
 ## Alpha acceptance pass
 
@@ -48,8 +50,14 @@ A basic alpha pass should now work like this:
 
 ## Still missing before a more formal alpha
 
-- actual map rendering and pin/snap interaction
-- persistence across launches
+- richer place interaction, especially real pin/snap/reveal/compare behavior
 - assets, narration, and haptics polish
-- an Xcode project committed to the repo
-- tests and preview coverage
+- broader tests and preview coverage
+- end-to-end release/TestFlight proof
+- explicit real-device acceptance closure
+
+## Recently closed alpha gaps
+
+- persistence across launches now exists for lesson mastery state
+- Chronicle rewards now require at least `Understood`, not just `Witnessed`
+- the repo includes a generated Xcode project and Xcode Cloud post-clone bootstrap script
