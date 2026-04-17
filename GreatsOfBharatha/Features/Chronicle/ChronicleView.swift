@@ -5,8 +5,15 @@ struct ChronicleView: View {
     let rewards: [ChronicleReward]
     var highlightRewardID: String?
 
+    @State private var celebratedRewardIDs: Set<String> = []
+
     private var unlockedRewards: [ChronicleReward] {
         appModel.lessonStore.unlockedRewards(from: rewards)
+    }
+
+    private var highlightedReward: ChronicleReward? {
+        guard let highlightRewardID else { return nil }
+        return unlockedRewards.first(where: { $0.id == highlightRewardID })
     }
 
     private var lockedRewards: [ChronicleReward] {
@@ -15,6 +22,31 @@ struct ChronicleView: View {
 
     var body: some View {
         List {
+            if let highlightedReward {
+                Section("New Chronicle reward") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(highlightedReward.title)
+                            .font(.headline)
+                        Text(highlightedReward.meaning)
+                            .font(.body)
+                        if celebratedRewardIDs.contains(highlightedReward.id) {
+                            Label("Added to your Chronicle", systemImage: "checkmark.seal.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.green)
+                        } else {
+                            Button {
+                                celebratedRewardIDs.insert(highlightedReward.id)
+                            } label: {
+                                Label("Collect reward", systemImage: "sparkles")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+            }
+
             Section {
                 Text("Meaning-bearing rewards for story progress, not anxiety-heavy grades.")
                     .font(.subheadline)
@@ -50,12 +82,12 @@ struct ChronicleView: View {
                 Text(reward.title)
                     .font(.headline)
                 if highlightRewardID == reward.id {
-                    Text("NEW")
+                    Text(celebratedRewardIDs.contains(reward.id) ? "COLLECTED" : "NEW")
                         .font(.caption2.bold())
                         .padding(.horizontal, 6)
                         .padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.18), in: Capsule())
-                        .foregroundStyle(.orange)
+                        .background((celebratedRewardIDs.contains(reward.id) ? Color.green.opacity(0.18) : Color.orange.opacity(0.18)), in: Capsule())
+                        .foregroundStyle(celebratedRewardIDs.contains(reward.id) ? .green : .orange)
                 }
                 Spacer()
                 Text(reward.category.rawValue)
