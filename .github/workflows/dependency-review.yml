@@ -16,4 +16,4 @@ jobs:
       pull-requests: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: actions/dependency-review-action@cdb69d9500f5c0caea4e48c7bc54c2fd30017300
+      - uses: actions/dependency-review-action@v4
