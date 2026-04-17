@@ -22,6 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - run: pip3 install PyJWT cryptography requests
+      - name: Validate build-trigger precondition
+        env:
+          TARGET_VERSION: ${{ inputs.target_version }}
+        run: |
+          echo "This workflow only checks whether a TestFlight build already triggered elsewhere has appeared."
+          echo "It does not trigger Xcode Cloud or App Store Connect uploads on its own."
+          echo "Target version: ${TARGET_VERSION}"
+          if [ -z "${TARGET_VERSION}" ]; then
+            echo "TARGET_VERSION is required."
+            exit 1
+          fi
+
       - name: Poll until build lands in TestFlight
         env:
           APP_STORE_CONNECT_APP_ID: ${{ secrets.APP_STORE_CONNECT_APP_ID }}
@@ -37,4 +49,5 @@ jobs:
             sleep 300
           done
           echo "Timed out after 60 min waiting for build."
+          echo "No TestFlight-producing pipeline appears to have been triggered for version ${TARGET_VERSION}."
           exit 1

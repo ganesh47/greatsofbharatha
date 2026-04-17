@@ -38,8 +38,9 @@ jobs:
           cat > "$NOTES_FILE" <<'TXT'
           ## Greats Of Bharatha ${{ steps.version.outputs.tag }}
 
-          This release is intended to drive the Xcode Cloud and TestFlight alpha flow for Greats Of Bharatha.
-          The shipped version should be stamped from the release tag through the post-clone bootstrap script.
+          This workflow creates a GitHub Release for the tagged version.
+          It does not by itself trigger an Xcode Cloud build, App Store Connect upload, or TestFlight build.
+          The shipped version should be stamped from the release tag through the post-clone bootstrap script when a real Apple build pipeline runs.
           This release tracks the alpha slice centered on Shivaji Maharaj.
           TXT
 
