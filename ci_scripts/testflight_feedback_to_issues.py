@@ -222,7 +222,14 @@ def create_issue(config: Config, title: str, body: str, labels: list[str]) -> No
 def main() -> int:
     config = load_config()
     crash_only = os.environ.get("TESTFLIGHT_FEEDBACK_ONLY_KIND", "").strip().lower() == "crash"
-    feedback_items = fetch_feedback_collection(config, only_kind="crash" if crash_only else None)
+    try:
+        feedback_items = fetch_feedback_collection(config, only_kind="crash" if crash_only else None)
+    except RuntimeError as exc:
+        message = str(exc)
+        if "404" in message and "does not match a defined resource type" in message:
+            print("TestFlight feedback endpoint is unavailable for this app/API context, skipping sync without failure.")
+            return 0
+        raise
     created = 0
     for feedback in feedback_items:
         feedback_id = feedback["id"]
