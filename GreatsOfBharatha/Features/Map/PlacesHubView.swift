@@ -58,6 +58,31 @@ struct PlaceDetailView: View {
     let place: Place
     let progress: PlaceProgress
 
+    @State private var selectedCandidateID: String?
+    @State private var revealed = false
+
+    private var challengeCandidates: [Place] {
+        let core = SampleContent.shivajiVerticalSlice.corePlaces
+        if core.contains(where: { $0.id == place.id }) {
+            return core
+        }
+        return [place]
+    }
+
+    private var selectedCandidate: Place? {
+        challengeCandidates.first(where: { $0.id == selectedCandidateID })
+    }
+
+    private var feedbackText: String {
+        guard let selectedCandidate else {
+            return "Tap the fort marker that feels right, then reveal the answer."
+        }
+        if selectedCandidate.id == place.id {
+            return revealed ? "Well spotted. You pinned the right fort." : "Good instinct. Reveal to confirm your choice."
+        }
+        return revealed ? "Close, but this clue belongs to \(place.name). Compare the reveal and try again." : "That pin is not quite right. Reveal to compare and learn the difference."
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -75,14 +100,27 @@ struct PlaceDetailView: View {
                 infoRow(title: "Educational pin", value: String(format: "%.4f, %.4f", place.latitude, place.longitude))
                 infoRow(title: "Current progress", value: progress.rawValue)
 
-                VStack(alignment: .leading, spacing: 10) {
+                fortBoard
+
+                VStack(alignment: .leading, spacing: 12) {
                     Text("Pin challenge loop")
                         .font(.headline)
-                    Label("Tap near the map region", systemImage: "1.circle")
-                    Label("Snap to the nearest candidate fort", systemImage: "2.circle")
-                    Label("Confirm or retry with a gentle hint", systemImage: "3.circle")
-                    Label("Reveal the true place and compare the guess", systemImage: "4.circle")
+                    Text(feedbackText)
+                        .foregroundStyle(.secondary)
+
+                    Button(revealed ? "Reset challenge" : "Reveal answer") {
+                        if revealed {
+                            selectedCandidateID = nil
+                            revealed = false
+                        } else {
+                            revealed = true
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .padding()
         }
@@ -90,6 +128,59 @@ struct PlaceDetailView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+    }
+
+    private var fortBoard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Tap-near fort board")
+                .font(.headline)
+            Text("Choose the fort that matches this clue. The board snaps your attention to one core place at a time.")
+                .foregroundStyle(.secondary)
+
+            ForEach(challengeCandidates) { candidate in
+                let isSelected = selectedCandidateID == candidate.id
+                let isCorrect = revealed && candidate.id == place.id
+                let showMistake = revealed && isSelected && candidate.id != place.id
+
+                Button {
+                    selectedCandidateID = candidate.id
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: isCorrect ? "checkmark.circle.fill" : isSelected ? "mappin.circle.fill" : "mappin.circle")
+                            .foregroundStyle(isCorrect ? .green : isSelected ? .orange : .secondary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(candidate.name)
+                                .foregroundStyle(.primary)
+                            Text(candidate.primaryEvent)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if isCorrect {
+                            Text("Correct")
+                                .font(.caption.bold())
+                                .foregroundStyle(.green)
+                        } else if showMistake {
+                            Text("Compare")
+                                .font(.caption.bold())
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    .padding()
+                    .background((isCorrect ? Color.green.opacity(0.12) : showMistake ? Color.orange.opacity(0.12) : Color.secondary.opacity(0.08)), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+
+            if revealed {
+                Text("Reveal: \(place.name) belongs to \(place.regionLabel) and is remembered here for \(place.primaryEvent.lowercased()).")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     @ViewBuilder
