@@ -18,7 +18,7 @@ jobs:
       issues: write
     steps:
       - name: Require one status label at most
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const labels = context.payload.issue.labels.map(l => l.name)
