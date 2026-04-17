@@ -60,6 +60,7 @@ struct PlaceDetailView: View {
 
     @State private var selectedCandidateID: String?
     @State private var revealed = false
+    @State private var comparisonMode = false
 
     private var challengeCandidates: [Place] {
         let core = SampleContent.shivajiVerticalSlice.corePlaces
@@ -75,7 +76,7 @@ struct PlaceDetailView: View {
 
     private var feedbackText: String {
         guard let selectedCandidate else {
-            return "Tap the fort marker that feels right, then reveal the answer."
+            return comparisonMode ? "Compare the real fort with the nearby choices, then try again." : "Tap the fort marker that feels right, then reveal the answer."
         }
         if selectedCandidate.id == place.id {
             return revealed ? "Well spotted. You pinned the right fort." : "Good instinct. Reveal to confirm your choice."
@@ -108,15 +109,26 @@ struct PlaceDetailView: View {
                     Text(feedbackText)
                         .foregroundStyle(.secondary)
 
-                    Button(revealed ? "Reset challenge" : "Reveal answer") {
+                    HStack(spacing: 12) {
+                        Button(revealed ? "Reset challenge" : "Reveal answer") {
+                            if revealed {
+                                selectedCandidateID = nil
+                                revealed = false
+                                comparisonMode = false
+                            } else {
+                                revealed = true
+                                comparisonMode = true
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+
                         if revealed {
-                            selectedCandidateID = nil
-                            revealed = false
-                        } else {
-                            revealed = true
+                            Button(comparisonMode ? "Hide compare view" : "Compare nearby forts") {
+                                comparisonMode.toggle()
+                            }
+                            .buttonStyle(.bordered)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -176,6 +188,32 @@ struct PlaceDetailView: View {
                 Text("Reveal: \(place.name) belongs to \(place.regionLabel) and is remembered here for \(place.primaryEvent.lowercased()).")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            }
+
+            if comparisonMode {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Compare the nearby forts")
+                        .font(.subheadline.bold())
+                    ForEach(challengeCandidates.filter { $0.id != place.id }) { candidate in
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "arrow.left.and.right.circle")
+                                .foregroundStyle(.orange)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(candidate.name) vs \(place.name)")
+                                    .font(.subheadline.weight(.semibold))
+                                Text("\(candidate.name): \(candidate.primaryEvent)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text("\(place.name): \(place.primaryEvent)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
