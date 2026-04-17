@@ -36,7 +36,7 @@ Current runnable path:
 1. Regenerate the project with `xcodegen generate` if `project.yml` changes.
 2. Open `GreatsOfBharatha.xcodeproj`.
 3. Build the `GreatsOfBharatha` scheme on an iPhone simulator or device.
-4. Use `ci_scripts/ci_post_clone.sh` for Xcode Cloud tag-driven version stamping.
+4. Use `ci_scripts/ci_post_clone.sh` for tag-driven version stamping when a real Xcode Cloud or App Store Connect build pipeline is running.
 
 ## Alpha acceptance pass
 
@@ -53,7 +53,7 @@ A basic alpha pass should now work like this:
 - richer place interaction, especially real pin/snap/reveal/compare behavior
 - assets, narration, and haptics polish
 - broader tests and preview coverage
-- end-to-end release/TestFlight proof
+- end-to-end release/TestFlight proof, including a real build-producing Apple pipeline
 - explicit real-device acceptance closure
 
 ## Recently closed alpha gaps
