@@ -8,6 +8,8 @@ struct SceneLessonView: View {
     @State private var recallState = LessonRecallState()
     @State private var revealedMapAnchors = 0
     @State private var chosenPlanSteps: Set<String> = []
+    @State private var hintVisible = false
+    @State private var recapVisible = false
 
     private var progressValue: Double {
         let bonusStep = scene.number == 2 ? 1.0 : 0.0
@@ -65,6 +67,40 @@ struct SceneLessonView: View {
                     FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
                 }
 
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 12) {
+                        Button(hintVisible ? "Hide hint" : "Show hint") {
+                            hintVisible.toggle()
+                            LessonFeedback.fire(.reveal)
+                        }
+                        .buttonStyle(.bordered)
+
+                        if recallState.hasAnsweredCorrectly {
+                            Button(recapVisible ? "Hide recap" : "Show recap") {
+                                recapVisible.toggle()
+                                LessonFeedback.fire(.reveal)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+
+                    if hintVisible {
+                        GuidanceCard(
+                            title: "Curated hint",
+                            body: curatedHint,
+                            systemImage: "lightbulb"
+                        )
+                    }
+
+                    if recapVisible, recallState.hasAnsweredCorrectly {
+                        GuidanceCard(
+                            title: "Scene recap",
+                            body: sceneRecap,
+                            systemImage: "text.book.closed"
+                        )
+                    }
+                }
+
                 RecallPanel(
                     question: scene.recallPrompt,
                     choices: sceneChoices,
@@ -111,6 +147,17 @@ struct SceneLessonView: View {
             appModel.lessonStore.markScene(scene.id, mastery: .witnessed)
             LessonFeedback.fire(.warning)
         }
+    }
+
+    private var curatedHint: String {
+        if scene.number == 1 {
+            return "Think about where the story begins. The answer is the fort tied to Shivaji Maharaj's birth and Jijabai's early guidance."
+        }
+        return "One fort marks an early breakthrough, but the recall question asks which one became the early capital. Focus on the planning base that comes after Torna."
+    }
+
+    private var sceneRecap: String {
+        "\(scene.timelineMarker): \(scene.childSafeSummary) Key fact: \(scene.keyFact)"
     }
 
     private var sceneChoices: [LessonChoice] {
@@ -280,6 +327,30 @@ private struct FortPlanningCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.background)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+private struct GuidanceCard: View {
+    let title: String
+    let body: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: systemImage)
+                .foregroundStyle(.orange)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.subheadline.bold())
+                Text(body)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
