@@ -87,7 +87,7 @@ struct SceneLessonView: View {
                     if hintVisible {
                         GuidanceCard(
                             title: "Curated hint",
-                            body: curatedHint,
+                            message: curatedHint,
                             systemImage: "lightbulb"
                         )
                     }
@@ -95,7 +95,7 @@ struct SceneLessonView: View {
                     if recapVisible, recallState.hasAnsweredCorrectly {
                         GuidanceCard(
                             title: "Scene recap",
-                            body: sceneRecap,
+                            message: sceneRecap,
                             systemImage: "text.book.closed"
                         )
                     }
@@ -332,7 +332,7 @@ private struct FortPlanningCard: View {
 
 private struct GuidanceCard: View {
     let title: String
-    let body: String
+    let message: String
     let systemImage: String
 
     var body: some View {
@@ -342,7 +342,7 @@ private struct GuidanceCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
                     .font(.subheadline.bold())
-                Text(body)
+                Text(message)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
