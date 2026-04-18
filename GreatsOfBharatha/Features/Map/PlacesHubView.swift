@@ -95,10 +95,11 @@ struct PlaceDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                infoRow(title: "Primary event", value: place.primaryEvent)
+                mapPreviewCard
+
                 infoRow(title: "Why it matters", value: place.whyItMatters)
+                infoRow(title: "Primary event", value: place.primaryEvent)
                 infoRow(title: "Region", value: place.regionLabel)
-                infoRow(title: "Educational pin", value: String(format: "%.4f, %.4f", place.latitude, place.longitude))
                 infoRow(title: "Current progress", value: progress.rawValue)
 
                 fortBoard
@@ -145,11 +146,81 @@ struct PlaceDetailView: View {
 #endif
     }
 
+    private var mapPreviewCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Fort preview map")
+                .font(.headline)
+            Text("See where \(place.name) sits before you start the challenge.")
+                .foregroundStyle(.secondary)
+
+            ZStack {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.14), Color.orange.opacity(0.10), Color.green.opacity(0.10)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(height: 240)
+
+                VStack(spacing: 18) {
+                    Text("Sahyadri learning map")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.secondary)
+
+                    GeometryReader { geometry in
+                        ZStack {
+                            ForEach(challengeCandidates) { candidate in
+                                let isCurrent = candidate.id == place.id
+                                let point = pointForCandidate(candidate, in: geometry.size)
+
+                                VStack(spacing: 4) {
+                                    Image(systemName: isCurrent ? "mappin.circle.fill" : "mappin.circle")
+                                        .font(.title2)
+                                        .foregroundStyle(isCurrent ? .orange : .secondary)
+                                    Text(candidate.name)
+                                        .font(.caption2.bold())
+                                        .foregroundStyle(isCurrent ? .primary : .secondary)
+                                }
+                                .position(point)
+                            }
+                        }
+                    }
+                    .frame(height: 150)
+
+                    Text("Now tap into the fort challenge below.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func pointForCandidate(_ candidate: Place, in size: CGSize) -> CGPoint {
+        let minLat = challengeCandidates.map(\.latitude).min() ?? candidate.latitude
+        let maxLat = challengeCandidates.map(\.latitude).max() ?? candidate.latitude
+        let minLon = challengeCandidates.map(\.longitude).min() ?? candidate.longitude
+        let maxLon = challengeCandidates.map(\.longitude).max() ?? candidate.longitude
+
+        let lonSpan = max(maxLon - minLon, 0.001)
+        let latSpan = max(maxLat - minLat, 0.001)
+
+        let x = ((candidate.longitude - minLon) / lonSpan) * (size.width - 40) + 20
+        let normalizedY = 1 - ((candidate.latitude - minLat) / latSpan)
+        let y = normalizedY * (size.height - 40) + 20
+        return CGPoint(x: x, y: y)
+    }
+
     private var fortBoard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Tap-near fort board")
+            Text("Fort challenge")
                 .font(.headline)
-            Text("Choose the fort that matches this clue. The board snaps your attention to one core place at a time.")
+            Text("Use the preview map, then choose the fort that matches this clue.")
                 .foregroundStyle(.secondary)
 
             ForEach(challengeCandidates) { candidate in
