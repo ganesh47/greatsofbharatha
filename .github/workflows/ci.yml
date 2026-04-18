@@ -105,29 +105,49 @@ jobs:
 
       - name: Capture simulator UX artifacts
         if: always()
-        timeout-minutes: 10
+        timeout-minutes: 12
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p ci_artifacts
           SIM_ID="${SIM_DESTINATION#id=}"
+          BUNDLE_ID="com.ganesh47.greatsofbharatha"
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*Build/Products/Debug-iphonesimulator/Greats Of Bharatha.app" | head -n 1 || true)
           if [[ -z "$APP_PATH" ]]; then
             echo "App bundle not found for simulator artifact capture" >&2
             exit 0
           fi
 
-          xcrun simctl install "$SIM_ID" "$APP_PATH" || true
-          xcrun simctl launch "$SIM_ID" com.ganesh47.GreatsOfBharatha || true
-          sleep 8
+          open -a Simulator || true
+          xcrun simctl bootstatus "$SIM_ID" -b || true
+          xcrun simctl install "$SIM_ID" "$APP_PATH"
+          xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
+          xcrun simctl launch "$SIM_ID" "$BUNDLE_ID"
 
+          for i in $(seq 1 20); do
+            if xcrun simctl spawn "$SIM_ID" launchctl print "gui/$(id -u)/$BUNDLE_ID" >/dev/null 2>&1; then
+              echo "App appears launched"
+              break
+            fi
+            sleep 2
+          done
+
+          osascript <<EOF || true
+          tell application "Simulator"
+            activate
+          end tell
+EOF
+
+          sleep 10
           xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/01-launch.png" || true
           xcrun simctl io "$SIM_ID" recordVideo --codec=h264 "ci_artifacts/ux-preview.mov" &
           VIDEO_PID=$!
 
-          sleep 6
+          sleep 5
           xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/02-after-launch.png" || true
-          sleep 6
+          xcrun simctl spawn "$SIM_ID" defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool NO || true
+          xcrun simctl spawn "$SIM_ID" notifyutil -p com.apple.springboard.lockcomplete || true
+          sleep 5
           xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/03-flow.png" || true
 
           kill -INT "$VIDEO_PID" 2>/dev/null || true
