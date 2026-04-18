@@ -36,6 +36,7 @@ struct ChronicleView: View {
                         } else {
                             Button {
                                 celebratedRewardIDs.insert(highlightedReward.id)
+                                LessonFeedback.fire(.celebration)
                             } label: {
                                 Label("Collect reward", systemImage: "sparkles")
                                     .frame(maxWidth: .infinity)

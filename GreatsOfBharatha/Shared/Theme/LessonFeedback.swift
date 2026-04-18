@@ -7,6 +7,7 @@ struct LessonFeedback {
         case reveal
         case success
         case warning
+        case celebration
     }
 
     static func fire(_ token: HapticToken) {
@@ -22,6 +23,11 @@ struct LessonFeedback {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
         case .warning:
             UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        case .celebration:
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.prepare()
+            generator.impactOccurred(intensity: 1.0)
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
         }
 #else
         _ = token
