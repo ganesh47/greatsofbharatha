@@ -46,12 +46,14 @@ struct SceneLessonView: View {
                 HStack(spacing: 12) {
                     Button("Previous") {
                         cardIndex = max(cardIndex - 1, 0)
+                        LessonFeedback.fire(.selection)
                     }
                     .buttonStyle(.bordered)
                     .disabled(cardIndex == 0)
 
                     Button(cardIndex == lessonCards.count - 1 ? "Review the map" : "Next card") {
                         cardIndex = min(cardIndex + 1, lessonCards.count - 1)
+                        LessonFeedback.fire(.selection)
                     }
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -102,10 +104,12 @@ struct SceneLessonView: View {
             recallState.feedbackText = scene.recallPrompt.supportText
             let mastery: MasteryState = scene.number == 2 && chosenPlanSteps.count >= 2 ? .observedClosely : .understood
             appModel.lessonStore.markScene(scene.id, mastery: mastery)
+            LessonFeedback.fire(.success)
         } else {
             recallState.hasAnsweredCorrectly = false
             recallState.feedbackText = "Try again. \(scene.recallPrompt.supportText)"
             appModel.lessonStore.markScene(scene.id, mastery: .witnessed)
+            LessonFeedback.fire(.warning)
         }
     }
 
@@ -220,7 +224,11 @@ private struct MapAnchorCard: View {
             }
 
             Button(revealedMapAnchors == scene.mapAnchors.count ? "All anchors revealed" : "Reveal next anchor") {
-                revealedMapAnchors = min(revealedMapAnchors + 1, scene.mapAnchors.count)
+                let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
+                if nextValue != revealedMapAnchors {
+                    revealedMapAnchors = nextValue
+                    LessonFeedback.fire(nextValue == scene.mapAnchors.count ? .success : .reveal)
+                }
             }
             .buttonStyle(.bordered)
         }
@@ -248,6 +256,7 @@ private struct FortPlanningCard: View {
                     } else {
                         chosenPlanSteps.insert(step.id)
                     }
+                    LessonFeedback.fire(.selection)
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: chosenPlanSteps.contains(step.id) ? "checkmark.circle.fill" : step.symbol)
@@ -293,6 +302,7 @@ private struct RecallPanel: View {
                 let isSelected = selectedChoiceID == choice.id
                 Button {
                     selectedChoiceID = choice.id
+                    LessonFeedback.fire(.selection)
                 } label: {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")

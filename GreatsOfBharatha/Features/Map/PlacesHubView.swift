@@ -115,9 +115,11 @@ struct PlaceDetailView: View {
                                 selectedCandidateID = nil
                                 revealed = false
                                 comparisonMode = false
+                                LessonFeedback.fire(.selection)
                             } else {
                                 revealed = true
                                 comparisonMode = true
+                                LessonFeedback.fire(selectedCandidate?.id == place.id ? .success : .reveal)
                             }
                         }
                         .buttonStyle(.borderedProminent)
@@ -125,6 +127,7 @@ struct PlaceDetailView: View {
                         if revealed {
                             Button(comparisonMode ? "Hide compare view" : "Compare nearby forts") {
                                 comparisonMode.toggle()
+                                LessonFeedback.fire(.selection)
                             }
                             .buttonStyle(.bordered)
                         }
@@ -156,6 +159,7 @@ struct PlaceDetailView: View {
 
                 Button {
                     selectedCandidateID = candidate.id
+                    LessonFeedback.fire(.selection)
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: isCorrect ? "checkmark.circle.fill" : isSelected ? "mappin.circle.fill" : "mappin.circle")
