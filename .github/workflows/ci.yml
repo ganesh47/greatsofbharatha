@@ -103,11 +103,50 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Capture simulator UX artifacts
+        if: always()
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_artifacts
+          SIM_ID="${SIM_DESTINATION#id=}"
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*Build/Products/Debug-iphonesimulator/Greats Of Bharatha.app" | head -n 1 || true)
+          if [[ -z "$APP_PATH" ]]; then
+            echo "App bundle not found for simulator artifact capture" >&2
+            exit 0
+          fi
+
+          xcrun simctl install "$SIM_ID" "$APP_PATH" || true
+          xcrun simctl launch "$SIM_ID" com.ganesh47.GreatsOfBharatha || true
+          sleep 8
+
+          xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/01-launch.png" || true
+          xcrun simctl io "$SIM_ID" recordVideo --codec=h264 "ci_artifacts/ux-preview.mov" &
+          VIDEO_PID=$!
+
+          sleep 6
+          xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/02-after-launch.png" || true
+          sleep 6
+          xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/03-flow.png" || true
+
+          kill -INT "$VIDEO_PID" 2>/dev/null || true
+          wait "$VIDEO_PID" 2>/dev/null || true
+
       - name: Upload test result bundle
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: ci-test-results
           path: TestResults.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload simulator UX artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-ux-artifacts
+          path: ci_artifacts
           if-no-files-found: ignore
           retention-days: 7
