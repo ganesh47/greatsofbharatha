@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct LessonFeedback {
     enum HapticToken {
         case selection
