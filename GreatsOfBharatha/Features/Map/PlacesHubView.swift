@@ -134,7 +134,7 @@ struct PlacesHubView: View {
                     .foregroundStyle(progress == .locked ? .secondary : .primary)
                 Spacer()
                 Image(systemName: progress == .locked ? "lock.fill" : "arrow.right.circle.fill")
-                    .foregroundStyle(progress == .locked ? .secondary : .orange)
+                    .foregroundStyle(progress == .locked ? Color.secondary : Color.orange)
             }
         }
         .padding()
