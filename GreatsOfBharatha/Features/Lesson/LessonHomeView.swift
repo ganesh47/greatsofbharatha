@@ -4,49 +4,47 @@ struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    HeroProgressCard(
-                        title: appModel.content.arcTitle,
-                        progress: appModel.lessonStore.overallProgress,
-                        completedScenes: appModel.lessonStore.completedScenes,
-                        totalScenes: appModel.lessonStore.totalScenes,
-                        nextSceneTitle: nextSceneTitle
-                    )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HeroProgressCard(
+                    title: appModel.content.arcTitle,
+                    progress: appModel.lessonStore.overallProgress,
+                    completedScenes: appModel.lessonStore.completedScenes,
+                    totalScenes: appModel.lessonStore.totalScenes,
+                    nextSceneTitle: nextSceneTitle
+                )
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("First playable lesson slice")
-                            .font(.title2.bold())
-                        Text("Move through story cards, answer a gentle recall prompt, and unlock Chronicle rewards tied to real places.")
-                            .foregroundStyle(.secondary)
-                    }
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("First playable lesson slice")
+                        .font(.title2.bold())
+                    Text("Move through story cards, answer a gentle recall prompt, and unlock Chronicle rewards tied to real places.")
+                        .foregroundStyle(.secondary)
+                }
 
-                    ForEach(appModel.content.scenes) { scene in
-                        NavigationLink {
-                            SceneLessonView(scene: scene)
-                        } label: {
-                            SceneRowCard(scene: scene, mastery: appModel.lessonStore.mastery(for: scene.id))
-                        }
-                        .buttonStyle(.plain)
-                    }
-
+                ForEach(appModel.content.scenes) { scene in
                     NavigationLink {
-                        ChronicleView(rewards: appModel.content.rewards)
+                        SceneLessonView(scene: scene)
                     } label: {
-                        ChronicleTeaserCard(
-                            headline: appModel.lessonStore.chronicleHeadline,
-                            unlockedCount: appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count,
-                            totalCount: appModel.content.rewards.count
-                        )
+                        SceneRowCard(scene: scene, mastery: appModel.lessonStore.mastery(for: scene.id))
                     }
                     .buttonStyle(.plain)
                 }
-                .padding()
+
+                NavigationLink {
+                    ChronicleView(rewards: appModel.content.rewards)
+                } label: {
+                    ChronicleTeaserCard(
+                        headline: appModel.lessonStore.chronicleHeadline,
+                        unlockedCount: appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count,
+                        totalCount: appModel.content.rewards.count
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .navigationTitle("Greats of Bharatha")
-            .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
+            .padding()
         }
+        .navigationTitle("Greats of Bharatha")
+        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
     }
 
     private var nextSceneTitle: String {
