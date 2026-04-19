@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
 
+# Post-merge UX artifact workflow only. Keeps screenshot/video capture off the pull_request critical path.
+
 permissions:
   contents: read
 

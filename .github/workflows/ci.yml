@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
 
+# Fast default CI only. UX screenshot capture runs separately in ios-ui-review-main.yml on push to main.
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
