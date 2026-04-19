@@ -20,103 +20,270 @@ struct ChronicleView: View {
         rewards.filter { !appModel.lessonStore.isUnlocked($0) }
     }
 
+    private let rewardColumns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
     var body: some View {
-        List {
-            if let highlightedReward {
-                Section("New Chronicle reward") {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(highlightedReward.title)
-                            .font(.headline)
-                        Text(highlightedReward.meaning)
-                            .font(.body)
-                        if celebratedRewardIDs.contains(highlightedReward.id) {
-                            Label("Added to your Chronicle", systemImage: "checkmark.seal.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(.green)
-                        } else {
-                            Button {
-                                celebratedRewardIDs.insert(highlightedReward.id)
-                                LessonFeedback.fire(.celebration)
-                            } label: {
-                                Label("Collect reward", systemImage: "sparkles")
-                                    .frame(maxWidth: .infinity)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if let highlightedReward {
+                    highlightedRewardCard(highlightedReward)
+                }
+
+                collectionSummaryCard
+
+                VStack(alignment: .leading, spacing: 14) {
+                    sectionHeader(title: "Collected keepsakes", subtitle: unlockedRewards.isEmpty ? "Finish a lesson scene to place its first keepsake into the Royal Chronicle." : "Each reward becomes a memory keepsake from the Shivaji journey.")
+
+                    if unlockedRewards.isEmpty {
+                        emptyCollectionCard
+                    } else {
+                        LazyVGrid(columns: rewardColumns, spacing: 12) {
+                            ForEach(unlockedRewards) { reward in
+                                rewardCard(reward, unlocked: true)
                             }
-                            .buttonStyle(.borderedProminent)
                         }
                     }
-                    .padding(.vertical, 6)
                 }
-            }
 
-            Section {
-                Text("Meaning-bearing rewards for story progress, not anxiety-heavy grades.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+                if !lockedRewards.isEmpty {
+                    VStack(alignment: .leading, spacing: 14) {
+                        sectionHeader(title: "Still waiting in the Chronicle", subtitle: "More keepsakes appear as more scenes are completed.")
 
-            Section("Unlocked rewards") {
-                if unlockedRewards.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Finish a lesson scene to place its meaning into the Royal Chronicle.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(debugMasterySummary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 8)
-                } else {
-                    ForEach(unlockedRewards) { reward in
-                        rewardRow(reward, unlocked: true)
+                        LazyVGrid(columns: rewardColumns, spacing: 12) {
+                            ForEach(lockedRewards) { reward in
+                                rewardCard(reward, unlocked: false)
+                            }
+                        }
                     }
                 }
             }
-
-            Section("Still to unlock") {
-                ForEach(lockedRewards) { reward in
-                    rewardRow(reward, unlocked: false)
-                }
-            }
+            .padding()
         }
         .navigationTitle("Royal Chronicle")
+        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
     }
 
-    private var debugMasterySummary: String {
-        let scene1 = appModel.lessonStore.mastery(for: "scene-1-shivneri")?.rawValue ?? "nil"
-        let scene2 = appModel.lessonStore.mastery(for: "scene-2-torna-rajgad")?.rawValue ?? "nil"
-        return "Debug mastery: \(scene1) / \(scene2)"
+    private var collectionSummaryCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Your Chronicle shelf")
+                        .font(.title3.bold())
+                    Text("Collected story rewards stay here like keepsakes from the journey.")
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "books.vertical.fill")
+                    .font(.title2)
+                    .foregroundStyle(.orange)
+            }
+
+            HStack(spacing: 12) {
+                summaryPill(title: "Collected", value: "\(unlockedRewards.count)", tint: .orange)
+                summaryPill(title: "Waiting", value: "\(lockedRewards.count)", tint: .secondary)
+                summaryPill(title: "New today", value: "\(newlyCollectedCount)", tint: .green)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.20), Color.yellow.opacity(0.10), Color.blue.opacity(0.10)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+        )
     }
 
-    @ViewBuilder
-    private func rewardRow(_ reward: ChronicleReward, unlocked: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(reward.title)
+    private var emptyCollectionCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Finish Scene 1 to unlock your first Chronicle keepsake.", systemImage: "sparkles")
+                .font(.headline)
+            Text("Story rewards appear here as cards, fragments, and badges you can revisit any time.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var newlyCollectedCount: Int {
+        unlockedRewards.filter { celebratedRewardIDs.contains($0.id) }.count
+    }
+
+    private func highlightedRewardCard(_ reward: ChronicleReward) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("NEW CHRONICLE KEEPSAKE")
+                        .font(.caption.bold())
+                        .foregroundStyle(.orange)
+                    Text(reward.title)
+                        .font(.title2.bold())
+                    Text(reward.meaning)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: celebratedRewardIDs.contains(reward.id) ? "checkmark.seal.fill" : "sparkles.rectangle.stack.fill")
+                    .font(.system(size: 34))
+                    .foregroundStyle(celebratedRewardIDs.contains(reward.id) ? .green : .orange)
+            }
+
+            HStack(spacing: 10) {
+                rewardBadge(text: reward.category.rawValue, tint: accentColor(for: reward))
+                rewardBadge(text: reward.mastery.rawValue, tint: .purple)
+            }
+
+            if celebratedRewardIDs.contains(reward.id) {
+                Label("Placed in your Chronicle", systemImage: "books.vertical.fill")
                     .font(.headline)
-                if highlightRewardID == reward.id {
-                    Text(celebratedRewardIDs.contains(reward.id) ? "COLLECTED" : "NEW")
+                    .foregroundStyle(.green)
+            } else {
+                Button {
+                    celebratedRewardIDs.insert(reward.id)
+                    LessonFeedback.fire(.celebration)
+                } label: {
+                    Label("Place keepsake in Chronicle", systemImage: "sparkles")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.22), Color.yellow.opacity(0.14), Color.white.opacity(0.55)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(Color.orange.opacity(0.30), lineWidth: 1)
+        )
+    }
+
+    private func rewardCard(_ reward: ChronicleReward, unlocked: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                Image(systemName: unlocked ? symbol(for: reward.category) : "lock.fill")
+                    .font(.title3)
+                    .foregroundStyle(unlocked ? accentColor(for: reward) : .secondary)
+
+                Spacer()
+
+                if highlightRewardID == reward.id && unlocked {
+                    Text(celebratedRewardIDs.contains(reward.id) ? "NEWLY STORED" : "NEW")
                         .font(.caption2.bold())
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
                         .background((celebratedRewardIDs.contains(reward.id) ? Color.green.opacity(0.18) : Color.orange.opacity(0.18)), in: Capsule())
                         .foregroundStyle(celebratedRewardIDs.contains(reward.id) ? .green : .orange)
                 }
+            }
+
+            Text(reward.title)
+                .font(.headline)
+                .foregroundStyle(unlocked ? .primary : .secondary)
+
+            Text(reward.subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Text(unlocked ? reward.meaning : "Complete its linked story scene to reveal this keepsake.")
+                .font(.subheadline)
+                .foregroundStyle(unlocked ? .primary : .secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Spacer(minLength: 0)
+
+            HStack {
+                rewardBadge(text: reward.mastery.rawValue, tint: unlocked ? accentColor(for: reward) : .secondary)
                 Spacer()
                 Text(reward.category.rawValue)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, minHeight: 210, alignment: .topLeading)
+        .background(cardBackground(for: reward, unlocked: unlocked), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke((highlightRewardID == reward.id && unlocked) ? Color.orange.opacity(0.35) : Color.clear, lineWidth: 1)
+        )
+        .opacity(unlocked ? 1 : 0.92)
+    }
 
-            Text(reward.subtitle)
+    private func sectionHeader(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.title3.bold())
+            Text(subtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text(unlocked ? reward.meaning : "Complete the linked lesson scene to reveal this Chronicle reward.")
-                .font(.body)
-            Label(reward.mastery.rawValue, systemImage: unlocked ? "medal.fill" : "lock.fill")
-                .font(.caption)
-                .foregroundStyle(unlocked ? .orange : .secondary)
         }
-        .padding(.vertical, 6)
-        .background(highlightRewardID == reward.id ? Color.orange.opacity(0.08) : Color.clear)
+    }
+
+    private func summaryPill(title: String, value: String, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.headline)
+                .foregroundStyle(tint)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private func rewardBadge(text: String, tint: Color) -> some View {
+        Text(text)
+            .font(.caption2.bold())
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(tint.opacity(0.14), in: Capsule())
+            .foregroundStyle(tint)
+    }
+
+    private func symbol(for category: RewardCategory) -> String {
+        switch category {
+        case .storyCard: return "text.book.closed.fill"
+        case .emblemFragment: return "seal.fill"
+        case .leadershipBadge: return "star.circle.fill"
+        }
+    }
+
+    private func accentColor(for reward: ChronicleReward) -> Color {
+        switch reward.category {
+        case .storyCard: return .orange
+        case .emblemFragment: return .blue
+        case .leadershipBadge: return .purple
+        }
+    }
+
+    private func cardBackground(for reward: ChronicleReward, unlocked: Bool) -> LinearGradient {
+        if unlocked {
+            switch reward.category {
+            case .storyCard:
+                return LinearGradient(colors: [Color.orange.opacity(0.20), Color.white], startPoint: .topLeading, endPoint: .bottomTrailing)
+            case .emblemFragment:
+                return LinearGradient(colors: [Color.blue.opacity(0.18), Color.white], startPoint: .topLeading, endPoint: .bottomTrailing)
+            case .leadershipBadge:
+                return LinearGradient(colors: [Color.purple.opacity(0.18), Color.white], startPoint: .topLeading, endPoint: .bottomTrailing)
+            }
+        }
+
+        return LinearGradient(colors: [Color.gray.opacity(0.15), Color.white], startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }

@@ -22,10 +22,22 @@ struct SceneLessonView: View {
 
     private var lessonCards: [SceneCardContent] {
         [
-            SceneCardContent(id: "summary", eyebrow: "Story", title: scene.title, body: scene.childSafeSummary, symbol: "book.closed.fill"),
-            SceneCardContent(id: "fact", eyebrow: "Key fact", title: scene.keyFact, body: scene.narrativeObjective, symbol: "sparkles.rectangle.stack.fill"),
-            SceneCardContent(id: "timeline", eyebrow: "Timeline", title: scene.timelineMarker, body: "This moment becomes part of the learner's growing Chronicle.", symbol: "clock.arrow.circlepath")
+            SceneCardContent(id: "summary", eyebrow: "Story spark", title: scene.title, body: scene.childSafeSummary, symbol: "book.closed.fill"),
+            SceneCardContent(id: "fact", eyebrow: "Remember this", title: scene.keyFact, body: scene.narrativeObjective, symbol: "sparkles.rectangle.stack.fill"),
+            SceneCardContent(id: "timeline", eyebrow: "Chronicle moment", title: scene.timelineMarker, body: "This is the moment you will remember when you open the Royal Chronicle.", symbol: "clock.arrow.circlepath")
         ]
+    }
+
+    private var currentStepTitle: String {
+        switch cardIndex {
+        case 0: return "Step 1 of 3, hear the story"
+        case 1: return "Step 2 of 3, spot the big idea"
+        default: return "Step 3 of 3, mark the moment"
+        }
+    }
+
+    private var nextCardButtonTitle: String {
+        cardIndex == lessonCards.count - 1 ? "Move to place clues" : "Continue story"
     }
 
     var body: some View {
@@ -33,32 +45,48 @@ struct SceneLessonView: View {
             VStack(alignment: .leading, spacing: 18) {
                 SceneHeaderCard(scene: scene, progressValue: progressValue, mastery: appModel.lessonStore.mastery(for: scene.id))
 
-                TabView(selection: $cardIndex) {
-                    ForEach(Array(lessonCards.enumerated()), id: \.offset) { index, card in
-                        StoryCardView(card: card, accentText: scene.timelineMarker)
-                            .padding(.horizontal, 4)
-                            .tag(index)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(currentStepTitle)
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.orange)
+
+                    TabView(selection: $cardIndex) {
+                        ForEach(Array(lessonCards.enumerated()), id: \.offset) { index, card in
+                            StoryCardView(card: card, accentText: scene.timelineMarker, cardNumber: index + 1, totalCards: lessonCards.count)
+                                .padding(.horizontal, 4)
+                                .tag(index)
+                        }
                     }
-                }
 #if os(iOS)
-                .tabViewStyle(.page(indexDisplayMode: .always))
+                    .tabViewStyle(.page(indexDisplayMode: .never))
 #endif
-                .frame(height: 300)
+                    .frame(height: 340)
 
-                HStack(spacing: 12) {
-                    Button("Previous") {
-                        cardIndex = max(cardIndex - 1, 0)
-                        LessonFeedback.fire(.selection)
+                    HStack(spacing: 8) {
+                        ForEach(0..<lessonCards.count, id: \.self) { index in
+                            Capsule()
+                                .fill(index == cardIndex ? Color.orange : Color.orange.opacity(0.18))
+                                .frame(width: index == cardIndex ? 28 : 10, height: 10)
+                        }
                     }
-                    .buttonStyle(.bordered)
-                    .disabled(cardIndex == 0)
 
-                    Button(cardIndex == lessonCards.count - 1 ? "Review the map" : "Next card") {
-                        cardIndex = min(cardIndex + 1, lessonCards.count - 1)
-                        LessonFeedback.fire(.selection)
+                    HStack(spacing: 12) {
+                        if cardIndex > 0 {
+                            Button("Back") {
+                                cardIndex = max(cardIndex - 1, 0)
+                                LessonFeedback.fire(.selection)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+
+                        Spacer()
+
+                        Button(nextCardButtonTitle) {
+                            cardIndex = min(cardIndex + 1, lessonCards.count - 1)
+                            LessonFeedback.fire(.selection)
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
 
                 MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
@@ -68,25 +96,15 @@ struct SceneLessonView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 12) {
-                        Button(hintVisible ? "Hide hint" : "Show hint") {
-                            hintVisible.toggle()
-                            LessonFeedback.fire(.reveal)
-                        }
-                        .buttonStyle(.bordered)
-
-                        if recallState.hasAnsweredCorrectly {
-                            Button(recapVisible ? "Hide recap" : "Show recap") {
-                                recapVisible.toggle()
-                                LessonFeedback.fire(.reveal)
-                            }
-                            .buttonStyle(.bordered)
-                        }
+                    Button(hintVisible ? "Hide clue" : "Need a clue?") {
+                        hintVisible.toggle()
+                        LessonFeedback.fire(.reveal)
                     }
+                    .buttonStyle(.bordered)
 
                     if hintVisible {
                         GuidanceCard(
-                            title: "Curated hint",
+                            title: "Story clue",
                             message: curatedHint,
                             systemImage: "lightbulb"
                         )
@@ -94,7 +112,7 @@ struct SceneLessonView: View {
 
                     if recapVisible, recallState.hasAnsweredCorrectly {
                         GuidanceCard(
-                            title: "Scene recap",
+                            title: "You remembered it",
                             message: sceneRecap,
                             systemImage: "text.book.closed"
                         )
@@ -114,7 +132,7 @@ struct SceneLessonView: View {
                     NavigationLink {
                         ChronicleView(rewards: appModel.content.rewards, highlightRewardID: scene.rewardID)
                     } label: {
-                        Label("Open Royal Chronicle", systemImage: "book.closed.fill")
+                        Label("Open your Royal Chronicle reward", systemImage: "book.closed.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -137,13 +155,15 @@ struct SceneLessonView: View {
 
         if normalized(selectedTitle) == correctAnswer {
             recallState.hasAnsweredCorrectly = true
-            recallState.feedbackText = scene.recallPrompt.supportText
+            recallState.feedbackText = "You got it. \(scene.recallPrompt.supportText)"
+            recapVisible = true
             let mastery: MasteryState = scene.number == 2 && chosenPlanSteps.count >= 2 ? .observedClosely : .understood
             appModel.lessonStore.markScene(scene.id, mastery: mastery)
             LessonFeedback.fire(.success)
         } else {
             recallState.hasAnsweredCorrectly = false
-            recallState.feedbackText = "Try again. \(scene.recallPrompt.supportText)"
+            recapVisible = false
+            recallState.feedbackText = "Almost. \(scene.recallPrompt.supportText)"
             appModel.lessonStore.markScene(scene.id, mastery: .witnessed)
             LessonFeedback.fire(.warning)
         }
@@ -157,7 +177,7 @@ struct SceneLessonView: View {
     }
 
     private var sceneRecap: String {
-        "\(scene.timelineMarker): \(scene.childSafeSummary) Key fact: \(scene.keyFact)"
+        "\(scene.timelineMarker). \(scene.childSafeSummary) Remember: \(scene.keyFact)"
     }
 
     private var sceneChoices: [LessonChoice] {
@@ -189,22 +209,39 @@ private struct SceneHeaderCard: View {
     let mastery: MasteryState?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(scene.timelineMarker.uppercased())
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text(scene.timelineMarker.uppercased())
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(mastery?.rawValue ?? "Ready to learn")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.orange.opacity(0.12), in: Capsule())
+                    .foregroundStyle(.orange)
+            }
             Text(scene.title)
                 .font(.title2.bold())
             Text(scene.narrativeObjective)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
             ProgressView(value: progressValue)
                 .tint(.orange)
-            HStack {
-                Label("Reward: \(scene.rewardID.replacingOccurrences(of: "reward-", with: "").replacingOccurrences(of: "-", with: " ").capitalized)", systemImage: "medal.fill")
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Royal Chronicle reward")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    Text(scene.rewardID.replacingOccurrences(of: "reward-", with: "").replacingOccurrences(of: "-", with: " ").capitalized)
+                        .font(.subheadline.weight(.semibold))
+                }
                 Spacer()
-                Text(mastery?.rawValue ?? "Not yet in Chronicle")
+                Text("Small steps, one clear finish")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .font(.subheadline)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -216,30 +253,39 @@ private struct SceneHeaderCard: View {
 private struct StoryCardView: View {
     let card: SceneCardContent
     let accentText: String
+    let cardNumber: Int
+    let totalCards: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(card.eyebrow.uppercased())
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
+            HStack {
+                Text(card.eyebrow.uppercased())
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(cardNumber)/\(totalCards)")
+                    .font(.caption.bold())
+                    .foregroundStyle(.orange)
+            }
             Image(systemName: card.symbol)
                 .font(.system(size: 42))
                 .foregroundStyle(.white)
                 .frame(width: 72, height: 72)
-                .background(Color.orange.opacity(0.75))
+                .background(Color.orange.opacity(0.82))
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             Text(card.title)
                 .font(.title3.bold())
             Text(card.body)
                 .font(.body)
                 .foregroundStyle(.secondary)
-            Spacer()
-            Text(accentText)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            Label(accentText, systemImage: "sparkles")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(22)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(
             LinearGradient(colors: [.white, Color.orange.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
@@ -253,31 +299,44 @@ private struct MapAnchorCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Map reveal")
-                .font(.headline)
-            Text("Reveal the places connected to this scene.")
+            HStack {
+                Text("Place clues")
+                    .font(.headline)
+                Spacer()
+                Text("\(revealedMapAnchors)/\(scene.mapAnchors.count) found")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+            }
+            Text("Reveal the places from this moment one by one.")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             ForEach(Array(scene.mapAnchors.enumerated()), id: \.offset) { index, anchor in
-                HStack {
-                    Label(anchor, systemImage: index < revealedMapAnchors ? "mappin.circle.fill" : "mappin.circle")
+                HStack(spacing: 12) {
+                    Image(systemName: index < revealedMapAnchors ? "mappin.circle.fill" : "mappin.circle")
+                        .foregroundStyle(index < revealedMapAnchors ? .orange : .secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(index < revealedMapAnchors ? anchor : "Hidden place clue")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        Text(index < revealedMapAnchors ? "This place is now part of your scene map." : "Tap reveal when you are ready for the next clue.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer()
-                    Text(index < revealedMapAnchors ? "Found" : "Hidden")
-                        .font(.caption)
-                        .foregroundStyle(index < revealedMapAnchors ? .green : .secondary)
                 }
                 .padding()
                 .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
 
-            Button(revealedMapAnchors == scene.mapAnchors.count ? "All anchors revealed" : "Reveal next anchor") {
+            Button(revealedMapAnchors == scene.mapAnchors.count ? "All place clues found" : "Reveal next place clue") {
                 let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
                 if nextValue != revealedMapAnchors {
                     revealedMapAnchors = nextValue
                     LessonFeedback.fire(nextValue == scene.mapAnchors.count ? .success : .reveal)
                 }
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -293,7 +352,8 @@ private struct FortPlanningCard: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Planning practice")
                 .font(.headline)
-            Text("Pick at least two wise choices for an early fort planning base.")
+            Text("Pick two smart fort choices to prepare a mountain base.")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             ForEach(LessonPlanStep.starterSet) { step in
@@ -366,6 +426,9 @@ private struct RecallPanel: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Quick recall")
                 .font(.headline)
+            Text("One last check before you collect your Chronicle reward.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             Text(question.question)
                 .font(.body)
 
@@ -394,11 +457,11 @@ private struct RecallPanel: View {
                 .buttonStyle(.plain)
             }
 
-            Button(completed ? "Answer checked" : "Check answer") {
+            Button(completed ? "Answer checked" : "Collect my answer") {
                 onSubmit()
             }
             .buttonStyle(.borderedProminent)
-            .disabled(selectedChoiceID == nil)
+            .disabled(selectedChoiceID == nil || completed)
 
             if let feedbackText {
                 Text(feedbackText)

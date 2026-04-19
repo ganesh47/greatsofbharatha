@@ -11,16 +11,16 @@ enum SampleContent {
     static let scene1 = StoryScene(
         id: "scene-1-shivneri",
         number: 1,
-        title: "Shivneri, the child who would grow into a leader",
-        narrativeObjective: "Introduce Shivaji Maharaj as a real child shaped by place, values, and Jijabai’s guidance.",
-        keyFact: "Shivaji Maharaj was born at Shivneri Fort, with Jijabai as a major guiding influence.",
-        childSafeSummary: "At Shivneri Fort, a child named Shivaji began his journey. Jijabai helped teach him courage, duty, and care for his people.",
+        title: "Shivneri, where Shivaji Maharaj's story begins",
+        narrativeObjective: "Meet Shivaji Maharaj as a child, guided by place, courage, and Jijabai.",
+        keyFact: "Shivaji Maharaj was born at Shivneri Fort, and Jijabai shaped his early values.",
+        childSafeSummary: "At Shivneri Fort, young Shivaji began his journey. Jijabai helped him grow brave, caring, and ready to lead.",
         mapAnchors: ["Shivneri Fort", "Junnar", "Hill-fort country north of Pune"],
         timelineMarker: "Born at Shivneri",
         interactionSteps: [
-            "Tap the fort, mother, and future kingdom symbols to reveal the opening tableau.",
-            "Listen to the short narrated story beat with captions.",
-            "Place the first timeline marker: Born at Shivneri.",
+            "Reveal the opening story moment.",
+            "Hear the short story beat.",
+            "Mark the first Chronicle moment: Born at Shivneri.",
             "Answer the recall question to unlock the Chronicle card."
         ],
         recallPrompt: RecallPrompt(
@@ -34,16 +34,16 @@ enum SampleContent {
     static let scene2 = StoryScene(
         id: "scene-2-torna-rajgad",
         number: 2,
-        title: "Torna and Rajgad, the start of Swarajya",
-        narrativeObjective: "Show the move from childhood to action, linking early fort capture with state-building.",
-        keyFact: "Torna was an early breakthrough, and Rajgad became an important early capital and planning base.",
-        childSafeSummary: "Shivaji Maharaj began building Swarajya by taking strong forts and planning carefully from the mountains.",
+        title: "Torna and Rajgad, the first steps of Swarajya",
+        narrativeObjective: "Show how early fort victories turned into careful planning and state-building.",
+        keyFact: "Torna was an early breakthrough, and Rajgad became an early capital and planning base.",
+        childSafeSummary: "Shivaji Maharaj began building Swarajya by winning key forts and planning from the mountains.",
         mapAnchors: ["Torna", "Rajgad", "Mountain routes of western Maharashtra"],
         timelineMarker: "Early forts",
         interactionSteps: [
-            "Follow the map zoom from Shivneri to Torna and then Rajgad.",
-            "Review why Torna mattered first and why Rajgad mattered next.",
-            "Complete a toy-like planning step with gate, watch, water, and storage choices.",
+            "Follow the story from Shivneri to Torna and Rajgad.",
+            "Notice why Torna mattered first and Rajgad mattered next.",
+            "Pick smart fort-planning choices.",
             "Answer a short recall prompt before collecting the reward."
         ],
         recallPrompt: RecallPrompt(
@@ -135,8 +135,8 @@ enum SampleContent {
     static let birthFortCard = ChronicleReward(
         id: "reward-birth-fort-card",
         title: "Birth Fort",
-        subtitle: "Royal Chronicle story card",
-        meaning: "Shivaji Maharaj’s journey begins at Shivneri Fort.",
+        subtitle: "Journey keepsake card",
+        meaning: "The Chronicle keeps the memory of Shivneri Fort, where Shivaji Maharaj’s journey begins.",
         unlockedBySceneID: "scene-1-shivneri",
         mastery: .witnessed,
         category: .storyCard
@@ -145,8 +145,8 @@ enum SampleContent {
     static let firstBigFortCard = ChronicleReward(
         id: "reward-first-big-fort-card",
         title: "First Big Fort",
-        subtitle: "Royal Chronicle story card",
-        meaning: "Torna marks an early breakthrough in building Swarajya.",
+        subtitle: "Journey keepsake card",
+        meaning: "This keepsake remembers Torna as an early breakthrough in building Swarajya.",
         unlockedBySceneID: "scene-2-torna-rajgad",
         mastery: .witnessed,
         category: .storyCard
@@ -155,8 +155,8 @@ enum SampleContent {
     static let mountainSealFragment = ChronicleReward(
         id: "reward-mountain-seal-fragment",
         title: "Mountain Seal Fragment",
-        subtitle: "Emblem fragment",
-        meaning: "A fragment earned by learning the first forts and their mountain setting.",
+        subtitle: "Mountain emblem fragment",
+        meaning: "A mountain emblem fragment earned by learning the first forts and how they sit in the Sahyadris.",
         unlockedBySceneID: "scene-2-torna-rajgad",
         mastery: .understood,
         category: .emblemFragment
@@ -165,8 +165,8 @@ enum SampleContent {
     static let planningBadge = ChronicleReward(
         id: "reward-planning-badge",
         title: "Planning Badge",
-        subtitle: "Leadership badge",
-        meaning: "A reminder that careful planning is part of the Shivaji arc.",
+        subtitle: "Planner’s badge",
+        meaning: "A keepsake badge for noticing that careful planning helps the Shivaji journey grow strong.",
         unlockedBySceneID: "scene-2-torna-rajgad",
         mastery: .observedClosely,
         category: .leadershipBadge
