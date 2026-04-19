@@ -96,6 +96,13 @@ final class ShivajiLessonStore: ObservableObject {
         defaults.set(encoded, forKey: storageKey)
     }
 
+    func seedForDebugCapture() {
+        masteryByScene = [
+            "scene-1-shivneri": .understood,
+            "scene-2-torna-rajgad": .observedClosely
+        ]
+    }
+
     private static func loadMastery(from defaults: UserDefaults, key: String) -> [String: MasteryState] {
         guard let stored = defaults.dictionary(forKey: key) as? [String: String] else {
             return [:]
