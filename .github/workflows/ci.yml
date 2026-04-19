@@ -132,11 +132,11 @@ jobs:
             sleep 2
           done
 
-          osascript <<EOF || true
+          osascript <<'EOF' || true
           tell application "Simulator"
             activate
           end tell
-EOF
+          EOF
 
           sleep 10
           xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/01-launch.png" || true
