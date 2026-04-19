@@ -16,10 +16,10 @@ struct CaptureRootView: View {
                 .foregroundStyle(.white)
                 .padding()
         }
-        .tint(.orange)
         .task {
             appModel.lessonStore.applyCaptureSeed(route.seedProfile)
         }
+        .tint(.orange)
     }
 
     @ViewBuilder
