@@ -52,9 +52,16 @@ def require_env(name: str) -> str:
     return value
 
 
+def normalize_app_id(raw: str) -> str:
+    normalized = "".join(raw.split())
+    if not normalized:
+        raise RuntimeError("APP_STORE_CONNECT_APP_ID resolved to an empty value after whitespace cleanup")
+    return normalized
+
+
 def load_config() -> Config:
     return Config(
-        asc_app_id=require_env("APP_STORE_CONNECT_APP_ID"),
+        asc_app_id=normalize_app_id(require_env("APP_STORE_CONNECT_APP_ID")),
         asc_issuer_id=require_env("APP_STORE_CONNECT_ISSUER_ID"),
         asc_key_id=require_env("APP_STORE_CONNECT_KEY_ID"),
         asc_private_key=require_env("APP_STORE_CONNECT_PRIVATE_KEY").replace("\\n", "\n"),
