@@ -57,7 +57,7 @@ struct LessonHomeView: View {
             .padding()
         }
         .navigationTitle("Greats of Bharatha")
-        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var nextScene: StoryScene? {

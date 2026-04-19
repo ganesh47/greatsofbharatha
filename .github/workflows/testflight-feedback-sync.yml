@@ -36,4 +36,5 @@ jobs:
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          TESTFLIGHT_FEEDBACK_ONLY_KIND: screenshot
         run: python3 ci_scripts/testflight_feedback_to_issues.py

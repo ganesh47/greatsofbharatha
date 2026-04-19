@@ -144,7 +144,7 @@ struct SceneLessonView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private func submitRecall() {
@@ -287,7 +287,12 @@ private struct StoryCardView: View {
         .padding(22)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(
-            LinearGradient(colors: [.white, Color.orange.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(Color.orange.opacity(0.14), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
