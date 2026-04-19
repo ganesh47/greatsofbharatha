@@ -105,27 +105,29 @@ jobs:
 
           open -a Simulator || true
           xcrun simctl bootstatus "$SIM_ID" -b || true
-          xcrun simctl install "$SIM_ID" "$APP_PATH"
 
           capture_route() {
             local name="$1"
-            local tab="$2"
-            local destination="$3"
+            local route="$2"
 
             xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
-            xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" -e GOB_CAPTURE_TAB "$tab" -e GOB_CAPTURE_DESTINATION "$destination" || true
+            xcrun simctl uninstall "$SIM_ID" "$BUNDLE_ID" >/dev/null 2>&1 || true
+            xcrun simctl install "$SIM_ID" "$APP_PATH"
+            SIMCTL_CHILD_GOB_CAPTURE_ROUTE="$route" xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" || true
             sleep 6
             xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/${name}.png" || true
           }
 
-          capture_route "01-learn-home" "learn" ""
-          capture_route "02-scene-1" "learn" "scene-1"
-          capture_route "03-places-hub" "places" ""
-          capture_route "04-place-shivneri" "places" "place-shivneri"
-          capture_route "05-chronicle-unlocked" "chronicle" "chronicle-unlocked"
+          capture_route "01-learn-home" "learn-home"
+          capture_route "02-scene-1" "scene-1"
+          capture_route "03-places-hub" "places-hub"
+          capture_route "04-place-shivneri" "place-shivneri"
+          capture_route "05-chronicle-unlocked" "chronicle-unlocked"
 
           xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
-          xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" -e GOB_CAPTURE_TAB "places" -e GOB_CAPTURE_DESTINATION "place-shivneri" || true
+          xcrun simctl uninstall "$SIM_ID" "$BUNDLE_ID" >/dev/null 2>&1 || true
+          xcrun simctl install "$SIM_ID" "$APP_PATH"
+          SIMCTL_CHILD_GOB_CAPTURE_ROUTE="place-shivneri" xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" || true
           sleep 4
           xcrun simctl io "$SIM_ID" recordVideo --codec=h264 "ci_artifacts/ux-preview.mov" &
           VIDEO_PID=$!
@@ -146,7 +148,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ui-review-artifacts-${{ github.run_number }}
+          name: ui-review-artifacts-${{ github.run_number }}-${{ github.run_attempt }}
           path: ci_artifacts
           if-no-files-found: ignore
           retention-days: 30

@@ -9,8 +9,9 @@ final class AppModel: ObservableObject {
 
     @Published var lessonStore: ShivajiLessonStore
 
-    init(content: AppContent = SampleContent.shivajiVerticalSlice) {
+    init(content: AppContent = SampleContent.shivajiVerticalSlice, captureSeedProfile: CaptureSeedProfile = .pristine) {
         self.content = content
         self.lessonStore = ShivajiLessonStore(content: content)
+        self.lessonStore.applyCaptureSeed(captureSeedProfile)
     }
 }
