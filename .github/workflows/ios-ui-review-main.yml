@@ -135,6 +135,15 @@ jobs:
           kill -INT "$VIDEO_PID" 2>/dev/null || true
           wait "$VIDEO_PID" 2>/dev/null || true
 
+      - name: Upload UI review result bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-review-results-${{ github.run_number }}
+          path: TestResults.xcresult
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload simulator UX artifacts
         if: always()
         uses: actions/upload-artifact@v7
