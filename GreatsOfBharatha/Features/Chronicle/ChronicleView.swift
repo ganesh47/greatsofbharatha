@@ -56,10 +56,15 @@ struct ChronicleView: View {
 
             Section("Unlocked rewards") {
                 if unlockedRewards.isEmpty {
-                    Text("Finish a lesson scene to place its meaning into the Royal Chronicle.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.vertical, 8)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Finish a lesson scene to place its meaning into the Royal Chronicle.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text("Debug mastery: \(appModel.lessonStore.mastery(for: \"scene-1-shivneri\")?.rawValue ?? \"nil\") / \(appModel.lessonStore.mastery(for: \"scene-2-torna-rajgad\")?.rawValue ?? \"nil\")")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 8)
                 } else {
                     ForEach(unlockedRewards) { reward in
                         rewardRow(reward, unlocked: true)
