@@ -2,8 +2,14 @@ import SwiftUI
 
 @main
 struct GreatsOfBharathaApp: SwiftUI.App {
-    @StateObject private var appModel = AppModel()
     private let captureRoute = DebugNavigationRoute.current()
+    @StateObject private var appModel: AppModel
+
+    init() {
+        let captureRoute = DebugNavigationRoute.current()
+        self.captureRoute = captureRoute
+        _appModel = StateObject(wrappedValue: AppModel(captureSeedProfile: captureRoute?.seedProfile ?? .pristine))
+    }
 
     var body: some SwiftUI.Scene {
         WindowGroup {
