@@ -25,19 +25,26 @@ struct PlacesHubView: View {
                         .foregroundStyle(.secondary)
 
                     ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
-                        NavigationLink {
-                            PlaceDetailView(place: place, progress: appModel.lessonStore.progress(for: place))
-                        } label: {
-                            placeTrailCard(place, index: index)
+                        let progress = appModel.lessonStore.progress(for: place)
+                        Group {
+                            if progress == .locked {
+                                placeTrailCard(place, index: index)
+                            } else {
+                                NavigationLink {
+                                    PlaceDetailView(place: place, progress: progress)
+                                } label: {
+                                    placeTrailCard(place, index: index)
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
             .padding()
         }
         .navigationTitle("Places")
-        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var heroCard: some View {
@@ -200,7 +207,7 @@ struct PlaceDetailView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var headerCard: some View {
@@ -241,8 +248,12 @@ struct PlaceDetailView: View {
                 .font(.headline)
             Text("The current fort glows brighter so its place on the trail is easier to remember.")
                 .foregroundStyle(.secondary)
+            Text("Preview only. Use \"Pin the fort\" below to interact.")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
 
             schematicBoard(interactive: false)
+                .allowsHitTesting(false)
                 .frame(height: 280)
 
             HStack(spacing: 12) {
@@ -420,7 +431,7 @@ struct PlaceDetailView: View {
                     }
                 }
                 .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [10, 10]))
-                .foregroundStyle(Color.white.opacity(0.65))
+                .foregroundStyle(.secondary.opacity(0.35))
 
                 VStack {
                     HStack {
@@ -458,29 +469,53 @@ struct PlaceDetailView: View {
                     let showAsCorrect = revealed && isCurrent
                     let showAsMistake = revealed && isSelected && !isCurrent
                     let point = pointForCandidate(candidate, in: geometry.size)
+                    let marker = pinMarker(
+                        candidate: candidate,
+                        isCurrent: isCurrent,
+                        isSelected: isSelected,
+                        showAsCorrect: showAsCorrect,
+                        showAsMistake: showAsMistake,
+                        interactive: interactive
+                    )
 
-                    Button {
-                        guard interactive else { return }
-                        selectedCandidateID = candidate.id
-                        LessonFeedback.fire(.selection)
-                    } label: {
-                        VStack(spacing: 6) {
-                            Image(systemName: showAsCorrect ? "checkmark.circle.fill" : isSelected ? "mappin.circle.fill" : isCurrent && !interactive ? "mappin.circle.fill" : "mappin.circle")
-                                .font(isCurrent ? .title : .title2)
-                                .foregroundStyle(showAsCorrect ? .green : showAsMistake ? .orange : isCurrent ? .orange : .primary.opacity(0.78))
-                                .shadow(color: isCurrent ? .orange.opacity(0.25) : .clear, radius: 10)
-                            Text(revealed || !interactive || isSelected ? candidate.name : "?")
-                                .font(.caption2.bold())
-                                .foregroundStyle(.primary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(.ultraThinMaterial, in: Capsule())
+                    Group {
+                        if interactive {
+                            Button {
+                                selectedCandidateID = candidate.id
+                                LessonFeedback.fire(.selection)
+                            } label: {
+                                marker
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            marker
                         }
                     }
-                    .buttonStyle(.plain)
                     .position(point)
                 }
             }
+        }
+    }
+
+    private func pinMarker(
+        candidate: Place,
+        isCurrent: Bool,
+        isSelected: Bool,
+        showAsCorrect: Bool,
+        showAsMistake: Bool,
+        interactive: Bool
+    ) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: showAsCorrect ? "checkmark.circle.fill" : isSelected ? "mappin.circle.fill" : isCurrent && !interactive ? "mappin.circle.fill" : "mappin.circle")
+                .font(isCurrent ? .title : .title2)
+                .foregroundStyle(showAsCorrect ? .green : showAsMistake ? .orange : isCurrent ? .orange : .primary.opacity(0.78))
+                .shadow(color: isCurrent ? .orange.opacity(0.25) : .clear, radius: 10)
+            Text(revealed || !interactive || isSelected ? candidate.name : "?")
+                .font(.caption2.bold())
+                .foregroundStyle(.primary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.ultraThinMaterial, in: Capsule())
         }
     }
 
