@@ -96,11 +96,16 @@ final class ShivajiLessonStore: ObservableObject {
         defaults.set(encoded, forKey: storageKey)
     }
 
-    func seedForDebugCapture() {
-        masteryByScene = [
-            "scene-1-shivneri": .understood,
-            "scene-2-torna-rajgad": .observedClosely
-        ]
+    func applyCaptureSeed(_ profile: CaptureSeedProfile) {
+        switch profile {
+        case .pristine:
+            masteryByScene = [:]
+        case .chronicleUnlocked:
+            masteryByScene = [
+                "scene-1-shivneri": .understood,
+                "scene-2-torna-rajgad": .observedClosely
+            ]
+        }
     }
 
     private static func loadMastery(from defaults: UserDefaults, key: String) -> [String: MasteryState] {
