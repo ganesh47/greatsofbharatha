@@ -1,21 +1,15 @@
-name: CI
+name: iOS UI Review (main)
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  build-and-test:
-    name: Build and test iOS app slice
+  ux-review:
+    name: UX review artifact capture
     runs-on: macos-15
     timeout-minutes: 45
     steps:
@@ -93,22 +87,64 @@ jobs:
           xcrun simctl list devices | grep -F "$SIM_ID" >&2
           exit 1
 
-      - name: Run unit tests
-        timeout-minutes: 20
+      - name: Run routed capture lane
+        timeout-minutes: 15
+        shell: bash
         run: |
-          xcodebuild test-without-building \
-            -project GreatsOfBharatha.xcodeproj \
-            -scheme GreatsOfBharatha \
-            -destination "$SIM_DESTINATION" \
-            -only-testing GreatsOfBharathaTests \
-            -resultBundlePath TestResults.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+          set -euo pipefail
+          mkdir -p ci_artifacts
+          SIM_ID="${SIM_DESTINATION#id=}"
+          BUNDLE_ID="com.ganesh47.greatsofbharatha"
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*Build/Products/Debug-iphonesimulator/Greats Of Bharatha.app" | head -n 1 || true)
+          if [[ -z "$APP_PATH" ]]; then
+            echo "App bundle not found for simulator artifact capture" >&2
+            exit 0
+          fi
 
-      - name: Upload unit test result bundle
+          open -a Simulator || true
+          xcrun simctl bootstatus "$SIM_ID" -b || true
+          xcrun simctl install "$SIM_ID" "$APP_PATH"
+
+          capture_route() {
+            local name="$1"
+            local tab="$2"
+            local destination="$3"
+
+            xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
+            xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" -e GOB_CAPTURE_TAB "$tab" -e GOB_CAPTURE_DESTINATION "$destination" || true
+            sleep 6
+            xcrun simctl io "$SIM_ID" screenshot "ci_artifacts/${name}.png" || true
+          }
+
+          capture_route "01-learn-home" "learn" ""
+          capture_route "02-scene-1" "learn" "scene-1"
+          capture_route "03-places-hub" "places" ""
+          capture_route "04-place-shivneri" "places" "place-shivneri"
+          capture_route "05-chronicle-unlocked" "chronicle" "chronicle-unlocked"
+
+          xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
+          xcrun simctl launch "$SIM_ID" "$BUNDLE_ID" -e GOB_CAPTURE_TAB "places" -e GOB_CAPTURE_DESTINATION "place-shivneri" || true
+          sleep 4
+          xcrun simctl io "$SIM_ID" recordVideo --codec=h264 "ci_artifacts/ux-preview.mov" &
+          VIDEO_PID=$!
+          sleep 10
+          kill -INT "$VIDEO_PID" 2>/dev/null || true
+          wait "$VIDEO_PID" 2>/dev/null || true
+
+      - name: Upload UI review result bundle
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: unit-test-results-${{ github.run_number }}
+          name: ui-review-results-${{ github.run_number }}
           path: TestResults.xcresult
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload simulator UX artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-review-artifacts-${{ github.run_number }}
+          path: ci_artifacts
           if-no-files-found: ignore
           retention-days: 30
