@@ -5,7 +5,7 @@ final class GreatsOfBharathaTests: XCTestCase {
     func testSampleContentHasScenes() {
         let model = AppModel()
         XCTAssertFalse(model.content.scenes.isEmpty)
-        XCTAssertEqual(model.content.scenes.first?.title, "Shivneri, the child who would grow into a leader")
+        XCTAssertEqual(model.content.scenes.first?.title, "Shivneri, where Shivaji Maharaj's story begins")
     }
 
     func testLessonStoreTracksProgress() {
