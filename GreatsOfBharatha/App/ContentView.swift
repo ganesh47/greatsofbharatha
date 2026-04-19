@@ -11,44 +11,66 @@ struct ContentView: View {
         _selectedTab = State(initialValue: debugRoute?.tab ?? .learn)
     }
 
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                if debugRoute?.destination == .scene1, let scene = appModel.content.scenes.first(where: { $0.id == "scene-1-shivneri" }) {
-                    SceneLessonView(scene: scene)
-                } else if debugRoute?.destination == .scene2, let scene = appModel.content.scenes.first(where: { $0.id == "scene-2-torna-rajgad" }) {
-                    SceneLessonView(scene: scene)
-                } else {
-                    LessonHomeView()
-                }
+    @ViewBuilder
+    private var captureScreen: some View {
+        switch debugRoute?.destination {
+        case .scene1:
+            if let scene = appModel.content.scenes.first(where: { $0.id == "scene-1-shivneri" }) {
+                NavigationStack { SceneLessonView(scene: scene) }
             }
-            .tabItem {
-                Label("Learn", systemImage: "book.closed")
+        case .scene2:
+            if let scene = appModel.content.scenes.first(where: { $0.id == "scene-2-torna-rajgad" }) {
+                NavigationStack { SceneLessonView(scene: scene) }
             }
-            .tag(DebugTabRoute.learn)
-
-            NavigationStack {
-                if debugRoute?.destination == .placeShivneri, let place = appModel.content.corePlaces.first(where: { $0.id == "place-shivneri" }) {
-                    PlaceDetailView(place: place, progress: appModel.lessonStore.progress(for: place))
-                } else {
-                    PlacesHubView(places: appModel.content.corePlaces)
-                }
+        case .placesHub:
+            NavigationStack { PlacesHubView(places: appModel.content.corePlaces) }
+        case .placeShivneri:
+            if let place = appModel.content.corePlaces.first(where: { $0.id == "place-shivneri" }) {
+                NavigationStack { PlaceDetailView(place: place, progress: appModel.lessonStore.progress(for: place)) }
             }
-            .tabItem {
-                Label("Places", systemImage: "map")
-            }
-            .tag(DebugTabRoute.places)
-
+        case .chronicleUnlocked:
             NavigationStack {
                 ChronicleView(
                     rewards: appModel.content.rewards,
-                    highlightRewardID: debugRoute?.destination == .chronicleUnlocked ? "reward-first-big-fort-card" : nil
+                    highlightRewardID: "reward-first-big-fort-card"
                 )
             }
-            .tabItem {
-                Label("Chronicle", systemImage: "sparkles.rectangle.stack")
+        case .learnHome, .none:
+            NavigationStack { LessonHomeView() }
+        }
+    }
+
+    var body: some View {
+        Group {
+            if debugRoute != nil {
+                captureScreen
+            } else {
+                TabView(selection: $selectedTab) {
+                    NavigationStack {
+                        LessonHomeView()
+                    }
+                    .tabItem {
+                        Label("Learn", systemImage: "book.closed")
+                    }
+                    .tag(DebugTabRoute.learn)
+
+                    NavigationStack {
+                        PlacesHubView(places: appModel.content.corePlaces)
+                    }
+                    .tabItem {
+                        Label("Places", systemImage: "map")
+                    }
+                    .tag(DebugTabRoute.places)
+
+                    NavigationStack {
+                        ChronicleView(rewards: appModel.content.rewards)
+                    }
+                    .tabItem {
+                        Label("Chronicle", systemImage: "sparkles.rectangle.stack")
+                    }
+                    .tag(DebugTabRoute.chronicle)
+                }
             }
-            .tag(DebugTabRoute.chronicle)
         }
         .tint(.orange)
         .onAppear {

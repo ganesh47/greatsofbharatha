@@ -7,8 +7,10 @@ enum DebugTabRoute: String {
 }
 
 enum DebugDestinationRoute: String {
+    case learnHome = "learn-home"
     case scene1 = "scene-1"
     case scene2 = "scene-2"
+    case placesHub = "places-hub"
     case placeShivneri = "place-shivneri"
     case chronicleUnlocked = "chronicle-unlocked"
 }
