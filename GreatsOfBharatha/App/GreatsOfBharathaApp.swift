@@ -2,13 +2,13 @@ import SwiftUI
 
 @main
 struct GreatsOfBharathaApp: SwiftUI.App {
-    private let captureRoute = DebugNavigationRoute.current()
+    private let captureRoute: DebugNavigationRoute?
     @StateObject private var appModel: AppModel
 
     init() {
-        let captureRoute = DebugNavigationRoute.current()
-        self.captureRoute = captureRoute
-        _appModel = StateObject(wrappedValue: AppModel(captureSeedProfile: captureRoute?.seedProfile ?? .pristine))
+        let route = DebugNavigationRoute.current()
+        self.captureRoute = route
+        _appModel = StateObject(wrappedValue: AppModel(captureSeedProfile: route?.seedProfile ?? .pristine))
     }
 
     var body: some SwiftUI.Scene {
