@@ -6,18 +6,27 @@ struct LessonHomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                HeroProgressCard(
-                    title: appModel.content.arcTitle,
-                    progress: appModel.lessonStore.overallProgress,
-                    completedScenes: appModel.lessonStore.completedScenes,
-                    totalScenes: appModel.lessonStore.totalScenes,
-                    nextSceneTitle: nextSceneTitle
-                )
+                if let nextScene {
+                    NavigationLink {
+                        SceneLessonView(scene: nextScene)
+                    } label: {
+                        HeroProgressCard(
+                            title: appModel.content.arcTitle,
+                            progress: appModel.lessonStore.overallProgress,
+                            completedScenes: appModel.lessonStore.completedScenes,
+                            totalScenes: appModel.lessonStore.totalScenes,
+                            nextSceneTitle: nextScene.title,
+                            ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene 1" : "Continue journey"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("First playable lesson slice")
-                        .font(.title2.bold())
-                    Text("Move through story cards, answer a gentle recall prompt, and unlock Chronicle rewards tied to real places.")
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Choose a moment from Shivaji Maharaj's journey.")
+                        .font(.title3.bold())
+                    Text("Short story steps, place clues, and one quick recall help each scene feel easy to finish.")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
@@ -25,7 +34,11 @@ struct LessonHomeView: View {
                     NavigationLink {
                         SceneLessonView(scene: scene)
                     } label: {
-                        SceneRowCard(scene: scene, mastery: appModel.lessonStore.mastery(for: scene.id))
+                        SceneRowCard(
+                            scene: scene,
+                            mastery: appModel.lessonStore.mastery(for: scene.id),
+                            isNext: scene.id == appModel.lessonStore.nextSceneID
+                        )
                     }
                     .buttonStyle(.plain)
                 }
@@ -47,12 +60,11 @@ struct LessonHomeView: View {
         .background(Color(.sRGB, red: 0.96, green: 0.96, blue: 0.97, opacity: 1.0))
     }
 
-    private var nextSceneTitle: String {
-        guard let nextSceneID = appModel.lessonStore.nextSceneID,
-              let scene = appModel.content.scenes.first(where: { $0.id == nextSceneID }) else {
-            return "Chronicle ready to revisit"
+    private var nextScene: StoryScene? {
+        if let nextSceneID = appModel.lessonStore.nextSceneID {
+            return appModel.content.scenes.first(where: { $0.id == nextSceneID })
         }
-        return "Next up: Scene \(scene.number)"
+        return appModel.content.scenes.last
     }
 }
 
@@ -62,52 +74,82 @@ private struct HeroProgressCard: View {
     let completedScenes: Int
     let totalScenes: Int
     let nextSceneTitle: String
+    let ctaTitle: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            Text("Learn two key moments, then collect their meaning in the Royal Chronicle.")
-                .font(.title3.bold())
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.white.opacity(0.88))
+                Spacer()
+                Text(completedScenes == totalScenes ? "Journey complete" : "Next adventure")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.white.opacity(0.18), in: Capsule())
+            }
+
+            Text(completedScenes == 0 ? "Begin Shivaji Maharaj's journey." : "Your journey continues.")
+                .font(.title2.bold())
+            Text(nextSceneTitle)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.96))
+            Text("Explore the story, spot the places, and earn a Chronicle reward.")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.88))
+
             ProgressView(value: progress)
-                .tint(.orange)
+                .tint(.white)
+
             HStack {
                 Text("\(completedScenes) of \(totalScenes) scenes complete")
                 Spacer()
-                Text(nextSceneTitle)
+                Label(ctaTitle, systemImage: "arrow.right.circle.fill")
+                    .font(.subheadline.bold())
             }
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.white)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            LinearGradient(colors: [.orange.opacity(0.9), .yellow.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            LinearGradient(colors: [.orange.opacity(0.95), .yellow.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .foregroundStyle(.white)
     }
 }
 
 private struct SceneRowCard: View {
     let scene: StoryScene
     let mastery: MasteryState?
+    let isNext: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Scene \(scene.number)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text("Scene \(scene.number)")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        if isNext {
+                            Text("Up next")
+                                .font(.caption.bold())
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.orange.opacity(0.15), in: Capsule())
+                                .foregroundStyle(.orange)
+                        }
+                    }
                     Text(scene.title)
                         .font(.headline)
                         .foregroundStyle(.primary)
+                        .lineLimit(2)
                     Text(scene.childSafeSummary)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .lineLimit(3)
+                        .lineLimit(2)
                 }
 
                 Spacer()
@@ -123,14 +165,14 @@ private struct SceneRowCard: View {
                 }
             }
 
-            Label(scene.timelineMarker, systemImage: "clock.arrow.circlepath")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            Text(scene.keyFact)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.leading)
+            HStack(spacing: 12) {
+                Label(scene.timelineMarker, systemImage: "clock.arrow.circlepath")
+                Spacer()
+                Label(isNext ? "Start" : "Review", systemImage: "arrow.right")
+                    .font(.subheadline.bold())
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
