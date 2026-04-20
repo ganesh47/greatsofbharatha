@@ -41,15 +41,14 @@ struct GBSurface<Content: View>: View {
         }
     }
 
-    @ViewBuilder
-    private var backgroundStyle: some ShapeStyle {
+    private var backgroundStyle: AnyShapeStyle {
         switch style {
         case .plain:
-            GBColor.Background.surface
+            AnyShapeStyle(GBColor.Background.surface)
         case .elevated:
-            GBColor.Background.elevated
+            AnyShapeStyle(GBColor.Background.elevated)
         case .accented(let emphasis):
-            GBColor.gradient(for: emphasis)
+            AnyShapeStyle(GBColor.gradient(for: emphasis))
         }
     }
 
