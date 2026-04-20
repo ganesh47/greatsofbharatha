@@ -164,6 +164,7 @@ struct PlacesHubView: View {
 }
 
 struct PlaceDetailView: View {
+    @Environment(\.openURL) private var openURL
     let place: Place
     let progress: PlaceProgress
 
@@ -193,12 +194,22 @@ struct PlaceDetailView: View {
         return revealed ? "Close. This clue belongs to \(place.name). Use compare mode to see what makes it different." : "That pin is close, but not right yet. Reveal the answer and compare the forts."
     }
 
+    private var appleMapsURL: URL? {
+        var components = URLComponents(string: "https://maps.apple.com/")
+        components?.queryItems = [
+            URLQueryItem(name: "ll", value: "\(place.latitude),\(place.longitude)"),
+            URLQueryItem(name: "q", value: place.name)
+        ]
+        return components?.url
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 headerCard
                 mapPreviewCard
                 memoryFactsCard
+                externalMapCard
                 fortBoard
             }
             .padding()
@@ -278,6 +289,31 @@ struct PlaceDetailView: View {
                 factRow(title: "Big event", value: place.primaryEvent)
                 factRow(title: "Region", value: place.regionLabel)
             }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var externalMapCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Optional real-world map")
+                .font(.headline)
+            Text("Keep using the Sahyadri fort board here as the main learning view. If you want, you can open Apple Maps externally to see this fort on a real-world map.")
+                .foregroundStyle(.secondary)
+
+            Button {
+                guard let appleMapsURL else { return }
+                openURL(appleMapsURL)
+            } label: {
+                Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+
+            Text("This leaves GreatsOfBharatha and opens Apple Maps.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
