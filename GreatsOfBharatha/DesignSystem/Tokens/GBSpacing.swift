@@ -10,4 +10,3 @@ enum GBSpacing {
     static let xLarge: CGFloat = 32
     static let xxLarge: CGFloat = 40
 }
-

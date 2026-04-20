@@ -62,7 +62,6 @@ struct GBSurface<Content: View>: View {
         }
     }
 }
-
 #Preview("Surface") {
     GBSurface(style: .elevated) {
         VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
@@ -73,4 +72,3 @@ struct GBSurface<Content: View>: View {
     .padding()
     .background(GBColor.Background.app)
 }
-

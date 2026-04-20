@@ -6,4 +6,3 @@ enum GBRadius {
     static let card: CGFloat = 24
     static let hero: CGFloat = 30
 }
-

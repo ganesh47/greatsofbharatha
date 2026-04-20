@@ -36,7 +36,6 @@ struct GBLayoutContext: Equatable {
         maxContentWidth: 920
     )
 }
-
 private struct GBLayoutContextKey: EnvironmentKey {
     static let defaultValue: GBLayoutContext = .compact
 }
@@ -64,4 +63,3 @@ struct GBLayoutContextReader<Content: View>: View {
             .environment(\.gbLayoutContext, context)
     }
 }
-

@@ -106,7 +106,6 @@ struct GBQuestProgress: View {
         isCurrent ? "\(step.title), current step" : step.title
     }
 }
-
 extension GBQuestProgress.Step {
     static let story = GBQuestProgress.Step(id: "story", title: "Story", symbol: GBIcon.story)
     static let place = GBQuestProgress.Step(id: "place", title: "Find Place", symbol: GBIcon.place)
@@ -123,4 +122,3 @@ extension GBQuestProgress.Step {
     }
     .background(GBColor.Background.app)
 }
-

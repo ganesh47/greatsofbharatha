@@ -48,7 +48,6 @@ struct GBBadge: View {
         }
     }
 }
-
 #Preview("Badge") {
     HStack(spacing: GBSpacing.xxSmall) {
         GBBadge(title: "Story", symbol: GBIcon.story, emphasis: .story)
@@ -58,4 +57,3 @@ struct GBBadge: View {
     .padding()
     .background(GBColor.Background.app)
 }
-

@@ -6,7 +6,6 @@ enum GBEmphasis: CaseIterable {
     case chronicle
     case neutral
 }
-
 enum GBColor {
     enum Background {
         static let app = Color(uiColor: .systemGroupedBackground)
@@ -86,4 +85,3 @@ enum GBColor {
         }
     }
 }
-

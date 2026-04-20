@@ -5,4 +5,3 @@ enum GBMotion {
     static let standard = Animation.easeInOut(duration: 0.28)
     static let emphasized = Animation.spring(response: 0.38, dampingFraction: 0.82)
 }
-

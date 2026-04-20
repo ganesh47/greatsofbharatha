@@ -12,4 +12,3 @@ enum GBIcon {
     static let region = "location.north.line.fill"
     static let fort = "flag.fill"
 }
-

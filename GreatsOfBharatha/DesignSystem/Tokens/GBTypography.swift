@@ -31,7 +31,6 @@ enum GBTypography {
             .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 }
-
 extension Text {
     func gbDisplay() -> some View { GBTypography.display(self) }
     func gbTitle() -> some View { GBTypography.title(self) }
@@ -39,4 +38,3 @@ extension Text {
     func gbBody() -> some View { GBTypography.body(self) }
     func gbCaption() -> some View { GBTypography.caption(self) }
 }
-

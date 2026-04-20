@@ -9,10 +9,8 @@ struct GBCardStyle: ViewModifier {
         }
     }
 }
-
 extension View {
     func gbCardStyle(_ emphasis: GBEmphasis = .neutral) -> some View {
         modifier(GBCardStyle(emphasis: emphasis))
     }
 }
-
