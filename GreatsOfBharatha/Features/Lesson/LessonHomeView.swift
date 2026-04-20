@@ -4,60 +4,91 @@ struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if let nextScene {
+        GBLayoutContextReader { context in
+            ScrollView {
+                VStack(alignment: .leading, spacing: context.sectionSpacing) {
+                    if let nextScene {
+                        NavigationLink {
+                            SceneLessonView(scene: nextScene)
+                        } label: {
+                            GBHeroCard(
+                                eyebrow: appModel.content.arcTitle,
+                                title: appModel.lessonStore.completedScenes == 0 ? "Hear the story first" : "Your story path is still open",
+                                subtitle: nextScene.title,
+                                detail: "Follow one scene at a time, remember the fort, then add its meaning to your Chronicle.",
+                                ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene 1" : "Continue journey",
+                                badgeTitle: appModel.lessonStore.completedScenes == appModel.lessonStore.totalScenes ? "Journey complete" : "Next scene",
+                                emphasis: .story,
+                                progress: appModel.lessonStore.overallProgress
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    GBSurface(style: .elevated) {
+                        VStack(alignment: .leading, spacing: GBSpacing.small) {
+                            GBSectionHeader(
+                                eyebrow: "Quest",
+                                title: "Story to fort to Chronicle",
+                                subtitle: "Keep the loop simple: hear a moment, remember its place, and collect the meaning it unlocks."
+                            )
+
+                            GBQuestProgress(
+                                steps: [.story, .place, .chronicle],
+                                currentStepID: "story"
+                            )
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: context.cardSpacing) {
+                        GBSectionHeader(
+                            eyebrow: "Story Path",
+                            title: "Choose a Shivaji Maharaj moment",
+                            subtitle: "Each scene keeps one story beat, one place clue, and one quick recall before the reward."
+                        )
+
+                        ForEach(appModel.content.scenes) { scene in
+                            NavigationLink {
+                                SceneLessonView(scene: scene)
+                            } label: {
+                                SceneRowCard(
+                                    scene: scene,
+                                    mastery: appModel.lessonStore.mastery(for: scene.id),
+                                    isNext: scene.id == appModel.lessonStore.nextSceneID
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
                     NavigationLink {
-                        SceneLessonView(scene: nextScene)
+                        PlacesHubView(places: appModel.content.corePlaces)
                     } label: {
-                        HeroProgressCard(
-                            title: appModel.content.arcTitle,
-                            progress: appModel.lessonStore.overallProgress,
-                            completedScenes: appModel.lessonStore.completedScenes,
-                            totalScenes: appModel.lessonStore.totalScenes,
-                            nextSceneTitle: nextScene.title,
-                            ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene 1" : "Continue journey"
+                        PlacesLoopCard(
+                            readyCount: appModel.content.corePlaces.filter { appModel.lessonStore.progress(for: $0) != .locked }.count,
+                            totalCount: appModel.content.corePlaces.count
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        ChronicleView(rewards: appModel.content.rewards)
+                    } label: {
+                        ChronicleTeaserCard(
+                            headline: appModel.lessonStore.chronicleHeadline,
+                            unlockedCount: appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count,
+                            totalCount: appModel.content.rewards.count
                         )
                     }
                     .buttonStyle(.plain)
                 }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Choose a moment from Shivaji Maharaj's journey.")
-                        .font(.title3.bold())
-                    Text("Short story steps, place clues, and one quick recall help each scene feel easy to finish.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                ForEach(appModel.content.scenes) { scene in
-                    NavigationLink {
-                        SceneLessonView(scene: scene)
-                    } label: {
-                        SceneRowCard(
-                            scene: scene,
-                            mastery: appModel.lessonStore.mastery(for: scene.id),
-                            isNext: scene.id == appModel.lessonStore.nextSceneID
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                NavigationLink {
-                    ChronicleView(rewards: appModel.content.rewards)
-                } label: {
-                    ChronicleTeaserCard(
-                        headline: appModel.lessonStore.chronicleHeadline,
-                        unlockedCount: appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count,
-                        totalCount: appModel.content.rewards.count
-                    )
-                }
-                .buttonStyle(.plain)
+                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
+                .padding(context.containerPadding)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .background(GBColor.Background.app)
         }
         .navigationTitle("Greats of Bharatha")
-        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var nextScene: StoryScene? {
@@ -68,116 +99,84 @@ struct LessonHomeView: View {
     }
 }
 
-private struct HeroProgressCard: View {
-    let title: String
-    let progress: Double
-    let completedScenes: Int
-    let totalScenes: Int
-    let nextSceneTitle: String
-    let ctaTitle: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.white.opacity(0.88))
-                Spacer()
-                Text(completedScenes == totalScenes ? "Journey complete" : "Next adventure")
-                    .font(.caption.bold())
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(.white.opacity(0.18), in: Capsule())
-            }
-
-            Text(completedScenes == 0 ? "Begin Shivaji Maharaj's journey." : "Your journey continues.")
-                .font(.title2.bold())
-            Text(nextSceneTitle)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.96))
-            Text("Explore the story, spot the places, and earn a Chronicle reward.")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.88))
-
-            ProgressView(value: progress)
-                .tint(.white)
-
-            HStack {
-                Text("\(completedScenes) of \(totalScenes) scenes complete")
-                Spacer()
-                Label(ctaTitle, systemImage: "arrow.right.circle.fill")
-                    .font(.subheadline.bold())
-            }
-            .font(.subheadline)
-            .foregroundStyle(.white)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            LinearGradient(colors: [.orange.opacity(0.95), .yellow.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-}
-
 private struct SceneRowCard: View {
     let scene: StoryScene
     let mastery: MasteryState?
     let isNext: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
-                        Text("Scene \(scene.number)")
-                            .font(.caption.bold())
-                            .foregroundStyle(.secondary)
-                        if isNext {
-                            Text("Up next")
-                                .font(.caption.bold())
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.orange.opacity(0.15), in: Capsule())
-                                .foregroundStyle(.orange)
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .top, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        HStack(spacing: GBSpacing.xxSmall) {
+                            GBBadge(title: "Scene \(scene.number)", symbol: GBIcon.story, emphasis: .story)
+                            if isNext {
+                                GBBadge(title: "Up next", symbol: GBIcon.next, emphasis: .story)
+                            }
                         }
+
+                        Text(scene.title)
+                            .gbTitle()
+                            .foregroundStyle(GBColor.Content.primary)
+                            .lineLimit(2)
+
+                        Text(scene.childSafeSummary)
+                            .gbBody()
+                            .foregroundStyle(GBColor.Content.secondary)
+                            .lineLimit(2)
                     }
-                    Text(scene.title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
-                    Text(scene.childSafeSummary)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+
+                    Spacer(minLength: GBSpacing.small)
+
+                    if let mastery {
+                        GBBadge(title: mastery.rawValue, symbol: GBIcon.reward, emphasis: .story)
+                    }
                 }
 
-                Spacer()
-
-                if let mastery {
-                    Text(mastery.rawValue)
-                        .font(.caption.bold())
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.orange.opacity(0.15))
-                        .foregroundStyle(.orange)
-                        .clipShape(Capsule())
+                HStack(spacing: GBSpacing.small) {
+                    Label(scene.timelineMarker, systemImage: GBIcon.timeline)
+                    Spacer()
+                    Label(isNext ? "Start" : "Review", systemImage: GBIcon.next)
+                        .font(.subheadline.weight(.semibold))
                 }
+                .font(.subheadline)
+                .foregroundStyle(GBColor.Content.secondary)
             }
-
-            HStack(spacing: 12) {
-                Label(scene.timelineMarker, systemImage: "clock.arrow.circlepath")
-                Spacer()
-                Label(isNext ? "Start" : "Review", systemImage: "arrow.right")
-                    .font(.subheadline.bold())
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+}
+
+private struct PlacesLoopCard: View {
+    let readyCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        GBSurface(style: .accented(.place)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .top, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text("Find the fort next")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.86))
+                        Text("Open the place trail")
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse)
+                        Text("Keep the story connected to real forts so the journey feels spatial, not just sequential.")
+                            .font(.body)
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                    }
+
+                    Spacer()
+
+                    GBBadge(title: "\(readyCount) of \(totalCount) ready", symbol: GBIcon.place, emphasis: .place)
+                }
+
+                Label("See the Sahyadri fort path", systemImage: GBIcon.next)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(GBColor.Content.inverse)
+            }
+        }
     }
 }
 
@@ -187,27 +186,26 @@ private struct ChronicleTeaserCard: View {
     let totalCount: Int
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "book.pages.fill")
-                .font(.title2)
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Royal Chronicle")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Text(headline)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("\(unlockedCount) of \(totalCount) rewards unlocked")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        GBSurface(style: .accented(.chronicle)) {
+            HStack(spacing: GBSpacing.small) {
+                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                    Text("Royal Chronicle")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(GBColor.Content.inverse)
+                    Text(headline)
+                        .font(.body)
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                    Text("\(unlockedCount) of \(totalCount) rewards unlocked")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                }
+
+                Spacer()
+
+                Image(systemName: GBIcon.chronicle)
+                    .font(.title2)
+                    .foregroundStyle(GBColor.Content.inverse)
             }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .foregroundStyle(.tertiary)
         }
-        .padding()
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }

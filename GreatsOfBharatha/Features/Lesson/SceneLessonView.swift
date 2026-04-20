@@ -22,9 +22,9 @@ struct SceneLessonView: View {
 
     private var lessonCards: [SceneCardContent] {
         [
-            SceneCardContent(id: "summary", eyebrow: "Story spark", title: scene.title, body: scene.childSafeSummary, symbol: "book.closed.fill"),
+            SceneCardContent(id: "summary", eyebrow: "Story spark", title: scene.title, body: scene.childSafeSummary, symbol: GBIcon.story),
             SceneCardContent(id: "fact", eyebrow: "Remember this", title: scene.keyFact, body: scene.narrativeObjective, symbol: "sparkles.rectangle.stack.fill"),
-            SceneCardContent(id: "timeline", eyebrow: "Chronicle moment", title: scene.timelineMarker, body: "This is the moment you will remember when you open the Royal Chronicle.", symbol: "clock.arrow.circlepath")
+            SceneCardContent(id: "timeline", eyebrow: "Chronicle moment", title: scene.timelineMarker, body: "This is the moment you will remember when you open the Royal Chronicle.", symbol: GBIcon.timeline)
         ]
     }
 
@@ -40,111 +40,89 @@ struct SceneLessonView: View {
         cardIndex == lessonCards.count - 1 ? "Move to place clues" : "Continue story"
     }
 
+    private var activeQuestStepID: String {
+        if recallState.hasAnsweredCorrectly {
+            return "chronicle"
+        }
+        if revealedMapAnchors > 0 || !chosenPlanSteps.isEmpty {
+            return "place"
+        }
+        return "story"
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                SceneHeaderCard(scene: scene, progressValue: progressValue, mastery: appModel.lessonStore.mastery(for: scene.id))
+        GBLayoutContextReader { context in
+            ScrollView {
+                VStack(alignment: .leading, spacing: context.sectionSpacing) {
+                    SceneHeaderCard(
+                        scene: scene,
+                        progressValue: progressValue,
+                        mastery: appModel.lessonStore.mastery(for: scene.id)
+                    )
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(currentStepTitle)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.orange)
+                    GBSurface(style: .elevated) {
+                        VStack(alignment: .leading, spacing: GBSpacing.small) {
+                            GBSectionHeader(
+                                eyebrow: "Quest",
+                                title: "Hear the story, remember the fort, keep the Chronicle",
+                                subtitle: "This scene only asks for one step at a time."
+                            )
 
-                    TabView(selection: $cardIndex) {
-                        ForEach(Array(lessonCards.enumerated()), id: \.offset) { index, card in
-                            StoryCardView(card: card, accentText: scene.timelineMarker, cardNumber: index + 1, totalCards: lessonCards.count)
-                                .padding(.horizontal, 4)
-                                .tag(index)
-                        }
-                    }
-#if os(iOS)
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-#endif
-                    .frame(height: 340)
-
-                    HStack(spacing: 8) {
-                        ForEach(0..<lessonCards.count, id: \.self) { index in
-                            Capsule()
-                                .fill(index == cardIndex ? Color.orange : Color.orange.opacity(0.18))
-                                .frame(width: index == cardIndex ? 28 : 10, height: 10)
+                            GBQuestProgress(
+                                steps: [.story, .place, .chronicle],
+                                currentStepID: activeQuestStepID
+                            )
                         }
                     }
 
-                    HStack(spacing: 12) {
-                        if cardIndex > 0 {
-                            Button("Back") {
-                                cardIndex = max(cardIndex - 1, 0)
-                                LessonFeedback.fire(.selection)
-                            }
-                            .buttonStyle(.bordered)
-                        }
+                    StoryDeckCard(
+                        currentStepTitle: currentStepTitle,
+                        lessonCards: lessonCards,
+                        cardIndex: $cardIndex,
+                        nextCardButtonTitle: nextCardButtonTitle
+                    )
 
-                        Spacer()
+                    MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
 
-                        Button(nextCardButtonTitle) {
-                            cardIndex = min(cardIndex + 1, lessonCards.count - 1)
-                            LessonFeedback.fire(.selection)
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                }
-
-                MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
-
-                if scene.number == 2 {
-                    FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
-                }
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Button(hintVisible ? "Hide clue" : "Need a clue?") {
-                        hintVisible.toggle()
-                        LessonFeedback.fire(.reveal)
-                    }
-                    .buttonStyle(.bordered)
-
-                    if hintVisible {
-                        GuidanceCard(
-                            title: "Story clue",
-                            message: curatedHint,
-                            systemImage: "lightbulb"
-                        )
+                    if scene.number == 2 {
+                        FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
                     }
 
-                    if recapVisible, recallState.hasAnsweredCorrectly {
-                        GuidanceCard(
-                            title: "You remembered it",
-                            message: sceneRecap,
-                            systemImage: "text.book.closed"
+                    SceneSupportCard(
+                        hintVisible: $hintVisible,
+                        recapVisible: recapVisible,
+                        hasAnsweredCorrectly: recallState.hasAnsweredCorrectly,
+                        curatedHint: curatedHint,
+                        sceneRecap: sceneRecap
+                    )
+
+                    RecallPanel(
+                        question: scene.recallPrompt,
+                        choices: sceneChoices,
+                        selectedChoiceID: $recallState.selectedChoiceID,
+                        feedbackText: recallState.feedbackText,
+                        completed: recallState.hasAnsweredCorrectly,
+                        onSubmit: submitRecall
+                    )
+
+                    if recallState.hasAnsweredCorrectly {
+                        CompletedSceneActions(
+                            scene: scene,
+                            places: appModel.content.corePlaces,
+                            rewards: appModel.content.rewards
                         )
                     }
                 }
-
-                RecallPanel(
-                    question: scene.recallPrompt,
-                    choices: sceneChoices,
-                    selectedChoiceID: $recallState.selectedChoiceID,
-                    feedbackText: recallState.feedbackText,
-                    completed: recallState.hasAnsweredCorrectly,
-                    onSubmit: submitRecall
-                )
-
-                if recallState.hasAnsweredCorrectly {
-                    NavigationLink {
-                        ChronicleView(rewards: appModel.content.rewards, highlightRewardID: scene.rewardID)
-                    } label: {
-                        Label("Open your Royal Chronicle reward", systemImage: "book.closed.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
+                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
+                .padding(context.containerPadding)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .background(GBColor.Background.app)
         }
         .navigationTitle("Scene \(scene.number)")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private func submitRecall() {
@@ -209,92 +187,146 @@ private struct SceneHeaderCard: View {
     let mastery: MasteryState?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text(scene.timelineMarker.uppercased())
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(mastery?.rawValue ?? "Ready to learn")
-                    .font(.caption.bold())
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.12), in: Capsule())
-                    .foregroundStyle(.orange)
-            }
-            Text(scene.title)
-                .font(.title2.bold())
-            Text(scene.narrativeObjective)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            ProgressView(value: progressValue)
-                .tint(.orange)
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Royal Chronicle reward")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    Text(scene.rewardID.replacingOccurrences(of: "reward-", with: "").replacingOccurrences(of: "-", with: " ").capitalized)
-                        .font(.subheadline.weight(.semibold))
+        GBSurface(style: .accented(.story)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .top, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text(scene.timelineMarker.uppercased())
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                        Text(scene.title)
+                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .foregroundStyle(GBColor.Content.inverse)
+                        Text(scene.narrativeObjective)
+                            .font(.body)
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                    }
+
+                    Spacer(minLength: GBSpacing.small)
+
+                    GBBadge(
+                        title: mastery?.rawValue ?? "Ready",
+                        symbol: mastery == nil ? GBIcon.story : GBIcon.reward,
+                        emphasis: .story
+                    )
                 }
-                Spacer()
-                Text("Small steps, one clear finish")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                ProgressView(value: progressValue)
+                    .tint(GBColor.Content.inverse)
+
+                HStack(alignment: .firstTextBaseline, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                        Text("Royal Chronicle reward")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                        Text(scene.rewardID.replacingOccurrences(of: "reward-", with: "").replacingOccurrences(of: "-", with: " ").capitalized)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(GBColor.Content.inverse)
+                    }
+
+                    Spacer()
+
+                    Text("Small steps, one clear finish")
+                        .font(.caption)
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+private struct StoryDeckCard: View {
+    let currentStepTitle: String
+    let lessonCards: [SceneCardContent]
+    @Binding var cardIndex: Int
+    let nextCardButtonTitle: String
+
+    var body: some View {
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Story",
+                    title: currentStepTitle,
+                    subtitle: "Keep one memory hook visible before moving to place clues."
+                )
+
+                TabView(selection: $cardIndex) {
+                    ForEach(Array(lessonCards.enumerated()), id: \.offset) { index, card in
+                        StoryCardView(card: card, cardNumber: index + 1, totalCards: lessonCards.count)
+                            .padding(.horizontal, GBSpacing.xxxSmall)
+                            .tag(index)
+                    }
+                }
+#if os(iOS)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+#endif
+                .frame(height: 340)
+
+                HStack(spacing: GBSpacing.xxSmall) {
+                    ForEach(0..<lessonCards.count, id: \.self) { index in
+                        Capsule()
+                            .fill(index == cardIndex ? GBColor.Accent.story : GBColor.Accent.story.opacity(0.18))
+                            .frame(width: index == cardIndex ? 28 : 10, height: 10)
+                    }
+                }
+
+                HStack(spacing: GBSpacing.small) {
+                    if cardIndex > 0 {
+                        Button("Back") {
+                            cardIndex = max(cardIndex - 1, 0)
+                            LessonFeedback.fire(.selection)
+                        }
+                        .buttonStyle(.gbSecondary)
+                    }
+
+                    Button(nextCardButtonTitle) {
+                        cardIndex = min(cardIndex + 1, lessonCards.count - 1)
+                        LessonFeedback.fire(.selection)
+                    }
+                    .buttonStyle(.gbPrimary(.story))
+                }
+            }
+        }
     }
 }
 
 private struct StoryCardView: View {
     let card: SceneCardContent
-    let accentText: String
     let cardNumber: Int
     let totalCards: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(card.eyebrow.uppercased())
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("\(cardNumber)/\(totalCards)")
-                    .font(.caption.bold())
-                    .foregroundStyle(.orange)
+        GBSurface(style: .elevated, padding: GBSpacing.large) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack {
+                    Text(card.eyebrow.uppercased())
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(GBColor.Content.secondary)
+                    Spacer()
+                    Text("\(cardNumber)/\(totalCards)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(GBColor.Accent.story)
+                }
+
+                Image(systemName: card.symbol)
+                    .font(.system(size: 36, weight: .semibold))
+                    .foregroundStyle(GBColor.Content.inverse)
+                    .frame(width: 68, height: 68)
+                    .background(GBColor.gradient(for: .story), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+
+                Text(card.title)
+                    .gbTitle()
+                    .foregroundStyle(GBColor.Content.primary)
+
+                Text(card.body)
+                    .gbBody()
+                    .foregroundStyle(GBColor.Content.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
             }
-            Image(systemName: card.symbol)
-                .font(.system(size: 42))
-                .foregroundStyle(.white)
-                .frame(width: 72, height: 72)
-                .background(Color.orange.opacity(0.82))
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            Text(card.title)
-                .font(.title3.bold())
-            Text(card.body)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            Label(accentText, systemImage: "sparkles")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
-        .padding(22)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(Color(uiColor: .secondarySystemGroupedBackground))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .stroke(Color.orange.opacity(0.14), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 }
 
@@ -303,50 +335,53 @@ private struct MapAnchorCard: View {
     @Binding var revealedMapAnchors: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Place clues")
-                    .font(.headline)
-                Spacer()
-                Text("\(revealedMapAnchors)/\(scene.mapAnchors.count) found")
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
-            }
-            Text("Reveal the places from this moment one by one.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        GBSurface(style: .accented(.place)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Find Place",
+                    title: "Reveal the fort clues",
+                    subtitle: "Place names appear one by one so the story stays connected to the map.",
+                    tone: .inverse,
+                    trailing: AnyView(
+                        GBBadge(
+                            title: "\(revealedMapAnchors)/\(scene.mapAnchors.count)",
+                            symbol: GBIcon.place,
+                            emphasis: .place
+                        )
+                    )
+                )
 
-            ForEach(Array(scene.mapAnchors.enumerated()), id: \.offset) { index, anchor in
-                HStack(spacing: 12) {
-                    Image(systemName: index < revealedMapAnchors ? "mappin.circle.fill" : "mappin.circle")
-                        .foregroundStyle(index < revealedMapAnchors ? .orange : .secondary)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(index < revealedMapAnchors ? anchor : "Hidden place clue")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
-                        Text(index < revealedMapAnchors ? "This place is now part of your scene map." : "Tap reveal when you are ready for the next clue.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                ForEach(Array(scene.mapAnchors.enumerated()), id: \.offset) { index, anchor in
+                    HStack(alignment: .top, spacing: GBSpacing.small) {
+                        Image(systemName: index < revealedMapAnchors ? "mappin.circle.fill" : "mappin.circle")
+                            .foregroundStyle(GBColor.Content.inverse)
+                            .font(.title3)
+
+                        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                            Text(index < revealedMapAnchors ? anchor : "Hidden place clue")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(GBColor.Content.inverse)
+                            Text(index < revealedMapAnchors ? "This place now anchors the scene in your memory." : "Reveal the next clue when you are ready.")
+                                .font(.caption)
+                                .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                        }
+
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(GBSpacing.small)
+                    .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
                 }
-                .padding()
-                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            }
 
-            Button(revealedMapAnchors == scene.mapAnchors.count ? "All place clues found" : "Reveal next place clue") {
-                let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
-                if nextValue != revealedMapAnchors {
-                    revealedMapAnchors = nextValue
-                    LessonFeedback.fire(nextValue == scene.mapAnchors.count ? .success : .reveal)
+                Button(revealedMapAnchors == scene.mapAnchors.count ? "All place clues found" : "Reveal next place clue") {
+                    let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
+                    if nextValue != revealedMapAnchors {
+                        revealedMapAnchors = nextValue
+                        LessonFeedback.fire(nextValue == scene.mapAnchors.count ? .success : .reveal)
+                    }
                 }
+                .buttonStyle(.gbSecondary)
             }
-            .buttonStyle(.borderedProminent)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
@@ -354,44 +389,85 @@ private struct FortPlanningCard: View {
     @Binding var chosenPlanSteps: Set<String>
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Planning practice")
-                .font(.headline)
-            Text("Pick two smart fort choices to prepare a mountain base.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Place Practice",
+                    title: "Choose smart fort planning steps",
+                    subtitle: "Pick two choices that would help a mountain base stay ready."
+                )
 
-            ForEach(LessonPlanStep.starterSet) { step in
-                Button {
-                    if chosenPlanSteps.contains(step.id) {
-                        chosenPlanSteps.remove(step.id)
-                    } else {
-                        chosenPlanSteps.insert(step.id)
-                    }
-                    LessonFeedback.fire(.selection)
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: chosenPlanSteps.contains(step.id) ? "checkmark.circle.fill" : step.symbol)
-                            .foregroundStyle(chosenPlanSteps.contains(step.id) ? .green : .orange)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(step.title)
-                                .foregroundStyle(.primary)
-                            Text(step.detail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                ForEach(LessonPlanStep.starterSet) { step in
+                    Button {
+                        if chosenPlanSteps.contains(step.id) {
+                            chosenPlanSteps.remove(step.id)
+                        } else {
+                            chosenPlanSteps.insert(step.id)
                         }
-                        Spacer()
+                        LessonFeedback.fire(.selection)
+                    } label: {
+                        HStack(spacing: GBSpacing.small) {
+                            Image(systemName: chosenPlanSteps.contains(step.id) ? GBIcon.success : step.symbol)
+                                .foregroundStyle(chosenPlanSteps.contains(step.id) ? GBColor.Accent.success : GBColor.Accent.place)
+                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                                Text(step.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(GBColor.Content.primary)
+                                Text(step.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(GBSpacing.small)
+                        .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
                     }
-                    .padding()
-                    .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+private struct SceneSupportCard: View {
+    @Binding var hintVisible: Bool
+    let recapVisible: Bool
+    let hasAnsweredCorrectly: Bool
+    let curatedHint: String
+    let sceneRecap: String
+
+    var body: some View {
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Help",
+                    title: "Use one clue if you need it",
+                    subtitle: "Hints stay optional so the main task remains clear."
+                )
+
+                Button(hintVisible ? "Hide clue" : "Need a clue?") {
+                    hintVisible.toggle()
+                    LessonFeedback.fire(.reveal)
+                }
+                .buttonStyle(.gbSecondary)
+
+                if hintVisible {
+                    GuidanceCard(
+                        title: "Story clue",
+                        message: curatedHint,
+                        systemImage: "lightbulb"
+                    )
+                }
+
+                if recapVisible, hasAnsweredCorrectly {
+                    GuidanceCard(
+                        title: "You remembered it",
+                        message: sceneRecap,
+                        systemImage: "text.book.closed"
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -401,21 +477,20 @@ private struct GuidanceCard: View {
     let systemImage: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: systemImage)
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.subheadline.bold())
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        GBSurface(style: .plain, padding: GBSpacing.small) {
+            HStack(alignment: .top, spacing: GBSpacing.small) {
+                Image(systemName: systemImage)
+                    .foregroundStyle(GBColor.Accent.story)
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                    Text(title)
+                        .font(.subheadline.weight(.bold))
+                    Text(message)
+                        .font(.subheadline)
+                        .foregroundStyle(GBColor.Content.secondary)
+                }
+                Spacer()
             }
-            Spacer()
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.orange.opacity(0.10), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -428,59 +503,96 @@ private struct RecallPanel: View {
     let onSubmit: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Quick recall")
-                .font(.headline)
-            Text("One last check before you collect your Chronicle reward.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Text(question.question)
-                .font(.body)
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Chronicle Gate",
+                    title: "One quick recall before the reward",
+                    subtitle: "Choose the place that matches the key fact from this scene."
+                )
 
-            ForEach(choices) { choice in
-                let isSelected = selectedChoiceID == choice.id
-                Button {
-                    selectedChoiceID = choice.id
-                    LessonFeedback.fire(.selection)
-                } label: {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
-                            .foregroundStyle(isSelected ? .orange : .secondary)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(choice.title)
-                                .foregroundStyle(.primary)
-                            Text(choice.detail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                Text(question.question)
+                    .gbBody()
+                    .foregroundStyle(GBColor.Content.primary)
+
+                ForEach(choices) { choice in
+                    let isSelected = selectedChoiceID == choice.id
+                    Button {
+                        selectedChoiceID = choice.id
+                        LessonFeedback.fire(.selection)
+                    } label: {
+                        HStack(alignment: .top, spacing: GBSpacing.small) {
+                            Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
+                                .foregroundStyle(isSelected ? GBColor.Accent.story : GBColor.Content.secondary)
+                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                                Text(choice.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(GBColor.Content.primary)
+                                Text(choice.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
+                            Spacer()
                         }
-                        Spacer()
+                        .padding(GBSpacing.small)
+                        .background(
+                            isSelected ? GBColor.Accent.story.opacity(0.10) : GBColor.Background.elevated,
+                            in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous)
+                        )
                     }
-                    .padding()
-                    .background(Color.secondary.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            Button(completed ? "Answer checked" : "Collect my answer") {
-                onSubmit()
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(selectedChoiceID == nil || completed)
+                Button(completed ? "Answer checked" : "Collect my answer") {
+                    onSubmit()
+                }
+                .buttonStyle(.gbPrimary(.chronicle))
+                .disabled(selectedChoiceID == nil || completed)
 
-            if let feedbackText {
-                Text(feedbackText)
-                    .font(.subheadline)
-                    .foregroundStyle(completed ? .green : .secondary)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(completed ? Color.green.opacity(0.12) : Color.orange.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                if let feedbackText {
+                    GBSurface(style: .elevated, padding: GBSpacing.small) {
+                        Text(feedbackText)
+                            .font(.subheadline)
+                            .foregroundStyle(completed ? GBColor.Accent.success : GBColor.Content.secondary)
+                    }
+                }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+private struct CompletedSceneActions: View {
+    let scene: StoryScene
+    let places: [Place]
+    let rewards: [ChronicleReward]
+
+    var body: some View {
+        GBSurface(style: .accented(.chronicle)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Complete",
+                    title: "The scene is ready to keep",
+                    subtitle: "Open the Royal Chronicle reward or revisit the fort trail while the memory is fresh.",
+                    tone: .inverse,
+                    trailing: AnyView(GBBadge(title: "Reward ready", symbol: GBIcon.chronicle, emphasis: .chronicle))
+                )
+
+                NavigationLink {
+                    ChronicleView(rewards: rewards, highlightRewardID: scene.rewardID)
+                } label: {
+                    Label("Open your Royal Chronicle reward", systemImage: GBIcon.chronicle)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.gbSecondary)
+
+                NavigationLink {
+                    PlacesHubView(places: places)
+                } label: {
+                    Label("Review the fort trail", systemImage: GBIcon.place)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.gbSecondary)
+            }
+        }
     }
 }

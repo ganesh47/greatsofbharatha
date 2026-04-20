@@ -13,152 +13,149 @@ struct PlacesHubView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                heroCard
+        GBLayoutContextReader { context in
+            ScrollView {
+                VStack(alignment: .leading, spacing: context.sectionSpacing) {
+                    heroCard
 
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("Fort trail")
-                        .font(.title3.bold())
-                    Text("See how the forts relate to each other, then step into one place at a time.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    GBSurface(style: .elevated) {
+                        HStack(spacing: GBSpacing.small) {
+                            PlaceSummaryPill(title: "Ready now", value: "\(readyPlaces.count)", emphasis: .place)
+                            PlaceSummaryPill(title: "Collected", value: "\(masteredCount)", emphasis: .chronicle)
+                            PlaceSummaryPill(title: "Core forts", value: "\(places.filter(\.isCoreReleasePlace).count)", emphasis: .neutral)
+                        }
+                    }
 
-                    ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
-                        let progress = appModel.lessonStore.progress(for: place)
-                        Group {
-                            if progress == .locked {
-                                placeTrailCard(place, index: index)
-                            } else {
-                                NavigationLink {
-                                    PlaceDetailView(place: place, progress: progress)
-                                } label: {
-                                    placeTrailCard(place, index: index)
+                    GBSurface(style: .elevated) {
+                        VStack(alignment: .leading, spacing: GBSpacing.small) {
+                            GBSectionHeader(
+                                eyebrow: "Quest",
+                                title: "Hold the story on the fort board",
+                                subtitle: "The place trail is the middle step between a story moment and its Chronicle reward."
+                            )
+
+                            GBQuestProgress(
+                                steps: [.story, .place, .chronicle],
+                                currentStepID: "place"
+                            )
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: context.cardSpacing) {
+                        GBSectionHeader(
+                            eyebrow: "Fort Trail",
+                            title: "Walk the ready forts in order",
+                            subtitle: "Open any ready fort to pin it on the board and compare it with nearby places."
+                        )
+
+                        ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
+                            let progress = appModel.lessonStore.progress(for: place)
+                            Group {
+                                if progress == .locked {
+                                    PlaceTrailCard(place: place, index: index, progress: progress)
+                                } else {
+                                    NavigationLink {
+                                        PlaceDetailView(place: place, progress: progress)
+                                    } label: {
+                                        PlaceTrailCard(place: place, index: index, progress: progress)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
                 }
+                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
+                .padding(context.containerPadding)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .background(GBColor.Background.app)
         }
         .navigationTitle("Places")
-        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var heroCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Journey across the forts")
-                        .font(.title2.bold())
-                    Text("Match each fort to its moment so the map starts feeling like a real story world.")
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: "map.fill")
-                    .font(.title)
-                    .foregroundStyle(.orange)
-            }
-
-            HStack(spacing: 10) {
-                summaryPill(title: "Ready now", value: "\(readyPlaces.count)", tint: .orange)
-                summaryPill(title: "Collected", value: "\(masteredCount)", tint: .green)
-                summaryPill(title: "Core forts", value: "\(places.filter(\.isCoreReleasePlace).count)", tint: .blue)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                Label("Start with a ready fort, spot its place on the Sahyadri board, then compare it with its nearby neighbors.", systemImage: "sparkles")
-                    .font(.subheadline.weight(.medium))
-                Text("Each fort card keeps one memory hook, one big event, and one region clue visible at a glance.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            LinearGradient(
-                colors: [Color.orange.opacity(0.20), Color.blue.opacity(0.12), Color.green.opacity(0.10)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            in: RoundedRectangle(cornerRadius: 28, style: .continuous)
+        GBHeroCard(
+            eyebrow: "Sahyadri Fort Trail",
+            title: "Remember the place, not just the plot",
+            subtitle: "The forts turn the story into a real landscape.",
+            detail: "Pin one fort at a time, compare it with nearby mountains, and keep the geography tied to Shivaji Maharaj's journey.",
+            ctaTitle: "Open a ready fort",
+            badgeTitle: "\(readyPlaces.count) ready now",
+            emphasis: .place,
+            progress: places.isEmpty ? nil : Double(readyPlaces.count) / Double(places.count)
         )
     }
+}
 
-    private func summaryPill(title: String, value: String, tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+private struct PlaceSummaryPill: View {
+    let title: String
+    let value: String
+    let emphasis: GBEmphasis
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(GBColor.Content.secondary)
             Text(value)
                 .font(.headline)
-                .foregroundStyle(tint)
+                .foregroundStyle(GBColor.accent(for: emphasis))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .padding(GBSpacing.xSmall)
+        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
     }
+}
 
-    private func placeTrailCard(_ place: Place, index: Int) -> some View {
-        let progress = appModel.lessonStore.progress(for: place)
+private struct PlaceTrailCard: View {
+    let place: Place
+    let index: Int
+    let progress: PlaceProgress
 
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Stop \(index + 1)")
-                        .font(.caption.bold())
-                        .foregroundStyle(.secondary)
-                    Text(place.name)
-                        .font(.headline)
-                    Text(place.memoryHook)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.orange)
+    var body: some View {
+        GBSurface(style: progress == .locked ? .elevated : .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .top, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        HStack(spacing: GBSpacing.xxSmall) {
+                            GBBadge(title: "Stop \(index + 1)", symbol: GBIcon.place, emphasis: .place)
+                            if place.isCoreReleasePlace {
+                                GBBadge(title: "Core fort", symbol: GBIcon.fort, emphasis: .neutral)
+                            }
+                        }
+
+                        Text(place.name)
+                            .gbTitle()
+                            .foregroundStyle(GBColor.Content.primary)
+
+                        Text(place.memoryHook)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(GBColor.Accent.place)
+                    }
+
+                    Spacer()
+
+                    GBBadge(title: progress.rawValue, symbol: progressIcon(progress), emphasis: progressEmphasis(progress))
                 }
 
-                Spacer()
+                HStack(spacing: GBSpacing.small) {
+                    Label(place.primaryEvent, systemImage: GBIcon.fort)
+                    Label(place.regionLabel, systemImage: GBIcon.region)
+                }
+                .font(.caption)
+                .foregroundStyle(GBColor.Content.secondary)
 
-                Text(progress.rawValue)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(progressColor(progress).opacity(0.15), in: Capsule())
-                    .foregroundStyle(progressColor(progress))
+                HStack {
+                    Text(progress == .locked ? "Unlock this fort through the story first." : "Open fort board")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(progress == .locked ? GBColor.Content.secondary : GBColor.Content.primary)
+                    Spacer()
+                    Image(systemName: progress == .locked ? GBIcon.locked : GBIcon.next)
+                        .foregroundStyle(progressColor(progress))
+                }
             }
-
-            HStack(spacing: 12) {
-                Label(place.primaryEvent, systemImage: "flag.fill")
-                Label(place.regionLabel, systemImage: "location.north.line.fill")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-            HStack {
-                Text(progress == .locked ? "Unlock this fort through the story first." : "Open fort board")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(progress == .locked ? .secondary : .primary)
-                Spacer()
-                Image(systemName: progress == .locked ? "lock.fill" : "arrow.right.circle.fill")
-                    .foregroundStyle(progress == .locked ? Color.secondary : Color.orange)
-            }
-        }
-        .padding()
-        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(progressColor(progress).opacity(0.20), lineWidth: 1)
-        )
-        .opacity(progress == .locked ? 0.82 : 1)
-    }
-
-    private func progressColor(_ progress: PlaceProgress) -> Color {
-        switch progress {
-        case .locked: return .gray
-        case .readyToLearn: return .orange
-        case .reviewed: return .blue
-        case .masteredLightly: return .green
+            .opacity(progress == .locked ? 0.84 : 1)
         }
     }
 }
@@ -204,244 +201,252 @@ struct PlaceDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                headerCard
-                mapPreviewCard
-                memoryFactsCard
-                externalMapCard
-                fortBoard
+        GBLayoutContextReader { context in
+            ScrollView {
+                VStack(alignment: .leading, spacing: context.sectionSpacing) {
+                    headerCard
+
+                    GBSurface(style: .elevated) {
+                        VStack(alignment: .leading, spacing: GBSpacing.small) {
+                            GBSectionHeader(
+                                eyebrow: "Quest",
+                                title: "Pin this fort on the Sahyadri board",
+                                subtitle: "Use the clue, pick a marker, then reveal the answer before leaving for the Chronicle."
+                            )
+
+                            GBQuestProgress(
+                                steps: [.story, .place, .chronicle],
+                                currentStepID: "place"
+                            )
+                        }
+                    }
+
+                    mapPreviewCard
+                    memoryFactsCard
+                    externalMapCard
+                    fortBoard
+                }
+                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
+                .padding(context.containerPadding)
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .background(GBColor.Background.app)
         }
         .navigationTitle(place.name)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .background(Color(uiColor: .systemGroupedBackground))
     }
 
     private var headerCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(place.memoryHook.uppercased())
-                        .font(.caption.bold())
-                        .foregroundStyle(.orange)
-                    Text(place.name)
-                        .font(.largeTitle.bold())
-                    Text(place.whyItMatters)
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
+        GBSurface(style: .accented(.place)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .top, spacing: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text(place.memoryHook.uppercased())
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
+                        Text(place.name)
+                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                            .foregroundStyle(GBColor.Content.inverse)
+                        Text(place.whyItMatters)
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
+                    }
+                    Spacer()
+                    GBBadge(title: progress.rawValue, symbol: progressIcon(progress), emphasis: .place)
                 }
-                Spacer()
-                Label(progress.rawValue, systemImage: progressIcon)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(progressColor.opacity(0.14), in: Capsule())
-                    .foregroundStyle(progressColor)
-            }
 
-            HStack(spacing: 12) {
-                detailChip(title: "Story moment", value: place.primaryEvent, symbol: "flag.fill")
-                detailChip(title: "Region clue", value: place.regionLabel, symbol: "mountain.2.fill")
+                HStack(spacing: GBSpacing.small) {
+                    detailChip(title: "Story moment", value: place.primaryEvent, symbol: GBIcon.fort)
+                    detailChip(title: "Region clue", value: place.regionLabel, symbol: "mountain.2.fill")
+                }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private var mapPreviewCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Sahyadri fort board")
-                .font(.headline)
-            Text("The current fort glows brighter so its place on the trail is easier to remember.")
-                .foregroundStyle(.secondary)
-            Text("Preview only. Use \"Pin the fort\" below to interact.")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Board Preview",
+                    title: "See where this fort sits",
+                    subtitle: "The current fort glows brighter so its place on the trail is easier to remember."
+                )
 
-            schematicBoard(interactive: false)
-                .allowsHitTesting(false)
-                .frame(height: 280)
+                Text("Preview only. Use \"Pin the fort\" below to interact.")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(GBColor.Content.secondary)
 
-            HStack(spacing: 12) {
-                Label("Orange pin: today’s fort", systemImage: "mappin.circle.fill")
-                Label("Light pins: nearby forts", systemImage: "mappin.circle")
+                schematicBoard(interactive: false)
+                    .allowsHitTesting(false)
+                    .frame(height: 280)
+
+                HStack(spacing: GBSpacing.small) {
+                    Label("Bright pin: today's fort", systemImage: "mappin.circle.fill")
+                    Label("Light pins: nearby forts", systemImage: "mappin.circle")
+                }
+                .font(.caption)
+                .foregroundStyle(GBColor.Content.secondary)
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private var memoryFactsCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Remember this fort")
-                .font(.headline)
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Remember",
+                    title: "Keep this fort in one glance",
+                    subtitle: "Use a short hook, one event, and one region clue."
+                )
 
-            VStack(alignment: .leading, spacing: 10) {
-                factRow(title: "Hook", value: place.memoryHook)
-                factRow(title: "Big event", value: place.primaryEvent)
-                factRow(title: "Region", value: place.regionLabel)
+                VStack(alignment: .leading, spacing: GBSpacing.small) {
+                    factRow(title: "Hook", value: place.memoryHook)
+                    factRow(title: "Big event", value: place.primaryEvent)
+                    factRow(title: "Region", value: place.regionLabel)
+                }
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private var externalMapCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Optional real-world map")
-                .font(.headline)
-            Text("Keep using the Sahyadri fort board here as the main learning view. If you want, you can open Apple Maps externally to see this fort on a real-world map.")
-                .foregroundStyle(.secondary)
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Optional",
+                    title: "Open the real-world map",
+                    subtitle: "Keep the Sahyadri board as the main learning view. Apple Maps stays an optional external reference."
+                )
 
-            Button {
-                guard let appleMapsURL else { return }
-                openURL(appleMapsURL)
-            } label: {
-                Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
-                    .frame(maxWidth: .infinity)
+                Button {
+                    guard let appleMapsURL else { return }
+                    openURL(appleMapsURL)
+                } label: {
+                    Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.gbSecondary)
+
+                Text("This leaves GreatsOfBharatha and opens Apple Maps.")
+                    .font(.caption)
+                    .foregroundStyle(GBColor.Content.secondary)
             }
-            .buttonStyle(.bordered)
-
-            Text("This leaves GreatsOfBharatha and opens Apple Maps.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private var fortBoard: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Pin the fort")
-                        .font(.headline)
-                    Text("Use the clue, choose a marker on the board, then reveal the answer.")
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Text(place.memoryHook)
-                    .font(.caption.bold())
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(Color.orange.opacity(0.14), in: Capsule())
-                    .foregroundStyle(.orange)
-            }
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Place Challenge",
+                    title: "Pin the fort",
+                    subtitle: "Use the clue, choose a marker on the board, then reveal the answer.",
+                    trailing: AnyView(GBBadge(title: place.memoryHook, symbol: GBIcon.place, emphasis: .place))
+                )
 
-            VStack(alignment: .leading, spacing: 8) {
-                Label(place.primaryEvent, systemImage: "sparkles")
-                    .font(.subheadline.weight(.semibold))
-                Text(feedbackText)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .padding()
-            .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-            schematicBoard(interactive: true)
-                .frame(height: 320)
-
-            if let selectedCandidate {
-                selectedCandidateSummary(selectedCandidate)
-            }
-
-            HStack(spacing: 12) {
-                Button(revealed ? "Reset challenge" : "Reveal answer") {
-                    if revealed {
-                        selectedCandidateID = nil
-                        revealed = false
-                        comparisonMode = false
-                        LessonFeedback.fire(.selection)
-                    } else {
-                        revealed = true
-                        comparisonMode = true
-                        LessonFeedback.fire(selectedCandidate?.id == place.id ? .success : .reveal)
+                GBSurface(style: .elevated, padding: GBSpacing.small) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Label(place.primaryEvent, systemImage: GBIcon.reward)
+                            .font(.subheadline.weight(.semibold))
+                        Text(feedbackText)
+                            .font(.subheadline)
+                            .foregroundStyle(GBColor.Content.secondary)
                     }
                 }
-                .buttonStyle(.borderedProminent)
+
+                schematicBoard(interactive: true)
+                    .frame(height: 320)
+
+                if let selectedCandidate {
+                    selectedCandidateSummary(selectedCandidate)
+                }
+
+                HStack(spacing: GBSpacing.small) {
+                    Button(revealed ? "Reset challenge" : "Reveal answer") {
+                        if revealed {
+                            selectedCandidateID = nil
+                            revealed = false
+                            comparisonMode = false
+                            LessonFeedback.fire(.selection)
+                        } else {
+                            revealed = true
+                            comparisonMode = true
+                            LessonFeedback.fire(selectedCandidate?.id == place.id ? .success : .reveal)
+                        }
+                    }
+                    .buttonStyle(.gbPrimary(.place))
+
+                    if revealed {
+                        Button(comparisonMode ? "Hide compare cards" : "Compare nearby forts") {
+                            comparisonMode.toggle()
+                            LessonFeedback.fire(.selection)
+                        }
+                        .buttonStyle(.gbSecondary)
+                    }
+                }
 
                 if revealed {
-                    Button(comparisonMode ? "Hide compare cards" : "Compare nearby forts") {
-                        comparisonMode.toggle()
-                        LessonFeedback.fire(.selection)
-                    }
-                    .buttonStyle(.bordered)
+                    Text("Reveal: \(place.name) is remembered for \(place.primaryEvent.lowercased()) and sits \(place.regionLabel.lowercased()).")
+                        .font(.subheadline)
+                        .foregroundStyle(GBColor.Content.secondary)
+                }
+
+                if comparisonMode {
+                    comparisonCards
                 }
             }
-
-            if revealed {
-                Text("Reveal: \(place.name) is remembered for \(place.primaryEvent.lowercased()) and sits \(place.regionLabel.lowercased()).")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-
-            if comparisonMode {
-                comparisonCards
-            }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private func selectedCandidateSummary(_ candidate: Place) -> some View {
         let matchesTarget = candidate.id == place.id
 
-        return HStack(alignment: .top, spacing: 12) {
-            Image(systemName: matchesTarget && revealed ? "checkmark.seal.fill" : "mappin.and.ellipse")
-                .foregroundStyle(matchesTarget && revealed ? .green : .orange)
-                .font(.title3)
+        return GBSurface(style: .elevated, padding: GBSpacing.small) {
+            HStack(alignment: .top, spacing: GBSpacing.small) {
+                Image(systemName: matchesTarget && revealed ? GBIcon.success : "mappin.and.ellipse")
+                    .foregroundStyle(matchesTarget && revealed ? GBColor.Accent.success : GBColor.Accent.place)
+                    .font(.title3)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(candidate.name)
-                    .font(.headline)
-                Text(candidate.primaryEvent)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(candidate.regionLabel)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                    Text(candidate.name)
+                        .font(.headline)
+                    Text(candidate.primaryEvent)
+                        .font(.subheadline)
+                        .foregroundStyle(GBColor.Content.secondary)
+                    Text(candidate.regionLabel)
+                        .font(.caption)
+                        .foregroundStyle(GBColor.Content.secondary)
+                }
+
+                Spacer()
             }
-
-            Spacer()
         }
-        .padding()
-        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var comparisonCards: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
             Text("Compare the nearby forts")
-                .font(.subheadline.bold())
+                .font(.subheadline.weight(.bold))
 
             ForEach(challengeCandidates.filter { $0.id != place.id }) { candidate in
-                HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: "arrow.left.and.right.circle.fill")
-                        .foregroundStyle(.orange)
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("\(candidate.name) vs \(place.name)")
-                            .font(.subheadline.weight(.semibold))
-                        Text("\(candidate.name): \(candidate.primaryEvent)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("\(place.name): \(place.primaryEvent)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                GBSurface(style: .elevated, padding: GBSpacing.small) {
+                    HStack(alignment: .top, spacing: GBSpacing.small) {
+                        Image(systemName: "arrow.left.and.right.circle.fill")
+                            .foregroundStyle(GBColor.Accent.place)
+                        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                            Text("\(candidate.name) vs \(place.name)")
+                                .font(.subheadline.weight(.semibold))
+                            Text("\(candidate.name): \(candidate.primaryEvent)")
+                                .font(.caption)
+                                .foregroundStyle(GBColor.Content.secondary)
+                            Text("\(place.name): \(place.primaryEvent)")
+                                .font(.caption)
+                                .foregroundStyle(GBColor.Content.secondary)
+                        }
+                        Spacer()
                     }
-                    Spacer()
                 }
-                .padding()
-                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
         }
     }
@@ -449,10 +454,10 @@ struct PlaceDetailView: View {
     private func schematicBoard(interactive: Bool) -> some View {
         GeometryReader { geometry in
             ZStack {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.13), Color.orange.opacity(0.10), Color.green.opacity(0.08)],
+                            colors: [GBColor.Accent.place.opacity(0.15), GBColor.Accent.story.opacity(0.10), GBColor.Accent.success.opacity(0.08)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -467,37 +472,25 @@ struct PlaceDetailView: View {
                     }
                 }
                 .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [10, 10]))
-                .foregroundStyle(.secondary.opacity(0.35))
+                .foregroundStyle(GBColor.Content.secondary.opacity(0.35))
 
                 VStack {
                     HStack {
                         Text("N")
-                            .font(.caption.bold())
+                            .font(.caption.weight(.bold))
                             .padding(8)
                             .background(.ultraThinMaterial, in: Circle())
                         Spacer()
-                        Text("Plateau trail")
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial, in: Capsule())
+                        boardLabel("Plateau trail")
                     }
                     Spacer()
                     HStack {
-                        Text("Konkan side")
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial, in: Capsule())
+                        boardLabel("Konkan side")
                         Spacer()
-                        Text("Pune side")
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial, in: Capsule())
+                        boardLabel("Pune side")
                     }
                 }
-                .padding(16)
+                .padding(GBSpacing.small)
 
                 ForEach(challengeCandidates) { candidate in
                     let isCurrent = candidate.id == place.id
@@ -533,6 +526,14 @@ struct PlaceDetailView: View {
         }
     }
 
+    private func boardLabel(_ text: String) -> some View {
+        Text(text)
+            .font(.caption.weight(.medium))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(.ultraThinMaterial, in: Capsule())
+    }
+
     private func pinMarker(
         candidate: Place,
         isCurrent: Bool,
@@ -542,13 +543,13 @@ struct PlaceDetailView: View {
         interactive: Bool
     ) -> some View {
         VStack(spacing: 6) {
-            Image(systemName: showAsCorrect ? "checkmark.circle.fill" : isSelected ? "mappin.circle.fill" : isCurrent && !interactive ? "mappin.circle.fill" : "mappin.circle")
+            Image(systemName: showAsCorrect ? GBIcon.success : isSelected ? "mappin.circle.fill" : isCurrent && !interactive ? "mappin.circle.fill" : "mappin.circle")
                 .font(isCurrent ? .title : .title2)
-                .foregroundStyle(showAsCorrect ? .green : showAsMistake ? .orange : isCurrent ? .orange : .primary.opacity(0.78))
-                .shadow(color: isCurrent ? .orange.opacity(0.25) : .clear, radius: 10)
+                .foregroundStyle(showAsCorrect ? GBColor.Accent.success : showAsMistake ? GBColor.Accent.story : isCurrent ? GBColor.Accent.place : GBColor.Content.primary.opacity(0.78))
+                .shadow(color: isCurrent ? GBColor.Accent.place.opacity(0.24) : .clear, radius: 10)
             Text(revealed || !interactive || isSelected ? candidate.name : "?")
-                .font(.caption2.bold())
-                .foregroundStyle(.primary)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(GBColor.Content.primary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(.ultraThinMaterial, in: Capsule())
@@ -570,44 +571,65 @@ struct PlaceDetailView: View {
         return CGPoint(x: x, y: y)
     }
 
-    private var progressColor: Color {
-        switch progress {
-        case .locked: return .gray
-        case .readyToLearn: return .orange
-        case .reviewed: return .blue
-        case .masteredLightly: return .green
-        }
-    }
-
-    private var progressIcon: String {
-        switch progress {
-        case .locked: return "lock.fill"
-        case .readyToLearn: return "sparkles"
-        case .reviewed: return "eye.fill"
-        case .masteredLightly: return "star.fill"
-        }
-    }
-
     private func detailChip(title: String, value: String, symbol: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: symbol)
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
             Text(value)
                 .font(.subheadline.weight(.medium))
+                .foregroundStyle(GBColor.Content.inverse)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
     }
 
     private func factRow(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.body)
+        GBSurface(style: .elevated, padding: GBSpacing.small) {
+            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                Text(title)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(GBColor.Content.secondary)
+                Text(value)
+                    .font(.body)
+                    .foregroundStyle(GBColor.Content.primary)
+            }
         }
+    }
+}
+
+private func progressColor(_ progress: PlaceProgress) -> Color {
+    switch progress {
+    case .locked:
+        GBColor.State.locked
+    case .readyToLearn:
+        GBColor.Accent.place
+    case .reviewed:
+        .blue
+    case .masteredLightly:
+        GBColor.Accent.success
+    }
+}
+
+private func progressIcon(_ progress: PlaceProgress) -> String {
+    switch progress {
+    case .locked:
+        GBIcon.locked
+    case .readyToLearn:
+        GBIcon.reward
+    case .reviewed:
+        "eye.fill"
+    case .masteredLightly:
+        "star.fill"
+    }
+}
+
+private func progressEmphasis(_ progress: PlaceProgress) -> GBEmphasis {
+    switch progress {
+    case .locked:
+        .neutral
+    case .readyToLearn, .reviewed, .masteredLightly:
+        .place
     }
 }

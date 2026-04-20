@@ -15,3 +15,8 @@ Use this directory for durable product and technical specifications.
 2. Draft spec from `docs/templates/spec-template.md`
 3. Review and refine in PRs/issues
 4. Mark approved and split delivery into feature issues if needed
+
+## Active highlighted specs
+
+- `2026-04-19-main-ux-iteration-spec.md`
+- `2026-04-20-responsive-design-system-spec.md`
