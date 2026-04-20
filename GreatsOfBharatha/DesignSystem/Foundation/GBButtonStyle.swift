@@ -24,13 +24,12 @@ struct GBButtonStyle: ButtonStyle {
             .animation(GBMotion.quick, value: configuration.isPressed)
     }
 
-    @ViewBuilder
-    private func background(configuration: Configuration) -> some ShapeStyle {
+    private func background(configuration: Configuration) -> AnyShapeStyle {
         switch kind {
         case .primary(let emphasis):
-            GBColor.gradient(for: emphasis)
+            AnyShapeStyle(GBColor.gradient(for: emphasis))
         case .secondary:
-            GBColor.Background.elevated.opacity(configuration.isPressed ? 0.88 : 1)
+            AnyShapeStyle(GBColor.Background.elevated.opacity(configuration.isPressed ? 0.88 : 1))
         }
     }
 
