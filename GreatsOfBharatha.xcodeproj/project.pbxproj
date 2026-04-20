@@ -9,6 +9,20 @@
 /* Begin PBXBuildFile section */
 		06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */; };
 		073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C5A02CDD2D6DA5162F535 /* MasteryState.swift */; };
+		0A4A9F770C1A4F32965E1011 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */; };
+		0A4A9F790C1A4F32965E1011 /* GBSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */; };
+		0A4A9F7B0C1A4F32965E1011 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */; };
+		0A4A9F7D0C1A4F32965E1011 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */; };
+		0A4A9F7F0C1A4F32965E1011 /* GBBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */; };
+		0A4A9F810C1A4F32965E1011 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */; };
+		0A4A9F830C1A4F32965E1011 /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F820C1A4F32965E1011 /* GBMotion.swift */; };
+		0A4A9F850C1A4F32965E1011 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */; };
+		0A4A9F870C1A4F32965E1011 /* GBSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F860C1A4F32965E1011 /* GBSurface.swift */; };
+		0A4A9F890C1A4F32965E1011 /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */; };
+		0A4A9F8B0C1A4F32965E1011 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */; };
+		0A4A9F8D0C1A4F32965E1011 /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */; };
+		0A4A9F8F0C1A4F32965E1011 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */; };
+		0A4A9F910C1A4F32965E1011 /* GBLayoutContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
 		1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
@@ -41,6 +55,20 @@
 /* Begin PBXFileReference section */
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
 		0C857F8C6F22867D7E8B067F /* ShivajiLessonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonViews.swift; sourceTree = "<group>"; };
+		0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
+		0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
+		0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
+		0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIcon.swift; sourceTree = "<group>"; };
+		0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
+		0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
+		0A4A9F820C1A4F32965E1011 /* GBMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBMotion.swift; sourceTree = "<group>"; };
+		0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBCardStyle.swift; sourceTree = "<group>"; };
+		0A4A9F860C1A4F32965E1011 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
+		0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
+		0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
+		0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRadius.swift; sourceTree = "<group>"; };
+		0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
+		0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
 		1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
 		2C6D8E0E1A2B3C4D5E6F7081 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
 		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +92,51 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		0A4A9F920C1A4F32965E1011 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */,
+				0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */,
+				0A4A9F820C1A4F32965E1011 /* GBMotion.swift */,
+				0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */,
+				0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */,
+				0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
+		0A4A9F930C1A4F32965E1011 /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */,
+				0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */,
+				0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */,
+				0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */,
+				0A4A9F860C1A4F32965E1011 /* GBSurface.swift */,
+			);
+			path = Foundation;
+			sourceTree = "<group>";
+		};
+		0A4A9F940C1A4F32965E1011 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */,
+				0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */,
+				0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		0A4A9F950C1A4F32965E1011 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				0A4A9F920C1A4F32965E1011 /* Tokens */,
+				0A4A9F930C1A4F32965E1011 /* Foundation */,
+				0A4A9F940C1A4F32965E1011 /* Components */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
 		0570398737C6B4A9BAA4000C /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +246,7 @@
 				AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */,
 				AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */,
 				B103BD6B19B2767D7BF88F0A /* App */,
+				0A4A9F950C1A4F32965E1011 /* DesignSystem */,
 				4883D0626FEE9C29B53D471D /* Features */,
 				57AE668B589447AA164CAEE2 /* Shared */,
 			);
@@ -274,6 +348,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A4A9F7F0C1A4F32965E1011 /* GBBadge.swift in Sources */,
+				0A4A9F770C1A4F32965E1011 /* GBButtonStyle.swift in Sources */,
+				0A4A9F850C1A4F32965E1011 /* GBCardStyle.swift in Sources */,
+				0A4A9F8B0C1A4F32965E1011 /* GBColor.swift in Sources */,
+				0A4A9F890C1A4F32965E1011 /* GBHeroCard.swift in Sources */,
+				0A4A9F7D0C1A4F32965E1011 /* GBIcon.swift in Sources */,
+				0A4A9F910C1A4F32965E1011 /* GBLayoutContext.swift in Sources */,
+				0A4A9F830C1A4F32965E1011 /* GBMotion.swift in Sources */,
+				0A4A9F810C1A4F32965E1011 /* GBQuestProgress.swift in Sources */,
+				0A4A9F8D0C1A4F32965E1011 /* GBRadius.swift in Sources */,
+				0A4A9F790C1A4F32965E1011 /* GBSectionHeader.swift in Sources */,
+				0A4A9F8F0C1A4F32965E1011 /* GBSpacing.swift in Sources */,
+				0A4A9F870C1A4F32965E1011 /* GBSurface.swift in Sources */,
+				0A4A9F7B0C1A4F32965E1011 /* GBTypography.swift in Sources */,
 				7B4A1D2E3F40516273849506 /* CaptureRootView.swift in Sources */,
 				1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */,
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
