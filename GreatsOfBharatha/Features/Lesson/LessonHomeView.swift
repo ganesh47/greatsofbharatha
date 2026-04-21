@@ -3,6 +3,10 @@ import SwiftUI
 struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
 
+    private var unlockedRewardsCount: Int {
+        appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count
+    }
+
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
@@ -30,12 +34,12 @@ struct LessonHomeView: View {
                             GBSectionHeader(
                                 eyebrow: "Quest",
                                 title: "Story to fort to Chronicle",
-                                subtitle: "Keep the loop simple: hear a moment, remember its place, and collect the meaning it unlocks."
+                                subtitle: "Keep the loop simple: hear one moment, find its fort, then collect the meaning it unlocks."
                             )
 
                             GBQuestProgress(
                                 steps: [.story, .place, .chronicle],
-                                currentStepID: "story"
+                                currentStepID: unlockedRewardsCount > 0 ? "chronicle" : "story"
                             )
                         }
                     }
@@ -44,20 +48,30 @@ struct LessonHomeView: View {
                         GBSectionHeader(
                             eyebrow: "Story Path",
                             title: "Choose a Shivaji Maharaj moment",
-                            subtitle: "Each scene keeps one story beat, one place clue, and one quick recall before the reward."
+                            subtitle: "Only the next unfinished scene opens by default, so kids stay focused on one clear task."
                         )
 
                         ForEach(appModel.content.scenes) { scene in
-                            NavigationLink {
-                                SceneLessonView(scene: scene)
-                            } label: {
-                                SceneRowCard(
-                                    scene: scene,
-                                    mastery: appModel.lessonStore.mastery(for: scene.id),
-                                    isNext: scene.id == appModel.lessonStore.nextSceneID
-                                )
+                            let isUnlocked = appModel.lessonStore.isSceneUnlocked(scene)
+                            let card = SceneRowCard(
+                                scene: scene,
+                                mastery: appModel.lessonStore.mastery(for: scene.id),
+                                isNext: scene.id == appModel.lessonStore.nextSceneID,
+                                isLocked: !isUnlocked
+                            )
+
+                            Group {
+                                if isUnlocked {
+                                    NavigationLink {
+                                        SceneLessonView(scene: scene)
+                                    } label: {
+                                        card
+                                    }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    card
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
                     }
 
@@ -71,16 +85,28 @@ struct LessonHomeView: View {
                     }
                     .buttonStyle(.plain)
 
-                    NavigationLink {
-                        ChronicleView(rewards: appModel.content.rewards)
-                    } label: {
-                        ChronicleTeaserCard(
-                            headline: appModel.lessonStore.chronicleHeadline,
-                            unlockedCount: appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count,
-                            totalCount: appModel.content.rewards.count
-                        )
+                    Group {
+                        if unlockedRewardsCount > 0 {
+                            NavigationLink {
+                                ChronicleView(rewards: appModel.content.rewards)
+                            } label: {
+                                ChronicleTeaserCard(
+                                    headline: appModel.lessonStore.chronicleHeadline,
+                                    unlockedCount: unlockedRewardsCount,
+                                    totalCount: appModel.content.rewards.count,
+                                    isLocked: false
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            ChronicleTeaserCard(
+                                headline: "Finish one scene to unlock the first keepsake.",
+                                unlockedCount: unlockedRewardsCount,
+                                totalCount: appModel.content.rewards.count,
+                                isLocked: true
+                            )
+                        }
                     }
-                    .buttonStyle(.plain)
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
                 .padding(context.containerPadding)
@@ -103,6 +129,7 @@ private struct SceneRowCard: View {
     let scene: StoryScene
     let mastery: MasteryState?
     let isNext: Bool
+    let isLocked: Bool
 
     var body: some View {
         GBSurface(style: .plain) {
@@ -113,6 +140,9 @@ private struct SceneRowCard: View {
                             GBBadge(title: "Scene \(scene.number)", symbol: GBIcon.story, emphasis: .story)
                             if isNext {
                                 GBBadge(title: "Up next", symbol: GBIcon.next, emphasis: .story)
+                            }
+                            if isLocked {
+                                GBBadge(title: "Finish scene \(scene.number - 1) first", symbol: "lock.fill", emphasis: .neutral)
                             }
                         }
 
@@ -137,12 +167,13 @@ private struct SceneRowCard: View {
                 HStack(spacing: GBSpacing.small) {
                     Label(scene.timelineMarker, systemImage: GBIcon.timeline)
                     Spacer()
-                    Label(isNext ? "Start" : "Review", systemImage: GBIcon.next)
+                    Label(isLocked ? "Locked" : (isNext ? "Start" : "Review"), systemImage: isLocked ? "lock.fill" : GBIcon.next)
                         .font(.subheadline.weight(.semibold))
                 }
                 .font(.subheadline)
                 .foregroundStyle(GBColor.Content.secondary)
             }
+            .opacity(isLocked ? 0.72 : 1)
         }
     }
 }
@@ -184,6 +215,7 @@ private struct ChronicleTeaserCard: View {
     let headline: String
     let unlockedCount: Int
     let totalCount: Int
+    let isLocked: Bool
 
     var body: some View {
         GBSurface(style: .accented(.chronicle)) {
@@ -202,10 +234,11 @@ private struct ChronicleTeaserCard: View {
 
                 Spacer()
 
-                Image(systemName: GBIcon.chronicle)
+                Image(systemName: isLocked ? "lock.fill" : GBIcon.chronicle)
                     .font(.title2)
                     .foregroundStyle(GBColor.Content.inverse)
             }
         }
+        .opacity(isLocked ? 0.82 : 1)
     }
 }

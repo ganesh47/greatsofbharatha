@@ -5,20 +5,13 @@ struct SceneLessonView: View {
     let scene: StoryScene
 
     @State private var cardIndex = 0
+    @State private var storyStepComplete = false
     @State private var recallState = LessonRecallState()
     @State private var revealedMapAnchors = 0
     @State private var chosenPlanSteps: Set<String> = []
+    @State private var bonusPlanningVisible = false
     @State private var hintVisible = false
     @State private var recapVisible = false
-
-    private var progressValue: Double {
-        let bonusStep = scene.number == 2 ? 1.0 : 0.0
-        let completedCards = Double(cardIndex + 1)
-        let answered = recallState.hasAnsweredCorrectly ? 1.0 : 0.0
-        let denominator = Double(scene.interactionSteps.count) + 1.0 + bonusStep
-        let planProgress = scene.number == 2 ? min(Double(chosenPlanSteps.count) / 2.0, 1.0) : 0.0
-        return min((completedCards + Double(revealedMapAnchors > 0 ? 1 : 0) + planProgress + answered) / denominator, 1.0)
-    }
 
     private var lessonCards: [SceneCardContent] {
         [
@@ -26,6 +19,17 @@ struct SceneLessonView: View {
             SceneCardContent(id: "fact", eyebrow: "Remember this", title: scene.keyFact, body: scene.narrativeObjective, symbol: "sparkles.rectangle.stack.fill"),
             SceneCardContent(id: "timeline", eyebrow: "Chronicle moment", title: scene.timelineMarker, body: "This is the moment you will remember when you open the Royal Chronicle.", symbol: GBIcon.timeline)
         ]
+    }
+
+    private var flow: SceneLessonFlow {
+        SceneLessonFlow(
+            totalStoryCards: lessonCards.count,
+            currentStoryCardIndex: cardIndex,
+            storyStepComplete: storyStepComplete,
+            totalMapAnchors: scene.mapAnchors.count,
+            revealedMapAnchors: revealedMapAnchors,
+            hasAnsweredCorrectly: recallState.hasAnsweredCorrectly
+        )
     }
 
     private var currentStepTitle: String {
@@ -36,18 +40,8 @@ struct SceneLessonView: View {
         }
     }
 
-    private var nextCardButtonTitle: String {
-        cardIndex == lessonCards.count - 1 ? "Move to place clues" : "Continue story"
-    }
-
-    private var activeQuestStepID: String {
-        if recallState.hasAnsweredCorrectly {
-            return "chronicle"
-        }
-        if revealedMapAnchors > 0 || !chosenPlanSteps.isEmpty {
-            return "place"
-        }
-        return "story"
+    private var storyButtonTitle: String {
+        cardIndex == lessonCards.count - 1 ? "Continue to place clues" : "Continue story"
     }
 
     var body: some View {
@@ -56,7 +50,7 @@ struct SceneLessonView: View {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     SceneHeaderCard(
                         scene: scene,
-                        progressValue: progressValue,
+                        progressValue: flow.progressValue,
                         mastery: appModel.lessonStore.mastery(for: scene.id)
                     )
 
@@ -65,52 +59,59 @@ struct SceneLessonView: View {
                             GBSectionHeader(
                                 eyebrow: "Quest",
                                 title: "Hear the story, remember the fort, keep the Chronicle",
-                                subtitle: "This scene only asks for one step at a time."
+                                subtitle: "Only the active step stays on screen, so the scene feels easy to finish."
                             )
 
                             GBQuestProgress(
                                 steps: [.story, .place, .chronicle],
-                                currentStepID: activeQuestStepID
+                                currentStepID: flow.currentQuestStepID
                             )
                         }
                     }
 
-                    StoryDeckCard(
-                        currentStepTitle: currentStepTitle,
-                        lessonCards: lessonCards,
-                        cardIndex: $cardIndex,
-                        nextCardButtonTitle: nextCardButtonTitle
-                    )
+                    switch flow.activeStage {
+                    case .story:
+                        StoryDeckCard(
+                            currentStepTitle: currentStepTitle,
+                            lessonCards: lessonCards,
+                            cardIndex: $cardIndex,
+                            nextCardButtonTitle: storyButtonTitle,
+                            onFinishStory: completeStoryStep
+                        )
+                    case .place:
+                        MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
+                    case .chronicle:
+                        SceneSupportCard(
+                            hintVisible: $hintVisible,
+                            recapVisible: recapVisible,
+                            hasAnsweredCorrectly: recallState.hasAnsweredCorrectly,
+                            curatedHint: curatedHint,
+                            sceneRecap: sceneRecap
+                        )
 
-                    MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
-
-                    if scene.number == 2 {
-                        FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
-                    }
-
-                    SceneSupportCard(
-                        hintVisible: $hintVisible,
-                        recapVisible: recapVisible,
-                        hasAnsweredCorrectly: recallState.hasAnsweredCorrectly,
-                        curatedHint: curatedHint,
-                        sceneRecap: sceneRecap
-                    )
-
-                    RecallPanel(
-                        question: scene.recallPrompt,
-                        choices: sceneChoices,
-                        selectedChoiceID: $recallState.selectedChoiceID,
-                        feedbackText: recallState.feedbackText,
-                        completed: recallState.hasAnsweredCorrectly,
-                        onSubmit: submitRecall
-                    )
-
-                    if recallState.hasAnsweredCorrectly {
+                        RecallPanel(
+                            question: scene.recallPrompt,
+                            choices: sceneChoices,
+                            selectedChoiceID: $recallState.selectedChoiceID,
+                            feedbackText: recallState.feedbackText,
+                            completed: recallState.hasAnsweredCorrectly,
+                            onSubmit: submitRecall
+                        )
+                    case .complete:
                         CompletedSceneActions(
                             scene: scene,
                             places: appModel.content.corePlaces,
-                            rewards: appModel.content.rewards
+                            rewards: appModel.content.rewards,
+                            recapVisible: recapVisible,
+                            sceneRecap: sceneRecap,
+                            bonusPlanningVisible: $bonusPlanningVisible,
+                            showsPlanningChallenge: scene.number == 2,
+                            hasPlanningUpgrade: chosenPlanSteps.count >= 2
                         )
+
+                        if scene.number == 2, bonusPlanningVisible {
+                            BonusPlanningCard(chosenPlanSteps: $chosenPlanSteps)
+                        }
                     }
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
@@ -123,6 +124,15 @@ struct SceneLessonView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+        .onChange(of: chosenPlanSteps) { _, newValue in
+            guard scene.number == 2, recallState.hasAnsweredCorrectly, newValue.count >= 2 else { return }
+            appModel.lessonStore.markScene(scene.id, mastery: .observedClosely)
+        }
+    }
+
+    private func completeStoryStep() {
+        storyStepComplete = true
+        LessonFeedback.fire(.success)
     }
 
     private func submitRecall() {
@@ -240,6 +250,7 @@ private struct StoryDeckCard: View {
     let lessonCards: [SceneCardContent]
     @Binding var cardIndex: Int
     let nextCardButtonTitle: String
+    let onFinishStory: () -> Void
 
     var body: some View {
         GBSurface(style: .plain) {
@@ -280,8 +291,12 @@ private struct StoryDeckCard: View {
                     }
 
                     Button(nextCardButtonTitle) {
-                        cardIndex = min(cardIndex + 1, lessonCards.count - 1)
-                        LessonFeedback.fire(.selection)
+                        if cardIndex == lessonCards.count - 1 {
+                            onFinishStory()
+                        } else {
+                            cardIndex = min(cardIndex + 1, lessonCards.count - 1)
+                            LessonFeedback.fire(.selection)
+                        }
                     }
                     .buttonStyle(.gbPrimary(.story))
                 }
@@ -372,7 +387,7 @@ private struct MapAnchorCard: View {
                     .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
                 }
 
-                Button(revealedMapAnchors == scene.mapAnchors.count ? "All place clues found" : "Reveal next place clue") {
+                Button(revealedMapAnchors == scene.mapAnchors.count ? "Continue to Chronicle" : "Reveal next place clue") {
                     let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
                     if nextValue != revealedMapAnchors {
                         revealedMapAnchors = nextValue
@@ -380,50 +395,6 @@ private struct MapAnchorCard: View {
                     }
                 }
                 .buttonStyle(.gbSecondary)
-            }
-        }
-    }
-}
-
-private struct FortPlanningCard: View {
-    @Binding var chosenPlanSteps: Set<String>
-
-    var body: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Place Practice",
-                    title: "Choose smart fort planning steps",
-                    subtitle: "Pick two choices that would help a mountain base stay ready."
-                )
-
-                ForEach(LessonPlanStep.starterSet) { step in
-                    Button {
-                        if chosenPlanSteps.contains(step.id) {
-                            chosenPlanSteps.remove(step.id)
-                        } else {
-                            chosenPlanSteps.insert(step.id)
-                        }
-                        LessonFeedback.fire(.selection)
-                    } label: {
-                        HStack(spacing: GBSpacing.small) {
-                            Image(systemName: chosenPlanSteps.contains(step.id) ? GBIcon.success : step.symbol)
-                                .foregroundStyle(chosenPlanSteps.contains(step.id) ? GBColor.Accent.success : GBColor.Accent.place)
-                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                                Text(step.title)
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(GBColor.Content.primary)
-                                Text(step.detail)
-                                    .font(.caption)
-                                    .foregroundStyle(GBColor.Content.secondary)
-                            }
-                            Spacer()
-                        }
-                        .padding(GBSpacing.small)
-                        .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-                }
             }
         }
     }
@@ -565,6 +536,11 @@ private struct CompletedSceneActions: View {
     let scene: StoryScene
     let places: [Place]
     let rewards: [ChronicleReward]
+    let recapVisible: Bool
+    let sceneRecap: String
+    @Binding var bonusPlanningVisible: Bool
+    let showsPlanningChallenge: Bool
+    let hasPlanningUpgrade: Bool
 
     var body: some View {
         GBSurface(style: .accented(.chronicle)) {
@@ -576,6 +552,12 @@ private struct CompletedSceneActions: View {
                     tone: .inverse,
                     trailing: AnyView(GBBadge(title: "Reward ready", symbol: GBIcon.chronicle, emphasis: .chronicle))
                 )
+
+                if recapVisible {
+                    Text(sceneRecap)
+                        .font(.subheadline)
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                }
 
                 NavigationLink {
                     ChronicleView(rewards: rewards, highlightRewardID: scene.rewardID)
@@ -592,6 +574,59 @@ private struct CompletedSceneActions: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.gbSecondary)
+
+                if showsPlanningChallenge {
+                    Button(hasPlanningUpgrade ? "Bonus planning challenge complete" : (bonusPlanningVisible ? "Hide bonus planning challenge" : "Try the bonus planning challenge")) {
+                        bonusPlanningVisible.toggle()
+                        LessonFeedback.fire(.selection)
+                    }
+                    .buttonStyle(.gbSecondary)
+                    .disabled(hasPlanningUpgrade)
+                }
+            }
+        }
+    }
+}
+
+private struct BonusPlanningCard: View {
+    @Binding var chosenPlanSteps: Set<String>
+
+    var body: some View {
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSectionHeader(
+                    eyebrow: "Bonus Challenge",
+                    title: "Choose smart fort planning steps",
+                    subtitle: "Pick any two choices that would help a mountain base stay ready."
+                )
+
+                ForEach(LessonPlanStep.starterSet) { step in
+                    Button {
+                        if chosenPlanSteps.contains(step.id) {
+                            chosenPlanSteps.remove(step.id)
+                        } else {
+                            chosenPlanSteps.insert(step.id)
+                        }
+                        LessonFeedback.fire(.selection)
+                    } label: {
+                        HStack(spacing: GBSpacing.small) {
+                            Image(systemName: chosenPlanSteps.contains(step.id) ? GBIcon.success : step.symbol)
+                                .foregroundStyle(chosenPlanSteps.contains(step.id) ? GBColor.Accent.success : GBColor.Accent.place)
+                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                                Text(step.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(GBColor.Content.primary)
+                                Text(step.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(GBSpacing.small)
+                        .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }

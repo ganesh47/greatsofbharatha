@@ -17,6 +17,17 @@ final class ShivajiLessonStore: ObservableObject {
         masteryByScene[sceneID]
     }
 
+    func isSceneUnlocked(_ scene: StoryScene) -> Bool {
+        guard let sceneIndex = content.scenes.firstIndex(where: { $0.id == scene.id }) else {
+            return false
+        }
+        if sceneIndex == 0 {
+            return true
+        }
+        let previousScene = content.scenes[content.scenes.index(before: sceneIndex)]
+        return mastery(for: previousScene.id) != nil
+    }
+
     func markScene(_ sceneID: String, mastery: MasteryState) {
         let current = masteryByScene[sceneID] ?? .witnessed
         masteryByScene[sceneID] = higherMastery(current, mastery)
