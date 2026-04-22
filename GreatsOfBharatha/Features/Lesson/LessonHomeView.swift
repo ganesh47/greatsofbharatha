@@ -3,6 +3,13 @@ import SwiftUI
 struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
 
+    private var nextScene: StoryScene? {
+        if let nextSceneID = appModel.lessonStore.nextSceneID {
+            return appModel.content.scenes.first(where: { $0.id == nextSceneID })
+        }
+        return appModel.content.scenes.last
+    }
+
     private var unlockedRewardsCount: Int {
         appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count
     }
@@ -15,16 +22,7 @@ struct LessonHomeView: View {
                         NavigationLink {
                             SceneLessonView(scene: nextScene)
                         } label: {
-                            GBHeroCard(
-                                eyebrow: appModel.content.arcTitle,
-                                title: appModel.lessonStore.completedScenes == 0 ? "Hear the story first" : "Your story path is still open",
-                                subtitle: nextScene.title,
-                                detail: "Follow one scene at a time, remember the fort, then add its meaning to your Chronicle.",
-                                ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene 1" : "Continue journey",
-                                badgeTitle: appModel.lessonStore.completedScenes == appModel.lessonStore.totalScenes ? "Journey complete" : "Next scene",
-                                emphasis: .story,
-                                progress: appModel.lessonStore.overallProgress
-                            )
+                            homeHeroCard(nextScene: nextScene)
                         }
                         .buttonStyle(.plain)
                     }
@@ -32,81 +30,51 @@ struct LessonHomeView: View {
                     GBSurface(style: .elevated) {
                         VStack(alignment: .leading, spacing: GBSpacing.small) {
                             GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Story to fort to Chronicle",
-                                subtitle: "Keep the loop simple: hear one moment, find its fort, then collect the meaning it unlocks."
+                                eyebrow: "Your next move",
+                                title: appModel.lessonStore.completedScenes == 0 ? "Tap one path and begin" : "Keep the adventure moving",
+                                subtitle: "Each scene is short: three story cards, one memory check, then a new Chronicle keepsake."
                             )
 
-                            GBQuestProgress(
-                                steps: [.story, .place, .chronicle],
-                                currentStepID: unlockedRewardsCount > 0 ? "chronicle" : "story"
-                            )
+                            HStack(spacing: GBSpacing.small) {
+                                JourneyStatPill(title: "Scenes", value: "\(appModel.lessonStore.completedScenes)/\(appModel.lessonStore.totalScenes)", emphasis: .story)
+                                JourneyStatPill(title: "Chronicle", value: "\(unlockedRewardsCount)", emphasis: .chronicle)
+                                JourneyStatPill(title: "Forts", value: "\(appModel.content.corePlaces.count)", emphasis: .place)
+                            }
                         }
                     }
 
                     VStack(alignment: .leading, spacing: context.cardSpacing) {
                         GBSectionHeader(
-                            eyebrow: "Story Path",
-                            title: "Choose a Shivaji Maharaj moment",
-                            subtitle: "Only the next unfinished scene opens by default, so kids stay focused on one clear task."
+                            eyebrow: "Adventure path",
+                            title: "Choose a story moment",
+                            subtitle: "One clear card first, one quick recall next, one reward at the end."
                         )
 
                         ForEach(appModel.content.scenes) { scene in
-                            let isUnlocked = appModel.lessonStore.isSceneUnlocked(scene)
-                            let card = SceneRowCard(
-                                scene: scene,
-                                mastery: appModel.lessonStore.mastery(for: scene.id),
-                                isNext: scene.id == appModel.lessonStore.nextSceneID,
-                                isLocked: !isUnlocked
-                            )
-
-                            Group {
-                                if isUnlocked {
-                                    NavigationLink {
-                                        SceneLessonView(scene: scene)
-                                    } label: {
-                                        card
-                                    }
-                                    .buttonStyle(.plain)
-                                } else {
-                                    card
-                                }
+                            NavigationLink {
+                                SceneLessonView(scene: scene)
+                            } label: {
+                                SceneJourneyCard(
+                                    scene: scene,
+                                    reward: appModel.content.rewards.first(where: { $0.id == scene.rewardID }),
+                                    mastery: appModel.lessonStore.mastery(for: scene.id),
+                                    isNext: scene.id == appModel.lessonStore.nextSceneID
+                                )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
 
                     NavigationLink {
-                        PlacesHubView(places: appModel.content.corePlaces)
+                        ChronicleView(rewards: appModel.content.rewards)
                     } label: {
-                        PlacesLoopCard(
-                            readyCount: appModel.content.corePlaces.filter { appModel.lessonStore.progress(for: $0) != .locked }.count,
-                            totalCount: appModel.content.corePlaces.count
+                        ChronicleJourneyCard(
+                            headline: appModel.lessonStore.chronicleHeadline,
+                            unlockedCount: unlockedRewardsCount,
+                            totalCount: appModel.content.rewards.count
                         )
                     }
                     .buttonStyle(.plain)
-
-                    Group {
-                        if unlockedRewardsCount > 0 {
-                            NavigationLink {
-                                ChronicleView(rewards: appModel.content.rewards)
-                            } label: {
-                                ChronicleTeaserCard(
-                                    headline: appModel.lessonStore.chronicleHeadline,
-                                    unlockedCount: unlockedRewardsCount,
-                                    totalCount: appModel.content.rewards.count,
-                                    isLocked: false
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            ChronicleTeaserCard(
-                                headline: "Finish one scene to unlock the first keepsake.",
-                                unlockedCount: unlockedRewardsCount,
-                                totalCount: appModel.content.rewards.count,
-                                isLocked: true
-                            )
-                        }
-                    }
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
                 .padding(context.containerPadding)
@@ -117,22 +85,50 @@ struct LessonHomeView: View {
         .navigationTitle("Greats of Bharatha")
     }
 
-    private var nextScene: StoryScene? {
-        if let nextSceneID = appModel.lessonStore.nextSceneID {
-            return appModel.content.scenes.first(where: { $0.id == nextSceneID })
-        }
-        return appModel.content.scenes.last
+    private func homeHeroCard(nextScene: StoryScene) -> some View {
+        GBHeroCard(
+            eyebrow: "Shivaji Maharaj",
+            title: appModel.lessonStore.completedScenes == 0 ? "Begin the hill-fort adventure" : "Your next fort is ready",
+            subtitle: nextScene.timelineMarker,
+            detail: appModel.lessonStore.completedScenes == 0
+                ? "Start with one vivid scene, hold onto one memory hook, then earn your first Chronicle card."
+                : "Jump back in with one short scene, a place clue trail, and a Chronicle keepsake waiting at the finish.",
+            ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene \(nextScene.number)" : "Continue journey",
+            badgeTitle: appModel.lessonStore.completedScenes == appModel.lessonStore.totalScenes ? "Journey complete" : "Next adventure",
+            emphasis: .story,
+            progress: appModel.lessonStore.overallProgress
+        )
     }
 }
 
-private struct SceneRowCard: View {
-    let scene: StoryScene
-    let mastery: MasteryState?
-    let isNext: Bool
-    let isLocked: Bool
+private struct JourneyStatPill: View {
+    let title: String
+    let value: String
+    let emphasis: GBEmphasis
 
     var body: some View {
-        GBSurface(style: .plain) {
+        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+            Text(title)
+                .gbCaption()
+                .foregroundStyle(GBColor.Content.secondary)
+            Text(value)
+                .gbHeadline()
+                .foregroundStyle(GBColor.accent(for: emphasis))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(GBSpacing.xSmall)
+        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+    }
+}
+
+private struct SceneJourneyCard: View {
+    let scene: StoryScene
+    let reward: ChronicleReward?
+    let mastery: MasteryState?
+    let isNext: Bool
+
+    var body: some View {
+        GBSurface(style: isNext ? .elevated : .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 HStack(alignment: .top, spacing: GBSpacing.small) {
                     VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
@@ -140,9 +136,6 @@ private struct SceneRowCard: View {
                             GBBadge(title: "Scene \(scene.number)", symbol: GBIcon.story, emphasis: .story)
                             if isNext {
                                 GBBadge(title: "Up next", symbol: GBIcon.next, emphasis: .story)
-                            }
-                            if isLocked {
-                                GBBadge(title: "Finish scene \(scene.number - 1) first", symbol: "lock.fill", emphasis: .neutral)
                             }
                         }
 
@@ -157,88 +150,96 @@ private struct SceneRowCard: View {
                             .lineLimit(2)
                     }
 
-                    Spacer(minLength: GBSpacing.small)
+                    Spacer()
 
                     if let mastery {
-                        GBBadge(title: mastery.rawValue, symbol: GBIcon.reward, emphasis: .story)
+                        GBBadge(title: mastery.rawValue, symbol: masterySymbol(mastery), emphasis: masteryEmphasis(mastery))
                     }
                 }
 
                 HStack(spacing: GBSpacing.small) {
-                    Label(scene.timelineMarker, systemImage: GBIcon.timeline)
-                    Spacer()
-                    Label(isLocked ? "Locked" : (isNext ? "Start" : "Review"), systemImage: isLocked ? "lock.fill" : GBIcon.next)
-                        .font(.subheadline.weight(.semibold))
-                }
-                .font(.subheadline)
-                .foregroundStyle(GBColor.Content.secondary)
-            }
-            .opacity(isLocked ? 0.72 : 1)
-        }
-    }
-}
-
-private struct PlacesLoopCard: View {
-    let readyCount: Int
-    let totalCount: Int
-
-    var body: some View {
-        GBSurface(style: .accented(.place)) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .top, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Text("Find the fort next")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.86))
-                        Text("Open the place trail")
-                            .font(.title3.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse)
-                        Text("Keep the story connected to real forts so the journey feels spatial, not just sequential.")
-                            .font(.body)
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                    miniChip(title: scene.timelineMarker, symbol: "sparkles")
+                    if let reward {
+                        miniChip(title: reward.title, symbol: GBIcon.chronicle)
                     }
-
-                    Spacer()
-
-                    GBBadge(title: "\(readyCount) of \(totalCount) ready", symbol: GBIcon.place, emphasis: .place)
+                    miniChip(title: "3 cards + recall", symbol: "square.stack.3d.up.fill")
                 }
 
-                Label("See the Sahyadri fort path", systemImage: GBIcon.next)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(GBColor.Content.inverse)
+                HStack {
+                    Text(isNext ? "Start this scene" : "Open scene")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(GBColor.Content.primary)
+                    Spacer()
+                    Image(systemName: GBIcon.next)
+                        .foregroundStyle(GBColor.Accent.story)
+                }
             }
+        }
+    }
+
+    private func miniChip(title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(GBColor.Content.secondary)
+            .padding(.horizontal, GBSpacing.xSmall)
+            .padding(.vertical, GBSpacing.xxxSmall)
+            .background(GBColor.Background.elevated, in: Capsule())
+    }
+
+    private func masterySymbol(_ mastery: MasteryState) -> String {
+        switch mastery {
+        case .witnessed:
+            return "eye.fill"
+        case .understood:
+            return "star.fill"
+        case .observedClosely:
+            return "sparkles"
+        }
+    }
+
+    private func masteryEmphasis(_ mastery: MasteryState) -> GBEmphasis {
+        switch mastery {
+        case .witnessed:
+            return .neutral
+        case .understood:
+            return .story
+        case .observedClosely:
+            return .chronicle
         }
     }
 }
 
-private struct ChronicleTeaserCard: View {
+private struct ChronicleJourneyCard: View {
     let headline: String
     let unlockedCount: Int
     let totalCount: Int
-    let isLocked: Bool
 
     var body: some View {
         GBSurface(style: .accented(.chronicle)) {
-            HStack(spacing: GBSpacing.small) {
-                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+            HStack(alignment: .center, spacing: GBSpacing.small) {
+                Image(systemName: GBIcon.chronicle)
+                    .font(.title2)
+                    .foregroundStyle(GBColor.Content.inverse)
+                    .frame(width: 52, height: 52)
+                    .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
                     Text("Royal Chronicle")
-                        .font(.title3.weight(.bold))
+                        .gbHeadline()
                         .foregroundStyle(GBColor.Content.inverse)
                     Text(headline)
-                        .font(.body)
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
-                    Text("\(unlockedCount) of \(totalCount) rewards unlocked")
+                    Text("\(unlockedCount) of \(totalCount) keepsakes ready")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
                 }
 
                 Spacer()
 
-                Image(systemName: isLocked ? "lock.fill" : GBIcon.chronicle)
-                    .font(.title2)
+                Image(systemName: GBIcon.next)
                     .foregroundStyle(GBColor.Content.inverse)
             }
         }
-        .opacity(isLocked ? 0.82 : 1)
     }
 }

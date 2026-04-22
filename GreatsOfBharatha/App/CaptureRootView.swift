@@ -5,18 +5,8 @@ struct CaptureRootView: View {
     let route: DebugNavigationRoute
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            captureScreen
-
-            Text("CAPTURE ROUTE: \(route.rawValue)")
-                .font(.caption.bold())
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.black.opacity(0.75), in: Capsule())
-                .foregroundStyle(.white)
-                .padding()
-        }
-        .tint(.orange)
+        captureScreen
+            .tint(.orange)
     }
 
     @ViewBuilder

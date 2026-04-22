@@ -24,74 +24,62 @@ struct ChronicleView: View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    heroCard
-
-                    GBSurface(style: .elevated) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Keep the meaning, not just the completion",
-                                subtitle: "The Chronicle is where each learned moment becomes a keepsake."
-                            )
-
-                            GBQuestProgress(
-                                steps: [.story, .place, .chronicle],
-                                currentStepID: "chronicle"
-                            )
-                        }
-                    }
+                    chronicleHero
 
                     if let highlightedReward {
-                        HighlightRewardCard(
+                        NewRewardSpotlight(
                             reward: highlightedReward,
-                            collected: celebratedRewardIDs.contains(highlightedReward.id)
-                        ) {
-                            celebratedRewardIDs.insert(highlightedReward.id)
-                            LessonFeedback.fire(.celebration)
-                        }
-                    }
-
-                    GBSurface(style: .elevated) {
-                        Text("Meaning-bearing rewards for story progress, not anxiety-heavy grades.")
-                            .font(.subheadline)
-                            .foregroundStyle(GBColor.Content.secondary)
+                            collected: celebratedRewardIDs.contains(highlightedReward.id),
+                            onCollect: {
+                                celebratedRewardIDs.insert(highlightedReward.id)
+                                LessonFeedback.fire(.celebration)
+                            }
+                        )
                     }
 
                     VStack(alignment: .leading, spacing: context.cardSpacing) {
                         GBSectionHeader(
-                            eyebrow: "Unlocked",
-                            title: "Rewards already in your Chronicle",
-                            subtitle: unlockedRewards.isEmpty ? "Finish a lesson scene to place its meaning into the Royal Chronicle." : "Each reward should remind the child what was learned."
+                            eyebrow: "Collected keepsakes",
+                            title: unlockedRewards.isEmpty ? "Your Chronicle is waiting" : "Your Chronicle shelf",
+                            subtitle: unlockedRewards.isEmpty
+                                ? "Finish a scene and remember its hook to place your first keepsake here."
+                                : "Each keepsake marks a part of Shivaji Maharaj's journey you remembered."
                         )
 
                         if unlockedRewards.isEmpty {
-                            EmptyChronicleCard(debugMasterySummary: debugMasterySummary)
+                            GBSurface(style: .elevated) {
+                                Text("Play a short scene, answer the recall card, and your first Chronicle page will open here.")
+                                    .gbBody()
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
                         } else {
                             ForEach(unlockedRewards) { reward in
-                                RewardCard(
+                                RewardShelfCard(
                                     reward: reward,
                                     unlocked: true,
-                                    isHighlighted: highlightRewardID == reward.id,
-                                    isCollected: celebratedRewardIDs.contains(reward.id)
+                                    isHighlighted: reward.id == highlightRewardID,
+                                    collected: celebratedRewardIDs.contains(reward.id)
                                 )
                             }
                         }
                     }
 
-                    VStack(alignment: .leading, spacing: context.cardSpacing) {
-                        GBSectionHeader(
-                            eyebrow: "Locked",
-                            title: "Still to unlock",
-                            subtitle: "These rewards stay hidden until their linked lesson scene is complete."
-                        )
-
-                        ForEach(lockedRewards) { reward in
-                            RewardCard(
-                                reward: reward,
-                                unlocked: false,
-                                isHighlighted: false,
-                                isCollected: false
+                    if !lockedRewards.isEmpty {
+                        VStack(alignment: .leading, spacing: context.cardSpacing) {
+                            GBSectionHeader(
+                                eyebrow: "Still ahead",
+                                title: "More keepsakes to earn",
+                                subtitle: "New Chronicle cards will appear as you finish more story scenes."
                             )
+
+                            ForEach(lockedRewards) { reward in
+                                RewardShelfCard(
+                                    reward: reward,
+                                    unlocked: false,
+                                    isHighlighted: false,
+                                    collected: false
+                                )
+                            }
                         }
                     }
                 }
@@ -104,27 +92,23 @@ struct ChronicleView: View {
         .navigationTitle("Royal Chronicle")
     }
 
-    private var heroCard: some View {
+    private var chronicleHero: some View {
         GBHeroCard(
             eyebrow: "Royal Chronicle",
-            title: unlockedRewards.isEmpty ? "Your keepsakes will appear here" : "Your Shivaji keepsakes are growing",
-            subtitle: appModel.lessonStore.chronicleHeadline,
-            detail: "Chronicle rewards should feel ceremonial and specific, tying story progress back to forts, memory, and meaning.",
-            ctaTitle: "\(unlockedRewards.count) unlocked",
-            badgeTitle: "\(rewards.count) total",
+            title: unlockedRewards.isEmpty ? "Collect your first keepsake" : "Your remembered story shelf",
+            subtitle: unlockedRewards.isEmpty ? "Short scenes unlock lasting rewards." : "\(unlockedRewards.count) keepsakes already glow here.",
+            detail: unlockedRewards.isEmpty
+                ? "Remember one story hook from the lesson path and a Chronicle page opens for you."
+                : "Each new card marks a piece of story, place, or meaning you held onto from memory.",
+            ctaTitle: unlockedRewards.isEmpty ? "Begin a scene" : "Keep collecting",
+            badgeTitle: "\(unlockedRewards.count) unlocked",
             emphasis: .chronicle,
             progress: rewards.isEmpty ? nil : Double(unlockedRewards.count) / Double(rewards.count)
         )
     }
-
-    private var debugMasterySummary: String {
-        let scene1 = appModel.lessonStore.mastery(for: "scene-1-shivneri")?.rawValue ?? "nil"
-        let scene2 = appModel.lessonStore.mastery(for: "scene-2-torna-rajgad")?.rawValue ?? "nil"
-        return "Debug mastery: \(scene1) / \(scene2)"
-    }
 }
 
-private struct HighlightRewardCard: View {
+private struct NewRewardSpotlight: View {
     let reward: ChronicleReward
     let collected: Bool
     let onCollect: () -> Void
@@ -132,24 +116,33 @@ private struct HighlightRewardCard: View {
     var body: some View {
         GBSurface(style: .accented(.chronicle)) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "New Reward",
-                    title: reward.title,
-                    subtitle: reward.meaning,
-                    tone: .inverse,
-                    trailing: AnyView(GBBadge(title: collected ? "Collected" : "New", symbol: collected ? GBIcon.success : GBIcon.chronicle, emphasis: .chronicle))
-                )
+                HStack {
+                    GBBadge(title: collected ? "Collected" : "New reward", symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .chronicle)
+                    Spacer()
+                    Text(reward.category.rawValue)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                }
+
+                Text(reward.title)
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundStyle(GBColor.Content.inverse)
+                Text(reward.subtitle)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(GBColor.Content.inverse.opacity(0.96))
+                Text(reward.meaning)
+                    .font(.body)
+                    .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
 
                 if collected {
-                    Label("Added to your Chronicle", systemImage: GBIcon.success)
-                        .font(.subheadline)
+                    Label("Added to your Chronicle shelf", systemImage: GBIcon.success)
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(GBColor.Content.inverse)
                 } else {
                     Button {
                         onCollect()
                     } label: {
-                        Label("Collect reward", systemImage: GBIcon.reward)
-                            .frame(maxWidth: .infinity)
+                        Label("Collect keepsake", systemImage: GBIcon.reward)
                     }
                     .buttonStyle(.gbSecondary)
                 }
@@ -158,58 +151,51 @@ private struct HighlightRewardCard: View {
     }
 }
 
-private struct EmptyChronicleCard: View {
-    let debugMasterySummary: String
-
-    var body: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                Text("Finish a lesson scene to place its meaning into the Royal Chronicle.")
-                    .font(.subheadline)
-                    .foregroundStyle(GBColor.Content.secondary)
-                Text(debugMasterySummary)
-                    .font(.caption)
-                    .foregroundStyle(GBColor.Content.secondary)
-            }
-        }
-    }
-}
-
-private struct RewardCard: View {
+private struct RewardShelfCard: View {
     let reward: ChronicleReward
     let unlocked: Bool
     let isHighlighted: Bool
-    let isCollected: Bool
+    let collected: Bool
 
     var body: some View {
-        GBSurface(style: isHighlighted ? .elevated : .plain) {
+        GBSurface(style: unlocked ? .plain : .elevated) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 HStack(alignment: .top, spacing: GBSpacing.small) {
                     VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                        HStack(spacing: GBSpacing.xxSmall) {
+                            GBBadge(
+                                title: unlocked ? reward.mastery.rawValue : "Locked",
+                                symbol: unlocked ? GBIcon.success : GBIcon.locked,
+                                emphasis: unlocked ? .chronicle : .neutral
+                            )
+
+                            if isHighlighted {
+                                GBBadge(title: collected ? "Collected" : "New", symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .story)
+                            }
+                        }
+
                         Text(reward.title)
                             .gbTitle()
                             .foregroundStyle(GBColor.Content.primary)
                         Text(reward.subtitle)
-                            .font(.subheadline)
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(GBColor.Content.secondary)
                     }
 
                     Spacer()
 
-                    if isHighlighted {
-                        GBBadge(title: isCollected ? "Collected" : "New", symbol: isCollected ? GBIcon.success : GBIcon.reward, emphasis: .chronicle)
-                    } else {
-                        GBBadge(title: reward.category.rawValue, symbol: unlocked ? GBIcon.chronicle : GBIcon.locked, emphasis: unlocked ? .chronicle : .neutral)
-                    }
+                    Image(systemName: unlocked ? GBIcon.chronicle : GBIcon.locked)
+                        .font(.title2)
+                        .foregroundStyle(unlocked ? GBColor.Accent.chronicle : GBColor.State.locked)
                 }
 
-                Text(unlocked ? reward.meaning : "Complete the linked lesson scene to reveal this Chronicle reward.")
+                Text(unlocked ? reward.meaning : "Finish the linked story scene and answer its recall card to reveal this keepsake.")
                     .gbBody()
-                    .foregroundStyle(GBColor.Content.primary)
+                    .foregroundStyle(GBColor.Content.secondary)
 
-                Label(reward.mastery.rawValue, systemImage: unlocked ? "medal.fill" : GBIcon.locked)
-                    .font(.caption)
-                    .foregroundStyle(unlocked ? GBColor.Accent.chronicle : GBColor.Content.secondary)
+                Text(reward.category.rawValue)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(GBColor.accent(for: unlocked ? .chronicle : .neutral))
             }
         }
     }
