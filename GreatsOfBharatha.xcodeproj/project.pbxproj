@@ -24,6 +24,7 @@
 		0A4A9F8F0C1A4F32965E1011 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */; };
 		0A4A9F910C1A4F32965E1011 /* GBLayoutContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
+		1A7C4F102B8E4C1D9A001122 /* HeroArcModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */; };
 		1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
 		22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */; };
@@ -69,6 +70,7 @@
 		0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRadius.swift; sourceTree = "<group>"; };
 		0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
+		1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroArcModels.swift; sourceTree = "<group>"; };
 		1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
 		2C6D8E0E1A2B3C4D5E6F7081 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
 		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -142,6 +144,7 @@
 			children = (
 				6413C33179A188AA0729938F /* AppModel.swift */,
 				842D0166597E3756A21D8739 /* ContentModels.swift */,
+				1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */,
 				901C5A02CDD2D6DA5162F535 /* MasteryState.swift */,
 				71BEDED465CA437D09ADDCD5 /* SampleContent.swift */,
 				C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */,
@@ -348,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A7C4F102B8E4C1D9A001122 /* HeroArcModels.swift in Sources */,
 				0A4A9F7F0C1A4F32965E1011 /* GBBadge.swift in Sources */,
 				0A4A9F770C1A4F32965E1011 /* GBButtonStyle.swift in Sources */,
 				0A4A9F850C1A4F32965E1011 /* GBCardStyle.swift in Sources */,
