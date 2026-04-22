@@ -5,113 +5,166 @@ struct SceneLessonView: View {
     let scene: StoryScene
 
     @State private var cardIndex = 0
-    @State private var storyStepComplete = false
     @State private var recallState = LessonRecallState()
     @State private var revealedMapAnchors = 0
     @State private var chosenPlanSteps: Set<String> = []
-    @State private var bonusPlanningVisible = false
     @State private var hintVisible = false
-    @State private var recapVisible = false
+
+    private var reward: ChronicleReward? {
+        appModel.content.rewards.first(where: { $0.id == scene.rewardID })
+    }
 
     private var lessonCards: [SceneCardContent] {
         [
-            SceneCardContent(id: "summary", eyebrow: "Story spark", title: scene.title, body: scene.childSafeSummary, symbol: GBIcon.story),
-            SceneCardContent(id: "fact", eyebrow: "Remember this", title: scene.keyFact, body: scene.narrativeObjective, symbol: "sparkles.rectangle.stack.fill"),
-            SceneCardContent(id: "timeline", eyebrow: "Chronicle moment", title: scene.timelineMarker, body: "This is the moment you will remember when you open the Royal Chronicle.", symbol: GBIcon.timeline)
+            SceneCardContent(
+                id: "hook",
+                eyebrow: "Hook card",
+                title: scene.timelineMarker,
+                body: scene.childSafeSummary,
+                symbol: GBIcon.story,
+                accent: scene.mapAnchors.first ?? scene.timelineMarker
+            ),
+            SceneCardContent(
+                id: "meaning",
+                eyebrow: "Meaning card",
+                title: scene.keyFact,
+                body: scene.narrativeObjective,
+                symbol: GBIcon.reward,
+                accent: "Why it matters"
+            ),
+            SceneCardContent(
+                id: "anchor",
+                eyebrow: "Anchor card",
+                title: scene.recallPrompt.answer,
+                body: scene.recallPrompt.supportText,
+                symbol: GBIcon.place,
+                accent: "Keep this hook"
+            )
         ]
     }
 
-    private var flow: SceneLessonFlow {
-        SceneLessonFlow(
-            totalStoryCards: lessonCards.count,
-            currentStoryCardIndex: cardIndex,
-            storyStepComplete: storyStepComplete,
-            totalMapAnchors: scene.mapAnchors.count,
-            revealedMapAnchors: revealedMapAnchors,
-            hasAnsweredCorrectly: recallState.hasAnsweredCorrectly
-        )
+    private var progressValue: Double {
+        let storyProgress = Double(cardIndex + 1) / Double(max(lessonCards.count, 1))
+        let placeProgress = min(Double(revealedMapAnchors) / Double(max(scene.mapAnchors.count, 1)), 1)
+        let planningProgress = scene.number == 2 ? min(Double(chosenPlanSteps.count) / 2, 1) : 1
+        let recallProgress = recallState.selectedChoiceID == nil ? 0.2 : (recallState.hasAnsweredCorrectly ? 1 : 0.55)
+        let total = storyProgress + placeProgress + planningProgress + recallProgress
+        return min(total / 4, 1)
     }
 
-    private var currentStepTitle: String {
-        switch cardIndex {
-        case 0: return "Step 1 of 3, hear the story"
-        case 1: return "Step 2 of 3, spot the big idea"
-        default: return "Step 3 of 3, mark the moment"
+    private var currentCard: SceneCardContent {
+        lessonCards[cardIndex]
+    }
+
+    private var nextCardButtonTitle: String {
+        cardIndex == lessonCards.count - 1 ? "Go to place clues" : "Next card"
+    }
+
+    private var sceneChoices: [LessonChoice] {
+        var choices = scene.mapAnchors.map {
+            LessonChoice(id: $0.lowercased().replacingOccurrences(of: " ", with: "-"), title: $0, detail: "A place clue from this scene")
         }
-    }
-
-    private var storyButtonTitle: String {
-        cardIndex == lessonCards.count - 1 ? "Continue to place clues" : "Continue story"
+        if !choices.contains(where: { normalized($0.title) == normalized(scene.recallPrompt.answer) }) {
+            choices.insert(LessonChoice(id: scene.id + "-answer", title: scene.recallPrompt.answer, detail: "The memory hook you want to keep"), at: 0)
+        }
+        return Array(choices.prefix(3))
     }
 
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    SceneHeaderCard(
+                    SceneAdventureHero(
                         scene: scene,
-                        progressValue: flow.progressValue,
+                        reward: reward,
+                        progressValue: progressValue,
                         mastery: appModel.lessonStore.mastery(for: scene.id)
                     )
 
                     GBSurface(style: .elevated) {
                         VStack(alignment: .leading, spacing: GBSpacing.small) {
                             GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Hear the story, remember the fort, keep the Chronicle",
-                                subtitle: "Only the active step stays on screen, so the scene feels easy to finish."
+                                eyebrow: "Adventure path",
+                                title: currentCard.eyebrow,
+                                subtitle: "Move through one clear card at a time, then answer from memory."
                             )
 
                             GBQuestProgress(
-                                steps: [.story, .place, .chronicle],
-                                currentStepID: flow.currentQuestStepID
+                                steps: [
+                                    .story,
+                                    GBQuestProgress.Step(id: "meaning", title: "Meaning", symbol: GBIcon.reward),
+                                    .place,
+                                    .chronicle
+                                ],
+                                currentStepID: currentQuestStepID
                             )
                         }
                     }
 
-                    switch flow.activeStage {
-                    case .story:
-                        StoryDeckCard(
-                            currentStepTitle: currentStepTitle,
-                            lessonCards: lessonCards,
-                            cardIndex: $cardIndex,
-                            nextCardButtonTitle: storyButtonTitle,
-                            onFinishStory: completeStoryStep
-                        )
-                    case .place:
-                        MapAnchorCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
-                    case .chronicle:
-                        SceneSupportCard(
-                            hintVisible: $hintVisible,
-                            recapVisible: recapVisible,
-                            hasAnsweredCorrectly: recallState.hasAnsweredCorrectly,
-                            curatedHint: curatedHint,
-                            sceneRecap: sceneRecap
-                        )
+                    ActiveStoryCard(
+                        card: currentCard,
+                        cardNumber: cardIndex + 1,
+                        totalCards: lessonCards.count
+                    )
 
-                        RecallPanel(
-                            question: scene.recallPrompt,
-                            choices: sceneChoices,
-                            selectedChoiceID: $recallState.selectedChoiceID,
-                            feedbackText: recallState.feedbackText,
-                            completed: recallState.hasAnsweredCorrectly,
-                            onSubmit: submitRecall
-                        )
-                    case .complete:
-                        CompletedSceneActions(
-                            scene: scene,
-                            places: appModel.content.corePlaces,
-                            rewards: appModel.content.rewards,
-                            recapVisible: recapVisible,
-                            sceneRecap: sceneRecap,
-                            bonusPlanningVisible: $bonusPlanningVisible,
-                            showsPlanningChallenge: scene.number == 2,
-                            hasPlanningUpgrade: chosenPlanSteps.count >= 2
-                        )
-
-                        if scene.number == 2, bonusPlanningVisible {
-                            BonusPlanningCard(chosenPlanSteps: $chosenPlanSteps)
+                    HStack(spacing: GBSpacing.small) {
+                        if cardIndex > 0 {
+                            Button("Back") {
+                                cardIndex = max(cardIndex - 1, 0)
+                                LessonFeedback.fire(.selection)
+                            }
+                            .buttonStyle(.gbSecondary)
                         }
+
+                        Button(nextCardButtonTitle) {
+                            cardIndex = min(cardIndex + 1, lessonCards.count - 1)
+                            LessonFeedback.fire(.selection)
+                        }
+                        .buttonStyle(.gbPrimary(.story))
+                    }
+
+                    PlaceClueTrailCard(scene: scene, revealedMapAnchors: $revealedMapAnchors)
+
+                    if scene.number == 2 {
+                        FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
+                    }
+
+                    GBSurface(style: .plain) {
+                        VStack(alignment: .leading, spacing: GBSpacing.small) {
+                            Button(hintVisible ? "Hide clue" : "Need a clue?") {
+                                hintVisible.toggle()
+                                LessonFeedback.fire(.reveal)
+                            }
+                            .buttonStyle(.gbSecondary)
+
+                            if hintVisible {
+                                GuidanceCard(
+                                    title: "Helpful clue",
+                                    message: curatedHint,
+                                    systemImage: "lightbulb.fill"
+                                )
+                            }
+                        }
+                    }
+
+                    RecallPanel(
+                        question: scene.recallPrompt,
+                        choices: sceneChoices,
+                        selectedChoiceID: $recallState.selectedChoiceID,
+                        feedbackText: recallState.feedbackText,
+                        completed: recallState.hasAnsweredCorrectly,
+                        onSubmit: submitRecall
+                    )
+
+                    if recallState.hasAnsweredCorrectly, let reward {
+                        RewardTransitionCard(reward: reward, scene: scene)
+
+                        NavigationLink {
+                            ChronicleView(rewards: appModel.content.rewards, highlightRewardID: reward.id)
+                        } label: {
+                            Label("Open my Chronicle page", systemImage: GBIcon.chronicle)
+                        }
+                        .buttonStyle(.gbPrimary(.chronicle))
                     }
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
@@ -124,15 +177,19 @@ struct SceneLessonView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .onChange(of: chosenPlanSteps) { _, newValue in
-            guard scene.number == 2, recallState.hasAnsweredCorrectly, newValue.count >= 2 else { return }
-            appModel.lessonStore.markScene(scene.id, mastery: .observedClosely)
-        }
     }
 
-    private func completeStoryStep() {
-        storyStepComplete = true
-        LessonFeedback.fire(.success)
+    private var currentQuestStepID: String {
+        if recallState.hasAnsweredCorrectly {
+            return "chronicle"
+        }
+        if cardIndex == 1 {
+            return "meaning"
+        }
+        if cardIndex == 2 || revealedMapAnchors > 0 {
+            return "place"
+        }
+        return "story"
     }
 
     private func submitRecall() {
@@ -143,14 +200,12 @@ struct SceneLessonView: View {
 
         if normalized(selectedTitle) == correctAnswer {
             recallState.hasAnsweredCorrectly = true
-            recallState.feedbackText = "You got it. \(scene.recallPrompt.supportText)"
-            recapVisible = true
+            recallState.feedbackText = "Yes. \(scene.recallPrompt.supportText)"
             let mastery: MasteryState = scene.number == 2 && chosenPlanSteps.count >= 2 ? .observedClosely : .understood
             appModel.lessonStore.markScene(scene.id, mastery: mastery)
             LessonFeedback.fire(.success)
         } else {
             recallState.hasAnsweredCorrectly = false
-            recapVisible = false
             recallState.feedbackText = "Almost. \(scene.recallPrompt.supportText)"
             appModel.lessonStore.markScene(scene.id, mastery: .witnessed)
             LessonFeedback.fire(.warning)
@@ -159,23 +214,9 @@ struct SceneLessonView: View {
 
     private var curatedHint: String {
         if scene.number == 1 {
-            return "Think about where the story begins. The answer is the fort tied to Shivaji Maharaj's birth and Jijabai's early guidance."
+            return "The first scene begins at the fort where Shivaji Maharaj was born with Jijabai nearby."
         }
-        return "One fort marks an early breakthrough, but the recall question asks which one became the early capital. Focus on the planning base that comes after Torna."
-    }
-
-    private var sceneRecap: String {
-        "\(scene.timelineMarker). \(scene.childSafeSummary) Remember: \(scene.keyFact)"
-    }
-
-    private var sceneChoices: [LessonChoice] {
-        var choices = scene.mapAnchors.map {
-            LessonChoice(id: $0.lowercased().replacingOccurrences(of: " ", with: "-"), title: $0, detail: "A place name from this scene.")
-        }
-        if !choices.contains(where: { normalized($0.title) == normalized(scene.recallPrompt.answer) }) {
-            choices.insert(LessonChoice(id: scene.id + "-answer", title: scene.recallPrompt.answer, detail: "The place tied to the key fact in this scene."), at: 0)
-        }
-        return Array(choices.prefix(3))
+        return "Torna is the breakthrough fort. The answer you want is the fort that became the early capital after that."
     }
 
     private func normalized(_ text: String) -> String {
@@ -189,10 +230,12 @@ private struct SceneCardContent: Identifiable {
     let title: String
     let body: String
     let symbol: String
+    let accent: String
 }
 
-private struct SceneHeaderCard: View {
+private struct SceneAdventureHero: View {
     let scene: StoryScene
+    let reward: ChronicleReward?
     let progressValue: Double
     let mastery: MasteryState?
 
@@ -201,241 +244,180 @@ private struct SceneHeaderCard: View {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 HStack(alignment: .top, spacing: GBSpacing.small) {
                     VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Text(scene.timelineMarker.uppercased())
+                        Text("SCENE \(scene.number)")
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
                         Text(scene.title)
                             .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(GBColor.Content.inverse)
-                        Text(scene.narrativeObjective)
-                            .font(.body)
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
+                        Text(scene.childSafeSummary)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
                     }
 
-                    Spacer(minLength: GBSpacing.small)
+                    Spacer()
 
                     GBBadge(
                         title: mastery?.rawValue ?? "Ready",
-                        symbol: mastery == nil ? GBIcon.story : GBIcon.reward,
-                        emphasis: .story
+                        symbol: mastery == nil ? GBIcon.story : "star.fill",
+                        emphasis: mastery == nil ? .neutral : .chronicle
                     )
                 }
 
                 ProgressView(value: progressValue)
                     .tint(GBColor.Content.inverse)
 
-                HStack(alignment: .firstTextBaseline, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                        Text("Royal Chronicle reward")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
-                        Text(scene.rewardID.replacingOccurrences(of: "reward-", with: "").replacingOccurrences(of: "-", with: " ").capitalized)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(GBColor.Content.inverse)
-                    }
-
-                    Spacer()
-
-                    Text("Small steps, one clear finish")
-                        .font(.caption)
-                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
-                }
-            }
-        }
-    }
-}
-
-private struct StoryDeckCard: View {
-    let currentStepTitle: String
-    let lessonCards: [SceneCardContent]
-    @Binding var cardIndex: Int
-    let nextCardButtonTitle: String
-    let onFinishStory: () -> Void
-
-    var body: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Story",
-                    title: currentStepTitle,
-                    subtitle: "Keep one memory hook visible before moving to place clues."
-                )
-
-                TabView(selection: $cardIndex) {
-                    ForEach(Array(lessonCards.enumerated()), id: \.offset) { index, card in
-                        StoryCardView(card: card, cardNumber: index + 1, totalCards: lessonCards.count)
-                            .padding(.horizontal, GBSpacing.xxxSmall)
-                            .tag(index)
-                    }
-                }
-#if os(iOS)
-                .tabViewStyle(.page(indexDisplayMode: .never))
-#endif
-                .frame(height: 340)
-
-                HStack(spacing: GBSpacing.xxSmall) {
-                    ForEach(0..<lessonCards.count, id: \.self) { index in
-                        Capsule()
-                            .fill(index == cardIndex ? GBColor.Accent.story : GBColor.Accent.story.opacity(0.18))
-                            .frame(width: index == cardIndex ? 28 : 10, height: 10)
-                    }
-                }
-
                 HStack(spacing: GBSpacing.small) {
-                    if cardIndex > 0 {
-                        Button("Back") {
-                            cardIndex = max(cardIndex - 1, 0)
-                            LessonFeedback.fire(.selection)
-                        }
-                        .buttonStyle(.gbSecondary)
+                    heroChip(title: scene.timelineMarker, symbol: GBIcon.timeline)
+                    if let reward {
+                        heroChip(title: reward.title, symbol: GBIcon.chronicle)
                     }
-
-                    Button(nextCardButtonTitle) {
-                        if cardIndex == lessonCards.count - 1 {
-                            onFinishStory()
-                        } else {
-                            cardIndex = min(cardIndex + 1, lessonCards.count - 1)
-                            LessonFeedback.fire(.selection)
-                        }
-                    }
-                    .buttonStyle(.gbPrimary(.story))
                 }
             }
         }
     }
+
+    private func heroChip(title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(GBColor.Content.inverse)
+            .padding(.horizontal, GBSpacing.xSmall)
+            .padding(.vertical, GBSpacing.xxxSmall)
+            .background(.white.opacity(0.12), in: Capsule())
+    }
 }
 
-private struct StoryCardView: View {
+private struct ActiveStoryCard: View {
     let card: SceneCardContent
     let cardNumber: Int
     let totalCards: Int
 
     var body: some View {
-        GBSurface(style: .elevated, padding: GBSpacing.large) {
+        GBSurface(style: .plain, padding: GBSpacing.large) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 HStack {
-                    Text(card.eyebrow.uppercased())
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(GBColor.Content.secondary)
+                    GBBadge(title: "\(cardNumber) of \(totalCards)", symbol: "square.stack.3d.up.fill", emphasis: .story)
                     Spacer()
-                    Text("\(cardNumber)/\(totalCards)")
+                    Text(card.eyebrow)
                         .font(.caption.weight(.bold))
                         .foregroundStyle(GBColor.Accent.story)
                 }
 
                 Image(systemName: card.symbol)
-                    .font(.system(size: 36, weight: .semibold))
+                    .font(.system(size: 34))
                     .foregroundStyle(GBColor.Content.inverse)
                     .frame(width: 68, height: 68)
                     .background(GBColor.gradient(for: .story), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
 
                 Text(card.title)
-                    .gbTitle()
+                    .font(.system(.title3, design: .rounded, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(card.body)
                     .gbBody()
                     .foregroundStyle(GBColor.Content.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Spacer(minLength: 0)
+                Label(card.accent, systemImage: "sparkles")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(GBColor.Accent.story)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         }
+        .accessibilityLabel("\(card.eyebrow). \(currentSummary)")
+    }
+
+    private var currentSummary: String {
+        "\(card.title). \(card.body)"
     }
 }
 
-private struct MapAnchorCard: View {
+private struct PlaceClueTrailCard: View {
     let scene: StoryScene
     @Binding var revealedMapAnchors: Int
 
     var body: some View {
-        GBSurface(style: .accented(.place)) {
+        GBSurface(style: .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSectionHeader(
-                    eyebrow: "Find Place",
-                    title: "Reveal the fort clues",
-                    subtitle: "Place names appear one by one so the story stays connected to the map.",
-                    tone: .inverse,
-                    trailing: AnyView(
-                        GBBadge(
-                            title: "\(revealedMapAnchors)/\(scene.mapAnchors.count)",
-                            symbol: GBIcon.place,
-                            emphasis: .place
-                        )
-                    )
+                    eyebrow: "Place clue trail",
+                    title: "Follow the fort path",
+                    subtitle: "Reveal one clue at a time so the story keeps its shape on the map."
                 )
 
                 ForEach(Array(scene.mapAnchors.enumerated()), id: \.offset) { index, anchor in
-                    HStack(alignment: .top, spacing: GBSpacing.small) {
+                    HStack(spacing: GBSpacing.small) {
                         Image(systemName: index < revealedMapAnchors ? "mappin.circle.fill" : "mappin.circle")
-                            .foregroundStyle(GBColor.Content.inverse)
+                            .foregroundStyle(index < revealedMapAnchors ? GBColor.Accent.place : GBColor.Content.secondary)
                             .font(.title3)
 
                         VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
                             Text(index < revealedMapAnchors ? anchor : "Hidden place clue")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(GBColor.Content.inverse)
-                            Text(index < revealedMapAnchors ? "This place now anchors the scene in your memory." : "Reveal the next clue when you are ready.")
+                                .foregroundStyle(GBColor.Content.primary)
+                            Text(index < revealedMapAnchors ? "Keep this place in your mind for the recall card." : "Reveal the next clue when you are ready.")
                                 .font(.caption)
-                                .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
+                                .foregroundStyle(GBColor.Content.secondary)
                         }
 
                         Spacer()
                     }
                     .padding(GBSpacing.small)
-                    .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+                    .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
                 }
 
-                Button(revealedMapAnchors == scene.mapAnchors.count ? "Continue to Chronicle" : "Reveal next place clue") {
+                Button(revealedMapAnchors == scene.mapAnchors.count ? "All clues found" : "Reveal next clue") {
                     let nextValue = min(revealedMapAnchors + 1, scene.mapAnchors.count)
                     if nextValue != revealedMapAnchors {
                         revealedMapAnchors = nextValue
                         LessonFeedback.fire(nextValue == scene.mapAnchors.count ? .success : .reveal)
                     }
                 }
-                .buttonStyle(.gbSecondary)
+                .buttonStyle(.gbPrimary(.place))
             }
         }
     }
 }
 
-private struct SceneSupportCard: View {
-    @Binding var hintVisible: Bool
-    let recapVisible: Bool
-    let hasAnsweredCorrectly: Bool
-    let curatedHint: String
-    let sceneRecap: String
+private struct FortPlanningCard: View {
+    @Binding var chosenPlanSteps: Set<String>
 
     var body: some View {
-        GBSurface(style: .elevated) {
+        GBSurface(style: .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSectionHeader(
-                    eyebrow: "Help",
-                    title: "Use one clue if you need it",
-                    subtitle: "Hints stay optional so the main task remains clear."
+                    eyebrow: "Planning practice",
+                    title: "Pick two strong fort moves",
+                    subtitle: "Choose the ideas that would help a mountain fort stay ready."
                 )
 
-                Button(hintVisible ? "Hide clue" : "Need a clue?") {
-                    hintVisible.toggle()
-                    LessonFeedback.fire(.reveal)
-                }
-                .buttonStyle(.gbSecondary)
-
-                if hintVisible {
-                    GuidanceCard(
-                        title: "Story clue",
-                        message: curatedHint,
-                        systemImage: "lightbulb"
-                    )
-                }
-
-                if recapVisible, hasAnsweredCorrectly {
-                    GuidanceCard(
-                        title: "You remembered it",
-                        message: sceneRecap,
-                        systemImage: "text.book.closed"
-                    )
+                ForEach(LessonPlanStep.starterSet) { step in
+                    Button {
+                        if chosenPlanSteps.contains(step.id) {
+                            chosenPlanSteps.remove(step.id)
+                        } else {
+                            chosenPlanSteps.insert(step.id)
+                        }
+                        LessonFeedback.fire(.selection)
+                    } label: {
+                        HStack(spacing: GBSpacing.small) {
+                            Image(systemName: chosenPlanSteps.contains(step.id) ? "checkmark.circle.fill" : step.symbol)
+                                .foregroundStyle(chosenPlanSteps.contains(step.id) ? GBColor.Accent.success : GBColor.Accent.story)
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                                Text(step.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(GBColor.Content.primary)
+                                Text(step.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(GBSpacing.small)
+                        .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -448,20 +430,21 @@ private struct GuidanceCard: View {
     let systemImage: String
 
     var body: some View {
-        GBSurface(style: .plain, padding: GBSpacing.small) {
-            HStack(alignment: .top, spacing: GBSpacing.small) {
-                Image(systemName: systemImage)
-                    .foregroundStyle(GBColor.Accent.story)
-                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                    Text(title)
-                        .font(.subheadline.weight(.bold))
-                    Text(message)
-                        .font(.subheadline)
-                        .foregroundStyle(GBColor.Content.secondary)
-                }
-                Spacer()
+        HStack(alignment: .top, spacing: GBSpacing.small) {
+            Image(systemName: systemImage)
+                .foregroundStyle(GBColor.Accent.story)
+            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(GBColor.Content.primary)
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(GBColor.Content.secondary)
             }
+            Spacer()
         }
+        .padding(GBSpacing.small)
+        .background(GBColor.Accent.story.opacity(0.10), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
     }
 }
 
@@ -477,13 +460,13 @@ private struct RecallPanel: View {
         GBSurface(style: .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSectionHeader(
-                    eyebrow: "Chronicle Gate",
-                    title: "One quick recall before the reward",
-                    subtitle: "Choose the place that matches the key fact from this scene."
+                    eyebrow: "Recall card",
+                    title: "Say it from memory",
+                    subtitle: "Pick the answer that matches the story hook you just learned."
                 )
 
                 Text(question.question)
-                    .gbBody()
+                    .font(.body.weight(.medium))
                     .foregroundStyle(GBColor.Content.primary)
 
                 ForEach(choices) { choice in
@@ -506,127 +489,55 @@ private struct RecallPanel: View {
                             Spacer()
                         }
                         .padding(GBSpacing.small)
-                        .background(
-                            isSelected ? GBColor.Accent.story.opacity(0.10) : GBColor.Background.elevated,
-                            in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Button(completed ? "Answer checked" : "Collect my answer") {
-                    onSubmit()
-                }
-                .buttonStyle(.gbPrimary(.chronicle))
-                .disabled(selectedChoiceID == nil || completed)
-
-                if let feedbackText {
-                    GBSurface(style: .elevated, padding: GBSpacing.small) {
-                        Text(feedbackText)
-                            .font(.subheadline)
-                            .foregroundStyle(completed ? GBColor.Accent.success : GBColor.Content.secondary)
-                    }
-                }
-            }
-        }
-    }
-}
-
-private struct CompletedSceneActions: View {
-    let scene: StoryScene
-    let places: [Place]
-    let rewards: [ChronicleReward]
-    let recapVisible: Bool
-    let sceneRecap: String
-    @Binding var bonusPlanningVisible: Bool
-    let showsPlanningChallenge: Bool
-    let hasPlanningUpgrade: Bool
-
-    var body: some View {
-        GBSurface(style: .accented(.chronicle)) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Complete",
-                    title: "The scene is ready to keep",
-                    subtitle: "Open the Royal Chronicle reward or revisit the fort trail while the memory is fresh.",
-                    tone: .inverse,
-                    trailing: AnyView(GBBadge(title: "Reward ready", symbol: GBIcon.chronicle, emphasis: .chronicle))
-                )
-
-                if recapVisible {
-                    Text(sceneRecap)
-                        .font(.subheadline)
-                        .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
-                }
-
-                NavigationLink {
-                    ChronicleView(rewards: rewards, highlightRewardID: scene.rewardID)
-                } label: {
-                    Label("Open your Royal Chronicle reward", systemImage: GBIcon.chronicle)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.gbSecondary)
-
-                NavigationLink {
-                    PlacesHubView(places: places)
-                } label: {
-                    Label("Review the fort trail", systemImage: GBIcon.place)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.gbSecondary)
-
-                if showsPlanningChallenge {
-                    Button(hasPlanningUpgrade ? "Bonus planning challenge complete" : (bonusPlanningVisible ? "Hide bonus planning challenge" : "Try the bonus planning challenge")) {
-                        bonusPlanningVisible.toggle()
-                        LessonFeedback.fire(.selection)
-                    }
-                    .buttonStyle(.gbSecondary)
-                    .disabled(hasPlanningUpgrade)
-                }
-            }
-        }
-    }
-}
-
-private struct BonusPlanningCard: View {
-    @Binding var chosenPlanSteps: Set<String>
-
-    var body: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Bonus Challenge",
-                    title: "Choose smart fort planning steps",
-                    subtitle: "Pick any two choices that would help a mountain base stay ready."
-                )
-
-                ForEach(LessonPlanStep.starterSet) { step in
-                    Button {
-                        if chosenPlanSteps.contains(step.id) {
-                            chosenPlanSteps.remove(step.id)
-                        } else {
-                            chosenPlanSteps.insert(step.id)
-                        }
-                        LessonFeedback.fire(.selection)
-                    } label: {
-                        HStack(spacing: GBSpacing.small) {
-                            Image(systemName: chosenPlanSteps.contains(step.id) ? GBIcon.success : step.symbol)
-                                .foregroundStyle(chosenPlanSteps.contains(step.id) ? GBColor.Accent.success : GBColor.Accent.place)
-                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                                Text(step.title)
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(GBColor.Content.primary)
-                                Text(step.detail)
-                                    .font(.caption)
-                                    .foregroundStyle(GBColor.Content.secondary)
-                            }
-                            Spacer()
-                        }
-                        .padding(GBSpacing.small)
                         .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
+
+                Button(completed ? "Answer locked in" : "Check my answer") {
+                    onSubmit()
+                }
+                .buttonStyle(.gbPrimary(.story))
+                .disabled(selectedChoiceID == nil || completed)
+
+                if let feedbackText {
+                    Text(feedbackText)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(completed ? GBColor.Accent.success : GBColor.Content.primary)
+                        .padding(GBSpacing.small)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background((completed ? GBColor.Accent.success : GBColor.Accent.story).opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+                }
+            }
+        }
+    }
+}
+
+private struct RewardTransitionCard: View {
+    let reward: ChronicleReward
+    let scene: StoryScene
+
+    var body: some View {
+        GBSurface(style: .accented(.chronicle)) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack {
+                    GBBadge(title: "Reward earned", symbol: GBIcon.success, emphasis: .chronicle)
+                    Spacer()
+                    Text("Royal Chronicle")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
+                }
+
+                Text(reward.title)
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundStyle(GBColor.Content.inverse)
+                Text(reward.meaning)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
+
+                Label("You remembered \(scene.timelineMarker.lowercased())", systemImage: GBIcon.chronicle)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(GBColor.Content.inverse)
             }
         }
     }
