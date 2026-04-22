@@ -194,6 +194,12 @@ private struct SceneJourneyCard: View {
             return "star.fill"
         case .observedClosely:
             return "sparkles"
+        case .remembered:
+            return GBIcon.story
+        case .placed:
+            return GBIcon.place
+        case .chronicled:
+            return GBIcon.chronicle
         }
     }
 
@@ -201,10 +207,12 @@ private struct SceneJourneyCard: View {
         switch mastery {
         case .witnessed:
             return .neutral
-        case .understood:
+        case .understood, .remembered:
             return .story
-        case .observedClosely:
+        case .observedClosely, .chronicled:
             return .chronicle
+        case .placed:
+            return .place
         }
     }
 }
