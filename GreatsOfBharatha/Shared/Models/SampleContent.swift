@@ -138,7 +138,7 @@ enum SampleContent {
         subtitle: "Journey keepsake card",
         meaning: "You remembered Shivneri Fort as the place where Shivaji Maharaj's journey begins.",
         unlockedBySceneID: "scene-1-shivneri",
-        mastery: .witnessed,
+        mastery: .understood,
         category: .storyCard
     )
 
@@ -148,7 +148,7 @@ enum SampleContent {
         subtitle: "Journey keepsake card",
         meaning: "You remembered how the early fort journey climbs from Torna's breakthrough to Rajgad's planning base.",
         unlockedBySceneID: "scene-2-torna-rajgad",
-        mastery: .witnessed,
+        mastery: .understood,
         category: .storyCard
     )
 
