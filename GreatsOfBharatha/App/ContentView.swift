@@ -36,6 +36,14 @@ struct ContentView: View {
                 Label("Chronicle", systemImage: "sparkles.rectangle.stack")
             }
             .tag(DebugTabRoute.chronicle)
+
+            NavigationStack {
+                ParentProgressView()
+            }
+            .tabItem {
+                Label("Parent", systemImage: "person.text.rectangle")
+            }
+            .tag(DebugTabRoute.parent)
         }
         .tint(.orange)
     }

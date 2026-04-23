@@ -35,6 +35,7 @@
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
 		A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */; };
+		F1A2B3C4D5E6F708192A3B4C /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */; };
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
 		E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */; };
@@ -85,6 +86,7 @@
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
 		AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_BOOTSTRAP.md; sourceTree = "<group>"; };
+		F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 		B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesHubView.swift; sourceTree = "<group>"; };
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
 		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
@@ -161,6 +163,14 @@
 			path = Chronicle;
 			sourceTree = "<group>";
 		};
+		3B4C5D6E7F8091A2B3C4D5E6 /* Parent */ = {
+			isa = PBXGroup;
+			children = (
+				F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */,
+			);
+			path = Parent;
+			sourceTree = "<group>";
+		};
 		29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -185,6 +195,7 @@
 				291D0A188BF00AB65634B378 /* Chronicle */,
 				2CAF176D76684F7BB625884A /* Lesson */,
 				B8EE4101C55EA21501F66716 /* Map */,
+				3B4C5D6E7F8091A2B3C4D5E6 /* Parent */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -370,6 +381,7 @@
 				1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */,
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
 				A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */,
+				F1A2B3C4D5E6F708192A3B4C /* ParentProgressView.swift in Sources */,
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
 				3CE894040C86BE6F34F93C13 /* GreatsOfBharathaApp.swift in Sources */,

@@ -202,4 +202,38 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.timelineHeadline, "Your timeline confidence is growing")
     }
 
+    func testParentProgressHelpersReflectRetrievalState() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let store = ShivajiLessonStore(defaults: defaults)
+
+        XCTAssertEqual(store.totalCorePlaces, 5)
+        XCTAssertEqual(store.masteredPlaceCount, 0)
+        XCTAssertEqual(store.parentProgressHeadline, "The learning journey is ready to begin")
+        XCTAssertTrue(store.retrievalExplanation.contains("gentle recall"))
+
+        store.markScene("scene-1-shivneri", mastery: .understood)
+        store.recordRecallOutcome(
+            subjectID: "place-shivneri",
+            subjectType: .location,
+            promptType: .mapPlacement,
+            wasSuccessful: true,
+            mastery: .placed,
+            detail: "Place mastered"
+        )
+
+        XCTAssertEqual(store.masteredPlaceCount, 1)
+        XCTAssertTrue(store.parentProgressHeadline.contains("Meaning is starting to stick") || store.parentProgressHeadline.contains("Story, place, and review"))
+    }
+
+    func testAppModelExposesParentSettingsHooks() {
+        let model = AppModel()
+        XCTAssertTrue(model.parentSettings.assistModeEnabled)
+        XCTAssertTrue(model.parentSettings.narrationEnabled)
+        XCTAssertTrue(model.parentSettings.calmTransitionsEnabled)
+
+        model.parentSettings.narrationEnabled = false
+        XCTAssertFalse(model.parentSettings.narrationEnabled)
+    }
+
 }
