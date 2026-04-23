@@ -107,15 +107,41 @@ final class ShivajiLessonStore: ObservableObject {
         return (mastery(for: previousScene.id) ?? .witnessed) >= .understood
     }
 
+    func isPreviewed(_ reward: ChronicleReward) -> Bool {
+        guard let entry = content.activeHeroArc.chronicleEntries.first(where: { $0.id == reward.id }) else {
+            return masteryRecord(for: reward.unlockedBySceneID) != nil
+        }
+        return isPreviewedChronicleEntry(entry)
+    }
+
     func isUnlocked(_ reward: ChronicleReward) -> Bool {
         guard let entry = content.activeHeroArc.chronicleEntries.first(where: { $0.id == reward.id }) else {
-            return (mastery(for: reward.unlockedBySceneID) ?? .witnessed) >= reward.mastery
+            guard let mastery = mastery(for: reward.unlockedBySceneID) else { return false }
+            return mastery >= max(reward.mastery, .understood)
         }
-        return chronicleUnlockState(for: entry) != .silhouette
+        switch chronicleUnlockState(for: entry) {
+        case .silhouette:
+            return false
+        case .unlocked, .enriched:
+            return true
+        }
     }
 
     func unlockedRewards(from rewards: [ChronicleReward]) -> [ChronicleReward] {
         rewards.filter { isUnlocked($0) }
+    }
+
+    func previewedRewards(from rewards: [ChronicleReward]) -> [ChronicleReward] {
+        rewards.filter { isPreviewed($0) && !isUnlocked($0) }
+    }
+
+    func enrichedRewards(from rewards: [ChronicleReward]) -> [ChronicleReward] {
+        rewards.filter { reward in
+            guard let entry = content.activeHeroArc.chronicleEntries.first(where: { $0.id == reward.id }) else {
+                return false
+            }
+            return chronicleUnlockState(for: entry) == .enriched
+        }
     }
 
     func progress(for place: Place) -> PlaceProgress {
@@ -136,16 +162,27 @@ final class ShivajiLessonStore: ObservableObject {
     }
 
     func chronicleUnlockState(for entry: ChronicleEntry) -> ChronicleUnlockState {
-        let sceneMastery = mastery(for: entry.linkedSceneID) ?? .witnessed
-        guard sceneMastery >= entry.unlockRule.requiredMastery else {
+        guard let sceneMastery = mastery(for: entry.linkedSceneID) else {
             return .silhouette
         }
 
-        if let enhanced = entry.unlockRule.enhancedMastery, sceneMastery >= enhanced {
+        let unlockMastery = max(entry.unlockRule.requiredMastery, .understood)
+        guard sceneMastery >= unlockMastery else {
+            return .silhouette
+        }
+
+        if let enhanced = entry.unlockRule.enhancedMastery, sceneMastery >= max(enhanced, unlockMastery) {
             return .enriched
         }
 
         return .unlocked
+    }
+
+    func isPreviewedChronicleEntry(_ entry: ChronicleEntry) -> Bool {
+        guard let record = masteryRecord(for: entry.linkedSceneID) else {
+            return false
+        }
+        return record.exposureCount > 0 || !record.evidenceLog.isEmpty
     }
 
     func locationUnlockState(for node: LocationNode) -> LocationUnlockState {
@@ -208,12 +245,39 @@ final class ShivajiLessonStore: ObservableObject {
         return Double(completedScenes) / Double(totalScenes)
     }
 
+
+    var totalChronicleEntries: Int {
+        content.activeHeroArc.chronicleEntries.count
+    }
+
+    var previewedChronicleCount: Int {
+        content.activeHeroArc.chronicleEntries.filter(isPreviewedChronicleEntry).count
+    }
+
+    var unlockedChronicleCount: Int {
+        content.activeHeroArc.chronicleEntries.filter { chronicleUnlockState(for: $0) != .silhouette }.count
+    }
+
+    var enrichedChronicleCount: Int {
+        content.activeHeroArc.chronicleEntries.filter { chronicleUnlockState(for: $0) == .enriched }.count
+    }
+
     var chronicleHeadline: String {
-        switch completedScenes {
-        case 0:
+        let previewedCount = previewedChronicleCount
+        let unlockedCount = unlockedChronicleCount
+        let enrichedCount = enrichedChronicleCount
+
+        switch (previewedCount, unlockedCount, enrichedCount) {
+        case (0, 0, 0):
             return "Begin the Chronicle"
-        case totalScenes:
+        case let (_, 0, _):
+            return "Your first keepsake is taking shape"
+        case let (_, unlocked, enriched) where unlocked == totalChronicleEntries && enriched == totalChronicleEntries:
+            return "Your Chronicle shelf glows with meaning"
+        case let (_, unlocked, _) where unlocked == totalChronicleEntries:
             return "The first Chronicle page is complete"
+        case let (_, _, enriched) where enriched > 0:
+            return "Your Chronicle is deepening"
         default:
             return "Your Chronicle is taking shape"
         }

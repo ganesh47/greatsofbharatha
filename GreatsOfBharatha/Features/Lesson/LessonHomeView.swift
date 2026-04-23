@@ -10,8 +10,16 @@ struct LessonHomeView: View {
         return appModel.content.scenes.last
     }
 
+    private var previewedRewardsCount: Int {
+        appModel.lessonStore.previewedChronicleCount
+    }
+
     private var unlockedRewardsCount: Int {
-        appModel.lessonStore.unlockedRewards(from: appModel.content.rewards).count
+        appModel.lessonStore.unlockedChronicleCount
+    }
+
+    private var enrichedRewardsCount: Int {
+        appModel.lessonStore.enrichedChronicleCount
     }
 
     var body: some View {
@@ -37,8 +45,9 @@ struct LessonHomeView: View {
 
                             HStack(spacing: GBSpacing.small) {
                                 JourneyStatPill(title: "Scenes", value: "\(appModel.lessonStore.completedScenes)/\(appModel.lessonStore.totalScenes)", emphasis: .story)
-                                JourneyStatPill(title: "Chronicle", value: "\(unlockedRewardsCount)", emphasis: .chronicle)
-                                JourneyStatPill(title: "Forts", value: "\(appModel.content.corePlaces.count)", emphasis: .place)
+                                JourneyStatPill(title: "Previewed", value: "\(previewedRewardsCount)", emphasis: .story)
+                                JourneyStatPill(title: "Earned", value: "\(unlockedRewardsCount)", emphasis: .chronicle)
+                                JourneyStatPill(title: "Deepened", value: "\(enrichedRewardsCount)", emphasis: .chronicle)
                             }
                         }
                     }
@@ -70,7 +79,9 @@ struct LessonHomeView: View {
                     } label: {
                         ChronicleJourneyCard(
                             headline: appModel.lessonStore.chronicleHeadline,
+                            previewedCount: previewedRewardsCount,
                             unlockedCount: unlockedRewardsCount,
+                            enrichedCount: enrichedRewardsCount,
                             totalCount: appModel.content.rewards.count
                         )
                     }
@@ -91,8 +102,8 @@ struct LessonHomeView: View {
             title: appModel.lessonStore.completedScenes == 0 ? "Begin the hill-fort adventure" : "Your next fort is ready",
             subtitle: nextScene.timelineMarker,
             detail: appModel.lessonStore.completedScenes == 0
-                ? "Start with one vivid scene, hold onto one memory hook, then earn your first Chronicle card."
-                : "Jump back in with one short scene, a place clue trail, and a Chronicle keepsake waiting at the finish.",
+                ? "Start with one vivid scene, let your first keepsake silhouette appear, then earn it with one recall win."
+                : "Jump back in with one short scene, a place clue trail, and Chronicle progress that now tracks previewed, earned, and deepened keepsakes.",
             ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene \(nextScene.number)" : "Continue journey",
             badgeTitle: appModel.lessonStore.completedScenes == appModel.lessonStore.totalScenes ? "Journey complete" : "Next adventure",
             emphasis: .story,
@@ -219,7 +230,9 @@ private struct SceneJourneyCard: View {
 
 private struct ChronicleJourneyCard: View {
     let headline: String
+    let previewedCount: Int
     let unlockedCount: Int
+    let enrichedCount: Int
     let totalCount: Int
 
     var body: some View {
@@ -238,7 +251,7 @@ private struct ChronicleJourneyCard: View {
                     Text(headline)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
-                    Text("\(unlockedCount) of \(totalCount) keepsakes ready")
+                    Text("Previewed \(previewedCount)  •  Earned \(unlockedCount) of \(totalCount)  •  Deepened \(enrichedCount)")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
                 }
