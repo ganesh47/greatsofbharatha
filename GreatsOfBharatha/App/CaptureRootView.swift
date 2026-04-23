@@ -39,6 +39,8 @@ struct CaptureRootView: View {
                     highlightRewardID: "reward-first-big-fort-card"
                 )
             }
+        case .timelineHome:
+            NavigationStack { TimelineHubView() }
         case .learnHome:
             NavigationStack { LessonHomeView() }
         }

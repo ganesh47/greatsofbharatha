@@ -246,6 +246,45 @@ final class ShivajiLessonStore: ObservableObject {
     }
 
 
+    var totalTimelineEvents: Int {
+        content.activeHeroArc.timelineEvents.count
+    }
+
+    var unlockedTimelineCount: Int {
+        content.activeHeroArc.timelineEvents.filter { timelineUnlockState(for: $0) != .hidden }.count
+    }
+
+    var masteredTimelineCount: Int {
+        content.activeHeroArc.timelineEvents.filter { timelineUnlockState(for: $0) == .placedAccurately }.count
+    }
+
+    var dueReviewCount: Int {
+        dueReviews().count
+    }
+
+    func upcomingReviews(limit: Int = 3, referenceDate: Date = Date()) -> [ReviewSchedule] {
+        reviewSchedulesBySubject.values
+            .filter { $0.nextDueAt > referenceDate }
+            .sorted { lhs, rhs in lhs.nextDueAt < rhs.nextDueAt }
+            .prefix(limit)
+            .map { $0 }
+    }
+
+    var timelineHeadline: String {
+        switch (unlockedTimelineCount, masteredTimelineCount, dueReviewCount) {
+        case (0, _, _):
+            return "Unlock the first moment in order"
+        case let (unlocked, mastered, _) where unlocked == totalTimelineEvents && mastered == totalTimelineEvents:
+            return "The whole hero journey now holds together"
+        case let (_, mastered, _) where mastered > 0:
+            return "Your timeline confidence is growing"
+        case let (_, _, due) where due > 0:
+            return "A quick review run is ready"
+        default:
+            return "Order is starting to stick"
+        }
+    }
+
     var totalChronicleEntries: Int {
         content.activeHeroArc.chronicleEntries.count
     }

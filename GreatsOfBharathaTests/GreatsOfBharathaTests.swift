@@ -174,4 +174,32 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(schedule?.intervalIndex, 1)
         XCTAssertEqual(schedule?.stabilityBand, .warming)
     }
+    func testTimelineProgressAndUpcomingReviewsReflectStoredMastery() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let store = ShivajiLessonStore(defaults: defaults)
+
+        XCTAssertEqual(store.totalTimelineEvents, 7)
+        XCTAssertEqual(store.unlockedTimelineCount, 0)
+        XCTAssertEqual(store.timelineHeadline, "Unlock the first moment in order")
+        XCTAssertEqual(store.dueReviewCount, 0)
+        XCTAssertEqual(store.upcomingReviews(limit: 2).count, 2)
+
+        store.markScene("scene-1-shivneri", mastery: .understood)
+        XCTAssertEqual(store.unlockedTimelineCount, 1)
+        XCTAssertEqual(store.masteredTimelineCount, 0)
+        XCTAssertEqual(store.timelineHeadline, "Order is starting to stick")
+
+        store.recordRecallOutcome(
+            subjectID: "scene-1-shivneri",
+            promptType: .openPrompt,
+            wasSuccessful: true,
+            mastery: .placed,
+            detail: "Strengthen first scene"
+        )
+
+        XCTAssertEqual(store.masteredTimelineCount, 1)
+        XCTAssertEqual(store.timelineHeadline, "Your timeline confidence is growing")
+    }
+
 }

@@ -22,6 +22,14 @@ struct ContentView: View {
             .tag(DebugTabRoute.places)
 
             NavigationStack {
+                TimelineHubView()
+            }
+            .tabItem {
+                Label("Timeline", systemImage: "clock.arrow.circlepath")
+            }
+            .tag(DebugTabRoute.timeline)
+
+            NavigationStack {
                 ChronicleView(rewards: SampleContent.shivajiVerticalSlice.rewards)
             }
             .tabItem {

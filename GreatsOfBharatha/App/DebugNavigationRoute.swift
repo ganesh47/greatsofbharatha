@@ -3,6 +3,7 @@ import Foundation
 enum DebugTabRoute: String {
     case learn
     case places
+    case timeline
     case chronicle
 }
 
@@ -17,6 +18,7 @@ enum DebugNavigationRoute: String {
     case scene2 = "scene-2"
     case placesHub = "places-hub"
     case placeShivneri = "place-shivneri"
+    case timelineHome = "timeline-home"
     case chronicleUnlocked = "chronicle-unlocked"
 
     static func current(from environment: [String: String] = ProcessInfo.processInfo.environment) -> DebugNavigationRoute? {
@@ -38,6 +40,8 @@ enum DebugNavigationRoute: String {
             return .placesHub
         case ("places", "place-shivneri"):
             return .placeShivneri
+        case ("timeline", ""), ("timeline", "timeline-home"):
+            return .timelineHome
         case ("chronicle", "chronicle-unlocked"):
             return .chronicleUnlocked
         default:
