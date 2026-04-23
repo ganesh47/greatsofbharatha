@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 
 struct AppContent: Equatable {
@@ -73,6 +74,19 @@ struct Place: Identifiable, Equatable {
     let longitude: Double
     let progress: PlaceProgress
     let isCoreReleasePlace: Bool
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var appleMapsURL: URL? {
+        var components = URLComponents(string: "https://maps.apple.com/")
+        components?.queryItems = [
+            URLQueryItem(name: "ll", value: "\(latitude),\(longitude)"),
+            URLQueryItem(name: "q", value: name)
+        ]
+        return components?.url
+    }
 }
 
 struct ChronicleReward: Identifiable, Equatable {

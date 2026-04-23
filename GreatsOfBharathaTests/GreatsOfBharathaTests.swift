@@ -236,4 +236,19 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertFalse(model.parentSettings.narrationEnabled)
     }
 
+    func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() {
+        for place in SampleContent.shivajiVerticalSlice.corePlaces {
+            XCTAssertEqual(place.coordinate.latitude, place.latitude, accuracy: 0.0001)
+            XCTAssertEqual(place.coordinate.longitude, place.longitude, accuracy: 0.0001)
+
+            let url = try XCTUnwrap(place.appleMapsURL)
+            let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+            let queryItems = components.queryItems ?? []
+
+            XCTAssertEqual(components.host, "maps.apple.com")
+            XCTAssertEqual(queryItems.first(where: { $0.name == "ll" })?.value, "\(place.latitude),\(place.longitude)")
+            XCTAssertEqual(queryItems.first(where: { $0.name == "q" })?.value, place.name)
+        }
+    }
+
 }

@@ -193,15 +193,6 @@ struct PlaceDetailView: View {
         return revealed ? "Close. This clue belongs to \(place.name). Use compare mode to see what makes it different." : "That pin is close, but not right yet. Reveal the answer and compare the forts."
     }
 
-    private var appleMapsURL: URL? {
-        var components = URLComponents(string: "https://maps.apple.com/")
-        components?.queryItems = [
-            URLQueryItem(name: "ll", value: "\(place.latitude),\(place.longitude)"),
-            URLQueryItem(name: "q", value: place.name)
-        ]
-        return components?.url
-    }
-
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
@@ -709,12 +700,6 @@ private struct PlaceMapExplorerSheet: View {
         )
 
         return MKCoordinateRegion(center: center, span: span)
-    }
-}
-
-private extension Place {
-    var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }
 
