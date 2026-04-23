@@ -90,7 +90,8 @@ final class GreatsOfBharathaTests: XCTestCase {
         store.markScene("scene-1-shivneri", mastery: .observedClosely)
 
         XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .enriched)
-        XCTAssertEqual(store.enrichedChronicleCount, 3)
+        XCTAssertEqual(store.unlockedChronicleCount, 3)
+        XCTAssertEqual(store.enrichedChronicleCount, 2)
         XCTAssertEqual(store.chronicleHeadline, "Your Chronicle is deepening")
     }
 
