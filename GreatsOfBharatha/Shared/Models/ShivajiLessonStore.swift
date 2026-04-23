@@ -57,6 +57,37 @@ final class ShivajiLessonStore: ObservableObject {
         updateRecord(subjectID: sceneID, subjectType: .scene, newState: mastery, evidenceType: evidenceType, detail: "Scene mastery updated")
     }
 
+    func recordRecallOutcome(
+        subjectID: String,
+        subjectType: MasterySubjectType = .scene,
+        promptType: RecallPromptType,
+        wasSuccessful: Bool,
+        mastery: MasteryState,
+        detail: String
+    ) {
+        let evidenceType: MasteryEvidenceType
+        if wasSuccessful {
+            switch promptType {
+            case .mapPlacement, .eventToPlaceMatch:
+                evidenceType = .mapPlacementSuccess
+            case .sequenceSlot:
+                evidenceType = .timelinePlacementSuccess
+            case .openPrompt, .compareFromMemory:
+                evidenceType = mastery >= .remembered ? .reviewSuccess : .recallSuccess
+            }
+        } else {
+            evidenceType = .recallAttempt
+        }
+
+        updateRecord(
+            subjectID: subjectID,
+            subjectType: subjectType,
+            newState: mastery,
+            evidenceType: evidenceType,
+            detail: detail
+        )
+    }
+
     func resetScene(_ sceneID: String) {
         masteryRecordsBySubject.removeValue(forKey: sceneID)
         reviewSchedulesBySubject.removeValue(forKey: sceneID)
