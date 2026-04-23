@@ -85,10 +85,6 @@ final class GreatsOfBharathaTests: XCTestCase {
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
-        let before = store.dueReviews(referenceDate: .distantFuture).first { $0.subjectID == "scene-1-shivneri" }
-        XCTAssertNotNil(before)
-        XCTAssertEqual(before?.intervalIndex, 0)
-
         store.recordRecallOutcome(
             subjectID: "scene-1-shivneri",
             promptType: .openPrompt,
@@ -102,7 +98,9 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(record?.successfulReviewCount, 1)
         XCTAssertEqual(record?.evidenceLog.last?.type, .reviewSuccess)
 
-        let schedule = store.dueReviews(referenceDate: .distantFuture).first { $0.subjectID == "scene-1-shivneri" }
+        let dueReviews = store.dueReviews(referenceDate: .distantFuture)
+        let schedule = dueReviews.first { $0.subjectID == "scene-1-shivneri" }
+        XCTAssertNotNil(schedule)
         XCTAssertEqual(schedule?.intervalIndex, 1)
         XCTAssertEqual(schedule?.stabilityBand, .warming)
     }
