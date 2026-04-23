@@ -51,18 +51,26 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertTrue(heroArc.reviewBlueprints.contains { $0.subjectID == "place-raigad" && $0.subjectType == .location })
     }
 
-    func testLessonStoreTracksProgressAndUnlocksRewards() {
+    func testLessonStorePreviewsChronicleRewardsBeforeUnlockingThem() {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
         XCTAssertEqual(store.completedScenes, 0)
         XCTAssertEqual(store.nextSceneID, "scene-1-shivneri")
-        XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
+        XCTAssertFalse(store.isPreviewed(SampleContent.birthFortCard))
+        XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
 
         let guidanceEntry = SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge")
         XCTAssertNotNil(guidanceEntry)
         XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .silhouette)
+
+        store.recordStoryExposure(for: "scene-1-shivneri")
+
+        XCTAssertTrue(store.isPreviewed(SampleContent.birthFortCard))
+        XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .silhouette)
+        XCTAssertEqual(store.chronicleHeadline, "Your first keepsake is taking shape")
 
         store.markScene("scene-1-shivneri", mastery: .understood)
 
@@ -70,6 +78,20 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.nextSceneID, "scene-2-torna-rajgad")
         XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
         XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .unlocked)
+    }
+
+    func testLessonStoreTracksEnrichedChronicleState() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let store = ShivajiLessonStore(defaults: defaults)
+
+        let guidanceEntry = SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge")!
+
+        store.markScene("scene-1-shivneri", mastery: .observedClosely)
+
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .enriched)
+        XCTAssertEqual(store.enrichedChronicleCount, 3)
+        XCTAssertEqual(store.chronicleHeadline, "Your Chronicle is deepening")
     }
 
     func testRecallEngineRevealsHintLadderBeforeRecognitionRescue() {
