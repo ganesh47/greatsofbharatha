@@ -24,4 +24,86 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.nextSceneID, "scene-2-torna-rajgad")
         XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
     }
+
+    func testRecallEngineRevealsHintLadderBeforeRecognitionRescue() {
+        let challenge = RecallChallenge(
+            id: "scene-1-recall",
+            promptType: .openPrompt,
+            prompt: "Which fort is the birth place?",
+            correctAnswers: ["Shivneri Fort"],
+            hintLadder: [
+                RecallHint(level: 1, title: "Anchor hint", body: "Think about the Birth Fort."),
+                RecallHint(level: 2, title: "Place hint", body: "It is near Junnar."),
+                RecallHint(level: 3, title: "Category hint", body: "It is a hill fort."),
+            ],
+            feedback: RecallFeedback(success: "Yes.", recovery: "Use recognition rescue."),
+            masteryContribution: .remembered
+        )
+
+        var state = LessonRecallState()
+        state = LessonRecallEngine.revealNextHint(from: state, challenge: challenge)
+        XCTAssertEqual(state.revealedHintLevel, 1)
+        XCTAssertFalse(state.recognitionRescueUnlocked)
+        XCTAssertEqual(LessonRecallEngine.currentHint(for: state, challenge: challenge)?.title, "Anchor hint")
+
+        state = LessonRecallEngine.revealNextHint(from: state, challenge: challenge)
+        state = LessonRecallEngine.revealNextHint(from: state, challenge: challenge)
+        XCTAssertEqual(state.revealedHintLevel, 3)
+        XCTAssertFalse(state.recognitionRescueUnlocked)
+
+        state = LessonRecallEngine.revealNextHint(from: state, challenge: challenge)
+        XCTAssertTrue(state.recognitionRescueUnlocked)
+        XCTAssertEqual(state.feedbackText, "Use recognition rescue.")
+    }
+
+    func testRecallEngineAwardsSuccessMasteryForTypedAnswer() {
+        let challenge = RecallChallenge(
+            id: "scene-2-recall",
+            promptType: .openPrompt,
+            prompt: "Which fort became an early capital?",
+            correctAnswers: ["Rajgad"],
+            hintLadder: [RecallHint(level: 1, title: "Meaning hint", body: "It came after Torna.")],
+            feedback: RecallFeedback(success: "Yes. Rajgad became an early capital.", recovery: "Almost."),
+            masteryContribution: .understood
+        )
+
+        let evaluation = LessonRecallEngine.submit(
+            state: LessonRecallState(),
+            challenge: challenge,
+            typedAnswer: "Rajgad",
+            selectedChoiceTitle: nil,
+            successMastery: .observedClosely
+        )
+
+        XCTAssertTrue(evaluation.wasSuccessful)
+        XCTAssertEqual(evaluation.masteryAwarded, .observedClosely)
+        XCTAssertEqual(evaluation.feedbackText, "Yes. Rajgad became an early capital.")
+    }
+
+    func testStoreRecordRecallOutcomeAdvancesReviewSchedule() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let store = ShivajiLessonStore(defaults: defaults)
+
+        let before = store.dueReviews(referenceDate: .distantFuture).first { $0.subjectID == "scene-1-shivneri" }
+        XCTAssertNotNil(before)
+        XCTAssertEqual(before?.intervalIndex, 0)
+
+        store.recordRecallOutcome(
+            subjectID: "scene-1-shivneri",
+            promptType: .openPrompt,
+            wasSuccessful: true,
+            mastery: .remembered,
+            detail: "Test recall success"
+        )
+
+        XCTAssertEqual(store.mastery(for: "scene-1-shivneri"), .remembered)
+        let record = store.masteryRecord(for: "scene-1-shivneri")
+        XCTAssertEqual(record?.successfulReviewCount, 1)
+        XCTAssertEqual(record?.evidenceLog.last?.type, .reviewSuccess)
+
+        let schedule = store.dueReviews(referenceDate: .distantFuture).first { $0.subjectID == "scene-1-shivneri" }
+        XCTAssertEqual(schedule?.intervalIndex, 1)
+        XCTAssertEqual(schedule?.stabilityBand, .warming)
+    }
 }

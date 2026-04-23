@@ -8,10 +8,36 @@ struct SceneLessonView: View {
     @State private var recallState = LessonRecallState()
     @State private var revealedMapAnchors = 0
     @State private var chosenPlanSteps: Set<String> = []
-    @State private var hintVisible = false
+    @State private var storyExposureRecorded = false
 
     private var reward: ChronicleReward? {
         appModel.content.rewards.first(where: { $0.id == scene.rewardID })
+    }
+
+    private var recallChallenge: RecallChallenge {
+        appModel.content.activeHeroArc.scene(withID: scene.id)?.primaryRecallChallenge ?? RecallChallenge(
+            id: scene.id + "-recall",
+            promptType: .openPrompt,
+            prompt: scene.recallPrompt.question,
+            correctAnswers: [scene.recallPrompt.answer],
+            hintLadder: [RecallHint(level: 1, title: "Story clue", body: scene.recallPrompt.supportText)],
+            feedback: RecallFeedback(
+                success: "Yes. \(scene.recallPrompt.supportText)",
+                recovery: "Almost. \(scene.recallPrompt.supportText)"
+            ),
+            masteryContribution: .understood
+        )
+    }
+
+    private var awardedMastery: MasteryState {
+        if scene.number == 2 && chosenPlanSteps.count >= 2 {
+            return max(recallChallenge.masteryContribution, .observedClosely)
+        }
+        return recallChallenge.masteryContribution
+    }
+
+    private var currentHint: RecallHint? {
+        LessonRecallEngine.currentHint(for: recallState, challenge: recallChallenge)
     }
 
     private var lessonCards: [SceneCardContent] {
@@ -47,7 +73,8 @@ struct SceneLessonView: View {
         let storyProgress = Double(cardIndex + 1) / Double(max(lessonCards.count, 1))
         let placeProgress = min(Double(revealedMapAnchors) / Double(max(scene.mapAnchors.count, 1)), 1)
         let planningProgress = scene.number == 2 ? min(Double(chosenPlanSteps.count) / 2, 1) : 1
-        let recallProgress = recallState.selectedChoiceID == nil ? 0.2 : (recallState.hasAnsweredCorrectly ? 1 : 0.55)
+        let hasRecallInput = !LessonRecallEngine.normalized(recallState.typedAnswer).isEmpty || recallState.selectedChoiceID != nil
+        let recallProgress = recallState.hasAnsweredCorrectly ? 1.0 : (hasRecallInput || currentHint != nil || recallState.recognitionRescueUnlocked ? 0.6 : 0.2)
         let total = storyProgress + placeProgress + planningProgress + recallProgress
         return min(total / 4, 1)
     }
@@ -61,13 +88,18 @@ struct SceneLessonView: View {
     }
 
     private var sceneChoices: [LessonChoice] {
-        var choices = scene.mapAnchors.map {
-            LessonChoice(id: $0.lowercased().replacingOccurrences(of: " ", with: "-"), title: $0, detail: "A place clue from this scene")
+        var titles = recallChallenge.correctAnswers
+        for anchor in scene.mapAnchors where !titles.contains(where: { LessonRecallEngine.normalized($0) == LessonRecallEngine.normalized(anchor) }) {
+            titles.append(anchor)
         }
-        if !choices.contains(where: { normalized($0.title) == normalized(scene.recallPrompt.answer) }) {
-            choices.insert(LessonChoice(id: scene.id + "-answer", title: scene.recallPrompt.answer, detail: "The memory hook you want to keep"), at: 0)
+
+        return Array(titles.prefix(4).enumerated()).map { index, title in
+            LessonChoice(
+                id: "\(scene.id)-choice-\(index)",
+                title: title,
+                detail: LessonRecallEngine.answerMatches(title, challenge: recallChallenge) ? "The memory hook you want to keep" : "A place clue from this scene"
+            )
         }
-        return Array(choices.prefix(3))
     }
 
     var body: some View {
@@ -129,30 +161,16 @@ struct SceneLessonView: View {
                         FortPlanningCard(chosenPlanSteps: $chosenPlanSteps)
                     }
 
-                    GBSurface(style: .plain) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            Button(hintVisible ? "Hide clue" : "Need a clue?") {
-                                hintVisible.toggle()
-                                LessonFeedback.fire(.reveal)
-                            }
-                            .buttonStyle(.gbSecondary)
-
-                            if hintVisible {
-                                GuidanceCard(
-                                    title: "Helpful clue",
-                                    message: curatedHint,
-                                    systemImage: "lightbulb.fill"
-                                )
-                            }
-                        }
-                    }
-
                     RecallPanel(
-                        question: scene.recallPrompt,
+                        challenge: recallChallenge,
                         choices: sceneChoices,
+                        typedAnswer: $recallState.typedAnswer,
                         selectedChoiceID: $recallState.selectedChoiceID,
                         feedbackText: recallState.feedbackText,
                         completed: recallState.hasAnsweredCorrectly,
+                        currentHint: currentHint,
+                        recognitionRescueUnlocked: recallState.recognitionRescueUnlocked,
+                        onRevealHint: revealNextHint,
                         onSubmit: submitRecall
                     )
 
@@ -172,6 +190,7 @@ struct SceneLessonView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(GBColor.Background.app)
+            .onAppear(perform: recordStoryExposureIfNeeded)
         }
         .navigationTitle("Scene \(scene.number)")
 #if os(iOS)
@@ -193,34 +212,44 @@ struct SceneLessonView: View {
     }
 
     private func submitRecall() {
-        guard let selectedChoiceID = recallState.selectedChoiceID else { return }
+        let selectedTitle = sceneChoices.first(where: { $0.id == recallState.selectedChoiceID })?.title
+        let evaluation = LessonRecallEngine.submit(
+            state: recallState,
+            challenge: recallChallenge,
+            typedAnswer: recallState.typedAnswer,
+            selectedChoiceTitle: selectedTitle,
+            successMastery: awardedMastery
+        )
 
-        let correctAnswer = normalized(scene.recallPrompt.answer)
-        let selectedTitle = sceneChoices.first(where: { $0.id == selectedChoiceID })?.title ?? ""
+        recallState.feedbackText = evaluation.feedbackText
+        recallState.revealedHintLevel = evaluation.revealedHintLevel
+        recallState.recognitionRescueUnlocked = evaluation.recognitionRescueUnlocked
+        recallState.hasAnsweredCorrectly = evaluation.wasSuccessful
 
-        if normalized(selectedTitle) == correctAnswer {
-            recallState.hasAnsweredCorrectly = true
-            recallState.feedbackText = "Yes. \(scene.recallPrompt.supportText)"
-            let mastery: MasteryState = scene.number == 2 && chosenPlanSteps.count >= 2 ? .observedClosely : .understood
-            appModel.lessonStore.markScene(scene.id, mastery: mastery)
+        appModel.lessonStore.recordRecallOutcome(
+            subjectID: scene.id,
+            promptType: recallChallenge.promptType,
+            wasSuccessful: evaluation.wasSuccessful,
+            mastery: evaluation.masteryAwarded,
+            detail: evaluation.wasSuccessful ? "Recall succeeded in SceneLessonView" : "Recall attempt needs more support"
+        )
+
+        if evaluation.wasSuccessful {
             LessonFeedback.fire(.success)
         } else {
-            recallState.hasAnsweredCorrectly = false
-            recallState.feedbackText = "Almost. \(scene.recallPrompt.supportText)"
-            appModel.lessonStore.markScene(scene.id, mastery: .witnessed)
             LessonFeedback.fire(.warning)
         }
     }
 
-    private var curatedHint: String {
-        if scene.number == 1 {
-            return "The first scene begins at the fort where Shivaji Maharaj was born with Jijabai nearby."
-        }
-        return "Torna is the breakthrough fort. The answer you want is the fort that became the early capital after that."
+    private func revealNextHint() {
+        recallState = LessonRecallEngine.revealNextHint(from: recallState, challenge: recallChallenge)
+        LessonFeedback.fire(.reveal)
     }
 
-    private func normalized(_ text: String) -> String {
-        text.lowercased().replacingOccurrences(of: ",", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+    private func recordStoryExposureIfNeeded() {
+        guard !storyExposureRecorded else { return }
+        storyExposureRecorded = true
+        appModel.lessonStore.recordStoryExposure(for: scene.id, detail: "Scene \(scene.number) opened")
     }
 }
 
@@ -449,12 +478,20 @@ private struct GuidanceCard: View {
 }
 
 private struct RecallPanel: View {
-    let question: RecallPrompt
+    let challenge: RecallChallenge
     let choices: [LessonChoice]
+    @Binding var typedAnswer: String
     @Binding var selectedChoiceID: String?
     let feedbackText: String?
     let completed: Bool
+    let currentHint: RecallHint?
+    let recognitionRescueUnlocked: Bool
+    let onRevealHint: () -> Void
     let onSubmit: () -> Void
+
+    private var canSubmit: Bool {
+        !LessonRecallEngine.normalized(typedAnswer).isEmpty || selectedChoiceID != nil
+    }
 
     var body: some View {
         GBSurface(style: .plain) {
@@ -462,43 +499,90 @@ private struct RecallPanel: View {
                 GBSectionHeader(
                     eyebrow: "Recall card",
                     title: "Say it from memory",
-                    subtitle: "Pick the answer that matches the story hook you just learned."
+                    subtitle: recognitionRescueUnlocked
+                        ? "You can still type your answer, or use the rescue choices if you need a final helper."
+                        : "Try to answer before looking at choices. Hints will appear one step at a time."
                 )
 
-                Text(question.question)
+                Text(challenge.prompt)
                     .font(.body.weight(.medium))
                     .foregroundStyle(GBColor.Content.primary)
 
-                ForEach(choices) { choice in
-                    let isSelected = selectedChoiceID == choice.id
-                    Button {
-                        selectedChoiceID = choice.id
-                        LessonFeedback.fire(.selection)
-                    } label: {
-                        HStack(alignment: .top, spacing: GBSpacing.small) {
-                            Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
-                                .foregroundStyle(isSelected ? GBColor.Accent.story : GBColor.Content.secondary)
-                            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                                Text(choice.title)
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(GBColor.Content.primary)
-                                Text(choice.detail)
-                                    .font(.caption)
-                                    .foregroundStyle(GBColor.Content.secondary)
-                            }
-                            Spacer()
-                        }
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                    Text("Your answer")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(GBColor.Content.secondary)
+
+                    TextField("Type what you remember", text: $typedAnswer)
+                        .textFieldStyle(.plain)
                         .padding(GBSpacing.small)
                         .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+#if os(iOS)
+                        .textInputAutocapitalization(.words)
+                        .autocorrectionDisabled()
+#endif
+                }
+
+                HStack(spacing: GBSpacing.small) {
+                    Button(recognitionRescueUnlocked ? "Clues complete" : "Show next hint") {
+                        onRevealHint()
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.gbSecondary)
+                    .disabled(recognitionRescueUnlocked || completed)
+
+                    if recognitionRescueUnlocked {
+                        Label("Recognition rescue ready", systemImage: "sparkles")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(GBColor.Accent.story)
+                    }
+                }
+
+                if let currentHint {
+                    GuidanceCard(
+                        title: currentHint.title,
+                        message: currentHint.body,
+                        systemImage: "lightbulb.fill"
+                    )
+                }
+
+                if recognitionRescueUnlocked {
+                    VStack(alignment: .leading, spacing: GBSpacing.small) {
+                        Text("Recognition rescue")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(GBColor.Content.secondary)
+
+                        ForEach(choices) { choice in
+                            let isSelected = selectedChoiceID == choice.id
+                            Button {
+                                selectedChoiceID = choice.id
+                                LessonFeedback.fire(.selection)
+                            } label: {
+                                HStack(alignment: .top, spacing: GBSpacing.small) {
+                                    Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
+                                        .foregroundStyle(isSelected ? GBColor.Accent.story : GBColor.Content.secondary)
+                                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                                        Text(choice.title)
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(GBColor.Content.primary)
+                                        Text(choice.detail)
+                                            .font(.caption)
+                                            .foregroundStyle(GBColor.Content.secondary)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(GBSpacing.small)
+                                .background(GBColor.Background.elevated, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
                 }
 
                 Button(completed ? "Answer locked in" : "Check my answer") {
                     onSubmit()
                 }
                 .buttonStyle(.gbPrimary(.story))
-                .disabled(selectedChoiceID == nil || completed)
+                .disabled(!canSubmit || completed)
 
                 if let feedbackText {
                     Text(feedbackText)
