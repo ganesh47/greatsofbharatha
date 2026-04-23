@@ -176,9 +176,9 @@ private struct TimelineEventCard: View {
         }
     }
 
-    private func cardSurface(style: GBSurface<AnyView>.Style) -> some View {
+    private func cardSurface(style: GBSurface<EmptyView>.Style) -> some View {
         GBSurface(style: style) {
-            AnyView(cardContent)
+            cardContent
         }
     }
 
@@ -297,7 +297,7 @@ private struct TimelineEventCard: View {
         }
     }
 
-    private var nestedSurfaceStyle: GBSurface<AnyView>.Style {
+    private var nestedSurfaceStyle: GBSurface<EmptyView>.Style {
         switch unlockState {
         case .remembered, .placedAccurately, .masteredInReview:
             return .plain
