@@ -1,3 +1,4 @@
+import MapKit
 import SwiftUI
 
 struct PlacesHubView: View {
@@ -168,6 +169,7 @@ struct PlaceDetailView: View {
     @State private var selectedCandidateID: String?
     @State private var revealed = false
     @State private var comparisonMode = false
+    @State private var showsMapExplorer = false
 
     private var challengeCandidates: [Place] {
         let core = SampleContent.shivajiVerticalSlice.corePlaces
@@ -236,6 +238,9 @@ struct PlaceDetailView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+        .sheet(isPresented: $showsMapExplorer) {
+            PlaceMapExplorerSheet(place: place, nearbyPlaces: challengeCandidates)
+        }
     }
 
     private var headerCard: some View {
@@ -314,10 +319,18 @@ struct PlaceDetailView: View {
         GBSurface(style: .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSectionHeader(
-                    eyebrow: "Optional",
-                    title: "Open the real-world map",
-                    subtitle: "Keep the Sahyadri board as the main learning view. Apple Maps stays an optional external reference."
+                    eyebrow: "MapKit Explorer",
+                    title: "See the real fort region",
+                    subtitle: "Use the in-app map to connect the Sahyadri board with a real landscape, then optionally open Apple Maps outside the app."
                 )
+
+                Button {
+                    showsMapExplorer = true
+                } label: {
+                    Label("Open map explorer", systemImage: "map.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.gbPrimary(.place))
 
                 Button {
                     guard let appleMapsURL else { return }
@@ -328,7 +341,7 @@ struct PlaceDetailView: View {
                 }
                 .buttonStyle(.gbSecondary)
 
-                Text("This leaves GreatsOfBharatha and opens Apple Maps.")
+                Text("The explorer keeps the learning context in GreatsOfBharatha. Apple Maps remains an optional external reference.")
                     .font(.caption)
                     .foregroundStyle(GBColor.Content.secondary)
             }
@@ -596,6 +609,112 @@ struct PlaceDetailView: View {
                     .foregroundStyle(GBColor.Content.primary)
             }
         }
+    }
+}
+
+private struct PlaceMapExplorerSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let place: Place
+    let nearbyPlaces: [Place]
+
+    @State private var cameraPosition: MapCameraPosition
+
+    init(place: Place, nearbyPlaces: [Place]) {
+        self.place = place
+        self.nearbyPlaces = nearbyPlaces
+        _cameraPosition = State(initialValue: .region(Self.region(for: place, nearbyPlaces: nearbyPlaces)))
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                GBSurface(style: .accented(.place)) {
+                    VStack(alignment: .leading, spacing: GBSpacing.small) {
+                        Text("MapKit place explorer")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
+                        Text(place.name)
+                            .font(.system(.title, design: .rounded, weight: .bold))
+                            .foregroundStyle(GBColor.Content.inverse)
+                        Text("See how this fort sits inside the wider region, then return to the fort board to pin it from memory.")
+                            .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
+                    }
+                }
+
+                Map(position: $cameraPosition) {
+                    ForEach(nearbyPlaces) { candidate in
+                        Annotation(candidate.name, coordinate: candidate.coordinate) {
+                            VStack(spacing: 4) {
+                                Image(systemName: candidate.id == place.id ? "mappin.circle.fill" : "mappin.circle")
+                                    .font(candidate.id == place.id ? .title : .title2)
+                                    .foregroundStyle(candidate.id == place.id ? GBColor.Accent.place : GBColor.Content.primary)
+                                Text(candidate.name)
+                                    .font(.caption2.weight(.bold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 4)
+                                    .background(.ultraThinMaterial, in: Capsule())
+                            }
+                        }
+                    }
+                }
+                .mapStyle(.standard(elevation: .realistic))
+                .frame(height: 320)
+                .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
+
+                GBSurface(style: .elevated) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text("Why this helps")
+                            .font(.headline)
+                        Text(place.primaryEvent)
+                            .font(.subheadline.weight(.semibold))
+                        Text("Memory hook: \(place.memoryHook). Region clue: \(place.regionLabel).")
+                            .font(.subheadline)
+                            .foregroundStyle(GBColor.Content.secondary)
+                    }
+                }
+            }
+            .padding()
+            .background(GBColor.Background.app)
+            .navigationTitle("Map explorer")
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private static func region(for place: Place, nearbyPlaces: [Place]) -> MKCoordinateRegion {
+        let latitudes = nearbyPlaces.map(\.latitude)
+        let longitudes = nearbyPlaces.map(\.longitude)
+        let minLatitude = latitudes.min() ?? place.latitude
+        let maxLatitude = latitudes.max() ?? place.latitude
+        let minLongitude = longitudes.min() ?? place.longitude
+        let maxLongitude = longitudes.max() ?? place.longitude
+
+        let center = CLLocationCoordinate2D(
+            latitude: (minLatitude + maxLatitude) / 2,
+            longitude: (minLongitude + maxLongitude) / 2
+        )
+
+        let span = MKCoordinateSpan(
+            latitudeDelta: max((maxLatitude - minLatitude) * 1.8, 0.4),
+            longitudeDelta: max((maxLongitude - minLongitude) * 1.8, 0.4)
+        )
+
+        return MKCoordinateRegion(center: center, span: span)
+    }
+}
+
+private extension Place {
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }
 
