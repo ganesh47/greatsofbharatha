@@ -248,54 +248,59 @@ private struct ChronicleShelfCard: View {
     let isHighlighted: Bool
     let collected: Bool
 
+    @ViewBuilder
     var body: some View {
-        GBSurface(style: surfaceStyle) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .top, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                        HStack(spacing: GBSpacing.xxSmall) {
-                            GBBadge(title: badgeTitle, symbol: badgeSymbol, emphasis: badgeEmphasis)
-                            if isHighlighted {
-                                GBBadge(title: collected ? "Collected" : "New", symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .story)
-                            }
-                        }
-
-                        Text(reward.title)
-                            .gbTitle()
-                            .foregroundStyle(titleColor)
-                        Text(reward.subtitle)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(GBColor.Content.secondary)
-                    }
-
-                    Spacer()
-
-                    Image(systemName: badgeSymbol)
-                        .font(.title2)
-                        .foregroundStyle(iconColor)
-                }
-
-                Text(primaryText)
-                    .gbBody()
-                    .foregroundStyle(GBColor.Content.secondary)
-
-                Text("From: \(linkedSceneTitle)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(GBColor.accent(for: badgeEmphasis))
-            }
-            .opacity(state == .hidden ? 0.82 : 1)
+        switch state {
+        case .hidden, .previewed:
+            cardSurface(style: .elevated)
+        case .earned:
+            cardSurface(style: .plain)
+        case .deepened:
+            cardSurface(style: .accented(.chronicle))
         }
     }
 
-    private var surfaceStyle: GBSurface<EmptyView>.Style {
-        switch state {
-        case .hidden, .previewed:
-            return .elevated
-        case .earned:
-            return .plain
-        case .deepened:
-            return .accented(.chronicle)
+    private func cardSurface(style: GBSurface<AnyView>.Style) -> some View {
+        GBSurface(style: style) {
+            AnyView(cardContent)
         }
+    }
+
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            HStack(alignment: .top, spacing: GBSpacing.small) {
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                    HStack(spacing: GBSpacing.xxSmall) {
+                        GBBadge(title: badgeTitle, symbol: badgeSymbol, emphasis: badgeEmphasis)
+                        if isHighlighted {
+                            GBBadge(title: collected ? "Collected" : "New", symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .story)
+                        }
+                    }
+
+                    Text(reward.title)
+                        .gbTitle()
+                        .foregroundStyle(titleColor)
+                    Text(reward.subtitle)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(GBColor.Content.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: badgeSymbol)
+                    .font(.title2)
+                    .foregroundStyle(iconColor)
+            }
+
+            Text(primaryText)
+                .gbBody()
+                .foregroundStyle(GBColor.Content.secondary)
+
+            Text("From: \(linkedSceneTitle)")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(GBColor.accent(for: badgeEmphasis))
+        }
+        .opacity(state == .hidden ? 0.82 : 1)
     }
 
     private var badgeTitle: String {
