@@ -1,5 +1,11 @@
 import SwiftUI
 
+struct ParentLearningSettings: Equatable {
+    var assistModeEnabled: Bool = true
+    var narrationEnabled: Bool = true
+    var calmTransitionsEnabled: Bool = true
+}
+
 final class AppModel: ObservableObject {
     @Published var content: AppContent {
         didSet {
@@ -8,6 +14,7 @@ final class AppModel: ObservableObject {
     }
 
     @Published var lessonStore: ShivajiLessonStore
+    @Published var parentSettings = ParentLearningSettings()
 
     init(content: AppContent = SampleContent.shivajiVerticalSlice, captureSeedProfile: CaptureSeedProfile = .pristine) {
         self.content = content

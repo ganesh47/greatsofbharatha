@@ -285,6 +285,43 @@ final class ShivajiLessonStore: ObservableObject {
         }
     }
 
+    var totalCorePlaces: Int {
+        content.corePlaces.count
+    }
+
+    var readyOrBetterPlaceCount: Int {
+        content.corePlaces.filter { progress(for: $0) != .locked }.count
+    }
+
+    var masteredPlaceCount: Int {
+        content.corePlaces.filter { progress(for: $0) == .masteredLightly }.count
+    }
+
+    var parentProgressHeadline: String {
+        switch (completedScenes, unlockedChronicleCount, masteredPlaceCount, dueReviewCount) {
+        case (0, 0, 0, 0):
+            return "The learning journey is ready to begin"
+        case let (scenes, chronicle, places, _) where scenes == totalScenes && chronicle == totalChronicleEntries && places == totalCorePlaces:
+            return "The full Shivaji MVP loop is holding together"
+        case let (_, _, _, due) where due > 0:
+            return "A short revisit is ready to strengthen memory"
+        case let (_, chronicle, _, _) where chronicle > 0:
+            return "Meaning is starting to stick, not just the story beats"
+        default:
+            return "Story, place, and review are beginning to connect"
+        }
+    }
+
+    var retrievalExplanation: String {
+        if dueReviewCount > 0 {
+            return "Short revisit prompts are now due, which helps move remembered facts into longer-lasting knowledge."
+        }
+        if unlockedChronicleCount > 0 {
+            return "Chronicle unlocks show the child is recalling meaning, not only tapping through scenes."
+        }
+        return "The app is designed to ask for gentle recall before giving the answer, so memory grows through retrieval instead of repetition alone."
+    }
+
     var totalChronicleEntries: Int {
         content.activeHeroArc.chronicleEntries.count
     }

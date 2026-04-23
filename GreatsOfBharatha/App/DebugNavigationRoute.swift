@@ -5,6 +5,7 @@ enum DebugTabRoute: String {
     case places
     case timeline
     case chronicle
+    case parent
 }
 
 enum CaptureSeedProfile {
@@ -20,6 +21,7 @@ enum DebugNavigationRoute: String {
     case placeShivneri = "place-shivneri"
     case timelineHome = "timeline-home"
     case chronicleUnlocked = "chronicle-unlocked"
+    case parentHome = "parent-home"
 
     static func current(from environment: [String: String] = ProcessInfo.processInfo.environment) -> DebugNavigationRoute? {
         if let raw = environment["GOB_CAPTURE_ROUTE"], let route = DebugNavigationRoute(rawValue: raw) {
@@ -44,6 +46,8 @@ enum DebugNavigationRoute: String {
             return .timelineHome
         case ("chronicle", "chronicle-unlocked"):
             return .chronicleUnlocked
+        case ("parent", ""), ("parent", "parent-home"):
+            return .parentHome
         default:
             return nil
         }

@@ -41,6 +41,8 @@ struct CaptureRootView: View {
             }
         case .timelineHome:
             NavigationStack { TimelineHubView() }
+        case .parentHome:
+            NavigationStack { ParentProgressView() }
         case .learnHome:
             NavigationStack { LessonHomeView() }
         }
