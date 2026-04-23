@@ -2,11 +2,53 @@ import XCTest
 @testable import Greats_Of_Bharatha
 
 final class GreatsOfBharathaTests: XCTestCase {
-    func testSampleContentHasScenes() {
+    func testSampleContentHasCanonicalSixSceneArc() {
         let model = AppModel()
-        XCTAssertFalse(model.content.scenes.isEmpty)
+        XCTAssertEqual(model.content.scenes.map(\.id), [
+            "scene-1-shivneri",
+            "scene-2-torna-rajgad",
+            "scene-3-pratapgad-turning-point",
+            "scene-4-purandar-agra",
+            "scene-5-rajgad-recovery",
+            "scene-6-raigad-coronation",
+        ])
         XCTAssertEqual(model.content.scenes.first?.title, "Shivneri, where Shivaji Maharaj's story begins")
         XCTAssertEqual(model.content.scenes.first?.recallPrompt.answer, "Shivneri Fort")
+        XCTAssertEqual(model.content.activeHeroArc.timelineEvents.map(\.id), [
+            "timeline-born-at-shivneri",
+            "timeline-early-forts",
+            "timeline-pratapgad-turning-point",
+            "timeline-pressure-at-purandar",
+            "timeline-agra-and-return",
+            "timeline-comeback-and-rebuilding",
+            "timeline-raigad-coronation",
+        ])
+        XCTAssertEqual(Set(model.content.corePlaces.map(\.id)), [
+            "place-shivneri",
+            "place-torna",
+            "place-rajgad",
+            "place-pratapgad",
+            "place-raigad",
+        ])
+    }
+
+    func testSampleContentChronicleAndReviewBlueprintCoverage() {
+        let heroArc = SampleContent.shivajiHeroArc
+
+        XCTAssertEqual(heroArc.chronicleEntries.count, 18)
+        XCTAssertEqual(Set(heroArc.chronicleEntries.map(\.linkedSceneID)), Set(heroArc.scenes.map(\.id)))
+        XCTAssertEqual(Set(heroArc.locationNodes.map(\.id)), [
+            "place-shivneri",
+            "place-torna",
+            "place-rajgad",
+            "place-pratapgad",
+            "place-purandar",
+            "place-agra",
+            "place-raigad",
+        ])
+        XCTAssertEqual(Set(heroArc.reviewBlueprints.filter { $0.subjectType == .scene }.map(\.subjectID)), Set(heroArc.scenes.map(\.id)))
+        XCTAssertTrue(heroArc.reviewBlueprints.contains { $0.subjectID == "timeline-agra-and-return" && $0.subjectType == .timeline })
+        XCTAssertTrue(heroArc.reviewBlueprints.contains { $0.subjectID == "place-raigad" && $0.subjectType == .location })
     }
 
     func testLessonStoreTracksProgressAndUnlocksRewards() {
