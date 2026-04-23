@@ -58,13 +58,18 @@ final class GreatsOfBharathaTests: XCTestCase {
 
         XCTAssertEqual(store.completedScenes, 0)
         XCTAssertEqual(store.nextSceneID, "scene-1-shivneri")
-        XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
+        XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
+
+        let guidanceEntry = SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge")
+        XCTAssertNotNil(guidanceEntry)
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .silhouette)
 
         store.markScene("scene-1-shivneri", mastery: .understood)
 
         XCTAssertEqual(store.completedScenes, 1)
         XCTAssertEqual(store.nextSceneID, "scene-2-torna-rajgad")
         XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .unlocked)
     }
 
     func testRecallEngineRevealsHintLadderBeforeRecognitionRescue() {
