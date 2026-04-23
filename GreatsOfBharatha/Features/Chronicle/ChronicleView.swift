@@ -287,7 +287,7 @@ private struct ChronicleShelfCard: View {
         }
     }
 
-    private var surfaceStyle: GBSurfaceStyle {
+    private var surfaceStyle: GBSurface<EmptyView>.Style {
         switch state {
         case .hidden, .previewed:
             return .elevated
