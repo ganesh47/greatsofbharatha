@@ -168,17 +168,17 @@ private struct TimelineEventCard: View {
     var body: some View {
         switch unlockState {
         case .hidden:
-            cardSurface(style: .elevated)
+            GBSurface(style: .elevated) {
+                cardContent
+            }
         case .seenInStory, .learnable:
-            cardSurface(style: .plain)
+            GBSurface(style: .plain) {
+                cardContent
+            }
         case .remembered, .placedAccurately, .masteredInReview:
-            cardSurface(style: .accented(.story))
-        }
-    }
-
-    private func cardSurface(style: GBSurface<EmptyView>.Style) -> some View {
-        GBSurface(style: style) {
-            cardContent
+            GBSurface(style: .accented(.story)) {
+                cardContent
+            }
         }
     }
 
@@ -226,17 +226,21 @@ private struct TimelineEventCard: View {
             }
 
             if let linkedScene {
-                GBSurface(style: nestedSurfaceStyle, padding: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                        Text("Re-entry scene")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(nestedSecondaryColor)
-                        Text(linkedScene.title)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(nestedPrimaryColor)
-                        Text(event.recallPrompt)
-                            .font(.caption)
-                            .foregroundStyle(nestedSecondaryColor)
+                if case .remembered = unlockState {
+                    GBSurface(style: .plain, padding: GBSpacing.small) {
+                        sceneDetail(linkedScene)
+                    }
+                } else if case .placedAccurately = unlockState {
+                    GBSurface(style: .plain, padding: GBSpacing.small) {
+                        sceneDetail(linkedScene)
+                    }
+                } else if case .masteredInReview = unlockState {
+                    GBSurface(style: .plain, padding: GBSpacing.small) {
+                        sceneDetail(linkedScene)
+                    }
+                } else {
+                    GBSurface(style: .elevated, padding: GBSpacing.small) {
+                        sceneDetail(linkedScene)
                     }
                 }
             }
@@ -297,30 +301,17 @@ private struct TimelineEventCard: View {
         }
     }
 
-    private var nestedSurfaceStyle: GBSurface<EmptyView>.Style {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return .plain
-        default:
-            return .elevated
-        }
-    }
-
-    private var nestedPrimaryColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.primary
-        default:
-            return GBColor.Content.primary
-        }
-    }
-
-    private var nestedSecondaryColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.secondary
-        default:
-            return GBColor.Content.secondary
+    private func sceneDetail(_ linkedScene: StoryScene) -> some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+            Text("Re-entry scene")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(GBColor.Content.secondary)
+            Text(linkedScene.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(GBColor.Content.primary)
+            Text(event.recallPrompt)
+                .font(.caption)
+                .foregroundStyle(GBColor.Content.secondary)
         }
     }
 
