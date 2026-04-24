@@ -324,13 +324,14 @@ struct PlaceDetailView: View {
                 .buttonStyle(.gbPrimary(.place))
 
                 Button {
-                    guard let appleMapsURL else { return }
+                    guard let appleMapsURL = place.appleMapsURL else { return }
                     openURL(appleMapsURL)
                 } label: {
                     Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.gbSecondary)
+                .disabled(place.appleMapsURL == nil)
 
                 Text("The explorer keeps the learning context in GreatsOfBharatha. Apple Maps remains an optional external reference.")
                     .font(.caption)
