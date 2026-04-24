@@ -236,7 +236,7 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertFalse(model.parentSettings.narrationEnabled)
     }
 
-    func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() {
+    func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() throws {
         for place in SampleContent.shivajiVerticalSlice.corePlaces {
             XCTAssertEqual(place.coordinate.latitude, place.latitude, accuracy: 0.0001)
             XCTAssertEqual(place.coordinate.longitude, place.longitude, accuracy: 0.0001)
