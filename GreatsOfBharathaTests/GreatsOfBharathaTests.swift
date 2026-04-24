@@ -236,4 +236,32 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertFalse(model.parentSettings.narrationEnabled)
     }
 
+    func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() throws {
+        for place in SampleContent.shivajiVerticalSlice.corePlaces {
+            XCTAssertEqual(place.coordinate.latitude, place.latitude, accuracy: 0.0001)
+            XCTAssertEqual(place.coordinate.longitude, place.longitude, accuracy: 0.0001)
+
+            let url = try XCTUnwrap(place.appleMapsURL)
+            let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+            let queryItems = components.queryItems ?? []
+
+            XCTAssertEqual(components.host, "maps.apple.com")
+            XCTAssertEqual(queryItems.first(where: { $0.name == "ll" })?.value, "\(place.latitude),\(place.longitude)")
+            XCTAssertEqual(queryItems.first(where: { $0.name == "q" })?.value, place.name)
+        }
+    }
+
+    func testCorePlacesProduceStableExplorerViewport() {
+        let corePlaces = SampleContent.shivajiVerticalSlice.corePlaces
+        let focusPlace = try! XCTUnwrap(corePlaces.first(where: { $0.id == "place-raigad" }))
+        let viewport = Place.explorerViewport(for: focusPlace, nearbyPlaces: corePlaces)
+
+        XCTAssertGreaterThan(viewport.latitudeDelta, 0)
+        XCTAssertGreaterThan(viewport.longitudeDelta, 0)
+        XCTAssertGreaterThanOrEqual(viewport.latitudeDelta, 0.4)
+        XCTAssertGreaterThanOrEqual(viewport.longitudeDelta, 0.4)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLatitude - focusPlace.latitude), viewport.latitudeDelta)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusPlace.longitude), viewport.longitudeDelta)
+    }
+
 }

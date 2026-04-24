@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 
 struct AppContent: Equatable {
@@ -73,6 +74,42 @@ struct Place: Identifiable, Equatable {
     let longitude: Double
     let progress: PlaceProgress
     let isCoreReleasePlace: Bool
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    var appleMapsURL: URL? {
+        var components = URLComponents(string: "https://maps.apple.com/")
+        components?.queryItems = [
+            URLQueryItem(name: "ll", value: "\(latitude),\(longitude)"),
+            URLQueryItem(name: "q", value: name)
+        ]
+        return components?.url
+    }
+
+    static func explorerViewport(for focusPlace: Place, nearbyPlaces: [Place]) -> PlaceExplorerViewport {
+        let latitudes = nearbyPlaces.map(\.latitude)
+        let longitudes = nearbyPlaces.map(\.longitude)
+        let minLatitude = latitudes.min() ?? focusPlace.latitude
+        let maxLatitude = latitudes.max() ?? focusPlace.latitude
+        let minLongitude = longitudes.min() ?? focusPlace.longitude
+        let maxLongitude = longitudes.max() ?? focusPlace.longitude
+
+        return PlaceExplorerViewport(
+            centerLatitude: (minLatitude + maxLatitude) / 2,
+            centerLongitude: (minLongitude + maxLongitude) / 2,
+            latitudeDelta: max((maxLatitude - minLatitude) * 1.8, 0.4),
+            longitudeDelta: max((maxLongitude - minLongitude) * 1.8, 0.4)
+        )
+    }
+}
+
+struct PlaceExplorerViewport: Equatable {
+    let centerLatitude: Double
+    let centerLongitude: Double
+    let latitudeDelta: Double
+    let longitudeDelta: Double
 }
 
 struct ChronicleReward: Identifiable, Equatable {
