@@ -251,4 +251,17 @@ final class GreatsOfBharathaTests: XCTestCase {
         }
     }
 
+    func testCorePlacesProduceStableExplorerViewport() {
+        let corePlaces = SampleContent.shivajiVerticalSlice.corePlaces
+        let focusPlace = try! XCTUnwrap(corePlaces.first(where: { $0.id == "place-raigad" }))
+        let viewport = Place.explorerViewport(for: focusPlace, nearbyPlaces: corePlaces)
+
+        XCTAssertGreaterThan(viewport.latitudeDelta, 0)
+        XCTAssertGreaterThan(viewport.longitudeDelta, 0)
+        XCTAssertGreaterThanOrEqual(viewport.latitudeDelta, 0.4)
+        XCTAssertGreaterThanOrEqual(viewport.longitudeDelta, 0.4)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLatitude - focusPlace.latitude), viewport.latitudeDelta)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusPlace.longitude), viewport.longitudeDelta)
+    }
+
 }

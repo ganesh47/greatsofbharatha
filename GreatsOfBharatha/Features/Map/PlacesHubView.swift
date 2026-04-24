@@ -682,24 +682,17 @@ private struct PlaceMapExplorerSheet: View {
     }
 
     private static func region(for place: Place, nearbyPlaces: [Place]) -> MKCoordinateRegion {
-        let latitudes = nearbyPlaces.map(\.latitude)
-        let longitudes = nearbyPlaces.map(\.longitude)
-        let minLatitude = latitudes.min() ?? place.latitude
-        let maxLatitude = latitudes.max() ?? place.latitude
-        let minLongitude = longitudes.min() ?? place.longitude
-        let maxLongitude = longitudes.max() ?? place.longitude
-
-        let center = CLLocationCoordinate2D(
-            latitude: (minLatitude + maxLatitude) / 2,
-            longitude: (minLongitude + maxLongitude) / 2
+        let viewport = Place.explorerViewport(for: place, nearbyPlaces: nearbyPlaces)
+        return MKCoordinateRegion(
+            center: CLLocationCoordinate2D(
+                latitude: viewport.centerLatitude,
+                longitude: viewport.centerLongitude
+            ),
+            span: MKCoordinateSpan(
+                latitudeDelta: viewport.latitudeDelta,
+                longitudeDelta: viewport.longitudeDelta
+            )
         )
-
-        let span = MKCoordinateSpan(
-            latitudeDelta: max((maxLatitude - minLatitude) * 1.8, 0.4),
-            longitudeDelta: max((maxLongitude - minLongitude) * 1.8, 0.4)
-        )
-
-        return MKCoordinateRegion(center: center, span: span)
     }
 }
 
