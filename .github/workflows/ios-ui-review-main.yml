@@ -120,9 +120,10 @@ jobs:
 
           capture_route "01-learn-home" "learn-home"
           capture_route "02-scene-1" "scene-1"
-          capture_route "03-places-hub" "places-hub"
-          capture_route "04-place-shivneri" "place-shivneri"
-          capture_route "05-chronicle-unlocked" "chronicle-unlocked"
+          capture_route "03-scene-2" "scene-2"
+          capture_route "04-places-hub" "places-hub"
+          capture_route "05-place-shivneri" "place-shivneri"
+          capture_route "06-chronicle-unlocked" "chronicle-unlocked"
 
           xcrun simctl terminate "$SIM_ID" "$BUNDLE_ID" || true
           xcrun simctl uninstall "$SIM_ID" "$BUNDLE_ID" >/dev/null 2>&1 || true
