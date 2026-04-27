@@ -15,7 +15,6 @@ from typing import Any
 
 import jwt
 
-
 APP_STORE_CONNECT_API_BASE = "https://api.appstoreconnect.apple.com"
 GITHUB_API_BASE = "https://api.github.com"
 DEFAULT_ISSUE_LABELS = ["source:testflight", "type:feedback"]
