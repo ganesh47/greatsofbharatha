@@ -44,41 +44,50 @@ extension Animation {
 #if canImport(UIKit)
 import UIKit
 
-@MainActor
 enum GBHaptic {
     /// Fort pin confirmed — strong satisfaction
     static func pinCorrect() {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        Task { @MainActor in
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
     }
 
     /// Fort pin near but not exact — soft cue
     static func pinClose() {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        Task { @MainActor in
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
     }
 
     /// Timeline marker locked in — rigid click
     static func timelineLocked() {
-        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        Task { @MainActor in
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        }
     }
 
     /// Chronicle card reveal — success notification (ceremony)
     static func chronicleReveal() {
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        Task { @MainActor in
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
     }
 
     /// Coronation / arc completion — heavy × 2 (used once per arc)
     static func coronation() {
-        let gen = UIImpactFeedbackGenerator(style: .heavy)
-        gen.impactOccurred()
         Task { @MainActor in
+            let generator = UIImpactFeedbackGenerator(style: .heavy)
+            generator.impactOccurred()
             try? await Task.sleep(nanoseconds: 180_000_000)
-            gen.impactOccurred()
+            generator.impactOccurred()
         }
     }
 
     /// Scene step advance — selection click
     static func stepAdvance() {
-        UISelectionFeedbackGenerator().selectionChanged()
+        Task { @MainActor in
+            UISelectionFeedbackGenerator().selectionChanged()
+        }
     }
 
     // Wrong answer: intentionally NO haptic — no shame signal.
