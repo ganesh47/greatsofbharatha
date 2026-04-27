@@ -54,6 +54,10 @@ struct GBFlashCard: View {
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
                 .fill(GBColor.gradient(for: card.emphasis))
+                .overlay(
+                    RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
+                        .fill(Color.black.opacity(0.42))
+                )
 
             VStack(spacing: 0) {
                 Spacer()

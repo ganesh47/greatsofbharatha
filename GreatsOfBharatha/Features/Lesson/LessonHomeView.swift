@@ -115,7 +115,6 @@ struct LessonHomeView: View {
                 Group {
                     if isLocked {
                         kidSceneCard(scene: scene, mastery: mastery, isNext: false, isLocked: true)
-                            .opacity(0.60)
                     } else {
                         NavigationLink {
                             SceneLessonView(scene: scene)
