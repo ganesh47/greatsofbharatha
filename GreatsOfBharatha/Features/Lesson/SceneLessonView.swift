@@ -225,8 +225,11 @@ struct SceneLessonView: View {
             challenge: recallChallenge,
             choices: cachedMCQChoices,
             recallState: recallState,
-            onChoiceTapped: { choiceID in
-                submitRecall(choiceID: choiceID)
+            onChoiceSelected: { choiceID in
+                selectRecallChoice(choiceID: choiceID)
+            },
+            onCheckChoice: {
+                checkSelectedRecallChoice()
             },
             onAdvance: {
                 withAnimation(GBMotion.ceremony) { currentPhase = .reward }
@@ -268,15 +271,21 @@ struct SceneLessonView: View {
 
     // MARK: - Recall logic
 
-    private func submitRecall(choiceID: String) {
-        let choice = cachedMCQChoices.first(where: { $0.id == choiceID })
+    private func selectRecallChoice(choiceID: String) {
+        guard !recallState.hasAnsweredCorrectly else { return }
         recallState.selectedChoiceID = choiceID
+        recallState.feedbackText = nil
+    }
+
+    private func checkSelectedRecallChoice() {
+        guard let choiceID = recallState.selectedChoiceID,
+              let choice = cachedMCQChoices.first(where: { $0.id == choiceID }) else { return }
 
         let evaluation = LessonRecallEngine.submit(
             state: recallState,
             challenge: recallChallenge,
             typedAnswer: "",
-            selectedChoiceTitle: choice?.title,
+            selectedChoiceTitle: choice.title,
             successMastery: recallChallenge.masteryContribution
         )
 
@@ -315,7 +324,8 @@ private struct SimpleRecallView: View {
     let challenge: RecallChallenge
     let choices: [LessonChoice]
     let recallState: LessonRecallState
-    var onChoiceTapped: ((String) -> Void)?
+    var onChoiceSelected: ((String) -> Void)?
+    var onCheckChoice: (() -> Void)?
     var onAdvance: (() -> Void)?
 
     var body: some View {
@@ -330,6 +340,12 @@ private struct SimpleRecallView: View {
             }
             .padding(.horizontal, GBSpacing.medium)
             .padding(.top, GBSpacing.small)
+
+            Text("Pick one choice before you collect your Chronicle reward.")
+                .font(GBFont.ui(size: 15, weight: .semibold))
+                .foregroundStyle(GBColor.Content.secondary)
+                .padding(.horizontal, GBSpacing.medium)
+                .accessibilityIdentifier("recall-choice-helper")
 
             // Choice buttons
             VStack(spacing: GBSpacing.small) {
@@ -364,7 +380,7 @@ private struct SimpleRecallView: View {
 
             Spacer()
 
-            // Continue CTA appears after correct answer
+            // Explicit choice CTA makes this unmistakably multiple choice.
             if recallState.hasAnsweredCorrectly {
                 Button("Open my treasure!") {
                     GBHaptic.chronicleReveal()
@@ -374,6 +390,16 @@ private struct SimpleRecallView: View {
                 .padding(.horizontal, GBSpacing.medium)
                 .padding(.bottom, GBSpacing.medium)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+            } else {
+                Button("Check my choice") {
+                    GBHaptic.stepAdvance()
+                    onCheckChoice?()
+                }
+                .buttonStyle(.gbPrimary(.story))
+                .disabled(recallState.selectedChoiceID == nil)
+                .padding(.horizontal, GBSpacing.medium)
+                .padding(.bottom, GBSpacing.medium)
+                .accessibilityIdentifier("recall-check-choice-button")
             }
         }
         .animation(GBMotion.quick, value: recallState.hasAnsweredCorrectly)
@@ -382,22 +408,23 @@ private struct SimpleRecallView: View {
     private func choiceButton(_ choice: LessonChoice) -> some View {
         let isSelected = recallState.selectedChoiceID == choice.id
         let isCorrect  = LessonRecallEngine.answerMatches(choice.title, challenge: challenge)
+        let hasChecked = recallState.feedbackText != nil || recallState.hasAnsweredCorrectly
         let showRight  = isCorrect && recallState.hasAnsweredCorrectly
-        let showWrong  = isSelected && !isCorrect
+        let showWrong  = hasChecked && isSelected && !isCorrect
 
         return Button {
             guard !recallState.hasAnsweredCorrectly else { return }
             LessonFeedback.fire(.selection)
-            onChoiceTapped?(choice.id)
+            onChoiceSelected?(choice.id)
         } label: {
             HStack(spacing: GBSpacing.small) {
                 ZStack {
                     Circle()
-                        .fill(iconBackground(showRight: showRight, showWrong: showWrong))
+                        .fill(iconBackground(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
                         .frame(width: 32, height: 32)
                     Image(systemName: iconName(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(showRight || showWrong ? .white : GBColor.Content.tertiary)
+                        .foregroundStyle(showRight || showWrong || isSelected ? .white : GBColor.Content.tertiary)
                 }
 
                 Text(choice.title)
@@ -410,15 +437,19 @@ private struct SimpleRecallView: View {
             .padding(.horizontal, GBSpacing.small)
             .background(
                 RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                    .fill(cardBackground(showRight: showRight, showWrong: showWrong))
+                    .fill(cardBackground(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
                     .overlay(
                         RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                            .stroke(borderColor(showRight: showRight, showWrong: showWrong), lineWidth: 2)
+                            .stroke(borderColor(isSelected: isSelected, showRight: showRight, showWrong: showWrong), lineWidth: isSelected ? 3 : 2)
                     )
             )
         }
         .buttonStyle(.plain)
         .disabled(recallState.hasAnsweredCorrectly)
+        .accessibilityIdentifier("recall-choice-\(choice.id)")
+        .accessibilityLabel("Choice: \(choice.title)")
+        .accessibilityValue(accessibilityValue(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
+        .accessibilityHint(recallState.hasAnsweredCorrectly ? "Choice checked" : "Tap to select this choice, then use Check my choice")
         .animation(GBMotion.quick, value: isSelected)
     }
 
@@ -427,12 +458,13 @@ private struct SimpleRecallView: View {
     private func iconName(isSelected: Bool, showRight: Bool, showWrong: Bool) -> String {
         if showRight { return "checkmark" }
         if showWrong { return "xmark" }
-        return isSelected ? "circle.fill" : "circle"
+        return isSelected ? "checkmark.circle.fill" : "circle"
     }
 
-    private func iconBackground(showRight: Bool, showWrong: Bool) -> Color {
+    private func iconBackground(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
         if showRight { return GBColor.Place.primary }
         if showWrong { return GBColor.State.danger }
+        if isSelected { return GBColor.Story.primary }
         return GBColor.Background.panel
     }
 
@@ -442,15 +474,23 @@ private struct SimpleRecallView: View {
         return GBColor.Content.primary
     }
 
-    private func cardBackground(showRight: Bool, showWrong: Bool) -> Color {
+    private func cardBackground(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
         if showRight { return GBColor.Place.bg }
         if showWrong { return Color(red: 0.99, green: 0.91, blue: 0.91) }
+        if isSelected { return GBColor.Story.bg }
         return GBColor.Background.surface
     }
 
-    private func borderColor(showRight: Bool, showWrong: Bool) -> Color {
+    private func borderColor(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
         if showRight { return GBColor.Place.primary }
         if showWrong { return GBColor.State.danger }
+        if isSelected { return GBColor.Story.primary }
         return GBColor.Background.panel
+    }
+
+    private func accessibilityValue(isSelected: Bool, showRight: Bool, showWrong: Bool) -> String {
+        if showRight { return "selected, correct choice checked" }
+        if showWrong { return "selected, try another choice" }
+        return isSelected ? "selected" : "not selected"
     }
 }
