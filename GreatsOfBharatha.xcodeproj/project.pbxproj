@@ -100,9 +100,9 @@
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
 		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
 		C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
+		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
 		C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIntelligenceHint.swift; sourceTree = "<group>"; };
 		CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBNLRecallEvaluator.swift; sourceTree = "<group>"; };
-		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
 		CD5C939A7D069E35B849A5A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE540544C5E9622DB91B7EF8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaApp.swift; sourceTree = "<group>"; };
