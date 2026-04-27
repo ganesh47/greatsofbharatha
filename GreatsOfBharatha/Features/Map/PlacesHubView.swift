@@ -254,11 +254,11 @@ struct PlaceDetailView: View {
     private func kidFactCard(padding: CGFloat) -> some View {
         GBSurface(style: .plain) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
-                kidFactRow(icon: "star.fill",     label: "Memory hook",       value: place.memoryHook)
+                kidFactRow(icon: "star.fill", label: "Memory hook", value: place.memoryHook)
                 Divider().overlay(GBColor.Border.default)
-                kidFactRow(icon: "bolt.fill",     label: "What happened here", value: place.primaryEvent)
+                kidFactRow(icon: "bolt.fill", label: "What happened here", value: place.primaryEvent)
                 Divider().overlay(GBColor.Border.default)
-                kidFactRow(icon: "location.fill", label: "Where",             value: place.regionLabel)
+                kidFactRow(icon: "location.fill", label: "Where", value: place.regionLabel)
             }
         }
         .padding(.horizontal, padding)
