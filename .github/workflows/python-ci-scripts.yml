@@ -1,0 +1,46 @@
+name: Python CI Scripts
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "ci_scripts/**"
+      - "pyproject.toml"
+      - ".github/workflows/python-ci-scripts.yml"
+      - ".github/workflows/testflight-feedback-sync.yml"
+      - ".github/workflows/testflight-crash-feedback-sync.yml"
+      - ".github/workflows/poll-testflight-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ci_scripts/**"
+      - "pyproject.toml"
+      - ".github/workflows/python-ci-scripts.yml"
+      - ".github/workflows/testflight-feedback-sync.yml"
+      - ".github/workflows/testflight-crash-feedback-sync.yml"
+      - ".github/workflows/poll-testflight-build.yml"
+  schedule:
+    - cron: "18 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-audit:
+    name: Ruff and pip-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Install Python CI dependencies
+        run: python3 -m pip install --disable-pip-version-check -r ci_scripts/requirements-ci.txt
+
+      - name: Lint CI scripts
+        run: ruff check ci_scripts
+
+      - name: Audit Python CI dependencies
+        run: pip-audit -r ci_scripts/requirements-ci.txt

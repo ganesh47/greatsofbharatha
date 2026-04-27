@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Python dependencies
-        run: pip3 install PyJWT cryptography
+        run: python3 -m pip install --disable-pip-version-check -r ci_scripts/requirements-ci.txt
 
       - name: Sync TestFlight crash feedback into GitHub issues
         env:
