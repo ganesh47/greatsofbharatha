@@ -238,17 +238,46 @@ final class GreatsOfBharathaTests: XCTestCase {
 
     func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() throws {
         for place in SampleContent.shivajiVerticalSlice.corePlaces {
-            XCTAssertEqual(place.coordinate.latitude, place.latitude, accuracy: 0.0001)
-            XCTAssertEqual(place.coordinate.longitude, place.longitude, accuracy: 0.0001)
+            let latitude = try XCTUnwrap(place.latitude)
+            let longitude = try XCTUnwrap(place.longitude)
+            let coordinate = try XCTUnwrap(place.coordinate)
+            XCTAssertEqual(coordinate.latitude, latitude, accuracy: 0.0001)
+            XCTAssertEqual(coordinate.longitude, longitude, accuracy: 0.0001)
+            XCTAssertTrue(place.canOpenInAppleMaps)
 
             let url = try XCTUnwrap(place.appleMapsURL)
             let components = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
             let queryItems = components.queryItems ?? []
 
             XCTAssertEqual(components.host, "maps.apple.com")
-            XCTAssertEqual(queryItems.first(where: { $0.name == "ll" })?.value, "\(place.latitude),\(place.longitude)")
+            XCTAssertEqual(queryItems.first(where: { $0.name == "ll" })?.value, "\(latitude),\(longitude)")
             XCTAssertEqual(queryItems.first(where: { $0.name == "q" })?.value, place.name)
+
+            let item = try XCTUnwrap(place.appleMapsHandoff.makeMapItem())
+            XCTAssertEqual(item.name, place.appleMapsDisplayName)
+            XCTAssertEqual(item.placemark.coordinate.latitude, latitude, accuracy: 0.0001)
+            XCTAssertEqual(item.placemark.coordinate.longitude, longitude, accuracy: 0.0001)
         }
+    }
+
+    func testAppleMapsHandoffIsHiddenWhenCoordinatesAreMissing() {
+        let place = Place(
+            id: "place-unknown",
+            name: "Unmapped Historical Place",
+            memoryHook: "Hidden map",
+            primaryEvent: "Coordinate not confirmed yet",
+            whyItMatters: "Avoid broken map handoffs",
+            regionLabel: "Unknown region",
+            latitude: nil,
+            longitude: nil,
+            progress: .readyToLearn,
+            isCoreReleasePlace: false
+        )
+
+        XCTAssertNil(place.coordinate)
+        XCTAssertFalse(place.canOpenInAppleMaps)
+        XCTAssertNil(place.appleMapsURL)
+        XCTAssertNil(place.appleMapsHandoff.makeMapItem())
     }
 
     func testCorePlacesProduceStableExplorerViewport() throws {
@@ -260,8 +289,10 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertGreaterThan(viewport.longitudeDelta, 0)
         XCTAssertGreaterThanOrEqual(viewport.latitudeDelta, 0.4)
         XCTAssertGreaterThanOrEqual(viewport.longitudeDelta, 0.4)
-        XCTAssertLessThanOrEqual(abs(viewport.centerLatitude - focusPlace.latitude), viewport.latitudeDelta)
-        XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusPlace.longitude), viewport.longitudeDelta)
+        let focusLatitude = try XCTUnwrap(focusPlace.latitude)
+        let focusLongitude = try XCTUnwrap(focusPlace.longitude)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLatitude - focusLatitude), viewport.latitudeDelta)
+        XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusLongitude), viewport.longitudeDelta)
     }
 
 }

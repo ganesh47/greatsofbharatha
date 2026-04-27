@@ -70,31 +70,59 @@ struct Place: Identifiable, Equatable {
     let primaryEvent: String
     let whyItMatters: String
     let regionLabel: String
-    let latitude: Double
-    let longitude: Double
+    let latitude: Double?
+    let longitude: Double?
     let progress: PlaceProgress
     let isCoreReleasePlace: Bool
 
-    var coordinate: CLLocationCoordinate2D {
-        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    init(
+        id: String,
+        name: String,
+        memoryHook: String,
+        primaryEvent: String,
+        whyItMatters: String,
+        regionLabel: String,
+        latitude: Double?,
+        longitude: Double?,
+        progress: PlaceProgress,
+        isCoreReleasePlace: Bool
+    ) {
+        self.id = id
+        self.name = name
+        self.memoryHook = memoryHook
+        self.primaryEvent = primaryEvent
+        self.whyItMatters = whyItMatters
+        self.regionLabel = regionLabel
+        self.latitude = latitude
+        self.longitude = longitude
+        self.progress = progress
+        self.isCoreReleasePlace = isCoreReleasePlace
     }
 
-    var appleMapsURL: URL? {
-        var components = URLComponents(string: "https://maps.apple.com/")
-        components?.queryItems = [
-            URLQueryItem(name: "ll", value: "\(latitude),\(longitude)"),
-            URLQueryItem(name: "q", value: name)
-        ]
-        return components?.url
+    var coordinate: CLLocationCoordinate2D? {
+        guard let latitude, let longitude else { return nil }
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
+
+    var appleMapsDisplayName: String { name }
+
+    var appleMapsHandoff: AppleMapsPlaceHandoff {
+        AppleMapsPlaceHandoff(displayName: appleMapsDisplayName, coordinate: coordinate)
+    }
+
+    var appleMapsURL: URL? { appleMapsHandoff.url }
+
+    var canOpenInAppleMaps: Bool { appleMapsHandoff.isAvailable }
 
     static func explorerViewport(for focusPlace: Place, nearbyPlaces: [Place]) -> PlaceExplorerViewport {
-        let latitudes = nearbyPlaces.map(\.latitude)
-        let longitudes = nearbyPlaces.map(\.longitude)
-        let minLatitude = latitudes.min() ?? focusPlace.latitude
-        let maxLatitude = latitudes.max() ?? focusPlace.latitude
-        let minLongitude = longitudes.min() ?? focusPlace.longitude
-        let maxLongitude = longitudes.max() ?? focusPlace.longitude
+        let coordinates = (nearbyPlaces + [focusPlace]).compactMap(\.coordinate)
+        let fallback = focusPlace.coordinate ?? CLLocationCoordinate2D(latitude: 20.5937, longitude: 78.9629)
+        let latitudes = coordinates.map(\.latitude)
+        let longitudes = coordinates.map(\.longitude)
+        let minLatitude = latitudes.min() ?? fallback.latitude
+        let maxLatitude = latitudes.max() ?? fallback.latitude
+        let minLongitude = longitudes.min() ?? fallback.longitude
+        let maxLongitude = longitudes.max() ?? fallback.longitude
 
         return PlaceExplorerViewport(
             centerLatitude: (minLatitude + maxLatitude) / 2,
@@ -263,7 +291,7 @@ enum LegacyAppContentAdapter {
             return LocationNode(
                 id: place.id,
                 name: place.name,
-                canonicalCoordinate: Coordinate(latitude: place.latitude, longitude: place.longitude),
+                canonicalCoordinate: Coordinate(latitude: place.latitude ?? 0, longitude: place.longitude ?? 0),
                 memoryHook: place.memoryHook,
                 primaryEvent: place.primaryEvent,
                 regionLabel: place.regionLabel,

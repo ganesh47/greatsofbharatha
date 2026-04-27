@@ -17,7 +17,7 @@ struct GBFortMapView: View {
         self.place = place
         _cameraPosition = State(
             initialValue: .region(MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: place.latitude, longitude: place.longitude),
+                center: place.coordinate ?? CLLocationCoordinate2D(latitude: 20.5937, longitude: 78.9629),
                 span: MKCoordinateSpan(latitudeDelta: 0.14, longitudeDelta: 0.14)
             ))
         )
@@ -25,8 +25,10 @@ struct GBFortMapView: View {
 
     var body: some View {
         Map(position: $cameraPosition) {
-            Annotation(place.name, coordinate: place.coordinate) {
-                fortPin
+            if let coordinate = place.coordinate {
+                Annotation(place.name, coordinate: coordinate) {
+                    fortPin
+                }
             }
         }
         .mapStyle(.standard(elevation: .realistic))
