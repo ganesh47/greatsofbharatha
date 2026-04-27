@@ -1,0 +1,26 @@
+name: grclaw Generate Xcode Project Artifact
+
+on:
+  push:
+    branches:
+      - hotfix/xcodegen-drift-main-20260427T1308Z
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Package generated project
+        run: tar -czf generated-xcodeproj.tgz GreatsOfBharatha.xcodeproj
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: generated-xcodeproj
+          path: generated-xcodeproj.tgz
