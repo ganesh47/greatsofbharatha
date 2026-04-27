@@ -570,10 +570,10 @@ struct PlaceDetailView: View {
         let lonSpan = max(maxLon - minLon, 0.001)
         let latSpan = max(maxLat - minLat, 0.001)
 
-        let x = ((candidate.longitude - minLon) / lonSpan) * (size.width - 70) + 35
+        let pointX = ((candidate.longitude - minLon) / lonSpan) * (size.width - 70) + 35
         let normalizedY = 1 - ((candidate.latitude - minLat) / latSpan)
-        let y = normalizedY * (size.height - 90) + 45
-        return CGPoint(x: x, y: y)
+        let pointY = normalizedY * (size.height - 90) + 45
+        return CGPoint(x: pointX, y: pointY)
     }
 
     private func detailChip(title: String, value: String, symbol: String) -> some View {

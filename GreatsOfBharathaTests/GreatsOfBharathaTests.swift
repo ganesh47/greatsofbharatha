@@ -51,8 +51,8 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertTrue(heroArc.reviewBlueprints.contains { $0.subjectID == "place-raigad" && $0.subjectType == .location })
     }
 
-    func testLessonStorePreviewsChronicleRewardsBeforeUnlockingThem() {
-        let defaults = UserDefaults(suiteName: #function)!
+    func testLessonStorePreviewsChronicleRewardsBeforeUnlockingThem() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
@@ -61,15 +61,14 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertFalse(store.isPreviewed(SampleContent.birthFortCard))
         XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
 
-        let guidanceEntry = SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge")
-        XCTAssertNotNil(guidanceEntry)
-        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .silhouette)
+        let guidanceEntry = try XCTUnwrap(SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge"))
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .silhouette)
 
         store.recordStoryExposure(for: "scene-1-shivneri")
 
         XCTAssertTrue(store.isPreviewed(SampleContent.birthFortCard))
         XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
-        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .silhouette)
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .silhouette)
         XCTAssertEqual(store.chronicleHeadline, "Your first keepsake is taking shape")
 
         store.markScene("scene-1-shivneri", mastery: .understood)
@@ -77,15 +76,15 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.completedScenes, 1)
         XCTAssertEqual(store.nextSceneID, "scene-2-torna-rajgad")
         XCTAssertTrue(store.isUnlocked(SampleContent.birthFortCard))
-        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry!), .unlocked)
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .unlocked)
     }
 
-    func testLessonStoreTracksEnrichedChronicleState() {
-        let defaults = UserDefaults(suiteName: #function)!
+    func testLessonStoreTracksEnrichedChronicleState() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
-        let guidanceEntry = SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge")!
+        let guidanceEntry = try XCTUnwrap(SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge"))
 
         store.markScene("scene-1-shivneri", mastery: .observedClosely)
 
@@ -150,8 +149,8 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(evaluation.feedbackText, "Yes. Rajgad became an early capital.")
     }
 
-    func testStoreRecordRecallOutcomeAdvancesReviewSchedule() {
-        let defaults = UserDefaults(suiteName: #function)!
+    func testStoreRecordRecallOutcomeAdvancesReviewSchedule() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
@@ -174,8 +173,9 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(schedule?.intervalIndex, 1)
         XCTAssertEqual(schedule?.stabilityBand, .warming)
     }
-    func testTimelineProgressAndUpcomingReviewsReflectStoredMastery() {
-        let defaults = UserDefaults(suiteName: #function)!
+
+    func testTimelineProgressAndUpcomingReviewsReflectStoredMastery() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
@@ -202,8 +202,8 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.timelineHeadline, "Your timeline confidence is growing")
     }
 
-    func testParentProgressHelpersReflectRetrievalState() {
-        let defaults = UserDefaults(suiteName: #function)!
+    func testParentProgressHelpersReflectRetrievalState() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
         let store = ShivajiLessonStore(defaults: defaults)
 
@@ -251,9 +251,9 @@ final class GreatsOfBharathaTests: XCTestCase {
         }
     }
 
-    func testCorePlacesProduceStableExplorerViewport() {
+    func testCorePlacesProduceStableExplorerViewport() throws {
         let corePlaces = SampleContent.shivajiVerticalSlice.corePlaces
-        let focusPlace = try! XCTUnwrap(corePlaces.first(where: { $0.id == "place-raigad" }))
+        let focusPlace = try XCTUnwrap(corePlaces.first(where: { $0.id == "place-raigad" }))
         let viewport = Place.explorerViewport(for: focusPlace, nearbyPlaces: corePlaces)
 
         XCTAssertGreaterThan(viewport.latitudeDelta, 0)
