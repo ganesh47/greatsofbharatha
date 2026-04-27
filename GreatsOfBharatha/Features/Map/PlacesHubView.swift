@@ -162,7 +162,6 @@ private struct PlaceTrailCard: View {
 }
 
 struct PlaceDetailView: View {
-    @Environment(\.openURL) private var openURL
     let place: Place
     let progress: PlaceProgress
 
@@ -179,10 +178,12 @@ struct PlaceDetailView: View {
                     // Simplified header: fort icon + name + why it matters
                     simplifiedHeader
 
-                    // Real Apple Maps view replacing the abstract schematic board
-                    GBFortMapView(place: place)
-                        .frame(height: 250)
-                        .padding(.horizontal, context.containerPadding)
+                    // Real Apple Maps view replacing the abstract schematic board.
+                    if place.coordinate != nil {
+                        GBFortMapView(place: place)
+                            .frame(height: 250)
+                            .padding(.horizontal, context.containerPadding)
+                    }
 
                     // Kid-friendly fact card
                     kidFactCard(padding: context.containerPadding)
@@ -197,15 +198,23 @@ struct PlaceDetailView: View {
                         }
                         .buttonStyle(.gbPrimary(.place))
 
-                        Button {
-                            guard let url = place.appleMapsURL else { return }
-                            openURL(url)
-                        } label: {
-                            Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
-                                .frame(maxWidth: .infinity)
+                        if place.canOpenInAppleMaps {
+                            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                                Button {
+                                    place.appleMapsHandoff.openInAppleMaps()
+                                } label: {
+                                    Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.gbSecondary)
+                                .accessibilityLabel("Open \(place.appleMapsDisplayName) in Apple Maps")
+                                .accessibilityHint("Opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
+
+                                Text("Opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
+                                    .font(.caption)
+                                    .foregroundStyle(GBColor.Content.secondary)
+                            }
                         }
-                        .buttonStyle(.gbSecondary)
-                        .disabled(place.appleMapsURL == nil)
                     }
                     .padding(.horizontal, context.containerPadding)
                 }
@@ -316,8 +325,8 @@ private struct PlaceMapExplorerSheet: View {
                 }
 
                 Map(position: $cameraPosition) {
-                    ForEach(nearbyPlaces) { candidate in
-                        Annotation(candidate.name, coordinate: candidate.coordinate) {
+                    ForEach(nearbyPlaces.filter { $0.coordinate != nil }) { candidate in
+                        Annotation(candidate.name, coordinate: candidate.coordinate!) {
                             VStack(spacing: 4) {
                                 Image(systemName: candidate.id == place.id ? "mappin.circle.fill" : "mappin.circle")
                                     .font(candidate.id == place.id ? .title : .title2)
