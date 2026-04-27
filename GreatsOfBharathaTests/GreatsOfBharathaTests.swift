@@ -264,4 +264,22 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusPlace.longitude), viewport.longitudeDelta)
     }
 
+    func testDefaultLessonRecallIsChoiceBasedNotTextInput() throws {
+        let testFile = URL(fileURLWithPath: #filePath)
+        let repoRoot = testFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let sceneLessonURL = repoRoot
+            .appendingPathComponent("GreatsOfBharatha/Features/Lesson/SceneLessonView.swift")
+        let source = try String(contentsOf: sceneLessonURL, encoding: .utf8)
+
+        XCTAssertTrue(source.contains("Check my choice"))
+        XCTAssertTrue(source.contains("Pick one choice before you collect your Chronicle reward."))
+        XCTAssertTrue(source.contains("recall-choice-\\(choice.id)"))
+        XCTAssertTrue(source.contains("accessibilityValue"))
+        XCTAssertFalse(source.contains("TextField("))
+        XCTAssertFalse(source.contains("TextEditor("))
+        XCTAssertFalse(source.contains("SecureField("))
+    }
+
 }
