@@ -47,6 +47,10 @@
 		E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */; };
 		EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */; };
 		EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */; };
+		49811AE1DAB7484B87E9D788 /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE3942EB879944B8ABC09883 /* GBNLRecallEvaluator.swift */; };
+		5F4A1C9FA4404B698F645B95 /* GBFlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1FF97177864ED9A68402CD /* GBFlashCard.swift */; };
+		7F912752D75543648849C133 /* GBIntelligenceHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074A3350A9B244A4B0677FE7 /* GBIntelligenceHint.swift */; };
+		D8ABF62C0D9B4695ACB22EF3 /* GBFortMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FC2617337D438790D1D513 /* GBFortMapView.swift */; };
 		EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413C33179A188AA0729938F /* AppModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +107,10 @@
 		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
 		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
 		FA553A6C52FF405536FB4B58 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
+		074A3350A9B244A4B0677FE7 /* GBIntelligenceHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIntelligenceHint.swift; sourceTree = "<group>"; };
+		30FC2617337D438790D1D513 /* GBFortMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFortMapView.swift; sourceTree = "<group>"; };
+		BA1FF97177864ED9A68402CD /* GBFlashCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFlashCard.swift; sourceTree = "<group>"; };
+		CE3942EB879944B8ABC09883 /* GBNLRecallEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBNLRecallEvaluator.swift; sourceTree = "<group>"; };
 		FF974097779D0836FBDE59DD /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -251,6 +259,7 @@
 		B8EE4101C55EA21501F66716 /* Map */ = {
 			isa = PBXGroup;
 			children = (
+				30FC2617337D438790D1D513 /* GBFortMapView.swift */,
 				B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */,
 			);
 			path = Map;
@@ -269,6 +278,7 @@
 			isa = PBXGroup;
 			children = (
 				0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */,
+				BA1FF97177864ED9A68402CD /* GBFlashCard.swift */,
 				35DD7C78E273FA67916C2743 /* GBHeroCard.swift */,
 				F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */,
 				7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */,
@@ -286,6 +296,15 @@
 			path = Parent;
 			sourceTree = "<group>";
 		};
+		33AA2906136942D9955C03AA /* Intelligence */ = {
+			isa = PBXGroup;
+			children = (
+				074A3350A9B244A4B0677FE7 /* GBIntelligenceHint.swift */,
+				CE3942EB879944B8ABC09883 /* GBNLRecallEvaluator.swift */,
+			);
+			path = Intelligence;
+			sourceTree = "<group>";
+		};
 		EBB69AAB1E89F302C4DD2B65 /* GreatsOfBharatha */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,6 +313,7 @@
 				B103BD6B19B2767D7BF88F0A /* App */,
 				2B815EEDA4B37E821315ED95 /* DesignSystem */,
 				4883D0626FEE9C29B53D471D /* Features */,
+				33AA2906136942D9955C03AA /* Intelligence */,
 				3A65D9642E8CD13DC7428704 /* Resources */,
 				57AE668B589447AA164CAEE2 /* Shared */,
 			);
@@ -407,8 +427,11 @@
 				89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */,
 				CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */,
 				8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */,
+				5F4A1C9FA4404B698F645B95 /* GBFlashCard.swift in Sources */,
+				D8ABF62C0D9B4695ACB22EF3 /* GBFortMapView.swift in Sources */,
 				96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */,
 				5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */,
+				7F912752D75543648849C133 /* GBIntelligenceHint.swift in Sources */,
 				00F7762E6675FFA1591CB270 /* GBLayoutContext.swift in Sources */,
 				3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */,
 				E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */,
@@ -425,6 +448,7 @@
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
 				073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */,
+				49811AE1DAB7484B87E9D788 /* GBNLRecallEvaluator.swift in Sources */,
 				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,

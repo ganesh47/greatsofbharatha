@@ -137,12 +137,12 @@ struct GBFlashCardDeck: View {
 
             // Progress dots
             HStack(spacing: 8) {
-                ForEach(0..<cards.count, id: \.self) { i in
+                ForEach(0..<cards.count, id: \.self) { idx in
                     Capsule()
-                        .fill(i == currentIndex
+                        .fill(idx == currentIndex
                               ? GBColor.accent(for: emphasis)
                               : GBColor.Content.tertiary)
-                        .frame(width: i == currentIndex ? 24 : 7, height: 7)
+                        .frame(width: idx == currentIndex ? 24 : 7, height: 7)
                         .animation(GBMotion.quick, value: currentIndex)
                 }
             }

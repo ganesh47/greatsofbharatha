@@ -78,11 +78,11 @@ struct LessonHomeView: View {
 
             // Stars row
             HStack(spacing: 6) {
-                ForEach(0..<total, id: \.self) { i in
-                    Image(systemName: i < completed ? "star.fill" : "star")
+                ForEach(0..<total, id: \.self) { idx in
+                    Image(systemName: idx < completed ? "star.fill" : "star")
                         .font(.system(size: 20))
-                        .foregroundStyle(i < completed ? GBColor.Chronicle.gold : GBColor.Content.tertiary)
-                        .animation(GBMotion.bounce.delay(Double(i) * 0.06), value: completed)
+                        .foregroundStyle(idx < completed ? GBColor.Chronicle.gold : GBColor.Content.tertiary)
+                        .animation(GBMotion.bounce.delay(Double(idx) * 0.06), value: completed)
                 }
             }
         }
