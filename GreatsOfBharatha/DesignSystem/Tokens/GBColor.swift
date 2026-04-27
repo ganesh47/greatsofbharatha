@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // ─────────────────────────────────────────────────────────────
 // GBColor.swift — Greats of Bharatha Design System
@@ -20,18 +21,48 @@ enum GBEmphasis: CaseIterable {
 
 enum GBColor {
 
+    private static func adaptive(
+        light: (red: Double, green: Double, blue: Double, opacity: Double),
+        dark: (red: Double, green: Double, blue: Double, opacity: Double)
+    ) -> Color {
+        Color(UIColor { traits in
+            let values = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(
+                red: values.red,
+                green: values.green,
+                blue: values.blue,
+                alpha: values.opacity
+            )
+        })
+    }
+
     // ── Surfaces ──────────────────────────────────────────────
     enum Background {
         /// Warm parchment — primary app background
-        static let app      = Color(red: 0.961, green: 0.929, blue: 0.847)  // #F5EDD8
-        /// Near-white card face
-        static let surface  = Color(red: 0.992, green: 0.980, blue: 0.949)  // #FDFAF2
+        static let app = GBColor.adaptive(
+            light: (0.961, 0.929, 0.847, 1),  // #F5EDD8
+            dark:  (0.071, 0.051, 0.043, 1)   // #120D0B
+        )
+        /// Card face
+        static let surface = GBColor.adaptive(
+            light: (0.992, 0.980, 0.949, 1),  // #FDFAF2
+            dark:  (0.129, 0.094, 0.078, 1)   // #211814
+        )
         /// Warm card tint (panels, insets)
-        static let elevated = Color(red: 0.941, green: 0.902, blue: 0.784)  // #F0E6C8
+        static let elevated = GBColor.adaptive(
+            light: (0.941, 0.902, 0.784, 1),  // #F0E6C8
+            dark:  (0.180, 0.129, 0.098, 1)   // #2E2119
+        )
         /// Panel / divider surface
-        static let panel    = Color(red: 0.918, green: 0.851, blue: 0.690)  // #EAD9B0
+        static let panel = GBColor.adaptive(
+            light: (0.918, 0.851, 0.690, 1),  // #EAD9B0
+            dark:  (0.259, 0.196, 0.145, 1)   // #423225
+        )
         /// Deep panel border / stroke
-        static let panelDeep = Color(red: 0.784, green: 0.667, blue: 0.471) // #C8AA78
+        static let panelDeep = GBColor.adaptive(
+            light: (0.784, 0.667, 0.471, 1),  // #C8AA78
+            dark:  (0.522, 0.416, 0.286, 1)   // #856A49
+        )
 
         // Story gradient endpoints (saffron → amber)
         static let storyStart = Color(red: 0.851, green: 0.310, blue: 0.047)  // #D94F0C
@@ -54,47 +85,109 @@ enum GBColor {
 
     // ── Text ──────────────────────────────────────────────────
     enum Content {
-        static let primary   = Color(red: 0.110, green: 0.078, blue: 0.063)      // #1C1410
-        static let secondary = Color(red: 0.110, green: 0.078, blue: 0.063).opacity(0.65)
-        static let tertiary  = Color(red: 0.110, green: 0.078, blue: 0.063).opacity(0.40)
-        static let inverse   = Color.white
+        static let primary = GBColor.adaptive(
+            light: (0.110, 0.078, 0.063, 1.00), // #1C1410
+            dark:  (0.980, 0.941, 0.851, 1.00)  // warm parchment text
+        )
+        static let secondary = GBColor.adaptive(
+            light: (0.110, 0.078, 0.063, 0.72),
+            dark:  (0.980, 0.941, 0.851, 0.78)
+        )
+        static let tertiary = GBColor.adaptive(
+            light: (0.110, 0.078, 0.063, 0.52),
+            dark:  (0.980, 0.941, 0.851, 0.58)
+        )
+        static let inverse = Color.white
     }
 
     // ── Story: Saffron family ─────────────────────────────────
     enum Story {
-        static let primary = Color(red: 0.851, green: 0.310, blue: 0.047)        // #D94F0C
-        static let mid     = Color(red: 0.941, green: 0.416, blue: 0.165)        // #F06A2A
-        static let light   = Color(red: 0.992, green: 0.722, blue: 0.490)        // #FDB87D
-        static let bg      = Color(red: 0.996, green: 0.941, blue: 0.894)        // #FEF0E4
+        static let primary = GBColor.adaptive(
+            light: (0.851, 0.310, 0.047, 1),  // #D94F0C
+            dark:  (0.992, 0.722, 0.490, 1)   // #FDB87D
+        )
+        static let mid = GBColor.adaptive(
+            light: (0.941, 0.416, 0.165, 1),  // #F06A2A
+            dark:  (0.992, 0.820, 0.640, 1)
+        )
+        static let light = Color(red: 0.992, green: 0.722, blue: 0.490)          // #FDB87D
+        static let bg = GBColor.adaptive(
+            light: (0.996, 0.941, 0.894, 1),  // #FEF0E4
+            dark:  (0.243, 0.094, 0.047, 1)   // deep saffron wash
+        )
     }
 
     // ── Place: Sahyadri family ────────────────────────────────
     enum Place {
-        static let primary = Color(red: 0.122, green: 0.361, blue: 0.227)        // #1F5C3A
-        static let mid     = Color(red: 0.180, green: 0.490, blue: 0.322)        // #2E7D52
-        static let light   = Color(red: 0.353, green: 0.671, blue: 0.471)        // #5AAB78
+        static let primary = GBColor.adaptive(
+            light: (0.122, 0.361, 0.227, 1),  // #1F5C3A
+            dark:  (0.353, 0.671, 0.471, 1)   // #5AAB78
+        )
+        static let mid = GBColor.adaptive(
+            light: (0.180, 0.490, 0.322, 1),  // #2E7D52
+            dark:  (0.565, 0.820, 0.635, 1)
+        )
+        static let light = Color(red: 0.353, green: 0.671, blue: 0.471)          // #5AAB78
         static let sky     = Color(red: 0.169, green: 0.357, blue: 0.667)        // #2B5BAA
-        static let bg      = Color(red: 0.910, green: 0.957, blue: 0.929)        // #E8F4ED
+        static let bg = GBColor.adaptive(
+            light: (0.910, 0.957, 0.929, 1),  // #E8F4ED
+            dark:  (0.063, 0.188, 0.118, 1)   // deep green wash
+        )
     }
 
     // ── Chronicle: Gold + Royal ───────────────────────────────
     enum Chronicle {
-        static let gold      = Color(red: 0.722, green: 0.490, blue: 0.047)      // #B87D0C
-        static let goldMid   = Color(red: 0.831, green: 0.627, blue: 0.090)      // #D4A017
+        static let gold = GBColor.adaptive(
+            light: (0.722, 0.490, 0.047, 1),  // #B87D0C
+            dark:  (0.961, 0.816, 0.376, 1)   // #F5D060
+        )
+        static let goldMid = GBColor.adaptive(
+            light: (0.831, 0.627, 0.090, 1),  // #D4A017
+            dark:  (0.980, 0.875, 0.518, 1)
+        )
         static let goldLight = Color(red: 0.961, green: 0.816, blue: 0.376)      // #F5D060
-        static let goldBg    = Color(red: 0.992, green: 0.957, blue: 0.847)      // #FDF4D8
-        static let royal     = Color(red: 0.239, green: 0.141, blue: 0.459)      // #3D2475
-        static let royalMid  = Color(red: 0.361, green: 0.227, blue: 0.624)      // #5C3A9F
-        static let royalBg   = Color(red: 0.929, green: 0.910, blue: 0.973)      // #EDE8F8
+        static let goldBg = GBColor.adaptive(
+            light: (0.992, 0.957, 0.847, 1),  // #FDF4D8
+            dark:  (0.235, 0.161, 0.047, 1)   // deep gold wash
+        )
+        static let royal = GBColor.adaptive(
+            light: (0.239, 0.141, 0.459, 1),  // #3D2475
+            dark:  (0.714, 0.616, 0.941, 1)
+        )
+        static let royalMid = GBColor.adaptive(
+            light: (0.361, 0.227, 0.624, 1),  // #5C3A9F
+            dark:  (0.800, 0.725, 0.973, 1)
+        )
+        static let royalBg = GBColor.adaptive(
+            light: (0.929, 0.910, 0.973, 1),  // #EDE8F8
+            dark:  (0.129, 0.078, 0.247, 1)   // deep royal wash
+        )
     }
 
     // ── States ────────────────────────────────────────────────
     enum State {
-        static let locked   = Color(red: 0.627, green: 0.565, blue: 0.502)       // #A09080
-        static let lockedBg = Color(red: 0.929, green: 0.898, blue: 0.847)       // #EDE5D8
+        static let locked = GBColor.adaptive(
+            light: (0.420, 0.365, 0.310, 1),
+            dark:  (0.735, 0.671, 0.600, 1)
+        )
+        static let lockedBg = GBColor.adaptive(
+            light: (0.929, 0.898, 0.847, 1),  // #EDE5D8
+            dark:  (0.169, 0.145, 0.122, 1)
+        )
         static let success  = Place.primary
         static let warning  = Chronicle.goldMid
-        static let danger   = Color(red: 0.753, green: 0.224, blue: 0.169)       // #C0392B
+        static let danger = GBColor.adaptive(
+            light: (0.753, 0.224, 0.169, 1),  // #C0392B
+            dark:  (0.980, 0.420, 0.360, 1)
+        )
+    }
+
+    // ── Form controls ─────────────────────────────────────────
+    enum Input {
+        static let background = Background.surface
+        static let text = Content.primary
+        static let placeholder = Content.tertiary
+        static let border = Border.panel
     }
 
     // ── Borders ───────────────────────────────────────────────

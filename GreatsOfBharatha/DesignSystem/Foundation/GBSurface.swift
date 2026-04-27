@@ -25,7 +25,16 @@ struct GBSurface<Content: View>: View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(backgroundStyle, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(backgroundStyle)
+                    .overlay {
+                        if case .accented = style {
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .fill(Color.black.opacity(0.42))
+                        }
+                    }
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(borderColor, lineWidth: 1)
