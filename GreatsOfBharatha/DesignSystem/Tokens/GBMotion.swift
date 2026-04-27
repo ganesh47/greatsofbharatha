@@ -44,6 +44,7 @@ extension Animation {
 #if canImport(UIKit)
 import UIKit
 
+@MainActor
 enum GBHaptic {
     /// Fort pin confirmed — strong satisfaction
     static func pinCorrect() {
@@ -69,7 +70,8 @@ enum GBHaptic {
     static func coronation() {
         let gen = UIImpactFeedbackGenerator(style: .heavy)
         gen.impactOccurred()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 180_000_000)
             gen.impactOccurred()
         }
     }
