@@ -7,38 +7,44 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00F7762E6675FFA1591CB270 /* GBLayoutContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1F22519D406A575588CE02 /* GBLayoutContext.swift */; };
 		06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */; };
 		073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C5A02CDD2D6DA5162F535 /* MasteryState.swift */; };
-		0A4A9F770C1A4F32965E1011 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */; };
-		0A4A9F790C1A4F32965E1011 /* GBSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */; };
-		0A4A9F7B0C1A4F32965E1011 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */; };
-		0A4A9F7D0C1A4F32965E1011 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */; };
-		0A4A9F7F0C1A4F32965E1011 /* GBBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */; };
-		0A4A9F810C1A4F32965E1011 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */; };
-		0A4A9F830C1A4F32965E1011 /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F820C1A4F32965E1011 /* GBMotion.swift */; };
-		0A4A9F850C1A4F32965E1011 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */; };
-		0A4A9F870C1A4F32965E1011 /* GBSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F860C1A4F32965E1011 /* GBSurface.swift */; };
-		0A4A9F890C1A4F32965E1011 /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */; };
-		0A4A9F8B0C1A4F32965E1011 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */; };
-		0A4A9F8D0C1A4F32965E1011 /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */; };
-		0A4A9F8F0C1A4F32965E1011 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */; };
-		0A4A9F910C1A4F32965E1011 /* GBLayoutContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */; };
+		07FB948684566346F8B09A98 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6043F267C6727A816F8CE8 /* GBSpacing.swift */; };
+		0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
-		1A7C4F102B8E4C1D9A001122 /* HeroArcModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */; };
-		1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
 		22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */; };
-		2C6D8E0F1A2B3C4D5E6F7081 /* LessonFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6D8E0E1A2B3C4D5E6F7081 /* LessonFeedback.swift */; };
-		7B4A1D2E3F40516273849506 /* CaptureRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4A1D2D3F40516273849506 /* CaptureRootView.swift */; };
+		2ABB675D9B13E6BC94627094 /* GBSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */; };
 		32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BEDED465CA437D09ADDCD5 /* SampleContent.swift */; };
+		38181663217C8A05A26880D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD5C939A7D069E35B849A5A8 /* Assets.xcassets */; };
+		3C4FB3ADBB894FDAC9244FBA /* HeroArcModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */; };
 		3CE894040C86BE6F34F93C13 /* GreatsOfBharathaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */; };
+		3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B510B04B44F609399601600C /* GBMotion.swift */; };
+		47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
+		5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
+		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
+		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
+		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
+		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
+		89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8609E7F8AFD990A81250F928 /* GBCardStyle.swift */; };
+		8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96600FFDF84328236B5EFACF /* GBColor.swift */; };
+		96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DD7C78E273FA67916C2743 /* GBHeroCard.swift */; };
+		98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40039999B2C8D4999FB8C254 /* LessonFeedback.swift */; };
 		A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */; };
-		F1A2B3C4D5E6F708192A3B4C /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */; };
+		AB57B155B5FCE53B15602313 /* GBSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30766CF8C2332F9E648E275A /* GBSectionHeader.swift */; };
+		ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */; };
+		ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */; };
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
+		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
+		CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */; };
+		CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
+		DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596CBD0FA93B029F56E14FDF /* GBBadge.swift */; };
 		E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */; };
+		E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */; };
 		EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */; };
 		EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */; };
 		EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413C33179A188AA0729938F /* AppModel.swift */; };
@@ -55,98 +61,58 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0048FE06EF01F9520955BAAD /* GBIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIcon.swift; sourceTree = "<group>"; };
+		0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChronicleCard.swift; sourceTree = "<group>"; };
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
-		0C857F8C6F22867D7E8B067F /* ShivajiLessonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonViews.swift; sourceTree = "<group>"; };
-		0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
-		0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
-		0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
-		0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIcon.swift; sourceTree = "<group>"; };
-		0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
-		0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
-		0A4A9F820C1A4F32965E1011 /* GBMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBMotion.swift; sourceTree = "<group>"; };
-		0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBCardStyle.swift; sourceTree = "<group>"; };
-		0A4A9F860C1A4F32965E1011 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
-		0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
-		0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
-		0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRadius.swift; sourceTree = "<group>"; };
-		0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
-		0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
-		1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroArcModels.swift; sourceTree = "<group>"; };
-		1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
-		2C6D8E0E1A2B3C4D5E6F7081 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
+		1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
+		2E1F22519D406A575588CE02 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
+		30766CF8C2332F9E648E275A /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
+		35DD7C78E273FA67916C2743 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
 		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
+		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
+		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
-		7B4A1D2D3F40516273849506 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
 		6413C33179A188AA0729938F /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		70E8E42D945004543238A06E /* TimelineHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineHubView.swift; sourceTree = "<group>"; };
 		71BEDED465CA437D09ADDCD5 /* SampleContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleContent.swift; sourceTree = "<group>"; };
+		7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRecallPrompt.swift; sourceTree = "<group>"; };
 		842D0166597E3756A21D8739 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModels.swift; sourceTree = "<group>"; };
 		85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTests.swift; sourceTree = "<group>"; };
+		8609E7F8AFD990A81250F928 /* GBCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBCardStyle.swift; sourceTree = "<group>"; };
+		874E1F2468B251B5784486DE /* GBRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRadius.swift; sourceTree = "<group>"; };
+		891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBShadow.swift; sourceTree = "<group>"; };
 		8A94778E49C1F68D8BA267FB /* GreatsOfBharatha.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GreatsOfBharatha.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		901C5A02CDD2D6DA5162F535 /* MasteryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryState.swift; sourceTree = "<group>"; };
+		96600FFDF84328236B5EFACF /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
 		AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_BOOTSTRAP.md; sourceTree = "<group>"; };
-		F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 		B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesHubView.swift; sourceTree = "<group>"; };
+		B510B04B44F609399601600C /* GBMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBMotion.swift; sourceTree = "<group>"; };
+		B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroArcModels.swift; sourceTree = "<group>"; };
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
+		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
+		C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
 		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
+		CD5C939A7D069E35B849A5A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE540544C5E9622DB91B7EF8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaApp.swift; sourceTree = "<group>"; };
+		DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSceneCard.swift; sourceTree = "<group>"; };
 		DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
+		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
+		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
+		FA553A6C52FF405536FB4B58 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
+		FF974097779D0836FBDE59DD /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		0A4A9F920C1A4F32965E1011 /* Tokens */ = {
-			isa = PBXGroup;
-			children = (
-				0A4A9F8A0C1A4F32965E1011 /* GBColor.swift */,
-				0A4A9F7C0C1A4F32965E1011 /* GBIcon.swift */,
-				0A4A9F820C1A4F32965E1011 /* GBMotion.swift */,
-				0A4A9F8C0C1A4F32965E1011 /* GBRadius.swift */,
-				0A4A9F8E0C1A4F32965E1011 /* GBSpacing.swift */,
-				0A4A9F7A0C1A4F32965E1011 /* GBTypography.swift */,
-			);
-			path = Tokens;
-			sourceTree = "<group>";
-		};
-		0A4A9F930C1A4F32965E1011 /* Foundation */ = {
-			isa = PBXGroup;
-			children = (
-				0A4A9F7E0C1A4F32965E1011 /* GBBadge.swift */,
-				0A4A9F760C1A4F32965E1011 /* GBButtonStyle.swift */,
-				0A4A9F840C1A4F32965E1011 /* GBCardStyle.swift */,
-				0A4A9F900C1A4F32965E1011 /* GBLayoutContext.swift */,
-				0A4A9F860C1A4F32965E1011 /* GBSurface.swift */,
-			);
-			path = Foundation;
-			sourceTree = "<group>";
-		};
-		0A4A9F940C1A4F32965E1011 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				0A4A9F880C1A4F32965E1011 /* GBHeroCard.swift */,
-				0A4A9F800C1A4F32965E1011 /* GBQuestProgress.swift */,
-				0A4A9F780C1A4F32965E1011 /* GBSectionHeader.swift */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
-		0A4A9F950C1A4F32965E1011 /* DesignSystem */ = {
-			isa = PBXGroup;
-			children = (
-				0A4A9F920C1A4F32965E1011 /* Tokens */,
-				0A4A9F930C1A4F32965E1011 /* Foundation */,
-				0A4A9F940C1A4F32965E1011 /* Components */,
-			);
-			path = DesignSystem;
-			sourceTree = "<group>";
-		};
 		0570398737C6B4A9BAA4000C /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				6413C33179A188AA0729938F /* AppModel.swift */,
 				842D0166597E3756A21D8739 /* ContentModels.swift */,
-				1A7C4F0F2B8E4C1D9A001122 /* HeroArcModels.swift */,
+				B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */,
 				901C5A02CDD2D6DA5162F535 /* MasteryState.swift */,
 				71BEDED465CA437D09ADDCD5 /* SampleContent.swift */,
 				C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */,
@@ -163,20 +129,22 @@
 			path = Chronicle;
 			sourceTree = "<group>";
 		};
-		3B4C5D6E7F8091A2B3C4D5E6 /* Parent */ = {
-			isa = PBXGroup;
-			children = (
-				F1A2B3C4D5E6F708192A3B4B /* ParentProgressView.swift */,
-			);
-			path = Parent;
-			sourceTree = "<group>";
-		};
 		29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */ = {
 			isa = PBXGroup;
 			children = (
 				85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */,
 			);
 			path = GreatsOfBharathaTests;
+			sourceTree = "<group>";
+		};
+		2B815EEDA4B37E821315ED95 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				CC811EBD28EF5BFF4FBF2F1D /* Components */,
+				6316ABC4AC5FF73B8BB04D46 /* Foundation */,
+				391F456532E45C09722A3581 /* Tokens */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		2CAF176D76684F7BB625884A /* Lesson */ = {
@@ -189,30 +157,73 @@
 			path = Lesson;
 			sourceTree = "<group>";
 		};
+		391F456532E45C09722A3581 /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				96600FFDF84328236B5EFACF /* GBColor.swift */,
+				0048FE06EF01F9520955BAAD /* GBIcon.swift */,
+				B510B04B44F609399601600C /* GBMotion.swift */,
+				874E1F2468B251B5784486DE /* GBRadius.swift */,
+				5A6043F267C6727A816F8CE8 /* GBSpacing.swift */,
+				FA553A6C52FF405536FB4B58 /* GBTypography.swift */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
+		3A65D9642E8CD13DC7428704 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CD5C939A7D069E35B849A5A8 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		4883D0626FEE9C29B53D471D /* Features */ = {
 			isa = PBXGroup;
 			children = (
 				291D0A188BF00AB65634B378 /* Chronicle */,
 				2CAF176D76684F7BB625884A /* Lesson */,
 				B8EE4101C55EA21501F66716 /* Map */,
-				3B4C5D6E7F8091A2B3C4D5E6 /* Parent */,
+				D7A23AC84F04ED8249356C10 /* Parent */,
+				49F8AD61BC767BD593F8FBD3 /* Timeline */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		49F8AD61BC767BD593F8FBD3 /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				70E8E42D945004543238A06E /* TimelineHubView.swift */,
+			);
+			path = Timeline;
 			sourceTree = "<group>";
 		};
 		57AE668B589447AA164CAEE2 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
 				0570398737C6B4A9BAA4000C /* Models */,
-				9E7D6C5B4A39281716151413 /* Theme */,
+				74DD589F8E91F14A920C59F9 /* Theme */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		9E7D6C5B4A39281716151413 /* Theme */ = {
+		6316ABC4AC5FF73B8BB04D46 /* Foundation */ = {
 			isa = PBXGroup;
 			children = (
-				2C6D8E0E1A2B3C4D5E6F7081 /* LessonFeedback.swift */,
+				596CBD0FA93B029F56E14FDF /* GBBadge.swift */,
+				C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */,
+				8609E7F8AFD990A81250F928 /* GBCardStyle.swift */,
+				2E1F22519D406A575588CE02 /* GBLayoutContext.swift */,
+				891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */,
+				BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */,
+			);
+			path = Foundation;
+			sourceTree = "<group>";
+		};
+		74DD589F8E91F14A920C59F9 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				40039999B2C8D4999FB8C254 /* LessonFeedback.swift */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -229,9 +240,9 @@
 		B103BD6B19B2767D7BF88F0A /* App */ = {
 			isa = PBXGroup;
 			children = (
-				7B4A1D2D3F40516273849506 /* CaptureRootView.swift */,
+				E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */,
 				CE540544C5E9622DB91B7EF8 /* ContentView.swift */,
-				1F8C2F198E2D4A1B9C7D1234 /* DebugNavigationRoute.swift */,
+				1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */,
 				CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */,
 			);
 			path = App;
@@ -254,14 +265,36 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CC811EBD28EF5BFF4FBF2F1D /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */,
+				35DD7C78E273FA67916C2743 /* GBHeroCard.swift */,
+				F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */,
+				7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */,
+				DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */,
+				30766CF8C2332F9E648E275A /* GBSectionHeader.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		D7A23AC84F04ED8249356C10 /* Parent */ = {
+			isa = PBXGroup;
+			children = (
+				FF974097779D0836FBDE59DD /* ParentProgressView.swift */,
+			);
+			path = Parent;
+			sourceTree = "<group>";
+		};
 		EBB69AAB1E89F302C4DD2B65 /* GreatsOfBharatha */ = {
 			isa = PBXGroup;
 			children = (
 				AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */,
 				AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */,
 				B103BD6B19B2767D7BF88F0A /* App */,
-				0A4A9F950C1A4F32965E1011 /* DesignSystem */,
+				2B815EEDA4B37E821315ED95 /* DesignSystem */,
 				4883D0626FEE9C29B53D471D /* Features */,
+				3A65D9642E8CD13DC7428704 /* Resources */,
 				57AE668B589447AA164CAEE2 /* Shared */,
 			);
 			path = GreatsOfBharatha;
@@ -351,6 +384,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */,
+				38181663217C8A05A26880D2 /* Assets.xcassets in Resources */,
 				86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,38 +396,43 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A7C4F102B8E4C1D9A001122 /* HeroArcModels.swift in Sources */,
-				0A4A9F7F0C1A4F32965E1011 /* GBBadge.swift in Sources */,
-				0A4A9F770C1A4F32965E1011 /* GBButtonStyle.swift in Sources */,
-				0A4A9F850C1A4F32965E1011 /* GBCardStyle.swift in Sources */,
-				0A4A9F8B0C1A4F32965E1011 /* GBColor.swift in Sources */,
-				0A4A9F890C1A4F32965E1011 /* GBHeroCard.swift in Sources */,
-				0A4A9F7D0C1A4F32965E1011 /* GBIcon.swift in Sources */,
-				0A4A9F910C1A4F32965E1011 /* GBLayoutContext.swift in Sources */,
-				0A4A9F830C1A4F32965E1011 /* GBMotion.swift in Sources */,
-				0A4A9F810C1A4F32965E1011 /* GBQuestProgress.swift in Sources */,
-				0A4A9F8D0C1A4F32965E1011 /* GBRadius.swift in Sources */,
-				0A4A9F790C1A4F32965E1011 /* GBSectionHeader.swift in Sources */,
-				0A4A9F8F0C1A4F32965E1011 /* GBSpacing.swift in Sources */,
-				0A4A9F870C1A4F32965E1011 /* GBSurface.swift in Sources */,
-				0A4A9F7B0C1A4F32965E1011 /* GBTypography.swift in Sources */,
-				7B4A1D2E3F40516273849506 /* CaptureRootView.swift in Sources */,
-				1F8C2F1A8E2D4A1B9C7D1234 /* DebugNavigationRoute.swift in Sources */,
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
+				ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */,
 				A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */,
-				F1A2B3C4D5E6F708192A3B4C /* ParentProgressView.swift in Sources */,
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
+				0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */,
+				DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */,
+				ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */,
+				89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */,
+				CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */,
+				8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */,
+				96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */,
+				5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */,
+				00F7762E6675FFA1591CB270 /* GBLayoutContext.swift in Sources */,
+				3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */,
+				E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */,
+				47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */,
+				CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */,
+				59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */,
+				AB57B155B5FCE53B15602313 /* GBSectionHeader.swift in Sources */,
+				5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */,
+				07FB948684566346F8B09A98 /* GBSpacing.swift in Sources */,
+				2ABB675D9B13E6BC94627094 /* GBSurface.swift in Sources */,
+				57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */,
 				3CE894040C86BE6F34F93C13 /* GreatsOfBharathaApp.swift in Sources */,
+				3C4FB3ADBB894FDAC9244FBA /* HeroArcModels.swift in Sources */,
+				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
-				2C6D8E0F1A2B3C4D5E6F7081 /* LessonFeedback.swift in Sources */,
 				073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */,
+				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,
 				EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */,
 				6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */,
 				06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */,
 				16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */,
+				608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,8 +523,21 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationPortraitUpsideDown,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = "0.1.0-alpha";
+				MARKETING_VERSION = "0.1.0-dev";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "Greats Of Bharatha";
@@ -572,8 +624,21 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationPortraitUpsideDown,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = "0.1.0-alpha";
+				MARKETING_VERSION = "0.1.0-dev";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
