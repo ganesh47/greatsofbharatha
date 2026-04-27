@@ -18,5 +18,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Run dependency review when supported
         uses: actions/dependency-review-action@v4
+        # Keep advisory until Dependency graph is enabled for this repository;
+        # then remove continue-on-error to make high-severity findings blocking.
+        continue-on-error: true
         with:
           fail-on-severity: high
