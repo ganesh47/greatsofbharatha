@@ -2,49 +2,47 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab: DebugTabRoute = .learn
+    @State private var showsParentView = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
+            // ── Tab 1: Story ──────────────────────────────────
             NavigationStack {
                 LessonHomeView()
             }
-            .tabItem {
-                Label("Learn", systemImage: "book.closed")
-            }
+            .tabItem { Label("Story", systemImage: "book.fill") }
             .tag(DebugTabRoute.learn)
 
+            // ── Tab 2: Map ────────────────────────────────────
             NavigationStack {
                 PlacesHubView(places: SampleContent.shivajiVerticalSlice.corePlaces)
             }
-            .tabItem {
-                Label("Places", systemImage: "map")
-            }
+            .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(DebugTabRoute.places)
 
-            NavigationStack {
-                TimelineHubView()
-            }
-            .tabItem {
-                Label("Timeline", systemImage: "clock.arrow.circlepath")
-            }
-            .tag(DebugTabRoute.timeline)
-
+            // ── Tab 3: Album (Chronicle + Parent gear) ────────
             NavigationStack {
                 ChronicleView(rewards: SampleContent.shivajiVerticalSlice.rewards)
+                    .toolbar {
+                        // Discreet parent-access button — no label visible to children
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                showsParentView = true
+                            } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(GBColor.Content.tertiary)
+                            }
+                            .accessibilityLabel("Parent settings")
+                        }
+                    }
             }
-            .tabItem {
-                Label("Chronicle", systemImage: "sparkles.rectangle.stack")
-            }
+            .tabItem { Label("Album", systemImage: "sparkles.rectangle.stack") }
             .tag(DebugTabRoute.chronicle)
-
-            NavigationStack {
-                ParentProgressView()
-            }
-            .tabItem {
-                Label("Parent", systemImage: "person.text.rectangle")
-            }
-            .tag(DebugTabRoute.parent)
         }
-        .tint(.orange)
+        .tint(GBColor.Story.primary)
+        .sheet(isPresented: $showsParentView) {
+            NavigationStack { ParentProgressView() }
+        }
     }
 }

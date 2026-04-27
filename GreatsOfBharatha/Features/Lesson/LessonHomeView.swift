@@ -1,91 +1,21 @@
 import SwiftUI
 
+// ─────────────────────────────────────────────────────────────
+// LessonHomeView.swift — kid-friendly scene list.
+// Simplified to: hero welcome + star progress + big scene cards.
+// Removed: stat pills, metadata chips, ChronicleJourneyCard.
+// ─────────────────────────────────────────────────────────────
+
 struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
-
-    private var nextScene: StoryScene? {
-        if let nextSceneID = appModel.lessonStore.nextSceneID {
-            return appModel.content.scenes.first(where: { $0.id == nextSceneID })
-        }
-        return appModel.content.scenes.last
-    }
-
-    private var previewedRewardsCount: Int {
-        appModel.lessonStore.previewedChronicleCount
-    }
-
-    private var unlockedRewardsCount: Int {
-        appModel.lessonStore.unlockedChronicleCount
-    }
-
-    private var enrichedRewardsCount: Int {
-        appModel.lessonStore.enrichedChronicleCount
-    }
 
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    if let nextScene {
-                        NavigationLink {
-                            SceneLessonView(scene: nextScene)
-                        } label: {
-                            homeHeroCard(nextScene: nextScene)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    GBSurface(style: .elevated) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            GBSectionHeader(
-                                eyebrow: "Your next move",
-                                title: appModel.lessonStore.completedScenes == 0 ? "Tap one path and begin" : "Keep the adventure moving",
-                                subtitle: "Each scene is short: three story cards, one memory check, then a new Chronicle keepsake."
-                            )
-
-                            HStack(spacing: GBSpacing.small) {
-                                JourneyStatPill(title: "Scenes", value: "\(appModel.lessonStore.completedScenes)/\(appModel.lessonStore.totalScenes)", emphasis: .story)
-                                JourneyStatPill(title: "Previewed", value: "\(previewedRewardsCount)", emphasis: .story)
-                                JourneyStatPill(title: "Earned", value: "\(unlockedRewardsCount)", emphasis: .chronicle)
-                                JourneyStatPill(title: "Deepened", value: "\(enrichedRewardsCount)", emphasis: .chronicle)
-                            }
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: context.cardSpacing) {
-                        GBSectionHeader(
-                            eyebrow: "Adventure path",
-                            title: "Choose a story moment",
-                            subtitle: "One clear card first, one quick recall next, one reward at the end."
-                        )
-
-                        ForEach(appModel.content.scenes) { scene in
-                            NavigationLink {
-                                SceneLessonView(scene: scene)
-                            } label: {
-                                SceneJourneyCard(
-                                    scene: scene,
-                                    reward: appModel.content.rewards.first(where: { $0.id == scene.rewardID }),
-                                    mastery: appModel.lessonStore.mastery(for: scene.id),
-                                    isNext: scene.id == appModel.lessonStore.nextSceneID
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-
-                    NavigationLink {
-                        ChronicleView(rewards: appModel.content.rewards)
-                    } label: {
-                        ChronicleJourneyCard(
-                            headline: appModel.lessonStore.chronicleHeadline,
-                            previewedCount: previewedRewardsCount,
-                            unlockedCount: unlockedRewardsCount,
-                            enrichedCount: enrichedRewardsCount,
-                            totalCount: appModel.content.rewards.count
-                        )
-                    }
-                    .buttonStyle(.plain)
+                    welcomeHero
+                    progressStarRow
+                    sceneGrid(context: context)
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
                 .padding(context.containerPadding)
@@ -96,171 +26,177 @@ struct LessonHomeView: View {
         .navigationTitle("Greats of Bharatha")
     }
 
-    private func homeHeroCard(nextScene: StoryScene) -> some View {
-        GBHeroCard(
-            eyebrow: "Shivaji Maharaj",
-            title: appModel.lessonStore.completedScenes == 0 ? "Begin the hill-fort adventure" : "Your next fort is ready",
-            subtitle: nextScene.timelineMarker,
-            detail: appModel.lessonStore.completedScenes == 0
-                ? "Start with one vivid scene, let your first keepsake silhouette appear, then earn it with one recall win."
-                : "Jump back in with one short scene, a place clue trail, and Chronicle progress that now tracks previewed, earned, and deepened keepsakes.",
-            ctaTitle: appModel.lessonStore.completedScenes == 0 ? "Start Scene \(nextScene.number)" : "Continue journey",
-            badgeTitle: appModel.lessonStore.completedScenes == appModel.lessonStore.totalScenes ? "Journey complete" : "Next adventure",
-            emphasis: .story,
-            progress: appModel.lessonStore.overallProgress
+    // MARK: - Welcome hero
+
+    private var welcomeHero: some View {
+        GBSurface(style: .accented(.story)) {
+            HStack(spacing: GBSpacing.medium) {
+                Image(systemName: "building.columns.fill")
+                    .font(.system(size: 48, weight: .ultraLight))
+                    .foregroundStyle(.white.opacity(0.85))
+
+                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                    Text("Shivaji Maharaj")
+                        .font(GBFont.ui(size: 11, weight: .heavy))
+                        .textCase(.uppercase)
+                        .tracking(1.4)
+                        .foregroundStyle(.white.opacity(0.78))
+
+                    Text(appModel.lessonStore.completedScenes == 0
+                         ? "Begin the adventure!"
+                         : "Welcome back!")
+                        .font(GBFont.display(size: 22, weight: .bold))
+                        .foregroundStyle(.white)
+
+                    Text("Pick a story card and start exploring the forts.")
+                        .font(GBFont.story(size: 14))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineSpacing(3)
+                }
+            }
+        }
+    }
+
+    // MARK: - Progress star row
+
+    private var progressStarRow: some View {
+        let completed = appModel.lessonStore.completedScenes
+        let total     = appModel.lessonStore.totalScenes
+
+        return VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+            HStack {
+                Text("Your adventure")
+                    .font(GBFont.ui(size: 11, weight: .heavy))
+                    .textCase(.uppercase)
+                    .tracking(1.3)
+                    .foregroundStyle(GBColor.Content.tertiary)
+                Spacer()
+                Text("\(completed) of \(total) scenes")
+                    .font(GBFont.ui(size: 13, weight: .bold))
+                    .foregroundStyle(GBColor.Content.secondary)
+            }
+
+            // Stars row
+            HStack(spacing: 6) {
+                ForEach(0..<total, id: \.self) { i in
+                    Image(systemName: i < completed ? "star.fill" : "star")
+                        .font(.system(size: 20))
+                        .foregroundStyle(i < completed ? GBColor.Chronicle.gold : GBColor.Content.tertiary)
+                        .animation(GBMotion.bounce.delay(Double(i) * 0.06), value: completed)
+                }
+            }
+        }
+        .padding(GBSpacing.small)
+        .background(
+            RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
+                .fill(GBColor.Background.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
+                        .stroke(GBColor.Border.default, lineWidth: 1)
+                )
         )
     }
-}
 
-private struct JourneyStatPill: View {
-    let title: String
-    let value: String
-    let emphasis: GBEmphasis
+    // MARK: - Scene grid
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-            Text(title)
-                .gbCaption()
-                .foregroundStyle(GBColor.Content.secondary)
-            Text(value)
-                .gbHeadline()
-                .foregroundStyle(GBColor.accent(for: emphasis))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(GBSpacing.xSmall)
-        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
-    }
-}
+    private func sceneGrid(context: GBLayoutContext) -> some View {
+        VStack(alignment: .leading, spacing: context.cardSpacing) {
+            Text("Choose a scene")
+                .font(GBFont.ui(size: 11, weight: .heavy))
+                .textCase(.uppercase)
+                .tracking(1.3)
+                .foregroundStyle(GBColor.Content.tertiary)
 
-private struct SceneJourneyCard: View {
-    let scene: StoryScene
-    let reward: ChronicleReward?
-    let mastery: MasteryState?
-    let isNext: Bool
+            ForEach(appModel.content.scenes) { scene in
+                let mastery    = appModel.lessonStore.mastery(for: scene.id)
+                let isNext     = scene.id == appModel.lessonStore.nextSceneID
+                let isLocked   = mastery == nil && !isNext
 
-    var body: some View {
-        GBSurface(style: isNext ? .elevated : .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .top, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        HStack(spacing: GBSpacing.xxSmall) {
-                            GBBadge(title: "Scene \(scene.number)", symbol: GBIcon.story, emphasis: .story)
-                            if isNext {
-                                GBBadge(title: "Up next", symbol: GBIcon.next, emphasis: .story)
-                            }
+                Group {
+                    if isLocked {
+                        kidSceneCard(scene: scene, mastery: mastery, isNext: false, isLocked: true)
+                            .opacity(0.60)
+                    } else {
+                        NavigationLink {
+                            SceneLessonView(scene: scene)
+                        } label: {
+                            kidSceneCard(scene: scene, mastery: mastery, isNext: isNext, isLocked: false)
                         }
-
-                        Text(scene.title)
-                            .gbTitle()
-                            .foregroundStyle(GBColor.Content.primary)
-                            .lineLimit(2)
-
-                        Text(scene.childSafeSummary)
-                            .gbBody()
-                            .foregroundStyle(GBColor.Content.secondary)
-                            .lineLimit(2)
+                        .buttonStyle(.plain)
                     }
-
-                    Spacer()
-
-                    if let mastery {
-                        GBBadge(title: mastery.rawValue, symbol: masterySymbol(mastery), emphasis: masteryEmphasis(mastery))
-                    }
-                }
-
-                HStack(spacing: GBSpacing.small) {
-                    miniChip(title: scene.timelineMarker, symbol: "sparkles")
-                    if let reward {
-                        miniChip(title: reward.title, symbol: GBIcon.chronicle)
-                    }
-                    miniChip(title: "3 cards + recall", symbol: "square.stack.3d.up.fill")
-                }
-
-                HStack {
-                    Text(isNext ? "Start this scene" : "Open scene")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(GBColor.Content.primary)
-                    Spacer()
-                    Image(systemName: GBIcon.next)
-                        .foregroundStyle(GBColor.Accent.story)
                 }
             }
         }
     }
 
-    private func miniChip(title: String, symbol: String) -> some View {
-        Label(title, systemImage: symbol)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(GBColor.Content.secondary)
-            .padding(.horizontal, GBSpacing.xSmall)
-            .padding(.vertical, GBSpacing.xxxSmall)
-            .background(GBColor.Background.elevated, in: Capsule())
-    }
+    private func kidSceneCard(
+        scene: StoryScene,
+        mastery: MasteryState?,
+        isNext: Bool,
+        isLocked: Bool
+    ) -> some View {
+        HStack(spacing: GBSpacing.medium) {
+            // Scene number badge
+            ZStack {
+                RoundedRectangle(cornerRadius: GBRadius.compact, style: .continuous)
+                    .fill(isLocked
+                          ? AnyShapeStyle(GBColor.State.lockedBg)
+                          : AnyShapeStyle(GBColor.gradient(for: .story)))
+                Text("\(scene.number)")
+                    .font(GBFont.display(size: 17, weight: .bold))
+                    .foregroundStyle(isLocked ? GBColor.State.locked : .white)
+            }
+            .frame(width: 52, height: 52)
 
-    private func masterySymbol(_ mastery: MasteryState) -> String {
-        switch mastery {
-        case .witnessed:
-            return "eye.fill"
-        case .understood:
-            return "star.fill"
-        case .observedClosely:
-            return "sparkles"
-        case .remembered:
-            return GBIcon.story
-        case .placed:
-            return GBIcon.place
-        case .chronicled:
-            return GBIcon.chronicle
-        }
-    }
+            // Title
+            Text(scene.title)
+                .font(GBFont.ui(size: 16, weight: .bold))
+                .foregroundStyle(isLocked ? GBColor.State.locked : GBColor.Content.primary)
+                .lineLimit(2)
 
-    private func masteryEmphasis(_ mastery: MasteryState) -> GBEmphasis {
-        switch mastery {
-        case .witnessed:
-            return .neutral
-        case .understood, .remembered:
-            return .story
-        case .observedClosely, .chronicled:
-            return .chronicle
-        case .placed:
-            return .place
-        }
-    }
-}
+            Spacer()
 
-private struct ChronicleJourneyCard: View {
-    let headline: String
-    let previewedCount: Int
-    let unlockedCount: Int
-    let enrichedCount: Int
-    let totalCount: Int
-
-    var body: some View {
-        GBSurface(style: .accented(.chronicle)) {
-            HStack(alignment: .center, spacing: GBSpacing.small) {
-                Image(systemName: GBIcon.chronicle)
-                    .font(.title2)
-                    .foregroundStyle(GBColor.Content.inverse)
-                    .frame(width: 52, height: 52)
-                    .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
-
-                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                    Text("Royal Chronicle")
-                        .gbHeadline()
-                        .foregroundStyle(GBColor.Content.inverse)
-                    Text(headline)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
-                    Text("Previewed \(previewedCount)  •  Earned \(unlockedCount) of \(totalCount)  •  Deepened \(enrichedCount)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
-                }
-
-                Spacer()
-
-                Image(systemName: GBIcon.next)
-                    .foregroundStyle(GBColor.Content.inverse)
+            // Status icon
+            if isLocked {
+                Image(systemName: GBIcon.locked)
+                    .foregroundStyle(GBColor.State.locked)
+                    .font(.system(size: 18))
+            } else if mastery != nil {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(GBColor.Place.primary)
+                    .font(.system(size: 22))
+            } else if isNext {
+                Image(systemName: "play.fill")
+                    .foregroundStyle(GBColor.Story.primary)
+                    .font(.system(size: 20))
             }
         }
+        .padding(GBSpacing.small)
+        .frame(minHeight: GBTouch.button)
+        .background(
+            RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
+                .fill(isNext ? GBColor.Background.elevated : GBColor.Background.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
+                        .stroke(
+                            isNext ? GBColor.Story.light : GBColor.Border.default,
+                            lineWidth: isNext ? 2 : 1
+                        )
+                )
+        )
+        .gbShadow(isNext ? .story : .card)
+        .accessibilityLabel(accessibilityLabel(scene: scene, mastery: mastery, isNext: isNext, isLocked: isLocked))
+    }
+
+    private func accessibilityLabel(
+        scene: StoryScene,
+        mastery: MasteryState?,
+        isNext: Bool,
+        isLocked: Bool
+    ) -> String {
+        if isLocked { return "Scene \(scene.number): \(scene.title). Locked." }
+        if mastery != nil { return "Scene \(scene.number): \(scene.title). Completed." }
+        if isNext { return "Scene \(scene.number): \(scene.title). Start now!" }
+        return "Scene \(scene.number): \(scene.title)"
     }
 }

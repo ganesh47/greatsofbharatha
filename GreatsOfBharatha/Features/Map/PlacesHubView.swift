@@ -166,61 +166,51 @@ struct PlaceDetailView: View {
     let place: Place
     let progress: PlaceProgress
 
-    @State private var selectedCandidateID: String?
-    @State private var revealed = false
-    @State private var comparisonMode = false
     @State private var showsMapExplorer = false
 
-    private var challengeCandidates: [Place] {
-        let core = SampleContent.shivajiVerticalSlice.corePlaces
-        if core.contains(where: { $0.id == place.id }) {
-            return core
-        }
-        return [place]
-    }
-
-    private var selectedCandidate: Place? {
-        challengeCandidates.first(where: { $0.id == selectedCandidateID })
-    }
-
-    private var feedbackText: String {
-        guard let selectedCandidate else {
-            return comparisonMode ? "Study the reveal and compare the nearby forts before you try another pin." : "Tap a fort marker on the board, then reveal the answer when you are ready."
-        }
-        if selectedCandidate.id == place.id {
-            return revealed ? "Well spotted. \(place.name) is the right fort for this clue." : "Good instinct. Reveal the answer to lock in the location."
-        }
-        return revealed ? "Close. This clue belongs to \(place.name). Use compare mode to see what makes it different." : "That pin is close, but not right yet. Reveal the answer and compare the forts."
+    private var allCorePlaces: [Place] {
+        SampleContent.shivajiVerticalSlice.corePlaces
     }
 
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    headerCard
+                    // Simplified header: fort icon + name + why it matters
+                    simplifiedHeader
 
-                    GBSurface(style: .elevated) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Pin this fort on the Sahyadri board",
-                                subtitle: "Use the clue, pick a marker, then reveal the answer before leaving for the Chronicle."
-                            )
+                    // Real Apple Maps view replacing the abstract schematic board
+                    GBFortMapView(place: place)
+                        .frame(height: 250)
+                        .padding(.horizontal, context.containerPadding)
 
-                            GBQuestProgress(
-                                steps: [.story, .place, .chronicle],
-                                currentStepID: "place"
-                            )
+                    // Kid-friendly fact card
+                    kidFactCard(padding: context.containerPadding)
+
+                    // Map buttons
+                    VStack(spacing: GBSpacing.small) {
+                        Button {
+                            showsMapExplorer = true
+                        } label: {
+                            Label("See all forts on the map", systemImage: "map.fill")
+                                .frame(maxWidth: .infinity)
                         }
-                    }
+                        .buttonStyle(.gbPrimary(.place))
 
-                    mapPreviewCard
-                    memoryFactsCard
-                    externalMapCard
-                    fortBoard
+                        Button {
+                            guard let url = place.appleMapsURL else { return }
+                            openURL(url)
+                        } label: {
+                            Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.gbSecondary)
+                        .disabled(place.appleMapsURL == nil)
+                    }
+                    .padding(.horizontal, context.containerPadding)
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
-                .padding(context.containerPadding)
+                .padding(.vertical, context.containerPadding)
                 .frame(maxWidth: .infinity)
             }
             .background(GBColor.Background.app)
@@ -230,375 +220,66 @@ struct PlaceDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
 #endif
         .sheet(isPresented: $showsMapExplorer) {
-            PlaceMapExplorerSheet(place: place, nearbyPlaces: challengeCandidates)
+            PlaceMapExplorerSheet(place: place, nearbyPlaces: allCorePlaces)
         }
     }
 
-    private var headerCard: some View {
+    private var simplifiedHeader: some View {
         GBSurface(style: .accented(.place)) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .top, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Text(place.memoryHook.uppercased())
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
-                        Text(place.name)
-                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                            .foregroundStyle(GBColor.Content.inverse)
-                        Text(place.whyItMatters)
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
-                    }
-                    Spacer()
-                    GBBadge(title: progress.rawValue, symbol: progressIcon(progress), emphasis: .place)
-                }
+            HStack(spacing: GBSpacing.medium) {
+                Image(systemName: GBIcon.fort)
+                    .font(.system(size: 48, weight: .ultraLight))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .accessibilityHidden(true)
 
-                HStack(spacing: GBSpacing.small) {
-                    detailChip(title: "Story moment", value: place.primaryEvent, symbol: GBIcon.fort)
-                    detailChip(title: "Region clue", value: place.regionLabel, symbol: "mountain.2.fill")
-                }
-            }
-        }
-    }
-
-    private var mapPreviewCard: some View {
-        GBSurface(style: .elevated) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Board Preview",
-                    title: "See where this fort sits",
-                    subtitle: "The current fort glows brighter so its place on the trail is easier to remember."
-                )
-
-                Text("Preview only. Use \"Pin the fort\" below to interact.")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(GBColor.Content.secondary)
-
-                schematicBoard(interactive: false)
-                    .allowsHitTesting(false)
-                    .frame(height: 280)
-
-                HStack(spacing: GBSpacing.small) {
-                    Label("Bright pin: today's fort", systemImage: "mappin.circle.fill")
-                    Label("Light pins: nearby forts", systemImage: "mappin.circle")
-                }
-                .font(.caption)
-                .foregroundStyle(GBColor.Content.secondary)
-            }
-        }
-    }
-
-    private var memoryFactsCard: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Remember",
-                    title: "Keep this fort in one glance",
-                    subtitle: "Use a short hook, one event, and one region clue."
-                )
-
-                VStack(alignment: .leading, spacing: GBSpacing.small) {
-                    factRow(title: "Hook", value: place.memoryHook)
-                    factRow(title: "Big event", value: place.primaryEvent)
-                    factRow(title: "Region", value: place.regionLabel)
-                }
-            }
-        }
-    }
-
-    private var externalMapCard: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "MapKit Explorer",
-                    title: "See the real fort region",
-                    subtitle: "Use the in-app map to connect the Sahyadri board with a real landscape, then optionally open Apple Maps outside the app."
-                )
-
-                Button {
-                    showsMapExplorer = true
-                } label: {
-                    Label("Open map explorer", systemImage: "map.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.gbPrimary(.place))
-
-                Button {
-                    guard let appleMapsURL = place.appleMapsURL else { return }
-                    openURL(appleMapsURL)
-                } label: {
-                    Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.gbSecondary)
-                .disabled(place.appleMapsURL == nil)
-
-                Text("The explorer keeps the learning context in GreatsOfBharatha. Apple Maps remains an optional external reference.")
-                    .font(.caption)
-                    .foregroundStyle(GBColor.Content.secondary)
-            }
-        }
-    }
-
-    private var fortBoard: some View {
-        GBSurface(style: .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSectionHeader(
-                    eyebrow: "Place Challenge",
-                    title: "Pin the fort",
-                    subtitle: "Use the clue, choose a marker on the board, then reveal the answer.",
-                    trailing: AnyView(GBBadge(title: place.memoryHook, symbol: GBIcon.place, emphasis: .place))
-                )
-
-                GBSurface(style: .elevated, padding: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Label(place.primaryEvent, systemImage: GBIcon.reward)
-                            .font(.subheadline.weight(.semibold))
-                        Text(feedbackText)
-                            .font(.subheadline)
-                            .foregroundStyle(GBColor.Content.secondary)
-                    }
-                }
-
-                schematicBoard(interactive: true)
-                    .frame(height: 320)
-
-                if let selectedCandidate {
-                    selectedCandidateSummary(selectedCandidate)
-                }
-
-                HStack(spacing: GBSpacing.small) {
-                    Button(revealed ? "Reset challenge" : "Reveal answer") {
-                        if revealed {
-                            selectedCandidateID = nil
-                            revealed = false
-                            comparisonMode = false
-                            LessonFeedback.fire(.selection)
-                        } else {
-                            revealed = true
-                            comparisonMode = true
-                            LessonFeedback.fire(selectedCandidate?.id == place.id ? .success : .reveal)
-                        }
-                    }
-                    .buttonStyle(.gbPrimary(.place))
-
-                    if revealed {
-                        Button(comparisonMode ? "Hide compare cards" : "Compare nearby forts") {
-                            comparisonMode.toggle()
-                            LessonFeedback.fire(.selection)
-                        }
-                        .buttonStyle(.gbSecondary)
-                    }
-                }
-
-                if revealed {
-                    Text("Reveal: \(place.name) is remembered for \(place.primaryEvent.lowercased()) and sits \(place.regionLabel.lowercased()).")
-                        .font(.subheadline)
-                        .foregroundStyle(GBColor.Content.secondary)
-                }
-
-                if comparisonMode {
-                    comparisonCards
-                }
-            }
-        }
-    }
-
-    private func selectedCandidateSummary(_ candidate: Place) -> some View {
-        let matchesTarget = candidate.id == place.id
-
-        return GBSurface(style: .elevated, padding: GBSpacing.small) {
-            HStack(alignment: .top, spacing: GBSpacing.small) {
-                Image(systemName: matchesTarget && revealed ? GBIcon.success : "mappin.and.ellipse")
-                    .foregroundStyle(matchesTarget && revealed ? GBColor.Accent.success : GBColor.Accent.place)
-                    .font(.title3)
-
-                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                    Text(candidate.name)
-                        .font(.headline)
-                    Text(candidate.primaryEvent)
-                        .font(.subheadline)
-                        .foregroundStyle(GBColor.Content.secondary)
-                    Text(candidate.regionLabel)
-                        .font(.caption)
-                        .foregroundStyle(GBColor.Content.secondary)
+                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                    Text(place.name)
+                        .font(GBFont.display(size: 24, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                    Text(place.primaryEvent)
+                        .font(GBFont.story(size: 15, italic: true))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineLimit(2)
                 }
 
                 Spacer()
+
+                GBBadge(title: progress.rawValue, symbol: progressIcon(progress), emphasis: .place)
             }
         }
+        .padding(.horizontal, GBSpacing.medium)
     }
 
-    private var comparisonCards: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            Text("Compare the nearby forts")
-                .font(.subheadline.weight(.bold))
-
-            ForEach(challengeCandidates.filter { $0.id != place.id }) { candidate in
-                GBSurface(style: .elevated, padding: GBSpacing.small) {
-                    HStack(alignment: .top, spacing: GBSpacing.small) {
-                        Image(systemName: "arrow.left.and.right.circle.fill")
-                            .foregroundStyle(GBColor.Accent.place)
-                        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                            Text("\(candidate.name) vs \(place.name)")
-                                .font(.subheadline.weight(.semibold))
-                            Text("\(candidate.name): \(candidate.primaryEvent)")
-                                .font(.caption)
-                                .foregroundStyle(GBColor.Content.secondary)
-                            Text("\(place.name): \(place.primaryEvent)")
-                                .font(.caption)
-                                .foregroundStyle(GBColor.Content.secondary)
-                        }
-                        Spacer()
-                    }
-                }
+    private func kidFactCard(padding: CGFloat) -> some View {
+        GBSurface(style: .plain) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                kidFactRow(icon: "star.fill",     label: "Memory hook",       value: place.memoryHook)
+                Divider().overlay(GBColor.Border.default)
+                kidFactRow(icon: "bolt.fill",     label: "What happened here", value: place.primaryEvent)
+                Divider().overlay(GBColor.Border.default)
+                kidFactRow(icon: "location.fill", label: "Where",             value: place.regionLabel)
             }
         }
+        .padding(.horizontal, padding)
     }
 
-    private func schematicBoard(interactive: Bool) -> some View {
-        GeometryReader { geometry in
-            ZStack {
-                RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [GBColor.Accent.place.opacity(0.15), GBColor.Accent.story.opacity(0.10), GBColor.Accent.success.opacity(0.08)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-
-                Path { path in
-                    let sorted = challengeCandidates.sorted { $0.latitude > $1.latitude }
-                    guard let first = sorted.first else { return }
-                    path.move(to: pointForCandidate(first, in: geometry.size))
-                    for candidate in sorted.dropFirst() {
-                        path.addLine(to: pointForCandidate(candidate, in: geometry.size))
-                    }
-                }
-                .stroke(style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [10, 10]))
-                .foregroundStyle(GBColor.Content.secondary.opacity(0.35))
-
-                VStack {
-                    HStack {
-                        Text("N")
-                            .font(.caption.weight(.bold))
-                            .padding(8)
-                            .background(.ultraThinMaterial, in: Circle())
-                        Spacer()
-                        boardLabel("Plateau trail")
-                    }
-                    Spacer()
-                    HStack {
-                        boardLabel("Konkan side")
-                        Spacer()
-                        boardLabel("Pune side")
-                    }
-                }
-                .padding(GBSpacing.small)
-
-                ForEach(challengeCandidates) { candidate in
-                    let isCurrent = candidate.id == place.id
-                    let isSelected = selectedCandidateID == candidate.id
-                    let showAsCorrect = revealed && isCurrent
-                    let showAsMistake = revealed && isSelected && !isCurrent
-                    let point = pointForCandidate(candidate, in: geometry.size)
-                    let marker = pinMarker(
-                        candidate: candidate,
-                        isCurrent: isCurrent,
-                        isSelected: isSelected,
-                        showAsCorrect: showAsCorrect,
-                        showAsMistake: showAsMistake,
-                        interactive: interactive
-                    )
-
-                    Group {
-                        if interactive {
-                            Button {
-                                selectedCandidateID = candidate.id
-                                LessonFeedback.fire(.selection)
-                            } label: {
-                                marker
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            marker
-                        }
-                    }
-                    .position(point)
-                }
-            }
-        }
-    }
-
-    private func boardLabel(_ text: String) -> some View {
-        Text(text)
-            .font(.caption.weight(.medium))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.ultraThinMaterial, in: Capsule())
-    }
-
-    private func pinMarker(
-        candidate: Place,
-        isCurrent: Bool,
-        isSelected: Bool,
-        showAsCorrect: Bool,
-        showAsMistake: Bool,
-        interactive: Bool
-    ) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: showAsCorrect ? GBIcon.success : isSelected ? "mappin.circle.fill" : isCurrent && !interactive ? "mappin.circle.fill" : "mappin.circle")
-                .font(isCurrent ? .title : .title2)
-                .foregroundStyle(showAsCorrect ? GBColor.Accent.success : showAsMistake ? GBColor.Accent.story : isCurrent ? GBColor.Accent.place : GBColor.Content.primary.opacity(0.78))
-                .shadow(color: isCurrent ? GBColor.Accent.place.opacity(0.24) : .clear, radius: 10)
-            Text(revealed || !interactive || isSelected ? candidate.name : "?")
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(GBColor.Content.primary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.ultraThinMaterial, in: Capsule())
-        }
-    }
-
-    private func pointForCandidate(_ candidate: Place, in size: CGSize) -> CGPoint {
-        let minLat = challengeCandidates.map(\.latitude).min() ?? candidate.latitude
-        let maxLat = challengeCandidates.map(\.latitude).max() ?? candidate.latitude
-        let minLon = challengeCandidates.map(\.longitude).min() ?? candidate.longitude
-        let maxLon = challengeCandidates.map(\.longitude).max() ?? candidate.longitude
-
-        let lonSpan = max(maxLon - minLon, 0.001)
-        let latSpan = max(maxLat - minLat, 0.001)
-
-        let pointX = ((candidate.longitude - minLon) / lonSpan) * (size.width - 70) + 35
-        let normalizedY = 1 - ((candidate.latitude - minLat) / latSpan)
-        let pointY = normalizedY * (size.height - 90) + 45
-        return CGPoint(x: pointX, y: pointY)
-    }
-
-    private func detailChip(title: String, value: String, symbol: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label(title, systemImage: symbol)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
-            Text(value)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(GBColor.Content.inverse)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
-    }
-
-    private func factRow(title: String, value: String) -> some View {
-        GBSurface(style: .elevated, padding: GBSpacing.small) {
+    private func kidFactRow(icon: String, label: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: GBSpacing.small) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+                .foregroundStyle(GBColor.Place.primary)
+                .frame(width: 20)
             VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                Text(title)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(GBColor.Content.secondary)
+                Text(label)
+                    .font(GBFont.ui(size: 10, weight: .heavy))
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+                    .foregroundStyle(GBColor.Content.tertiary)
                 Text(value)
-                    .font(.body)
+                    .font(GBFont.ui(size: 15, weight: .semibold))
                     .foregroundStyle(GBColor.Content.primary)
+                    .lineSpacing(2)
             }
         }
     }
