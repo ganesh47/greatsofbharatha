@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
@@ -140,7 +140,7 @@ jobs:
 
       - name: Upload UI review result bundle
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ui-review-results-${{ github.run_number }}
           path: TestResults.xcresult
@@ -149,7 +149,7 @@ jobs:
 
       - name: Upload simulator UX artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ui-review-artifacts-${{ github.run_number }}-${{ github.run_attempt }}
           path: ci_artifacts
