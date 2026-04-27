@@ -1,0 +1,311 @@
+/*
+ * Greats of Bharatha — Design System Tokens
+ * Version: 1.0 · April 2026
+ *
+ * Open-source fonts:
+ *   Cinzel (display/titles)   — SIL OFL — google.com/fonts/specimen/Cinzel
+ *   Crimson Pro (story text)  — SIL OFL — google.com/fonts/specimen/Crimson+Pro
+ *   Nunito (UI / labels)      — SIL OFL — google.com/fonts/specimen/Nunito
+ *
+ * Icons: Phosphor Icons — MIT — phosphoricons.com
+ * Emoji: OpenMoji — CC BY-SA 4.0 — openmoji.org
+ *
+ * SwiftUI native equivalents:
+ *   Cinzel    → custom bundled font (GBFont.display)
+ *   Crimson   → custom bundled font (GBFont.story)
+ *   Nunito    → custom bundled font (GBFont.ui)
+ *   Fallback  → .system(.rounded) for all
+ *
+ * @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Nunito:wght@400;600;700;800;900&display=swap');
+ */
+
+/* ═══════════════════════════════════════════
+   SURFACES
+   ═══════════════════════════════════════════ */
+:root {
+  --gb-bg:              #F5EDD8;   /* Warm parchment — app background */
+  --gb-surface:         #FDFAF2;   /* Card face */
+  --gb-surface-warm:    #F0E6C8;   /* Warm card tint */
+  --gb-panel:           #EAD9B0;   /* Panel / divider */
+  --gb-panel-deep:      #C8AA78;   /* Deep border / stroke */
+
+  /* ─ Text */
+  --gb-ink:             #1C1410;
+  --gb-ink-mid:         rgba(28, 20, 16, 0.65);
+  --gb-ink-soft:        rgba(28, 20, 16, 0.40);
+  --gb-ink-inverse:     #FFFFFF;
+
+  /* ─ Story (Saffron) — lesson / narrative emphasis */
+  --gb-saffron:         #D94F0C;
+  --gb-saffron-mid:     #F06A2A;
+  --gb-saffron-light:   #FDB87D;
+  --gb-saffron-bg:      #FEF0E4;
+
+  /* ─ Place (Sahyadri Green) — forts / map emphasis */
+  --gb-sahyadri:        #1F5C3A;
+  --gb-sahyadri-mid:    #2E7D52;
+  --gb-sahyadri-light:  #5AAB78;
+  --gb-sahyadri-bg:     #E8F4ED;
+
+  /* ─ Sky (Deccan) — secondary place / info */
+  --gb-sky:             #2B5BAA;
+  --gb-sky-mid:         #4A7FCC;
+  --gb-sky-light:       #A0C4F0;
+  --gb-sky-bg:          #EAF1FC;
+
+  /* ─ Chronicle (Gold + Royal Indigo) — reward / mastery */
+  --gb-gold:            #B87D0C;
+  --gb-gold-mid:        #D4A017;
+  --gb-gold-light:      #F5D060;
+  --gb-gold-bg:         #FDF4D8;
+  --gb-royal:           #3D2475;
+  --gb-royal-mid:       #5C3A9F;
+  --gb-royal-bg:        #EDE8F8;
+
+  /* ─ States */
+  --gb-locked:          #A09080;
+  --gb-locked-bg:       #EDE5D8;
+  --gb-locked-border:   #C8B898;
+  --gb-success:         #1F5C3A;
+  --gb-warning:         #D4A017;
+  --gb-danger:          #C0392B;
+
+  /* ═══════════════════════════════════════════
+     GRADIENTS
+     ═══════════════════════════════════════════ */
+  --gb-grad-story:      linear-gradient(140deg, #D94F0C 0%, #E87820 55%, #F5A623 100%);
+  --gb-grad-place:      linear-gradient(140deg, #1F5C3A 0%, #2E7D52 50%, #2B5BAA 100%);
+  --gb-grad-chronicle:  linear-gradient(140deg, #3D2475 0%, #6A3A10 60%, #B87D0C 100%);
+  --gb-grad-parchment:  linear-gradient(180deg, #F5EDD8 0%, #EAD9B0 100%);
+  --gb-grad-night:      linear-gradient(180deg, #1A1410 0%, #2A2018 100%);
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+
+  /* Font families */
+  --font-display:  'Cinzel', 'Palatino Linotype', Georgia, serif;
+  --font-story:    'Crimson Pro', 'Georgia', serif;
+  --font-ui:       'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Scale (1pt = 1px at 1×) */
+  --text-hero:       40px;   /* Arc hero / onboarding */
+  --text-display:    32px;   /* Section/screen title */
+  --text-title:      24px;   /* Card title */
+  --text-title2:     20px;   /* Subtitle */
+  --text-headline:   18px;   /* Active task / CTA label */
+  --text-story:      17px;   /* Narrative body */
+  --text-body:       15px;   /* UI body */
+  --text-caption:    13px;   /* Labels / eyebrows */
+  --text-micro:      11px;   /* Metadata / badge */
+
+  /* Weights */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-heavy:    800;
+  --weight-black:    900;
+
+  /* Tracking */
+  --tracking-eyebrow: 0.12em;
+  --tracking-display: -0.02em;
+  --tracking-ui:       0.01em;
+
+  /* Leading */
+  --leading-tight:   1.15;
+  --leading-story:   1.65;
+  --leading-ui:      1.4;
+
+  /* ═══════════════════════════════════════════
+     SPACING
+     ═══════════════════════════════════════════ */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   32px;
+  --space-8:   40px;
+  --space-9:   56px;
+
+  --padding-card:     20px;
+  --padding-card-lg:  24px;
+  --gap-card:         12px;
+
+  /* ═══════════════════════════════════════════
+     CORNER RADII
+     ═══════════════════════════════════════════ */
+  --radius-xs:    8px;
+  --radius-sm:    10px;
+  --radius-md:    16px;
+  --radius-lg:    20px;
+  --radius-xl:    24px;
+  --radius-hero:  28px;
+  --radius-pill:  9999px;
+
+  /* ═══════════════════════════════════════════
+     SHADOWS & ELEVATION
+     ═══════════════════════════════════════════ */
+  --shadow-subtle:   0 1px 4px  rgba(28, 20, 16, 0.06);
+  --shadow-card:     0 2px 12px rgba(28, 20, 16, 0.09);
+  --shadow-elevated: 0 6px 24px rgba(28, 20, 16, 0.14);
+  --shadow-hero:     0 12px 40px rgba(28, 20, 16, 0.20);
+  --shadow-story:    0 8px 28px rgba(217, 79, 12,  0.28);
+  --shadow-place:    0 8px 28px rgba(31,  92, 58,  0.25);
+  --shadow-gold:     0 8px 28px rgba(184, 125, 12, 0.28);
+
+  /* ═══════════════════════════════════════════
+     TOUCH TARGETS (child-safe — 8–11 year olds)
+     ═══════════════════════════════════════════ */
+  --touch-min:     80px;   /* minimum for story/map interactions */
+  --touch-btn:     56px;   /* primary button height */
+  --touch-ctrl:    44px;   /* secondary controls */
+  --touch-tab:     48px;   /* tab bar tap area */
+  --touch-map-pin: 48px;   /* map pin tap zone */
+
+  /* ═══════════════════════════════════════════
+     MOTION
+     ═══════════════════════════════════════════ */
+  --motion-quick:      0.18s ease-out;
+  --motion-standard:   0.28s ease-in-out;
+  --motion-spring:     0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-ceremony:   0.6s  cubic-bezier(0.22, 1.0,  0.36, 1);
+}
+
+/* ═══════════════════════════════════════════
+   DARK MODE
+   ═══════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gb-bg:             #1A1410;
+    --gb-surface:        #2A2018;
+    --gb-surface-warm:   #231C14;
+    --gb-panel:          #3A2E20;
+    --gb-panel-deep:     #4E3E28;
+    --gb-ink:            #F0E8D8;
+    --gb-ink-mid:        rgba(240, 232, 216, 0.65);
+    --gb-ink-soft:       rgba(240, 232, 216, 0.40);
+    --gb-saffron:        #F06A2A;
+    --gb-saffron-mid:    #FF8444;
+    --gb-sahyadri:       #2E9E60;
+    --gb-sahyadri-mid:   #3FBF78;
+    --gb-sky:            #4A7FCC;
+    --gb-sky-mid:        #6494DA;
+    --gb-gold:           #D4A017;
+    --gb-gold-mid:       #EDB830;
+    --gb-royal:          #5C3A9F;
+    --gb-royal-mid:      #7A54C4;
+    --gb-locked:         #786860;
+    --gb-locked-bg:      #2A2018;
+    --gb-locked-border:  #3A2E20;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   BASE COMPONENT STYLES
+   ═══════════════════════════════════════════ */
+
+/* Card surface */
+.gb-card {
+  background: var(--gb-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--padding-card);
+  border: 1px solid rgba(200, 170, 120, 0.22);
+  box-shadow: var(--shadow-card);
+}
+
+/* Hero card (gradient) */
+.gb-hero-story  { background: var(--gb-grad-story); }
+.gb-hero-place  { background: var(--gb-grad-place); }
+.gb-hero-chronicle { background: var(--gb-grad-chronicle); }
+
+/* Primary CTA button */
+.gb-btn-primary {
+  display: flex; align-items: center; justify-content: center;
+  min-height: var(--touch-btn);
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  border: none; cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--text-headline);
+  font-weight: var(--weight-heavy);
+  color: #fff;
+  background: var(--gb-grad-story);
+  box-shadow: var(--shadow-story);
+  transition: transform var(--motion-quick), opacity var(--motion-quick);
+  width: 100%;
+}
+.gb-btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+/* Secondary button */
+.gb-btn-secondary {
+  display: flex; align-items: center; justify-content: center;
+  min-height: var(--touch-ctrl);
+  padding: 0 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gb-panel-deep);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  color: var(--gb-ink);
+  background: var(--gb-surface);
+  transition: transform var(--motion-quick);
+  width: 100%;
+}
+.gb-btn-secondary:active { transform: scale(0.97); }
+
+/* Eyebrow label */
+.gb-eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-heavy);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--gb-ink-soft);
+}
+
+/* Story text */
+.gb-story-text {
+  font-family: var(--font-story);
+  font-size: var(--text-story);
+  line-height: var(--leading-story);
+  color: var(--gb-ink);
+}
+
+/* Display title */
+.gb-title {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-display);
+  color: var(--gb-ink);
+  line-height: var(--leading-tight);
+}
+
+/* Mastery badge */
+.gb-badge {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-heavy);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  background: var(--gb-gold-bg);
+  color: var(--gb-gold);
+  border: 1px solid rgba(184, 125, 12, 0.2);
+}
+
+/* Locked state */
+.gb-locked {
+  opacity: 0.65;
+  filter: grayscale(0.3);
+}
+
+/* Suppress scrollbars on internal scroll areas */
+.gb-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.gb-scroll::-webkit-scrollbar { display: none; }
