@@ -1,0 +1,65 @@
+included:
+  - GreatsOfBharatha
+  - GreatsOfBharathaTests
+
+excluded:
+  - .build
+  - DerivedData
+  - Pods
+  - Carthage
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+
+duplicate_imports:
+  severity: warning
+
+force_try:
+  severity: warning
+
+force_unwrapping:
+  severity: warning
+
+todo:
+  severity: warning
+
+trailing_whitespace:
+  ignores_empty_lines: true
+  ignores_comments: false
+
+empty_count:
+  severity: warning
+
+redundant_optional_initialization:
+  severity: warning
+
+line_length:
+  warning: 180
+  error: 240
+  ignores_comments: true
+  ignores_function_declarations: true
+  ignores_interpolated_strings: true
+  ignores_urls: true
+
+file_length:
+  warning: 1000
+  error: 1500
+  ignore_comment_only_lines: true
+
+type_body_length:
+  warning: 500
+  error: 800
+
+function_body_length:
+  warning: 120
+  error: 200
+
+cyclomatic_complexity:
+  warning: 20
+  error: 35
+  ignores_case_statements: true
+
+function_parameter_count:
+  warning: 8
+  error: 10

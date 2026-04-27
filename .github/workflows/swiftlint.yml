@@ -1,0 +1,38 @@
+name: SwiftLint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.swift"
+      - ".swiftlint.yml"
+      - ".github/workflows/swiftlint.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/*.swift"
+      - ".swiftlint.yml"
+      - ".github/workflows/swiftlint.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swiftlint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swiftlint:
+    name: Swift quality gate
+    runs-on: macos-15
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        run: swiftlint lint
