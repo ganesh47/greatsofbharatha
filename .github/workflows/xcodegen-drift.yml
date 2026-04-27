@@ -1,0 +1,31 @@
+name: XcodeGen Drift
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - project.yml
+      - GreatsOfBharatha.xcodeproj/**
+
+permissions:
+  contents: read
+
+jobs:
+  xcodegen-drift:
+    name: Verify generated Xcode project
+    runs-on: macos-15
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Verify project is in sync
+        run: |
+          xcodegen generate
+          git diff --exit-code GreatsOfBharatha.xcodeproj
