@@ -22,6 +22,7 @@
 		3CE894040C86BE6F34F93C13 /* GreatsOfBharathaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */; };
 		3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B510B04B44F609399601600C /* GBMotion.swift */; };
 		47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
+		4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */; };
 		5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
@@ -30,9 +31,11 @@
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
 		89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8609E7F8AFD990A81250F928 /* GBCardStyle.swift */; };
+		8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8664679DB91BD8C821702F4F /* GBFlashCard.swift */; };
 		8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96600FFDF84328236B5EFACF /* GBColor.swift */; };
 		96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DD7C78E273FA67916C2743 /* GBHeroCard.swift */; };
 		98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40039999B2C8D4999FB8C254 /* LessonFeedback.swift */; };
+		A6FDD95326F16B0BFD391AAB /* GBIntelligenceHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */; };
 		A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */; };
 		AB57B155B5FCE53B15602313 /* GBSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30766CF8C2332F9E648E275A /* GBSectionHeader.swift */; };
 		ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */; };
@@ -47,11 +50,8 @@
 		E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */; };
 		EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */; };
 		EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */; };
-		4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */; };
-		8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8664679DB91BD8C821702F4F /* GBFlashCard.swift */; };
-		A6FDD95326F16B0BFD391AAB /* GBIntelligenceHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */; };
-		F71FFA5AC6385137A61EFFE9 /* GBFortMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */; };
 		EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413C33179A188AA0729938F /* AppModel.swift */; };
+		F71FFA5AC6385137A61EFFE9 /* GBFortMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,9 +84,11 @@
 		842D0166597E3756A21D8739 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModels.swift; sourceTree = "<group>"; };
 		85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTests.swift; sourceTree = "<group>"; };
 		8609E7F8AFD990A81250F928 /* GBCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBCardStyle.swift; sourceTree = "<group>"; };
+		8664679DB91BD8C821702F4F /* GBFlashCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFlashCard.swift; sourceTree = "<group>"; };
 		874E1F2468B251B5784486DE /* GBRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRadius.swift; sourceTree = "<group>"; };
 		891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBShadow.swift; sourceTree = "<group>"; };
 		8A94778E49C1F68D8BA267FB /* GreatsOfBharatha.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GreatsOfBharatha.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFortMapView.swift; sourceTree = "<group>"; };
 		901C5A02CDD2D6DA5162F535 /* MasteryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryState.swift; sourceTree = "<group>"; };
 		96600FFDF84328236B5EFACF /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
@@ -98,6 +100,8 @@
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
 		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
 		C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
+		C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIntelligenceHint.swift; sourceTree = "<group>"; };
+		CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBNLRecallEvaluator.swift; sourceTree = "<group>"; };
 		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
 		CD5C939A7D069E35B849A5A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE540544C5E9622DB91B7EF8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,10 +111,6 @@
 		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
 		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
 		FA553A6C52FF405536FB4B58 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
-		C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIntelligenceHint.swift; sourceTree = "<group>"; };
-		8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFortMapView.swift; sourceTree = "<group>"; };
-		8664679DB91BD8C821702F4F /* GBFlashCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFlashCard.swift; sourceTree = "<group>"; };
-		CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBNLRecallEvaluator.swift; sourceTree = "<group>"; };
 		FF974097779D0836FBDE59DD /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -288,14 +288,6 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		D7A23AC84F04ED8249356C10 /* Parent */ = {
-			isa = PBXGroup;
-			children = (
-				FF974097779D0836FBDE59DD /* ParentProgressView.swift */,
-			);
-			path = Parent;
-			sourceTree = "<group>";
-		};
 		D1CA5C958078395C8E7ADE1B /* Intelligence */ = {
 			isa = PBXGroup;
 			children = (
@@ -303,6 +295,14 @@
 				CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */,
 			);
 			path = Intelligence;
+			sourceTree = "<group>";
+		};
+		D7A23AC84F04ED8249356C10 /* Parent */ = {
+			isa = PBXGroup;
+			children = (
+				FF974097779D0836FBDE59DD /* ParentProgressView.swift */,
+			);
+			path = Parent;
 			sourceTree = "<group>";
 		};
 		EBB69AAB1E89F302C4DD2B65 /* GreatsOfBharatha */ = {
@@ -434,6 +434,7 @@
 				A6FDD95326F16B0BFD391AAB /* GBIntelligenceHint.swift in Sources */,
 				00F7762E6675FFA1591CB270 /* GBLayoutContext.swift in Sources */,
 				3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */,
+				4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */,
 				E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */,
 				47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */,
 				CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */,
@@ -448,7 +449,6 @@
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
 				073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */,
-				4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */,
 				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,
