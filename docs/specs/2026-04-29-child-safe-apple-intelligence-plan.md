@@ -15,6 +15,11 @@ Greats of Bharatha should use Apple Intelligence only as a helper around curated
 - Generate at most one short hint at a time. Do not create free-form historical chat.
 - Keep microphone-based commands feature-gated until App Intents/Speech recognition UX, permissions, and parental expectations are reviewed.
 
+## Asset provenance
+
+- The shipped Chapter 1 story illustration and app icon are prompt-generated originals that were resized into the asset catalog variants.
+- No script-generated story or icon art remains in this branch.
+
 ## Later integration path
 
 1. Add App Intents for `next`, `repeat`, `help`, and `stop` once the supported deployment/toolchain target is confirmed.
