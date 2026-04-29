@@ -21,6 +21,7 @@ struct GBFlashCardData: Identifiable, Sendable {
 final class GBNarrator: ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     @Published private(set) var activeCardID: String? = nil
+    private var lastRequest: (id: String, text: String)?
 
     func toggle(cardID: String, text: String) {
         if activeCardID == cardID, synthesizer.isSpeaking {
@@ -28,6 +29,11 @@ final class GBNarrator: ObservableObject {
             activeCardID = nil
             return
         }
+        speak(id: cardID, text: text)
+    }
+
+    func speak(id: String, text: String) {
+        lastRequest = (id: id, text: text)
         synthesizer.stopSpeaking(at: .immediate)
         let utterance = AVSpeechUtterance(string: text)
         // Slightly slower rate so young children can follow
@@ -36,7 +42,12 @@ final class GBNarrator: ObservableObject {
         utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
             ?? AVSpeechSynthesisVoice(language: "en-US")
         synthesizer.speak(utterance)
-        activeCardID = cardID
+        activeCardID = id
+    }
+
+    func repeatLast() {
+        guard let lastRequest else { return }
+        speak(id: lastRequest.id, text: lastRequest.text)
     }
 
     func stop() {
