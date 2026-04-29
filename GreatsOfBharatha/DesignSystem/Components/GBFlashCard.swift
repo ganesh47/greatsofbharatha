@@ -77,7 +77,7 @@ struct GBFlashCard: View {
 
                 Text(card.storyBeat)
                     .font(GBFont.story(size: 20, italic: true))
-                    .foregroundStyle(.white.opacity(0.86))
+                    .foregroundStyle(.white.opacity(0.95))
                     .multilineTextAlignment(.center)
                     .lineSpacing(5)
                     .fixedSize(horizontal: false, vertical: true)
@@ -172,8 +172,8 @@ struct GBFlashCardDeck: View {
                 .padding(.horizontal, GBSpacing.medium)
             } else {
                 Label("Swipe to turn the card", systemImage: "hand.draw")
-                    .font(GBFont.ui(size: 12))
-                    .foregroundStyle(GBColor.Content.tertiary)
+                    .font(GBFont.ui(size: 13, weight: .bold))
+                    .foregroundStyle(GBColor.Content.secondary)
             }
         }
         .padding(.bottom, GBSpacing.medium)

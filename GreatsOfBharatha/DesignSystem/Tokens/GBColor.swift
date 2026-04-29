@@ -105,8 +105,8 @@ enum GBColor {
             dark: .init(0.980, 0.941, 0.851, 0.78)
         )
         static let tertiary = GBColor.adaptive(
-            light: .init(0.110, 0.078, 0.063, 0.52),
-            dark: .init(0.980, 0.941, 0.851, 0.58)
+            light: .init(0.110, 0.078, 0.063, 0.68),
+            dark: .init(0.980, 0.941, 0.851, 0.74)
         )
         static let inverse = Color.white
     }
