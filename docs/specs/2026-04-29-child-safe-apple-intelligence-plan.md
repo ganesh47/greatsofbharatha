@@ -2,6 +2,10 @@
 
 Greats of Bharatha should use Apple Intelligence only as a helper around curated lesson content, not as an open-ended chatbot.
 
+## Linked issue
+
+Refs #118 — TestFlight child-friendly Chapter 1 UX, voice navigation, and Apple Intelligence planning feedback.
+
 ## Release-safe hooks
 
 - `GBChildSafeAIPlan` stores the current policy in compile-safe Swift with no dependency on unavailable SDK symbols.
