@@ -20,6 +20,7 @@ struct SceneLessonView: View {
     @State private var recallState = LessonRecallState()
     @State private var storyExposureRecorded = false
     @State private var cachedMCQChoices: [LessonChoice] = []
+    @StateObject private var narrator = GBNarrator()
 
     // MARK: - Derived data
 
@@ -112,9 +113,7 @@ struct SceneLessonView: View {
                 Group {
                     switch currentPhase {
                     case .storyCards:
-                        GBFlashCardDeck(cards: flashCards, emphasis: .story) {
-                            advanceTo(.placeReveal)
-                        }
+                        storyCardView
                     case .placeReveal:
                         placeRevealView
                     case .recall:
@@ -135,6 +134,7 @@ struct SceneLessonView: View {
         .navigationBarTitleDisplayMode(.inline)
 #endif
         .onAppear(perform: recordStoryExposureIfNeeded)
+        .onDisappear { narrator.stop() }
     }
 
     // MARK: - Phase indicator
@@ -170,6 +170,105 @@ struct SceneLessonView: View {
         }
     }
 
+    // MARK: - Phase 1: One big story card
+
+    private var storyCardView: some View {
+        let narration = storyNarration
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Image("Chapter1ShivneriStory")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
+                    .overlay(alignment: .topLeading) {
+                        Label("Listen first", systemImage: "sparkles")
+                            .font(GBFont.ui(size: 13, weight: .heavy))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, GBSpacing.small)
+                            .padding(.vertical, GBSpacing.xxSmall)
+                            .background(.black.opacity(0.28), in: Capsule())
+                            .padding(GBSpacing.small)
+                    }
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: GBSpacing.small) {
+                    Text("Chapter \(scene.number)")
+                        .font(GBFont.ui(size: 13, weight: .heavy))
+                        .textCase(.uppercase)
+                        .tracking(1.2)
+                        .foregroundStyle(GBColor.Story.primary)
+
+                    Text(scene.title)
+                        .font(GBFont.display(size: 28, weight: .bold))
+                        .foregroundStyle(GBColor.Content.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(scene.childSafeSummary)
+                        .font(GBFont.story(size: 20))
+                        .foregroundStyle(GBColor.Content.secondary)
+                        .lineSpacing(5)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                narrationControls(text: narration, id: "\(scene.id)-story")
+
+                Button {
+                    narrator.stop()
+                    GBHaptic.stepAdvance()
+                    advanceTo(.placeReveal)
+                } label: {
+                    Label("Show me the fort", systemImage: "map.fill")
+                        .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+                }
+                .buttonStyle(.gbPrimary(.story))
+                .accessibilityLabel("Show me the fort")
+                .accessibilityHint("Moves to the map for this chapter.")
+            }
+            .padding(GBSpacing.medium)
+            .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
+                    .stroke(GBColor.Story.light, lineWidth: 2)
+            )
+            .padding(.horizontal, GBSpacing.medium)
+            .padding(.top, GBSpacing.small)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var storyNarration: String {
+        "Chapter \(scene.number). \(scene.title). \(scene.childSafeSummary) Next, tap Show me the fort."
+    }
+
+    private func narrationControls(text: String, id: String) -> some View {
+        HStack(spacing: GBSpacing.xSmall) {
+            narrationButton(title: "Listen", icon: "speaker.wave.2.fill") {
+                narrator.speak(id: id, text: text)
+            }
+            narrationButton(title: "Repeat", icon: "arrow.clockwise") {
+                narrator.repeatLast()
+            }
+            narrationButton(title: "Stop", icon: "stop.fill") {
+                narrator.stop()
+            }
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func narrationButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: icon)
+                .font(GBFont.ui(size: 14, weight: .bold))
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .buttonStyle(.bordered)
+        .tint(GBColor.Story.primary)
+        .accessibilityHint(title == "Stop" ? "Stops read aloud." : "Reads this story card aloud.")
+    }
+
     // MARK: - Phase 2: Place reveal
 
     private var placeRevealView: some View {
@@ -197,6 +296,12 @@ struct SceneLessonView: View {
                             .foregroundStyle(GBColor.Content.secondary)
                     }
                 }
+                .padding(.horizontal, GBSpacing.medium)
+
+                narrationControls(
+                    text: "This is \(place.name). \(place.primaryEvent). When you are ready, tap Got it.",
+                    id: "\(scene.id)-place"
+                )
                 .padding(.horizontal, GBSpacing.medium)
             } else {
                 // No place data — skip straight to recall
