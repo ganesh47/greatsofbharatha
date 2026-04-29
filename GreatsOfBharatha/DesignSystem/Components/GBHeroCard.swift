@@ -33,7 +33,7 @@ struct GBHeroCard: View {
                     Spacer(minLength: GBSpacing.small)
 
                     if let badgeTitle {
-                        GBBadge(title: badgeTitle, symbol: heroSymbol, emphasis: emphasis)
+                        GBBadge(title: badgeTitle, symbol: heroSymbol, emphasis: emphasis, inverted: true)
                     }
                 }
 

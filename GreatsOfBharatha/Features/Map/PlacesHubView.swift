@@ -9,6 +9,10 @@ struct PlacesHubView: View {
         places.filter { appModel.lessonStore.progress(for: $0) != .locked }
     }
 
+    private var firstReadyPlace: Place? {
+        readyPlaces.first
+    }
+
     private var masteredCount: Int {
         places.filter { appModel.lessonStore.progress(for: $0) == .masteredLightly }.count
     }
@@ -75,14 +79,36 @@ struct PlacesHubView: View {
         .navigationTitle("Places")
     }
 
+    @ViewBuilder
     private var heroCard: some View {
+        if let firstReadyPlace {
+            NavigationLink {
+                PlaceDetailView(place: firstReadyPlace, progress: appModel.lessonStore.progress(for: firstReadyPlace))
+            } label: {
+                placeHeroContent(
+                    ctaTitle: "Open \(firstReadyPlace.memoryHook)",
+                    badgeTitle: "\(readyPlaces.count) ready now"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens the first ready fort board.")
+        } else {
+            placeHeroContent(
+                ctaTitle: "Finish a story to unlock forts",
+                badgeTitle: "0 ready now"
+            )
+            .accessibilityHint("No forts are ready yet. Finish the next story scene to unlock one.")
+        }
+    }
+
+    private func placeHeroContent(ctaTitle: String, badgeTitle: String) -> some View {
         GBHeroCard(
             eyebrow: "Sahyadri Fort Trail",
             title: "Remember the place, not just the plot",
             subtitle: "The forts turn the story into a real landscape.",
             detail: "Pin one fort at a time, compare it with nearby mountains, and keep the geography tied to Shivaji Maharaj's journey.",
-            ctaTitle: "Open a ready fort",
-            badgeTitle: "\(readyPlaces.count) ready now",
+            ctaTitle: ctaTitle,
+            badgeTitle: badgeTitle,
             emphasis: .place,
             progress: places.isEmpty ? nil : Double(readyPlaces.count) / Double(places.count)
         )

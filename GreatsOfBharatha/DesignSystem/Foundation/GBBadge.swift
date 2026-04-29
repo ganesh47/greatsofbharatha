@@ -4,6 +4,7 @@ struct GBBadge: View {
     let title: String
     var symbol: String?
     var emphasis: GBEmphasis = .neutral
+    var inverted: Bool = false
 
     var body: some View {
         Label {
@@ -23,28 +24,36 @@ struct GBBadge: View {
     }
 
     private var background: Color {
+        if inverted {
+            return GBColor.Content.inverse.opacity(0.22)
+        }
+
         switch emphasis {
         case .story:
-            GBColor.Accent.story.opacity(0.16)
+            return GBColor.Accent.story.opacity(0.16)
         case .place:
-            GBColor.Accent.place.opacity(0.16)
+            return GBColor.Accent.place.opacity(0.16)
         case .chronicle:
-            GBColor.Accent.chronicle.opacity(0.16)
+            return GBColor.Accent.chronicle.opacity(0.16)
         case .neutral:
-            GBColor.Background.elevated
+            return GBColor.Background.elevated
         }
     }
 
     private var foreground: Color {
+        if inverted {
+            return GBColor.Content.inverse
+        }
+
         switch emphasis {
         case .story:
-            GBColor.Accent.story
+            return GBColor.Accent.story
         case .place:
-            GBColor.Accent.place
+            return GBColor.Accent.place
         case .chronicle:
-            GBColor.Accent.chronicle
+            return GBColor.Accent.chronicle
         case .neutral:
-            GBColor.Content.secondary
+            return GBColor.Content.secondary
         }
     }
 }
