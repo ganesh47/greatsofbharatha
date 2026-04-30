@@ -339,7 +339,13 @@ enum SpacedReviewScheduler {
             response = .teachAgain
         }
 
-        return SpacedReviewScheduler.schedule(schedule, after: response, promptHistory: promptHistory, now: now, calendar: calendar)
+        return SpacedReviewScheduler.schedule(
+            schedule,
+            after: response,
+            promptHistory: promptHistory,
+            now: now,
+            calendar: calendar
+        )
     }
 
     static func schedule(
