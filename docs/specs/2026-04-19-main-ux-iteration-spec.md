@@ -6,6 +6,8 @@
 - Owner: @ganesh47
 - Last updated: 2026-04-19
 
+> Reset note (2026-04-30): #126 supersedes this as the main gameplay direction. Treat this document as pre-reset UX exploration unless a later #126 implementation spec explicitly reuses a pattern.
+
 ## Problem
 
 The latest successful `iOS UI Review (main)` CI artifact run on `main` shows that the product direction is coherent, but the current UX still reads as a careful prototype rather than a compelling child-learning experience.

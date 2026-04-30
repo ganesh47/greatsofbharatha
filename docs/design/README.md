@@ -19,6 +19,8 @@ Linked umbrella issue: #38
 - `asset-briefs/2026-04-20-chronicle-reward-illustration-system.md` - issue #41 generation brief
 - `prompts/2026-04-20-issue-40-sahyadri-board-prompts.md` - prompt pack for board environment generation
 - `prompts/2026-04-20-issue-41-chronicle-reward-prompts.md` - prompt pack for Chronicle reward generation
+- `2026-04-30-shivaji-learn-quiz-reset-visual-style-guide.md` - issue #126 visual style guide for the learn-and-quiz reset
+- `prompts/2026-04-30-issue-126-shivaji-learn-quiz-reset-prompt-pack.md` - issue #126 structured prompt pack for pilot learn cards, Chronicle rewards, and tiles
 - `review-notes/2026-04-20-asset-review-checklist.md` - review checklist for both asset streams
 
 ## Working rule
