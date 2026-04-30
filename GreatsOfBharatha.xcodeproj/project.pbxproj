@@ -42,6 +42,7 @@
 		ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */; };
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
 		C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */; };
+		C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */; };
 		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
 		CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */; };
 		CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */; };
@@ -71,6 +72,7 @@
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
 		1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMapsPlaceHandoff.swift; sourceTree = "<group>"; };
 		1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
+		2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChildSafeAIPlan.swift; sourceTree = "<group>"; };
 		2E1F22519D406A575588CE02 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
 		30766CF8C2332F9E648E275A /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
 		35DD7C78E273FA67916C2743 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 		D1CA5C958078395C8E7ADE1B /* Intelligence */ = {
 			isa = PBXGroup;
 			children = (
+				2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */,
 				C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */,
 				CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */,
 			);
@@ -429,6 +432,7 @@
 				DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */,
 				ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */,
 				89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */,
+				C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */,
 				CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */,
 				8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */,
 				8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */,
