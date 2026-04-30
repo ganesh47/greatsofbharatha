@@ -121,7 +121,9 @@ enum ChronicleQuizEngine {
 
         nextState = revealNextHint(from: nextState, challenge: challenge)
         let feedback: String
-        if let hint = currentHint(for: nextState, challenge: challenge) {
+        if nextState.recognitionRescueUnlocked {
+            feedback = challenge.feedback.recovery
+        } else if let hint = currentHint(for: nextState, challenge: challenge) {
             feedback = "Try again. \(hint.title): \(hint.body)"
         } else {
             feedback = challenge.feedback.recovery
