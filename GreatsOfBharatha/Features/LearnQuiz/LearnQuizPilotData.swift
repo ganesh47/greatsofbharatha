@@ -151,7 +151,7 @@ enum LearnQuizPilotData {
             linkedSceneID: scene.id,
             linkedPlaceID: scene.placeAnchors.first?.id,
             linkedTimelineEventID: nil,
-            unlockRule: UnlockRule(requiredMastery: .understood, enhancedMastery: .mastered)
+            unlockRule: UnlockRule(requiredMastery: .understood, enhancedMastery: .remembered)
         )
         let progress = ChronicleProgressEngine.progress(
             for: entry,
