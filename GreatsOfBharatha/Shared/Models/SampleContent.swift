@@ -1,5 +1,7 @@
 import Foundation
 
+// #126 reset pilot content intentionally keeps the static fixture in one namespace.
+// swiftlint:disable type_body_length
 enum SampleContent {
     static let shivajiVerticalSlice = AppContent(heroArc: shivajiHeroArc)
 
@@ -985,3 +987,4 @@ enum SampleContent {
         }
     }
 }
+// swiftlint:enable type_body_length
