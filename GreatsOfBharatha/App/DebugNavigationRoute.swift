@@ -14,6 +14,7 @@ enum CaptureSeedProfile {
 }
 
 enum DebugNavigationRoute: String {
+    case learnQuizReset = "learn-quiz-reset"
     case learnHome = "learn-home"
     case scene1 = "scene-1"
     case scene2 = "scene-2"
@@ -32,6 +33,8 @@ enum DebugNavigationRoute: String {
         let destination = environment["GOB_CAPTURE_DESTINATION"] ?? ""
 
         switch (tab, destination) {
+        case ("learn", "learn-quiz-reset"):
+            return .learnQuizReset
         case ("learn", ""), ("learn", "learn-home"):
             return .learnHome
         case ("learn", "scene-1"):

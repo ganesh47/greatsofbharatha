@@ -51,6 +51,43 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertTrue(heroArc.reviewBlueprints.contains { $0.subjectID == "place-raigad" && $0.subjectType == .location })
     }
 
+    func testLearnQuizResetPilotContentContract() {
+        let pilot = SampleContent.shivajiLearnQuizResetPilot
+
+        XCTAssertEqual(pilot.resetAnchorIssue, "#126")
+        XCTAssertEqual(pilot.scenes.map(\.id), [
+            "reset-scene-1-shivneri",
+            "reset-scene-2-torna-rajgad",
+            "reset-scene-3-pratapgad",
+        ])
+        XCTAssertEqual(pilot.scenes.map(\.memoryHook), [
+            "Birth Fort",
+            "First Big Fort / Early Capital",
+            "Turning Point",
+        ])
+        XCTAssertEqual(pilot.scenes.flatMap(\.quizItems).count, 3)
+        XCTAssertGreaterThanOrEqual(pilot.scenes.flatMap(\.matchPairs).count, 6)
+        XCTAssertEqual(pilot.timelineBuilder.orderedSceneIDs, pilot.scenes.map(\.id))
+        XCTAssertEqual(pilot.endOfPilotReward.title, "Shivaji Journey So Far")
+    }
+
+    func testLearnQuizResetPilotHasTeachingHintsRewardsAndReviewSeeds() {
+        let pilot = SampleContent.shivajiLearnQuizResetPilot
+
+        for scene in pilot.scenes {
+            XCTAssertFalse(scene.timeMarker.isEmpty)
+            XCTAssertFalse(scene.actionVerb.isEmpty)
+            XCTAssertFalse(scene.meaning.isEmpty)
+            XCTAssertFalse(scene.placeAnchors.isEmpty)
+            XCTAssertEqual(scene.quizItems.first?.hintLadder.count, 3)
+            XCTAssertEqual(scene.chronicleReward.unlockedBySceneID, scene.id)
+            XCTAssertFalse(scene.reviewSeeds.isEmpty)
+        }
+
+        let matchIDs = Set(pilot.scenes.flatMap(\.matchPairs).map(\.id))
+        XCTAssertEqual(matchIDs.count, pilot.scenes.flatMap(\.matchPairs).count)
+    }
+
     func testLessonStorePreviewsChronicleRewardsBeforeUnlockingThem() throws {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)

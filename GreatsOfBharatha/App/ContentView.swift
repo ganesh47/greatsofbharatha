@@ -8,7 +8,11 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             // ── Tab 1: Story ──────────────────────────────────
             NavigationStack {
-                LessonHomeView()
+                if FeatureFlags.historyLearnQuizResetEnabled {
+                    LearnQuizResetPlaceholderView()
+                } else {
+                    LessonHomeView()
+                }
             }
             .tabItem { Label("Story", systemImage: "book.fill") }
             .tag(DebugTabRoute.learn)
@@ -44,5 +48,56 @@ struct ContentView: View {
         .sheet(isPresented: $showsParentView) {
             NavigationStack { ParentProgressView() }
         }
+    }
+}
+
+struct LearnQuizResetPlaceholderView: View {
+    private let pilot = SampleContent.shivajiLearnQuizResetPilot
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.large) {
+                VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+                    Text("Shivaji Chronicle Pilot")
+                        .gbTitle()
+                        .foregroundStyle(GBColor.Content.primary)
+
+                    Text("Learn, quiz, match, and build the Chronicle.")
+                        .gbBody()
+                        .foregroundStyle(GBColor.Content.secondary)
+                }
+
+                ForEach(pilot.scenes) { scene in
+                    VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+                        Text(scene.memoryHook)
+                            .gbCaption()
+                            .foregroundStyle(GBColor.Story.primary)
+
+                        Text(scene.title)
+                            .gbHeadline()
+                            .foregroundStyle(GBColor.Content.primary)
+
+                        Text(scene.childSafeStory)
+                            .gbStory()
+                            .foregroundStyle(GBColor.Content.secondary)
+
+                        Text(scene.quizItems.first?.prompt ?? "")
+                            .gbBody()
+                            .foregroundStyle(GBColor.Content.primary)
+                            .padding(.top, GBSpacing.xSmall)
+                    }
+                    .padding(GBSpacing.medium)
+                    .background(GBColor.Background.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
+                            .stroke(GBColor.Border.default)
+                    )
+                }
+            }
+            .padding(GBSpacing.large)
+        }
+        .background(GBColor.Background.app)
+        .navigationTitle("Chronicle Pilot")
     }
 }
