@@ -9,12 +9,12 @@ struct ContentView: View {
             // ── Tab 1: Story ──────────────────────────────────
             NavigationStack {
                 if FeatureFlags.historyLearnQuizResetEnabled {
-                    LearnQuizResetPlaceholderView()
+                    LearnQuizHomeView()
                 } else {
                     LessonHomeView()
                 }
             }
-            .tabItem { Label("Story", systemImage: "book.fill") }
+            .tabItem { Label(FeatureFlags.historyLearnQuizResetEnabled ? "Learn" : "Story", systemImage: "book.fill") }
             .tag(DebugTabRoute.learn)
 
             // ── Tab 2: Map ────────────────────────────────────

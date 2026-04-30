@@ -14,8 +14,10 @@
 		0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
 		1D46FB6ECD9C7608AF1C984E /* LearningEnginesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */; };
+		211E19D2035927C41FB3C2E9 /* LearnQuizComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
 		22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */; };
+		28F96E8FA507F0D5650F8C95 /* LearnQuizPilotData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */; };
 		2ABB675D9B13E6BC94627094 /* GBSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */; };
 		32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BEDED465CA437D09ADDCD5 /* SampleContent.swift */; };
 		38181663217C8A05A26880D2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD5C939A7D069E35B849A5A8 /* Assets.xcassets */; };
@@ -28,10 +30,13 @@
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
 		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
+		5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */; };
 		5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390AE8B48E7C52C376816E87 /* LearningEngines.swift */; };
 		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
+		62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
+		88F9E6C20BBFA38264D4077B /* ChronicleMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */; };
 		89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8609E7F8AFD990A81250F928 /* GBCardStyle.swift */; };
 		8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8664679DB91BD8C821702F4F /* GBFlashCard.swift */; };
 		8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96600FFDF84328236B5EFACF /* GBColor.swift */; };
@@ -43,12 +48,14 @@
 		ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */; };
 		ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */; };
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
+		B8D344B8DE9447BA85DF20D4 /* ChronicleBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */; };
 		C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */; };
 		C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */; };
 		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
 		CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */; };
 		CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
+		DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */; };
 		DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596CBD0FA93B029F56E14FDF /* GBBadge.swift */; };
 		E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */; };
 		E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */; };
@@ -75,12 +82,14 @@
 		1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMapsPlaceHandoff.swift; sourceTree = "<group>"; };
 		1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
 		2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChildSafeAIPlan.swift; sourceTree = "<group>"; };
+		2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizComponents.swift; sourceTree = "<group>"; };
 		2E1F22519D406A575588CE02 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
 		2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEnginesTests.swift; sourceTree = "<group>"; };
 		30766CF8C2332F9E648E275A /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
 		35DD7C78E273FA67916C2743 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
 		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		390AE8B48E7C52C376816E87 /* LearningEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEngines.swift; sourceTree = "<group>"; };
+		3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
 		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
 		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
 		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
@@ -99,7 +108,9 @@
 		8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBFortMapView.swift; sourceTree = "<group>"; };
 		901C5A02CDD2D6DA5162F535 /* MasteryState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasteryState.swift; sourceTree = "<group>"; };
 		96600FFDF84328236B5EFACF /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
+		AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLearnView.swift; sourceTree = "<group>"; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
+		AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleQuizView.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
 		AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_BOOTSTRAP.md; sourceTree = "<group>"; };
 		B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesHubView.swift; sourceTree = "<group>"; };
@@ -108,6 +119,7 @@
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
 		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
 		C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
+		C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleBookView.swift; sourceTree = "<group>"; };
 		C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonModels.swift; sourceTree = "<group>"; };
 		C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIntelligenceHint.swift; sourceTree = "<group>"; };
 		CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBNLRecallEvaluator.swift; sourceTree = "<group>"; };
@@ -117,7 +129,9 @@
 		DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSceneCard.swift; sourceTree = "<group>"; };
 		DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
 		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
+		E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizHomeView.swift; sourceTree = "<group>"; };
 		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
+		F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleMatchView.swift; sourceTree = "<group>"; };
 		FA553A6C52FF405536FB4B58 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
 		FF974097779D0836FBDE59DD /* ParentProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -201,6 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				291D0A188BF00AB65634B378 /* Chronicle */,
+				5C178F2679E0F6818E5B55CA /* LearnQuiz */,
 				2CAF176D76684F7BB625884A /* Lesson */,
 				B8EE4101C55EA21501F66716 /* Map */,
 				D7A23AC84F04ED8249356C10 /* Parent */,
@@ -224,6 +239,20 @@
 				74DD589F8E91F14A920C59F9 /* Theme */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		5C178F2679E0F6818E5B55CA /* LearnQuiz */ = {
+			isa = PBXGroup;
+			children = (
+				C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */,
+				F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */,
+				AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */,
+				2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */,
+				E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */,
+				3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */,
+				AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */,
+			);
+			path = LearnQuiz;
 			sourceTree = "<group>";
 		};
 		6316ABC4AC5FF73B8BB04D46 /* Foundation */ = {
@@ -431,6 +460,9 @@
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
 				C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */,
 				ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */,
+				B8D344B8DE9447BA85DF20D4 /* ChronicleBookView.swift in Sources */,
+				88F9E6C20BBFA38264D4077B /* ChronicleMatchView.swift in Sources */,
+				62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */,
 				A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */,
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
@@ -460,6 +492,9 @@
 				57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */,
 				3CE894040C86BE6F34F93C13 /* GreatsOfBharathaApp.swift in Sources */,
 				3C4FB3ADBB894FDAC9244FBA /* HeroArcModels.swift in Sources */,
+				211E19D2035927C41FB3C2E9 /* LearnQuizComponents.swift in Sources */,
+				DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */,
+				28F96E8FA507F0D5650F8C95 /* LearnQuizPilotData.swift in Sources */,
 				5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */,
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
@@ -467,6 +502,7 @@
 				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,
+				5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */,
 				EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */,
 				6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */,
 				06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */,
