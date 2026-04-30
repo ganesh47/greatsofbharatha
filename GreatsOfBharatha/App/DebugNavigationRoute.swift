@@ -15,6 +15,7 @@ enum CaptureSeedProfile {
 
 enum DebugNavigationRoute: String {
     case learnHome = "learn-home"
+    case learnQuizHome = "learn-quiz-home"
     case scene1 = "scene-1"
     case scene2 = "scene-2"
     case placesHub = "places-hub"
@@ -34,6 +35,8 @@ enum DebugNavigationRoute: String {
         switch (tab, destination) {
         case ("learn", ""), ("learn", "learn-home"):
             return .learnHome
+        case ("learn", "learn-quiz-home"):
+            return .learnQuizHome
         case ("learn", "scene-1"):
             return .scene1
         case ("learn", "scene-2"):
@@ -55,6 +58,8 @@ enum DebugNavigationRoute: String {
 
     var seedProfile: CaptureSeedProfile {
         switch self {
+        case .learnQuizHome:
+            return .pristine
         case .chronicleUnlocked:
             return .chronicleUnlocked
         default:

@@ -12,6 +12,13 @@
 		073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C5A02CDD2D6DA5162F535 /* MasteryState.swift */; };
 		07FB948684566346F8B09A98 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6043F267C6727A816F8CE8 /* GBSpacing.swift */; };
 		0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */; };
+		101126000000000000000001 /* LearnQuizPilotData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000011 /* LearnQuizPilotData.swift */; };
+		101126000000000000000002 /* LearnQuizComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000012 /* LearnQuizComponents.swift */; };
+		101126000000000000000003 /* LearnQuizHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000013 /* LearnQuizHomeView.swift */; };
+		101126000000000000000004 /* SceneLearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000014 /* SceneLearnView.swift */; };
+		101126000000000000000005 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000015 /* ChronicleQuizView.swift */; };
+		101126000000000000000006 /* ChronicleMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000016 /* ChronicleMatchView.swift */; };
+		101126000000000000000007 /* ChronicleBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101126000000000000000017 /* ChronicleBookView.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
 		22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */; };
@@ -69,6 +76,13 @@
 		0048FE06EF01F9520955BAAD /* GBIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIcon.swift; sourceTree = "<group>"; };
 		0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChronicleCard.swift; sourceTree = "<group>"; };
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
+		101126000000000000000011 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
+		101126000000000000000012 /* LearnQuizComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizComponents.swift; sourceTree = "<group>"; };
+		101126000000000000000013 /* LearnQuizHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizHomeView.swift; sourceTree = "<group>"; };
+		101126000000000000000014 /* SceneLearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLearnView.swift; sourceTree = "<group>"; };
+		101126000000000000000015 /* ChronicleQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleQuizView.swift; sourceTree = "<group>"; };
+		101126000000000000000016 /* ChronicleMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleMatchView.swift; sourceTree = "<group>"; };
+		101126000000000000000017 /* ChronicleBookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleBookView.swift; sourceTree = "<group>"; };
 		1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMapsPlaceHandoff.swift; sourceTree = "<group>"; };
 		1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
 		2E1F22519D406A575588CE02 /* GBLayoutContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBLayoutContext.swift; sourceTree = "<group>"; };
@@ -140,6 +154,20 @@
 			path = Chronicle;
 			sourceTree = "<group>";
 		};
+		101126000000000000000010 /* LearnQuiz */ = {
+			isa = PBXGroup;
+			children = (
+				101126000000000000000017 /* ChronicleBookView.swift */,
+				101126000000000000000016 /* ChronicleMatchView.swift */,
+				101126000000000000000015 /* ChronicleQuizView.swift */,
+				101126000000000000000012 /* LearnQuizComponents.swift */,
+				101126000000000000000013 /* LearnQuizHomeView.swift */,
+				101126000000000000000011 /* LearnQuizPilotData.swift */,
+				101126000000000000000014 /* SceneLearnView.swift */,
+			);
+			path = LearnQuiz;
+			sourceTree = "<group>";
+		};
 		29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -193,6 +221,7 @@
 			isa = PBXGroup;
 			children = (
 				291D0A188BF00AB65634B378 /* Chronicle */,
+				101126000000000000000010 /* LearnQuiz */,
 				2CAF176D76684F7BB625884A /* Lesson */,
 				B8EE4101C55EA21501F66716 /* Map */,
 				D7A23AC84F04ED8249356C10 /* Parent */,
@@ -422,6 +451,9 @@
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
 				C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */,
 				ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */,
+				101126000000000000000007 /* ChronicleBookView.swift in Sources */,
+				101126000000000000000006 /* ChronicleMatchView.swift in Sources */,
+				101126000000000000000005 /* ChronicleQuizView.swift in Sources */,
 				A7BA06A197B5E5166A0F7BB6 /* ChronicleView.swift in Sources */,
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
@@ -452,10 +484,14 @@
 				3C4FB3ADBB894FDAC9244FBA /* HeroArcModels.swift in Sources */,
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
+				101126000000000000000002 /* LearnQuizComponents.swift in Sources */,
+				101126000000000000000003 /* LearnQuizHomeView.swift in Sources */,
+				101126000000000000000001 /* LearnQuizPilotData.swift in Sources */,
 				073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */,
 				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,
+				101126000000000000000004 /* SceneLearnView.swift in Sources */,
 				EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */,
 				6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */,
 				06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */,

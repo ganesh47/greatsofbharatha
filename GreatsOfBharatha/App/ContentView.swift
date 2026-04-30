@@ -8,9 +8,13 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             // ── Tab 1: Story ──────────────────────────────────
             NavigationStack {
-                LessonHomeView()
+                if GBFeatureFlags.historyLearnQuizResetEnabled {
+                    LearnQuizHomeView()
+                } else {
+                    LessonHomeView()
+                }
             }
-            .tabItem { Label("Story", systemImage: "book.fill") }
+            .tabItem { Label(GBFeatureFlags.historyLearnQuizResetEnabled ? "Learn" : "Story", systemImage: "book.fill") }
             .tag(DebugTabRoute.learn)
 
             // ── Tab 2: Map ────────────────────────────────────
