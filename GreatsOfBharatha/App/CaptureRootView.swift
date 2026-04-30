@@ -13,7 +13,7 @@ struct CaptureRootView: View {
     private var captureScreen: some View {
         switch route {
         case .learnQuizReset:
-            NavigationStack { LearnQuizResetPlaceholderView() }
+            NavigationStack { LearnQuizHomeView() }
         case .scene1:
             if let scene = appModel.content.scenes.first(where: { $0.id == "scene-1-shivneri" }) {
                 NavigationStack { SceneLessonView(scene: scene) }

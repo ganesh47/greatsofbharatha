@@ -3,12 +3,18 @@ import SwiftUI
 struct ChronicleMatchView: View {
     let scenes: [LearnQuizPilotScene]
 
-    @State private var selectedLeftID: String?
-    @State private var matchedIDs: Set<String> = []
-    @State private var mismatchPair: LearnQuizMatchPair?
+    @State private var matchState = ChronicleMatchState()
 
-    private var pairs: [LearnQuizMatchPair] {
+    private var pairs: [ChronicleMatchPair] {
         scenes.flatMap(\.matchPairs)
+    }
+
+    private var leftTiles: [ChronicleMatchTile] {
+        ChronicleMatchEngine.tiles(for: pairs).filter { $0.side == .left }
+    }
+
+    private var rightTiles: [ChronicleMatchTile] {
+        Array(ChronicleMatchEngine.tiles(for: pairs).filter { $0.side == .right }.reversed())
     }
 
     var body: some View {
@@ -36,68 +42,41 @@ struct ChronicleMatchView: View {
         GBHeroCard(
             eyebrow: "Match pairs",
             title: "Put each place with its memory hook",
-            subtitle: "\(matchedIDs.count) of \(pairs.count) matched",
+            subtitle: "\(matchState.completedPairIDs.count) of \(pairs.count) matched",
             detail: "Tap a card on the left, then find the card on the right that belongs with it.",
             ctaTitle: "Keep matching",
-            badgeTitle: "6 pilot pairs",
+            badgeTitle: "\(pairs.count) pilot pairs",
             emphasis: .place,
-            progress: pairs.isEmpty ? nil : Double(matchedIDs.count) / Double(pairs.count)
+            progress: pairs.isEmpty ? nil : Double(matchState.completedPairIDs.count) / Double(pairs.count)
         )
     }
 
     private var matchGrid: some View {
         HStack(alignment: .top, spacing: GBSpacing.xSmall) {
             VStack(spacing: GBSpacing.xSmall) {
-                ForEach(pairs) { pair in
-                    matchTile(
-                        id: pair.id,
-                        text: pair.left,
-                        isSelected: selectedLeftID == pair.id,
-                        isMatched: matchedIDs.contains(pair.id),
-                        alignment: .leading
-                    ) {
-                        guard !matchedIDs.contains(pair.id) else { return }
-                        selectedLeftID = pair.id
-                        mismatchPair = nil
-                    }
+                ForEach(leftTiles) { tile in
+                    matchTile(tile: tile, alignment: .leading)
                 }
             }
 
             VStack(spacing: GBSpacing.xSmall) {
-                ForEach(pairs.reversed()) { pair in
-                    matchTile(
-                        id: pair.id,
-                        text: pair.right,
-                        isSelected: false,
-                        isMatched: matchedIDs.contains(pair.id),
-                        alignment: .trailing
-                    ) {
-                        guard !matchedIDs.contains(pair.id), let selectedLeftID else { return }
-                        if selectedLeftID == pair.id {
-                            matchedIDs.insert(pair.id)
-                            self.selectedLeftID = nil
-                            mismatchPair = nil
-                        } else {
-                            mismatchPair = pair
-                        }
-                    }
+                ForEach(rightTiles) { tile in
+                    matchTile(tile: tile, alignment: .trailing)
                 }
             }
         }
     }
 
-    private func matchTile(
-        id: String,
-        text: String,
-        isSelected: Bool,
-        isMatched: Bool,
-        alignment: HorizontalAlignment,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
+    private func matchTile(tile: ChronicleMatchTile, alignment: HorizontalAlignment) -> some View {
+        let isSelected = matchState.selectedTileID == tile.id
+        let isMatched = matchState.completedPairIDs.contains(tile.pairID)
+
+        return Button {
+            matchState = ChronicleMatchEngine.select(tileID: tile.id, state: matchState, pairs: pairs)
+        } label: {
             HStack {
                 if alignment == .trailing { Spacer(minLength: GBSpacing.xxSmall) }
-                Text(text)
+                Text(tile.text)
                     .font(GBFont.ui(size: 15, weight: .heavy))
                     .multilineTextAlignment(alignment == .leading ? .leading : .trailing)
                     .lineLimit(3)
@@ -114,34 +93,43 @@ struct ChronicleMatchView: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(isMatched ? GBColor.Place.primary : GBColor.Content.primary)
-        .accessibilityLabel("\(text), \(isMatched ? "matched" : "not matched")")
+        .accessibilityLabel("\(tile.text), \(isMatched ? "matched" : "not matched")")
     }
 
     @ViewBuilder
     private var clueCard: some View {
-        if let selectedLeftID, let selected = pairs.first(where: { $0.id == selectedLeftID }) {
+        switch matchState.lastOutcome {
+        case .selected(let tile):
             GBSurface(style: .elevated) {
-                Label("Now tap the matching card for \(selected.left).", systemImage: "hand.tap.fill")
+                Label("Now tap the matching card for \(tile.text).", systemImage: "hand.tap.fill")
                     .font(GBFont.ui(size: 16, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
             }
-        } else if let mismatchPair {
+        case .mismatched(let clue):
             GBSurface(style: .elevated) {
                 VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
                     Label("Try another pair", systemImage: "arrow.counterclockwise.circle.fill")
                         .font(GBFont.ui(size: 16, weight: .heavy))
                         .foregroundStyle(GBColor.Story.primary)
-                    Text(mismatchPair.clue)
+                    Text(clue)
                         .font(GBFont.ui(size: 15, weight: .semibold))
                         .foregroundStyle(GBColor.Content.secondary)
                 }
             }
+        case .matched(_, let feedback, let completedSet):
+            GBSurface(style: completedSet ? .accented(.chronicle) : .elevated) {
+                Label(feedback, systemImage: "checkmark.circle.fill")
+                    .font(GBFont.ui(size: 16, weight: .heavy))
+                    .foregroundStyle(completedSet ? .white : GBColor.Content.primary)
+            }
+        case .ignored, nil:
+            EmptyView()
         }
     }
 
     @ViewBuilder
     private var completionCard: some View {
-        if matchedIDs.count == pairs.count {
+        if matchState.completedPairIDs.count == pairs.count {
             GBSurface(style: .accented(.chronicle)) {
                 Label("All pairs matched. A Chronicle seal is ready.", systemImage: "checkmark.seal.fill")
                     .font(GBFont.ui(size: 17, weight: .heavy))
