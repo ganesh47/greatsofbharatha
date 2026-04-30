@@ -6,6 +6,13 @@ struct ParentLearningSettings: Equatable {
     var calmTransitionsEnabled: Bool = true
 }
 
+enum FeatureFlags {
+    static var historyLearnQuizResetEnabled: Bool {
+        let rawValue = ProcessInfo.processInfo.environment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] ?? ""
+        return ["1", "true", "TRUE", "yes", "YES"].contains(rawValue)
+    }
+}
+
 final class AppModel: ObservableObject {
     @Published var content: AppContent {
         didSet {

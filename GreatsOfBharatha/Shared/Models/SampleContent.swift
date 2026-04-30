@@ -3,6 +3,192 @@ import Foundation
 enum SampleContent {
     static let shivajiVerticalSlice = AppContent(heroArc: shivajiHeroArc)
 
+    static let shivajiLearnQuizResetPilot = HistoricalFigureArc(
+        id: "shivaji-learn-quiz-reset-pilot",
+        figureName: "Shivaji Maharaj",
+        title: "Shivaji Learn-and-Quiz Chronicle Pilot",
+        resetAnchorIssue: "#126",
+        scenes: [
+            ChronicleScene(
+                id: "reset-scene-1-shivneri",
+                title: "Shivneri - Birth Fort",
+                timeMarker: "Beginning of the journey",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-shivneri", name: "Shivneri", regionLabel: "Junnar region", memoryHook: "Birth Fort"),
+                ],
+                actionVerb: "begins",
+                memoryHook: "Birth Fort",
+                childSafeStory: "Shivaji Maharaj's story begins at Shivneri Fort. Jijabai's guidance helped him grow with courage, care, and responsibility.",
+                meaning: "Shivneri matters because it anchors the beginning of the journey and the values Shivaji Maharaj carried forward.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-shivneri-birth-fort",
+                        prompt: "Where does Shivaji Maharaj's story begin?",
+                        acceptedAnswers: ["Shivneri", "Shivneri Fort"],
+                        answerChips: ["Shivneri", "Rajgad", "Pratapgad"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Think of the Birth Fort."),
+                            RecallHint(level: 2, title: "Place clue", body: "It is the fort near Junnar where the story begins."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Shivneri."),
+                        ],
+                        successFeedback: "Yes. Shivneri is the Birth Fort where Shivaji Maharaj's story begins.",
+                        recoveryFeedback: "Remember the hook: Birth Fort means Shivneri."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-shivneri-birth-fort", left: "Shivneri", right: "Birth Fort", kind: .placeToHook, teachingFeedback: "Shivneri is the Birth Fort."),
+                    MatchPair(id: "match-shivneri-begins", left: "Shivneri", right: "Story begins", kind: .placeToAction, teachingFeedback: "The journey begins at Shivneri."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-birth-fort-card",
+                    title: "Birth Fort Chronicle Card",
+                    subtitle: "First inked keepsake",
+                    meaning: "A Chronicle card for remembering Shivneri as the place where the journey begins.",
+                    unlockedBySceneID: "reset-scene-1-shivneri",
+                    mastery: .understood,
+                    category: .storyCard
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-shivneri-birth-fort",
+                        promptType: .openPrompt,
+                        front: "Birth Fort",
+                        back: "Shivneri",
+                        meaning: "Shivneri is where Shivaji Maharaj's story begins.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+            ChronicleScene(
+                id: "reset-scene-2-torna-rajgad",
+                title: "Torna and Rajgad - Early Forts",
+                timeMarker: "Early Swarajya-building",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-torna", name: "Torna", regionLabel: "Sahyadri range southwest of Pune", memoryHook: "First Big Fort"),
+                    PlaceAnchor(id: "place-rajgad", name: "Rajgad", regionLabel: "Sahyadri range near Torna", memoryHook: "Early Capital"),
+                ],
+                actionVerb: "builds",
+                memoryHook: "First Big Fort / Early Capital",
+                childSafeStory: "Shivaji Maharaj began building Swarajya through important forts. Torna marks an early breakthrough, and Rajgad became a planning base.",
+                meaning: "These forts matter because the story is not only about winning a fort; it is about building a stronger base.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-rajgad-early-capital",
+                        prompt: "Which fort became an early capital?",
+                        acceptedAnswers: ["Rajgad"],
+                        answerChips: ["Torna", "Rajgad", "Shivneri"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Think of Early Capital."),
+                            RecallHint(level: 2, title: "Pair clue", body: "Torna is the First Big Fort; the other fort became the planning base."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Rajgad."),
+                        ],
+                        successFeedback: "Yes. Rajgad became an early capital and planning base.",
+                        recoveryFeedback: "Remember the pair: Torna is First Big Fort, Rajgad is Early Capital."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-torna-first-big-fort", left: "Torna", right: "First Big Fort", kind: .placeToHook, teachingFeedback: "Torna marks an early breakthrough."),
+                    MatchPair(id: "match-rajgad-early-capital", left: "Rajgad", right: "Early Capital", kind: .placeToHook, teachingFeedback: "Rajgad became an early capital."),
+                    MatchPair(id: "match-rajgad-planning-base", left: "Rajgad", right: "Planning base", kind: .placeToAction, teachingFeedback: "Rajgad helps children remember planning and state-building."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-first-fort-early-capital-card",
+                    title: "First Fort / Early Capital Card",
+                    subtitle: "Fort-building keepsake",
+                    meaning: "A Chronicle card for remembering Torna as First Big Fort and Rajgad as Early Capital.",
+                    unlockedBySceneID: "reset-scene-2-torna-rajgad",
+                    mastery: .understood,
+                    category: .storyCard
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-torna-rajgad-pair",
+                        promptType: .eventToPlaceMatch,
+                        front: "First Big Fort / Early Capital",
+                        back: "Torna / Rajgad",
+                        meaning: "Torna and Rajgad teach early fort-building and planning.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+            ChronicleScene(
+                id: "reset-scene-3-pratapgad",
+                title: "Pratapgad - Turning Point",
+                timeMarker: "Major rise and turning point",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-pratapgad", name: "Pratapgad", regionLabel: "Hill country near Mahabaleshwar", memoryHook: "Turning Point"),
+                ],
+                actionVerb: "plans",
+                memoryHook: "Turning Point",
+                childSafeStory: "At Pratapgad, careful planning, courage, and hill terrain mattered in a dangerous moment. The story stays focused on preparation and judgment.",
+                meaning: "Pratapgad matters because terrain and planning changed the balance at a key moment.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-pratapgad-turning-point",
+                        prompt: "Which fort is remembered as the turning point?",
+                        acceptedAnswers: ["Pratapgad"],
+                        answerChips: ["Pratapgad", "Shivneri", "Rajgad"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Think of Turning Point."),
+                            RecallHint(level: 2, title: "Place clue", body: "It stands in hill country near Mahabaleshwar."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Pratapgad."),
+                        ],
+                        successFeedback: "Yes. Pratapgad is remembered as the turning point.",
+                        recoveryFeedback: "Remember the hook: Turning Point means Pratapgad."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-pratapgad-turning-point", left: "Pratapgad", right: "Turning Point", kind: .placeToHook, teachingFeedback: "Pratapgad is the turning point fort."),
+                    MatchPair(id: "match-planning-terrain", left: "Planning and terrain", right: "Changed the balance", kind: .actionToMeaning, teachingFeedback: "The meaning is preparation, courage, and wise use of terrain."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-turning-point-seal",
+                    title: "Turning Point Seal",
+                    subtitle: "Deepened Chronicle mark",
+                    meaning: "A Chronicle seal for remembering Pratapgad as the turning point where planning and terrain mattered.",
+                    unlockedBySceneID: "reset-scene-3-pratapgad",
+                    mastery: .understood,
+                    category: .emblemFragment
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-pratapgad-turning-point",
+                        promptType: .compareFromMemory,
+                        front: "Turning Point",
+                        back: "Pratapgad",
+                        meaning: "Pratapgad teaches planning, terrain, and courage.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+        ],
+        timelineBuilder: TimelineBuilderSeed(
+            id: "timeline-shivaji-reset-pilot",
+            prompt: "Put the first three Shivaji scenes in order.",
+            orderedSceneIDs: [
+                "reset-scene-1-shivneri",
+                "reset-scene-2-torna-rajgad",
+                "reset-scene-3-pratapgad",
+            ],
+            completionRewardText: "The Chronicle gains a Journey So Far timeline strip."
+        ),
+        endOfPilotReward: ChronicleReward(
+            id: "reset-reward-shivaji-journey-so-far",
+            title: "Shivaji Journey So Far",
+            subtitle: "Pilot completion page",
+            meaning: "A page for remembering the order: Shivneri, Torna/Rajgad, Pratapgad.",
+            unlockedBySceneID: "reset-scene-3-pratapgad",
+            mastery: .remembered,
+            category: .leadershipBadge
+        )
+    )
+
     static let shivajiHeroArc = HeroArc(
         id: shivajiHero.id,
         hero: shivajiHero,

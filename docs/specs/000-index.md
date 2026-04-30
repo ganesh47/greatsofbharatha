@@ -18,5 +18,6 @@ Use this directory for durable product and technical specifications.
 
 ## Active highlighted specs
 
+- `2026-04-30-shivaji-learn-quiz-reset-implementation-spec.md` - #126 gameplay reset direction. Older gameplay specs are pre-reset exploration unless explicitly reused here or in later #126 follow-ups.
 - `2026-04-19-main-ux-iteration-spec.md`
 - `2026-04-20-responsive-design-system-spec.md`

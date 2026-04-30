@@ -31,6 +31,81 @@ struct HeroArc: Identifiable, Equatable {
     }
 }
 
+struct HistoricalFigureArc: Identifiable, Equatable {
+    let id: String
+    let figureName: String
+    let title: String
+    let resetAnchorIssue: String
+    let scenes: [ChronicleScene]
+    let timelineBuilder: TimelineBuilderSeed
+    let endOfPilotReward: ChronicleReward
+}
+
+struct ChronicleScene: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let timeMarker: String
+    let placeAnchors: [PlaceAnchor]
+    let actionVerb: String
+    let memoryHook: String
+    let childSafeStory: String
+    let meaning: String
+    let quizItems: [QuizItem]
+    let matchPairs: [MatchPair]
+    let chronicleReward: ChronicleReward
+    let reviewSeeds: [ReviewSeed]
+}
+
+struct PlaceAnchor: Identifiable, Equatable {
+    let id: String
+    let name: String
+    let regionLabel: String
+    let memoryHook: String
+}
+
+struct QuizItem: Identifiable, Equatable {
+    let id: String
+    let prompt: String
+    let acceptedAnswers: [String]
+    let answerChips: [String]
+    let hintLadder: [RecallHint]
+    let successFeedback: String
+    let recoveryFeedback: String
+}
+
+enum MatchPairKind: String, Codable, CaseIterable, Equatable {
+    case placeToHook
+    case placeToAction
+    case eventToTime
+    case actionToMeaning
+}
+
+struct MatchPair: Identifiable, Equatable {
+    let id: String
+    let left: String
+    let right: String
+    let kind: MatchPairKind
+    let teachingFeedback: String
+}
+
+struct TimelineBuilderSeed: Identifiable, Equatable {
+    let id: String
+    let prompt: String
+    let orderedSceneIDs: [String]
+    let completionRewardText: String
+}
+
+struct ReviewSeed: Identifiable, Equatable {
+    let id: String
+    let promptType: RecallPromptType
+    let front: String
+    let back: String
+    let meaning: String
+    let correctNoHintCadenceDays: Int
+    let correctWithHintCadenceDays: Int
+    let rescuedCadenceDays: Int
+}
+
 struct Hero: Equatable {
     let id: String
     let name: String

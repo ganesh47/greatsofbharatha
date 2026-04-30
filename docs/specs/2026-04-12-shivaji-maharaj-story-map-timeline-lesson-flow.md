@@ -6,6 +6,8 @@
 - Owner: @ganesh47
 - Last updated: 2026-04-12
 
+> Reset note (2026-04-30): #126 is now the gameplay reset anchor. This six-scene story/map/timeline flow remains useful content exploration, but the active MVP pilot is the three-scene learn-and-quiz Chronicle loop in `2026-04-30-shivaji-learn-quiz-reset-implementation-spec.md`.
+
 ## Purpose
 
 Define the canonical V1 lesson flow for Shivaji Maharaj in Greats of Bharatha.
