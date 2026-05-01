@@ -244,18 +244,28 @@ struct SceneLessonView: View {
     }
 
     private func narrationControls(text: String, id: String) -> some View {
-        HStack(spacing: GBSpacing.xSmall) {
-            narrationButton(title: "Listen", icon: "speaker.wave.2.fill") {
-                narrator.speak(id: id, text: text)
+        VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+            HStack(spacing: GBSpacing.xSmall) {
+                narrationButton(title: "Listen", icon: "speaker.wave.2.fill") {
+                    narrator.speak(id: id, text: text)
+                }
+                narrationButton(title: "Repeat", icon: "arrow.clockwise") {
+                    narrator.repeatLast()
+                }
+                narrationButton(title: "Stop", icon: "stop.fill") {
+                    narrator.stop()
+                }
             }
-            narrationButton(title: "Repeat", icon: "arrow.clockwise") {
-                narrator.repeatLast()
-            }
-            narrationButton(title: "Stop", icon: "stop.fill") {
-                narrator.stop()
+            .accessibilityElement(children: .contain)
+
+            if let statusMessage = narrator.statusMessage {
+                Text(statusMessage)
+                    .font(GBFont.ui(size: 13, weight: .semibold))
+                    .foregroundStyle(GBColor.Content.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel(statusMessage)
             }
         }
-        .accessibilityElement(children: .contain)
     }
 
     private func narrationButton(title: String, icon: String, action: @escaping () -> Void) -> some View {

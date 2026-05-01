@@ -21,6 +21,7 @@ struct GBFlashCardData: Identifiable, Sendable {
 final class GBNarrator: ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
     @Published private(set) var activeCardID: String? = nil
+    @Published private(set) var statusMessage: String? = nil
     private var lastRequest: (id: String, text: String)?
 
     func toggle(cardID: String, text: String) {
@@ -33,9 +34,24 @@ final class GBNarrator: ObservableObject {
     }
 
     func speak(id: String, text: String) {
-        lastRequest = (id: id, text: text)
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else {
+            statusMessage = "Nothing to read aloud yet."
+            activeCardID = nil
+            return
+        }
+
+        lastRequest = (id: id, text: trimmedText)
         synthesizer.stopSpeaking(at: .immediate)
-        let utterance = AVSpeechUtterance(string: text)
+
+        do {
+            try prepareAudioSessionForSpeech()
+            statusMessage = nil
+        } catch {
+            statusMessage = "Narration is unavailable. Check volume and try again."
+        }
+
+        let utterance = AVSpeechUtterance(string: trimmedText)
         // Slightly slower rate so young children can follow
         utterance.rate = AVSpeechUtteranceMinimumSpeechRate
             + (AVSpeechUtteranceDefaultSpeechRate - AVSpeechUtteranceMinimumSpeechRate) * 0.30
@@ -53,6 +69,14 @@ final class GBNarrator: ObservableObject {
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
         activeCardID = nil
+    }
+
+    private func prepareAudioSessionForSpeech() throws {
+#if os(iOS)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try session.setActive(true)
+#endif
     }
 }
 

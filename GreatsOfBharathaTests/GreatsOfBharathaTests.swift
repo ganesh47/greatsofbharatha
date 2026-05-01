@@ -289,6 +289,22 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertFalse(model.parentSettings.narrationEnabled)
     }
 
+    func testNarratorUsesLocalPlaybackSpeechWithFallbackMessage() throws {
+        let testFile = URL(fileURLWithPath: #filePath)
+        let repoRoot = testFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let narratorURL = repoRoot
+            .appendingPathComponent("GreatsOfBharatha/DesignSystem/Components/GBFlashCard.swift")
+        let source = try String(contentsOf: narratorURL, encoding: .utf8)
+
+        XCTAssertTrue(source.contains("AVSpeechSynthesizer()"))
+        XCTAssertTrue(source.contains("AVAudioSession.sharedInstance()"))
+        XCTAssertTrue(source.contains("setCategory(.playback, mode: .spokenAudio"))
+        XCTAssertTrue(source.contains("Narration is unavailable. Check volume and try again."))
+        XCTAssertFalse(source.localizedCaseInsensitiveContains("http"))
+    }
+
     func testCorePlacesExposeMapExplorerCoordinatesAndAppleMapsLinks() throws {
         for place in SampleContent.shivajiVerticalSlice.corePlaces {
             let latitude = try XCTUnwrap(place.latitude)
