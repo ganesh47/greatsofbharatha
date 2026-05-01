@@ -25,6 +25,7 @@ struct LearnQuizPilotScene: Identifiable {
     let quiz: LearnQuizPrompt
     let matchPairs: [ChronicleMatchPair]
     let chronicleEntry: LearnQuizChronicleEntry
+    let reviewCards: [LearnQuizReviewCard]
     let art: LearnQuizArt
 }
 
@@ -52,7 +53,29 @@ struct LearnQuizChronicleEntry: Identifiable {
     let state: State
 }
 
-struct LearnQuizArt {
+struct LearnQuizReviewCard: Identifiable, Equatable {
+    let id: String
+    let sceneID: String
+    let sceneTitle: String
+    let promptType: RecallPromptType
+    let front: String
+    let back: String
+    let meaning: String
+    let cadenceDays: [Int]
+    let art: LearnQuizArt
+
+    var learningSeed: LearningReviewSeed {
+        LearningReviewSeed(
+            id: id,
+            subjectID: sceneID,
+            subjectType: .scene,
+            promptTypes: [promptType],
+            cadenceDays: cadenceDays
+        )
+    }
+}
+
+struct LearnQuizArt: Equatable {
     let assetSlot: String
     let symbol: String
     let emphasis: GBEmphasis
@@ -67,6 +90,10 @@ enum LearnQuizPilotData {
         }
     }
 
+    static var reviewCards: [LearnQuizReviewCard] {
+        scenes.flatMap(\.reviewCards)
+    }
+
     static var journeyEntry: LearnQuizChronicleEntry {
         LearnQuizChronicleEntry(
             id: pilot.endOfPilotReward.id,
@@ -79,6 +106,7 @@ enum LearnQuizPilotData {
 
     private static func makeScene(from scene: ChronicleScene, number: Int) -> LearnQuizPilotScene {
         let quizItem = scene.quizItems.first ?? fallbackQuizItem(for: scene)
+        let art = art(for: scene)
         return LearnQuizPilotScene(
             id: scene.id,
             number: number,
@@ -93,7 +121,8 @@ enum LearnQuizPilotData {
             quiz: makePrompt(from: quizItem),
             matchPairs: scene.matchPairs.map(makeMatchPair),
             chronicleEntry: makeChronicleEntry(from: scene),
-            art: art(for: scene)
+            reviewCards: scene.reviewSeeds.map { makeReviewCard(from: $0, scene: scene, art: art) },
+            art: art
         )
     }
 
@@ -140,6 +169,20 @@ enum LearnQuizPilotData {
         case .actionToMeaning:
             return .meaningToScene
         }
+    }
+
+    private static func makeReviewCard(from seed: ReviewSeed, scene: ChronicleScene, art: LearnQuizArt) -> LearnQuizReviewCard {
+        LearnQuizReviewCard(
+            id: seed.id,
+            sceneID: scene.id,
+            sceneTitle: scene.title,
+            promptType: seed.promptType,
+            front: seed.front,
+            back: seed.back,
+            meaning: seed.meaning,
+            cadenceDays: [seed.rescuedCadenceDays, seed.correctNoHintCadenceDays, 3, 7, 14],
+            art: art
+        )
     }
 
     private static func makeChronicleEntry(from scene: ChronicleScene) -> LearnQuizChronicleEntry {

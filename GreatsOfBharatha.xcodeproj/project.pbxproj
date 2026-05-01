@@ -32,6 +32,7 @@
 		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
 		5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */; };
 		5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390AE8B48E7C52C376816E87 /* LearningEngines.swift */; };
+		5E7AD42C5F6B4E46BB047136 /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B48D11F93314FB88EBF9DE1 /* FlashcardReviewView.swift */; };
 		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
 		62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
@@ -91,6 +92,7 @@
 		390AE8B48E7C52C376816E87 /* LearningEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEngines.swift; sourceTree = "<group>"; };
 		3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
 		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
+		4B48D11F93314FB88EBF9DE1 /* FlashcardReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardReviewView.swift; sourceTree = "<group>"; };
 		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
 		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */,
 				F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */,
 				AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */,
+				4B48D11F93314FB88EBF9DE1 /* FlashcardReviewView.swift */,
 				2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */,
 				E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */,
 				3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */,
@@ -473,6 +476,7 @@
 				C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */,
 				CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */,
 				8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */,
+				5E7AD42C5F6B4E46BB047136 /* FlashcardReviewView.swift in Sources */,
 				8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */,
 				F71FFA5AC6385137A61EFFE9 /* GBFortMapView.swift in Sources */,
 				96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */,

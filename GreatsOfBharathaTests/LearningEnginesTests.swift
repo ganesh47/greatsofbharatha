@@ -170,6 +170,16 @@ final class LearningEnginesTests: XCTestCase {
         XCTAssertEqual(due.map(\.subjectID), ["scene-a", "scene-b"])
     }
 
+    func testLearnQuizPilotExposesReviewSeedsAsFlashcards() {
+        let cards = LearnQuizPilotData.reviewCards
+
+        XCTAssertEqual(cards.count, 3)
+        XCTAssertEqual(cards.map(\.front), ["Birth Fort", "First Big Fort / Early Capital", "Turning Point"])
+        XCTAssertEqual(cards.map(\.back), ["Shivneri", "Torna / Rajgad", "Pratapgad"])
+        XCTAssertEqual(cards.map(\.learningSeed.subjectID), LearnQuizPilotData.scenes.map(\.id))
+        XCTAssertTrue(cards.allSatisfy { $0.learningSeed.subjectType == .scene })
+    }
+
     func testChronicleProgressEngineTransitionsFromSilhouetteToRememberedAgain() {
         let now = Date(timeIntervalSince1970: 1_800_000)
         let entry = ChronicleEntry(

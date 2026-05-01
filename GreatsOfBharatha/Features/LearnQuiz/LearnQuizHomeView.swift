@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LearnQuizHomeView: View {
     private let scenes = LearnQuizPilotData.scenes
+    private let reviewCards = LearnQuizPilotData.reviewCards
 
     var body: some View {
         GBLayoutContextReader { context in
@@ -92,17 +93,23 @@ struct LearnQuizHomeView: View {
                 HStack {
                     GBBadge(title: "Due later", symbol: "rectangle.stack.fill", emphasis: .chronicle)
                     Spacer()
-                    Text("1 review seed")
+                    Text("\(reviewCards.count) review seeds")
                         .font(GBFont.ui(size: 12, weight: .bold))
                         .foregroundStyle(GBColor.Content.secondary)
                 }
-                Text("Flashcard review slot")
+                Text("Flashcard review")
                     .font(GBFont.display(size: 21, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
-                Text("A quick card will bring back the memory hook after the story has had time to settle.")
+                Text("Flip quick cards for the pilot hooks, then choose I knew it, needed a clue, or teach me again.")
                     .font(GBFont.ui(size: 15, weight: .semibold))
                     .foregroundStyle(GBColor.Content.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                NavigationLink {
+                    FlashcardReviewView(cards: reviewCards)
+                } label: {
+                    Label("Review flash cards", systemImage: "rectangle.on.rectangle.angled")
+                }
+                .buttonStyle(.gbPrimary(.chronicle))
             }
         }
     }
