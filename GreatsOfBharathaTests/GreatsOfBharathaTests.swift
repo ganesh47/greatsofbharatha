@@ -88,6 +88,22 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(matchIDs.count, pilot.scenes.flatMap(\.matchPairs).count)
     }
 
+
+    func testLearnQuizUIAdapterUsesResetPilotContractsAndEngines() {
+        let scenes = LearnQuizPilotData.scenes
+        let pilot = SampleContent.shivajiLearnQuizResetPilot
+
+        XCTAssertEqual(scenes.map(\.id), pilot.scenes.map(\.id))
+        XCTAssertEqual(scenes.first?.quiz.challenge.correctAnswers, pilot.scenes.first?.quizItems.first?.acceptedAnswers)
+        XCTAssertEqual(scenes.flatMap(\.matchPairs).count, pilot.scenes.flatMap(\.matchPairs).count)
+
+        var matchState = ChronicleMatchState()
+        let firstPair = scenes.flatMap(\.matchPairs)[0]
+        matchState = ChronicleMatchEngine.select(tileID: firstPair.leftID, state: matchState, pairs: scenes.flatMap(\.matchPairs))
+        matchState = ChronicleMatchEngine.select(tileID: firstPair.rightID, state: matchState, pairs: scenes.flatMap(\.matchPairs))
+        XCTAssertTrue(matchState.completedPairIDs.contains(firstPair.id))
+    }
+
     func testLessonStorePreviewsChronicleRewardsBeforeUnlockingThem() throws {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)

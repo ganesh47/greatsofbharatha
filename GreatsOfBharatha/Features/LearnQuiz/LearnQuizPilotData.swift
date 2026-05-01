@@ -23,7 +23,7 @@ struct LearnQuizPilotScene: Identifiable {
     let story: String
     let meaning: String
     let quiz: LearnQuizPrompt
-    let matchPairs: [LearnQuizMatchPair]
+    let matchPairs: [ChronicleMatchPair]
     let chronicleEntry: LearnQuizChronicleEntry
     let art: LearnQuizArt
 }
@@ -34,13 +34,7 @@ struct LearnQuizPrompt {
     let correctAnswer: String
     let hintLadder: [String]
     let teachingFeedback: String
-}
-
-struct LearnQuizMatchPair: Identifiable {
-    let id: String
-    let left: String
-    let right: String
-    let clue: String
+    let challenge: RecallChallenge
 }
 
 struct LearnQuizChronicleEntry: Identifiable {
@@ -65,107 +59,146 @@ struct LearnQuizArt {
 }
 
 enum LearnQuizPilotData {
-    static let scenes: [LearnQuizPilotScene] = [
-        LearnQuizPilotScene(
-            id: "learn-quiz-shivneri",
-            number: 1,
-            title: "Shivneri",
-            subtitle: "Birth Fort",
-            timeMarker: "Beginning",
-            place: "Shivneri Fort",
-            actionVerb: "Begins",
-            memoryHook: "Birth Fort",
-            story: "Shivaji Maharaj's story begins at Shivneri Fort. Jijabai helped him grow with courage, care, and a love for protecting people.",
-            meaning: "Shivneri is the first place to remember because it anchors the whole journey.",
-            quiz: LearnQuizPrompt(
-                question: "Where does Shivaji Maharaj's story begin?",
-                options: ["Shivneri", "Raigad", "Agra"],
-                correctAnswer: "Shivneri",
-                hintLadder: ["Memory hook: Birth Fort", "Place clue: a hill fort near Junnar", "Choose the fort where the journey begins."],
-                teachingFeedback: "Shivneri is the birth fort. It is where this journey begins."
-            ),
-            matchPairs: [
-                LearnQuizMatchPair(id: "shivneri-birth", left: "Shivneri", right: "Birth Fort", clue: "The beginning of the story."),
-                LearnQuizMatchPair(id: "jijabai-values", left: "Jijabai", right: "Early values", clue: "Guidance helped shape young Shivaji.")
-            ],
-            chronicleEntry: LearnQuizChronicleEntry(
-                id: "chronicle-birth-fort",
-                title: "Birth Fort Chronicle Card",
-                subtitle: "Shivneri",
-                meaning: "The journey starts at Shivneri Fort.",
-                state: .inked
-            ),
-            art: LearnQuizArt(assetSlot: "LearnQuizShivneriHero", symbol: "sunrise.fill", emphasis: .story)
-        ),
-        LearnQuizPilotScene(
-            id: "learn-quiz-torna-rajgad",
-            number: 2,
-            title: "Torna + Rajgad",
-            subtitle: "Early Forts",
-            timeMarker: "Early Swarajya",
-            place: "Torna and Rajgad",
-            actionVerb: "Builds",
-            memoryHook: "First Big Fort / Early Capital",
-            story: "Torna became an early fort victory. Rajgad grew into a planning base where ideas for Swarajya could take shape.",
-            meaning: "These forts help children remember that Swarajya was built with planning, places, and steady effort.",
-            quiz: LearnQuizPrompt(
-                question: "Which fort became an early capital and planning base?",
-                options: ["Rajgad", "Pratapgad", "Shivneri"],
-                correctAnswer: "Rajgad",
-                hintLadder: ["Memory hook: Early Capital", "Place clue: paired with Torna in the early story", "Choose Rajgad."],
-                teachingFeedback: "Rajgad is remembered as an early capital and planning base."
-            ),
-            matchPairs: [
-                LearnQuizMatchPair(id: "torna-first-big", left: "Torna", right: "First Big Fort", clue: "A strong early step."),
-                LearnQuizMatchPair(id: "rajgad-capital", left: "Rajgad", right: "Early Capital", clue: "A place for planning.")
-            ],
-            chronicleEntry: LearnQuizChronicleEntry(
-                id: "chronicle-early-forts",
-                title: "First Fort / Early Capital Card",
-                subtitle: "Torna + Rajgad",
-                meaning: "Early forts show planning and momentum.",
-                state: .sealed
-            ),
-            art: LearnQuizArt(assetSlot: "LearnQuizTornaRajgadHero", symbol: "mountain.2.fill", emphasis: .place)
-        ),
-        LearnQuizPilotScene(
-            id: "learn-quiz-pratapgad",
-            number: 3,
-            title: "Pratapgad",
-            subtitle: "Turning Point",
-            timeMarker: "Major rise",
-            place: "Pratapgad",
-            actionVerb: "Plans",
-            memoryHook: "Turning Point",
-            story: "At Pratapgad, terrain and careful planning mattered. The moment is remembered as a turning point in Shivaji Maharaj's rise.",
-            meaning: "Pratapgad helps children connect place, strategy, and courage without needing a harsh battle story.",
-            quiz: LearnQuizPrompt(
-                question: "Which fort is remembered as the turning point?",
-                options: ["Pratapgad", "Shivneri", "Torna"],
-                correctAnswer: "Pratapgad",
-                hintLadder: ["Memory hook: Turning Point", "Place clue: hill terrain and planning", "Choose Pratapgad."],
-                teachingFeedback: "Pratapgad is the turning point to remember."
-            ),
-            matchPairs: [
-                LearnQuizMatchPair(id: "pratapgad-turning", left: "Pratapgad", right: "Turning Point", clue: "The rise becomes clearer here."),
-                LearnQuizMatchPair(id: "terrain-planning", left: "Hill terrain", right: "Careful planning", clue: "Place and action worked together.")
-            ],
-            chronicleEntry: LearnQuizChronicleEntry(
-                id: "chronicle-turning-point",
-                title: "Turning Point Seal",
-                subtitle: "Pratapgad",
-                meaning: "Strategy, terrain, and courage are linked here.",
-                state: .silhouette
-            ),
-            art: LearnQuizArt(assetSlot: "LearnQuizPratapgadHero", symbol: "seal.fill", emphasis: .chronicle)
-        )
-    ]
+    private static let pilot = SampleContent.shivajiLearnQuizResetPilot
 
-    static let journeyEntry = LearnQuizChronicleEntry(
-        id: "chronicle-journey-so-far",
-        title: "Shivaji Journey So Far",
-        subtitle: "Shivneri -> Torna/Rajgad -> Pratapgad",
-        meaning: "The first three scenes form a remembered path through time, place, and action.",
-        state: .rememberedAgain
-    )
+    static var scenes: [LearnQuizPilotScene] {
+        pilot.scenes.enumerated().map { index, scene in
+            makeScene(from: scene, number: index + 1)
+        }
+    }
+
+    static var journeyEntry: LearnQuizChronicleEntry {
+        LearnQuizChronicleEntry(
+            id: pilot.endOfPilotReward.id,
+            title: pilot.endOfPilotReward.title,
+            subtitle: pilot.endOfPilotReward.subtitle,
+            meaning: pilot.endOfPilotReward.meaning,
+            state: .rememberedAgain
+        )
+    }
+
+    private static func makeScene(from scene: ChronicleScene, number: Int) -> LearnQuizPilotScene {
+        let quizItem = scene.quizItems.first ?? fallbackQuizItem(for: scene)
+        return LearnQuizPilotScene(
+            id: scene.id,
+            number: number,
+            title: scene.title,
+            subtitle: scene.memoryHook,
+            timeMarker: scene.timeMarker,
+            place: scene.placeAnchors.map(\.name).joined(separator: " + "),
+            actionVerb: scene.actionVerb,
+            memoryHook: scene.memoryHook,
+            story: scene.childSafeStory,
+            meaning: scene.meaning,
+            quiz: makePrompt(from: quizItem),
+            matchPairs: scene.matchPairs.map(makeMatchPair),
+            chronicleEntry: makeChronicleEntry(from: scene),
+            art: art(for: scene)
+        )
+    }
+
+    private static func makePrompt(from item: QuizItem) -> LearnQuizPrompt {
+        let challenge = RecallChallenge(
+            id: item.id,
+            promptType: .openPrompt,
+            prompt: item.prompt,
+            correctAnswers: item.acceptedAnswers,
+            hintLadder: item.hintLadder,
+            feedback: RecallFeedback(success: item.successFeedback, recovery: item.recoveryFeedback),
+            masteryContribution: .understood
+        )
+        return LearnQuizPrompt(
+            question: item.prompt,
+            options: item.answerChips,
+            correctAnswer: item.acceptedAnswers.first ?? item.answerChips.first ?? "",
+            hintLadder: item.hintLadder.map(\.body),
+            teachingFeedback: item.recoveryFeedback,
+            challenge: challenge
+        )
+    }
+
+    private static func makeMatchPair(from pair: MatchPair) -> ChronicleMatchPair {
+        ChronicleMatchPair(
+            id: pair.id,
+            leftID: "\(pair.id)-left",
+            leftText: pair.left,
+            rightID: "\(pair.id)-right",
+            rightText: pair.right,
+            kind: makeMatchKind(from: pair.kind),
+            teachingClue: pair.teachingFeedback
+        )
+    }
+
+    private static func makeMatchKind(from kind: MatchPairKind) -> ChronicleMatchPairKind {
+        switch kind {
+        case .placeToHook:
+            return .placeToHook
+        case .placeToAction:
+            return .placeToAction
+        case .eventToTime:
+            return .eventToTimeMarker
+        case .actionToMeaning:
+            return .meaningToScene
+        }
+    }
+
+    private static func makeChronicleEntry(from scene: ChronicleScene) -> LearnQuizChronicleEntry {
+        let entry = ChronicleEntry(
+            id: scene.chronicleReward.id,
+            title: scene.chronicleReward.title,
+            keepsakeTitle: scene.chronicleReward.subtitle,
+            meaningStatement: scene.chronicleReward.meaning,
+            linkedSceneID: scene.id,
+            linkedPlaceID: scene.placeAnchors.first?.id,
+            linkedTimelineEventID: nil,
+            unlockRule: UnlockRule(requiredMastery: .understood, enhancedMastery: .remembered)
+        )
+        let progress = ChronicleProgressEngine.progress(
+            for: entry,
+            evidence: [.lessonSeen, .recallCorrect],
+            at: Date()
+        )
+        return LearnQuizChronicleEntry(
+            id: scene.chronicleReward.id,
+            title: scene.chronicleReward.title,
+            subtitle: scene.chronicleReward.subtitle,
+            meaning: scene.chronicleReward.meaning,
+            state: makeEntryState(from: progress.detailLevel)
+        )
+    }
+
+    private static func makeEntryState(from detailLevel: ChronicleRewardDetailLevel) -> LearnQuizChronicleEntry.State {
+        switch detailLevel {
+        case .hidden, .silhouette:
+            return .silhouette
+        case .inked:
+            return .inked
+        case .sealed:
+            return .sealed
+        case .rememberedAgain:
+            return .rememberedAgain
+        }
+    }
+
+    private static func art(for scene: ChronicleScene) -> LearnQuizArt {
+        if scene.id.contains("shivneri") {
+            return LearnQuizArt(assetSlot: "LearnQuizShivneriHero", symbol: "sunrise.fill", emphasis: .story)
+        }
+        if scene.id.contains("torna") || scene.id.contains("rajgad") {
+            return LearnQuizArt(assetSlot: "LearnQuizTornaRajgadHero", symbol: "mountain.2.fill", emphasis: .place)
+        }
+        return LearnQuizArt(assetSlot: "LearnQuizPratapgadHero", symbol: "seal.fill", emphasis: .chronicle)
+    }
+
+    private static func fallbackQuizItem(for scene: ChronicleScene) -> QuizItem {
+        QuizItem(
+            id: "\(scene.id)-fallback-quiz",
+            prompt: "What should we remember about \(scene.title)?",
+            acceptedAnswers: [scene.memoryHook],
+            answerChips: [scene.memoryHook],
+            hintLadder: [RecallHint(level: 1, title: "Memory hook", body: scene.memoryHook)],
+            successFeedback: "Yes. \(scene.memoryHook) is the memory hook.",
+            recoveryFeedback: "Remember the hook: \(scene.memoryHook)."
+        )
+    }
 }

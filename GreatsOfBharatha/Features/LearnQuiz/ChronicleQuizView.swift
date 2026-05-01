@@ -3,11 +3,19 @@ import SwiftUI
 struct ChronicleQuizView: View {
     let scene: LearnQuizPilotScene
 
-    @State private var selectedAnswer: String?
-    @State private var hintIndex = 0
+    @State private var quizState = ChronicleQuizState()
+    @State private var result: ChronicleQuizResult?
+
+    private var selectedAnswer: String? {
+        quizState.selectedAnswer
+    }
 
     private var isCorrect: Bool {
-        selectedAnswer == scene.quiz.correctAnswer
+        result?.isCorrect == true
+    }
+
+    private var visibleHintIndex: Int {
+        max(0, min(quizState.revealedHintCount, scene.quiz.hintLadder.count) - 1)
     }
 
     var body: some View {
@@ -52,7 +60,12 @@ struct ChronicleQuizView: View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: GBSpacing.xSmall) {
             ForEach(scene.quiz.options, id: \.self) { option in
                 Button {
-                    selectedAnswer = option
+                    result = ChronicleQuizEngine.evaluate(
+                        state: quizState,
+                        challenge: scene.quiz.challenge,
+                        selectedAnswer: option
+                    )
+                    quizState = result?.nextState ?? quizState
                 } label: {
                     HStack {
                         Text(option)
@@ -82,36 +95,36 @@ struct ChronicleQuizView: View {
                 HStack {
                     GBBadge(title: "Hint ladder", symbol: "sparkle.magnifyingglass", emphasis: .chronicle)
                     Spacer()
-                    Text("\(min(hintIndex + 1, scene.quiz.hintLadder.count))/\(scene.quiz.hintLadder.count)")
+                    Text("\(min(visibleHintIndex + 1, scene.quiz.hintLadder.count))/\(scene.quiz.hintLadder.count)")
                         .font(GBFont.ui(size: 12, weight: .heavy))
                         .foregroundStyle(GBColor.Content.tertiary)
                 }
 
-                Text(scene.quiz.hintLadder[hintIndex])
+                Text(scene.quiz.hintLadder[visibleHintIndex])
                     .font(GBFont.ui(size: 17, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Button {
-                    hintIndex = min(hintIndex + 1, scene.quiz.hintLadder.count - 1)
+                    quizState = ChronicleQuizEngine.revealNextHint(from: quizState, challenge: scene.quiz.challenge)
                 } label: {
                     Label("Show next clue", systemImage: "arrow.down.circle.fill")
                 }
                 .buttonStyle(.gbSecondary)
-                .disabled(hintIndex >= scene.quiz.hintLadder.count - 1)
+                .disabled(quizState.revealedHintCount >= scene.quiz.hintLadder.count)
             }
         }
     }
 
     @ViewBuilder
     private var feedbackCard: some View {
-        if let selectedAnswer {
+        if selectedAnswer != nil, let result {
             GBSurface(style: isCorrect ? .accented(.chronicle) : .elevated) {
                 VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
                     Label(isCorrect ? "Remembered" : "Try with this clue", systemImage: isCorrect ? "checkmark.seal.fill" : "heart.text.square.fill")
                         .font(GBFont.ui(size: 17, weight: .heavy))
                         .foregroundStyle(isCorrect ? .white : GBColor.Content.primary)
-                    Text(isCorrect ? "\(selectedAnswer) is right." : scene.quiz.teachingFeedback)
+                    Text(result.feedback)
                         .font(GBFont.story(size: 18))
                         .foregroundStyle(isCorrect ? .white.opacity(0.92) : GBColor.Content.secondary)
                         .fixedSize(horizontal: false, vertical: true)
