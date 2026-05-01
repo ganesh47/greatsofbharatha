@@ -205,6 +205,38 @@ final class LearningEnginesTests: XCTestCase {
         XCTAssertEqual(progress.completedEvents, [.lessonSeen, .recallCorrect, .matchCompleted, .reviewCorrect])
     }
 
+    func testMapQuizEngineBuildsMysteryPromptsWithPuneAnchorClues() throws {
+        let places = SampleContent.shivajiVerticalSlice.corePlaces
+        let shivneriPrompt = try XCTUnwrap(MapQuizEngine.prompts(for: places).first { $0.placeID == "place-shivneri" })
+
+        XCTAssertEqual(shivneriPrompt.hiddenTitle, "Mystery fort")
+        XCTAssertEqual(shivneriPrompt.revealedTitle, "Shivneri")
+        XCTAssertTrue(shivneriPrompt.anchorClue.contains("From Pune"))
+        XCTAssertTrue(shivneriPrompt.anchorClue.contains("north-east"))
+        XCTAssertEqual(shivneriPrompt.memoryHook, "Birth Fort")
+    }
+
+    func testMapQuizEngineRevealsPlacesAndHighlightsGroupsTogether() throws {
+        let places = SampleContent.shivajiVerticalSlice.places
+        let groups = MapQuizEngine.defaultHighlightGroups(for: places)
+        let puneGroup = try XCTUnwrap(groups.first { $0.id == "pune-side-forts" })
+
+        XCTAssertEqual(puneGroup.placeIDs, ["place-torna", "place-rajgad", "place-purandar"])
+
+        var state = MapQuizState()
+        state = MapQuizEngine.reveal(placeID: "place-rajgad", in: state)
+        XCTAssertEqual(state.revealedPlaceIDs, ["place-rajgad"])
+
+        state = MapQuizEngine.apply(group: puneGroup, to: state)
+        XCTAssertEqual(state.activeGroupID, "pune-side-forts")
+        XCTAssertEqual(state.highlightedPlaceIDs, ["place-torna", "place-rajgad", "place-purandar"])
+
+        state = MapQuizEngine.clearHighlights(from: state)
+        XCTAssertNil(state.activeGroupID)
+        XCTAssertTrue(state.highlightedPlaceIDs.isEmpty)
+        XCTAssertEqual(state.revealedPlaceIDs, ["place-rajgad"])
+    }
+
     private var shivneriChallenge: RecallChallenge {
         RecallChallenge(
             id: "scene-1-shivneri-recall",
