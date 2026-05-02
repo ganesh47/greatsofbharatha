@@ -36,6 +36,7 @@ struct ChronicleView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     chronicleHero
+                    progressStrip
 
                     if let highlightedReward {
                         NewRewardSpotlight(
@@ -99,19 +100,113 @@ struct ChronicleView: View {
         .navigationTitle("Royal Chronicle")
     }
 
+    @ViewBuilder
     private var chronicleHero: some View {
+        if let deepeningScene {
+            NavigationLink {
+                SceneLessonView(scene: deepeningScene)
+            } label: {
+                chronicleHeroCard
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Opens \(deepeningScene.title)")
+        } else {
+            chronicleHeroCard
+        }
+    }
+
+    private var chronicleHeroCard: some View {
         GBHeroCard(
             eyebrow: "Royal Chronicle",
-            title: appModel.lessonStore.unlockedChronicleCount == 0 ? "Your keepsakes are taking shape" : "A shelf of remembered meaning",
-            subtitle: "Previewed: \(appModel.lessonStore.previewedChronicleCount)  •  Earned: \(appModel.lessonStore.unlockedChronicleCount)  •  Deepened: \(appModel.lessonStore.enrichedChronicleCount)",
-            detail: appModel.lessonStore.unlockedChronicleCount == 0
-                ? "Story exposure lets a keepsake silhouette appear. Real Chronicle unlocks begin when you answer from memory."
-                : "The Chronicle now tracks what you have merely seen, what you have truly earned, and what you understand more deeply.",
-            ctaTitle: appModel.lessonStore.unlockedChronicleCount == 0 ? "Earn a keepsake" : "Keep deepening",
+            title: appModel.lessonStore.chronicleHeadline,
+            subtitle: heroSubtitle,
+            detail: heroDetail,
+            ctaTitle: heroCTATitle,
             badgeTitle: "\(appModel.lessonStore.unlockedChronicleCount)/\(max(appModel.lessonStore.totalChronicleEntries, 1)) earned",
             emphasis: .chronicle,
             progress: appModel.lessonStore.totalChronicleEntries == 0 ? nil : Double(appModel.lessonStore.unlockedChronicleCount) / Double(appModel.lessonStore.totalChronicleEntries)
         )
+    }
+
+    private var progressStrip: some View {
+        HStack(spacing: GBSpacing.xSmall) {
+            ChronicleStatTile(
+                title: "Previewed",
+                value: appModel.lessonStore.previewedChronicleCount,
+                total: appModel.lessonStore.totalChronicleEntries,
+                symbol: "eye.fill",
+                emphasis: .story
+            )
+            ChronicleStatTile(
+                title: "Earned",
+                value: appModel.lessonStore.unlockedChronicleCount,
+                total: appModel.lessonStore.totalChronicleEntries,
+                symbol: GBIcon.chronicle,
+                emphasis: .chronicle
+            )
+            ChronicleStatTile(
+                title: "Deepened",
+                value: appModel.lessonStore.enrichedChronicleCount,
+                total: appModel.lessonStore.totalChronicleEntries,
+                symbol: GBIcon.success,
+                emphasis: .place
+            )
+        }
+    }
+
+    private var heroSubtitle: String {
+        if let dueReviewScene {
+            return "Review ready: \(dueReviewScene.title)"
+        }
+        if let deepeningScene {
+            return "Next: \(deepeningScene.title)"
+        }
+        return "All keepsakes are on the shelf"
+    }
+
+    private var heroDetail: String {
+        if dueReviewScene != nil {
+            return "A short return to a remembered scene can turn an earned keepsake into deeper mastery."
+        }
+        if appModel.lessonStore.unlockedChronicleCount == 0 {
+            return "Story exposure lets a keepsake silhouette appear. Real Chronicle unlocks begin when you answer from memory."
+        }
+        return "The Chronicle now tracks what you have seen, what you have earned, and what you understand more deeply."
+    }
+
+    private var heroCTATitle: String {
+        if dueReviewScene != nil {
+            return "Run due review"
+        }
+        return appModel.lessonStore.unlockedChronicleCount == 0 ? "Earn a keepsake" : "Keep deepening"
+    }
+
+    private var deepeningScene: StoryScene? {
+        if let dueReviewScene {
+            return dueReviewScene
+        }
+
+        if let nextSceneID = appModel.lessonStore.nextSceneID,
+           let nextScene = scene(withID: nextSceneID) {
+            return nextScene
+        }
+
+        if let rewardScene = (previewedRewards.first ?? earnedRewards.first ?? deepenedRewards.first).flatMap({ scene(withID: $0.unlockedBySceneID) }) {
+            return rewardScene
+        }
+
+        return appModel.content.scenes.first
+    }
+
+    private var dueReviewScene: StoryScene? {
+        guard let dueSceneID = appModel.lessonStore.dueReviews().first(where: { $0.subjectType == .scene })?.subjectID else {
+            return nil
+        }
+        return scene(withID: dueSceneID)
+    }
+
+    private func scene(withID sceneID: String) -> StoryScene? {
+        appModel.content.scenes.first(where: { $0.id == sceneID })
     }
 
     @ViewBuilder
@@ -167,6 +262,52 @@ private enum ChronicleShelfState {
     case previewed
     case earned
     case deepened
+}
+
+private struct ChronicleStatTile: View {
+    let title: String
+    let value: Int
+    let total: Int
+    let symbol: String
+    let emphasis: GBEmphasis
+
+    private var progress: Double {
+        guard total > 0 else { return 0 }
+        return Double(value) / Double(total)
+    }
+
+    var body: some View {
+        GBSurface(style: .plain, padding: GBSpacing.xSmall) {
+            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                HStack(spacing: GBSpacing.xxxSmall) {
+                    Image(systemName: symbol)
+                        .font(.caption.weight(.black))
+                        .foregroundStyle(GBColor.accent(for: emphasis))
+                    Text(title)
+                        .font(GBFont.ui(size: 11, weight: .heavy))
+                        .textCase(.uppercase)
+                        .foregroundStyle(GBColor.Content.tertiary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.78)
+                }
+
+                HStack(alignment: .lastTextBaseline, spacing: 2) {
+                    Text("\(value)")
+                        .font(GBFont.ui(size: 22, weight: .black))
+                        .foregroundStyle(value > 0 ? GBColor.accent(for: emphasis) : GBColor.State.locked)
+                    Text("/\(max(total, 1))")
+                        .font(GBFont.ui(size: 12, weight: .bold))
+                        .foregroundStyle(GBColor.Content.tertiary)
+                }
+
+                ProgressView(value: progress)
+                    .tint(GBColor.accent(for: emphasis))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(value) of \(max(total, 1))")
+    }
 }
 
 private struct NewRewardSpotlight: View {
