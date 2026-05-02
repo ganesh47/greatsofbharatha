@@ -27,12 +27,12 @@
 		47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
 		4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */; };
 		5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
+		5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */; };
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
 		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
 		5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */; };
 		5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390AE8B48E7C52C376816E87 /* LearningEngines.swift */; };
-		5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */; };
 		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
 		62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
@@ -470,13 +470,13 @@
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
 				0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */,
+				5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */,
 				DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */,
 				ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */,
 				89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */,
 				C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */,
 				CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */,
 				8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */,
-				5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */,
 				8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */,
 				F71FFA5AC6385137A61EFFE9 /* GBFortMapView.swift in Sources */,
 				96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */,
