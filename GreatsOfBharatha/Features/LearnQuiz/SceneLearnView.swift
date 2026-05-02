@@ -9,7 +9,7 @@ struct SceneLearnView: View {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     SceneLearnCard(scene: scene, ctaTitle: "Quiz me")
 
-                    HStack(spacing: GBSpacing.xSmall) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 112), spacing: GBSpacing.xSmall)], spacing: GBSpacing.xSmall) {
                         NavigationLink {
                             ChronicleQuizView(scene: scene)
                         } label: {
@@ -21,6 +21,13 @@ struct SceneLearnView: View {
                             ChronicleMatchView(scenes: LearnQuizPilotData.scenes)
                         } label: {
                             Label("Match", systemImage: "square.grid.2x2.fill")
+                        }
+                        .buttonStyle(.gbSecondary)
+
+                        NavigationLink {
+                            FlashcardReviewView(cards: scene.reviewCards)
+                        } label: {
+                            Label("Cards", systemImage: "rectangle.on.rectangle.angled")
                         }
                         .buttonStyle(.gbSecondary)
                     }

@@ -27,6 +27,7 @@
 		47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
 		4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */; };
 		5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
+		5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */; };
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
 		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
@@ -91,6 +92,7 @@
 		390AE8B48E7C52C376816E87 /* LearningEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEngines.swift; sourceTree = "<group>"; };
 		3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
 		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
+		49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardReviewView.swift; sourceTree = "<group>"; };
 		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
 		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */,
 				F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */,
 				AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */,
+				49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */,
 				2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */,
 				E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */,
 				3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */,
@@ -467,6 +470,7 @@
 				B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */,
 				229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */,
 				0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */,
+				5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */,
 				DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */,
 				ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */,
 				89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */,
