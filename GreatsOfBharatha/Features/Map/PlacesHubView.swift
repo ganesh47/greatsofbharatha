@@ -327,6 +327,15 @@ private struct PlaceMapExplorerSheet: View {
     let nearbyPlaces: [Place]
 
     @State private var cameraPosition: MapCameraPosition
+    @State private var mapQuizState = MapQuizState()
+
+    private var mapQuizPrompts: [MapQuizPlacePrompt] {
+        MapQuizEngine.prompts(for: nearbyPlaces)
+    }
+
+    private var highlightGroups: [MapHighlightGroup] {
+        MapQuizEngine.defaultHighlightGroups(for: nearbyPlaces)
+    }
 
     init(place: Place, nearbyPlaces: [Place]) {
         self.place = place
@@ -350,18 +359,22 @@ private struct PlaceMapExplorerSheet: View {
                     }
                 }
 
+                mapQuizPromptCard
+
                 Map(position: $cameraPosition) {
                     ForEach(nearbyPlaces.filter { $0.coordinate != nil }) { candidate in
-                        Annotation(candidate.name, coordinate: candidate.coordinate!) {
-                            VStack(spacing: 4) {
-                                Image(systemName: candidate.id == place.id ? "mappin.circle.fill" : "mappin.circle")
-                                    .font(candidate.id == place.id ? .title : .title2)
-                                    .foregroundStyle(candidate.id == place.id ? GBColor.Accent.place : GBColor.Content.primary)
-                                Text(candidate.name)
-                                    .font(.caption2.weight(.bold))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 4)
-                                    .background(.ultraThinMaterial, in: Capsule())
+                        if let coordinate = candidate.coordinate {
+                            Annotation(annotationTitle(for: candidate), coordinate: coordinate) {
+                                Button {
+                                    withAnimation(GBMotion.bounce) {
+                                        mapQuizState = MapQuizEngine.reveal(placeID: candidate.id, in: mapQuizState)
+                                    }
+                                    GBHaptic.pinCorrect()
+                                } label: {
+                                    mapPin(for: candidate)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(accessibilityLabel(for: candidate))
                             }
                         }
                     }
@@ -410,6 +423,107 @@ private struct PlaceMapExplorerSheet: View {
                 longitudeDelta: viewport.longitudeDelta
             )
         )
+    }
+
+    private var mapQuizPromptCard: some View {
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Map quiz")
+                        .font(.headline)
+                    Spacer()
+                    Text("\(mapQuizState.revealedPlaceIDs.count)/\(mapQuizPrompts.count)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(GBColor.Place.primary)
+                }
+
+                Text(currentQuizClue)
+                    .font(.subheadline)
+                    .foregroundStyle(GBColor.Content.secondary)
+
+                if !highlightGroups.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: GBSpacing.xSmall) {
+                            Button {
+                                withAnimation(GBMotion.spring) {
+                                    mapQuizState = MapQuizEngine.clearHighlights(from: mapQuizState)
+                                }
+                            } label: {
+                                Label("Clear", systemImage: "xmark.circle")
+                            }
+                            .buttonStyle(.gbSecondary)
+
+                            ForEach(highlightGroups) { group in
+                                Button {
+                                    withAnimation(GBMotion.spring) {
+                                        mapQuizState = MapQuizEngine.apply(group: group, to: mapQuizState)
+                                    }
+                                } label: {
+                                    Label(group.title, systemImage: mapQuizState.activeGroupID == group.id ? "mappin.and.ellipse.circle.fill" : "mappin.and.ellipse.circle")
+                                }
+                                .buttonStyle(.gbSecondary)
+                                .accessibilityHint(group.subtitle)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var currentQuizClue: String {
+        guard let prompt = mapQuizPrompts.first(where: { !mapQuizState.revealedPlaceIDs.contains($0.placeID) }) else {
+            return "Every fort name is revealed. Try a group highlight and compare the cluster."
+        }
+        return "\(prompt.anchorClue) Hook: \(prompt.memoryHook)."
+    }
+
+    private func mapPin(for candidate: Place) -> some View {
+        let isRevealed = mapQuizState.revealedPlaceIDs.contains(candidate.id)
+        let isHighlighted = mapQuizState.highlightedPlaceIDs.contains(candidate.id)
+        let isFocus = candidate.id == place.id
+
+        return VStack(spacing: 4) {
+            ZStack {
+                if isHighlighted {
+                    Circle()
+                        .stroke(GBColor.Accent.success.opacity(0.65), lineWidth: 4)
+                        .frame(width: 46, height: 46)
+                }
+
+                Image(systemName: pinIcon(for: candidate, isRevealed: isRevealed))
+                    .font(isFocus || isHighlighted ? .title : .title2)
+                    .foregroundStyle(pinColor(isFocus: isFocus, isHighlighted: isHighlighted, isRevealed: isRevealed))
+            }
+
+            Text(isRevealed ? candidate.name : "Mystery fort")
+                .font(.caption2.weight(.bold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 4)
+                .background(.ultraThinMaterial, in: Capsule())
+        }
+    }
+
+    private func annotationTitle(for candidate: Place) -> String {
+        mapQuizState.revealedPlaceIDs.contains(candidate.id) ? candidate.name : "Mystery fort"
+    }
+
+    private func accessibilityLabel(for candidate: Place) -> String {
+        if mapQuizState.revealedPlaceIDs.contains(candidate.id) {
+            return "\(candidate.name), revealed map quiz fort."
+        }
+        return "Mystery fort near \(candidate.regionLabel). Tap to reveal."
+    }
+
+    private func pinIcon(for candidate: Place, isRevealed: Bool) -> String {
+        if !isRevealed { return "questionmark.circle.fill" }
+        return candidate.id == place.id ? "mappin.circle.fill" : "mappin.circle"
+    }
+
+    private func pinColor(isFocus: Bool, isHighlighted: Bool, isRevealed: Bool) -> Color {
+        if isHighlighted { return GBColor.Accent.success }
+        if isFocus { return GBColor.Accent.place }
+        return isRevealed ? GBColor.Content.primary : GBColor.Content.secondary
     }
 }
 

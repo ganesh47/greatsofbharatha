@@ -139,6 +139,109 @@ enum ChronicleQuizEngine {
     }
 }
 
+struct MapQuizPlacePrompt: Identifiable, Codable, Equatable {
+    let id: String
+    let placeID: String
+    let hiddenTitle: String
+    let revealedTitle: String
+    let anchorClue: String
+    let memoryHook: String
+}
+
+struct MapHighlightGroup: Identifiable, Codable, Equatable {
+    let id: String
+    let title: String
+    let subtitle: String
+    let placeIDs: Set<String>
+}
+
+struct MapQuizState: Codable, Equatable {
+    var revealedPlaceIDs: Set<String>
+    var highlightedPlaceIDs: Set<String>
+    var activeGroupID: String?
+
+    init(
+        revealedPlaceIDs: Set<String> = [],
+        highlightedPlaceIDs: Set<String> = [],
+        activeGroupID: String? = nil
+    ) {
+        self.revealedPlaceIDs = revealedPlaceIDs
+        self.highlightedPlaceIDs = highlightedPlaceIDs
+        self.activeGroupID = activeGroupID
+    }
+}
+
+enum MapQuizEngine {
+    static let puneLatitude = 18.5204
+    static let puneLongitude = 73.8567
+
+    static func prompts(for places: [Place]) -> [MapQuizPlacePrompt] {
+        places
+            .filter { $0.latitude != nil && $0.longitude != nil }
+            .map { place in
+                MapQuizPlacePrompt(
+                    id: "map-quiz-\(place.id)",
+                    placeID: place.id,
+                    hiddenTitle: "Mystery fort",
+                    revealedTitle: place.name,
+                    anchorClue: anchorClue(for: place),
+                    memoryHook: place.memoryHook
+                )
+            }
+    }
+
+    static func reveal(placeID: String, in state: MapQuizState) -> MapQuizState {
+        var nextState = state
+        nextState.revealedPlaceIDs.insert(placeID)
+        return nextState
+    }
+
+    static func apply(group: MapHighlightGroup, to state: MapQuizState) -> MapQuizState {
+        var nextState = state
+        nextState.activeGroupID = group.id
+        nextState.highlightedPlaceIDs = group.placeIDs
+        return nextState
+    }
+
+    static func clearHighlights(from state: MapQuizState) -> MapQuizState {
+        var nextState = state
+        nextState.activeGroupID = nil
+        nextState.highlightedPlaceIDs.removeAll()
+        return nextState
+    }
+
+    static func defaultHighlightGroups(for places: [Place]) -> [MapHighlightGroup] {
+        let placeIDs = Set(places.map(\.id))
+        let puneSideForts = Set(["place-torna", "place-rajgad", "place-purandar"]).intersection(placeIDs)
+        let openingJourney = Set(["place-shivneri", "place-torna", "place-rajgad", "place-pratapgad"]).intersection(placeIDs)
+
+        return [
+            MapHighlightGroup(
+                id: "pune-side-forts",
+                title: "Near Pune group",
+                subtitle: "Pune-side forts sit close together around the same landmark.",
+                placeIDs: puneSideForts
+            ),
+            MapHighlightGroup(
+                id: "opening-journey",
+                title: "Opening journey",
+                subtitle: "Reveal the first forts in the learn-and-quiz reset.",
+                placeIDs: openingJourney
+            ),
+        ].filter { !$0.placeIDs.isEmpty }
+    }
+
+    static func anchorClue(for place: Place) -> String {
+        guard let latitude = place.latitude, let longitude = place.longitude else {
+            return place.regionLabel
+        }
+
+        let northSouth = latitude >= puneLatitude ? "north" : "south"
+        let eastWest = longitude >= puneLongitude ? "east" : "west"
+        return "From Pune, look \(northSouth)-\(eastWest): \(place.regionLabel)."
+    }
+}
+
 enum ChronicleMatchPairKind: String, Codable, CaseIterable, Equatable {
     case placeToHook
     case placeToAction
