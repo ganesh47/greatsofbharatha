@@ -172,12 +172,15 @@ final class LearningEnginesTests: XCTestCase {
 
     func testLearnQuizPilotExposesReviewSeedsAsFlashcards() {
         let cards = LearnQuizPilotData.reviewCards
+        let sceneIDs = Set(LearnQuizPilotData.scenes.map(\.id))
 
-        XCTAssertEqual(cards.count, 3)
-        XCTAssertEqual(cards.map(\.front), ["Birth Fort", "First Big Fort / Early Capital", "Turning Point"])
-        XCTAssertEqual(cards.map(\.back), ["Shivneri", "Torna / Rajgad", "Pratapgad"])
-        XCTAssertEqual(cards.map(\.learningSeed.subjectID), LearnQuizPilotData.scenes.map(\.id))
+        XCTAssertEqual(cards.count, 29)
+        XCTAssertEqual(cards.first?.front, "Birth Fort")
+        XCTAssertEqual(cards.first?.back, "Shivneri")
         XCTAssertTrue(cards.allSatisfy { $0.learningSeed.subjectType == .scene })
+        XCTAssertTrue(cards.allSatisfy { sceneIDs.contains($0.learningSeed.subjectID) })
+        // Every pilot scene has at least one review card
+        XCTAssertEqual(Set(cards.map(\.learningSeed.subjectID)), sceneIDs)
     }
 
     func testChronicleProgressEngineTransitionsFromSilhouetteToRememberedAgain() {
