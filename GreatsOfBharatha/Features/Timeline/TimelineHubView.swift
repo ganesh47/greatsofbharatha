@@ -98,7 +98,9 @@ struct TimelineHubView: View {
                 eyebrow: "Review Queue",
                 title: dueReviews.isEmpty ? "Upcoming revisit moments" : "Due now for a short revisit",
                 subtitle: dueReviews.isEmpty
-                    ? "Nothing is overdue. These are the next moments the child will re-enter for calm spaced review."
+                    ? (upcomingReviews.isEmpty
+                        ? "Start in the Learn tab to unlock your first timeline moment. Complete a scene and the timeline wakes up."
+                        : "Nothing is overdue. These are the next moments the child will re-enter for calm spaced review.")
                     : "These items are ready to come back into the journey through a quick memory run."
             )
 

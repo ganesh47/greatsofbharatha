@@ -142,7 +142,7 @@ struct LessonHomeView: View {
 
         return VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
             HStack {
-                Text("My story stars")
+                Text("Chapters")
                     .font(GBFont.ui(size: 12, weight: .heavy))
                     .foregroundStyle(GBColor.Content.secondary)
                 Spacer()
@@ -153,8 +153,8 @@ struct LessonHomeView: View {
 
             HStack(spacing: 7) {
                 ForEach(0..<total, id: \.self) { idx in
-                    Image(systemName: idx < completed ? "star.fill" : "star")
-                        .font(.system(size: 22))
+                    Image(systemName: idx < completed ? "circle.fill" : "circle")
+                        .font(.system(size: 20))
                         .foregroundStyle(idx < completed ? GBColor.Chronicle.gold : GBColor.Content.tertiary)
                         .animation(GBMotion.bounce.delay(Double(idx) * 0.06), value: completed)
                 }
@@ -170,7 +170,7 @@ struct LessonHomeView: View {
                 )
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("My story stars, \(completed) of \(total) scenes complete")
+        .accessibilityLabel("Chapters, \(completed) of \(total) complete")
     }
 
     // MARK: - Tucked lower-priority scenes

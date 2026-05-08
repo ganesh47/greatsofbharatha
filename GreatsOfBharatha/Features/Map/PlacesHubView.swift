@@ -26,7 +26,7 @@ struct PlacesHubView: View {
                     GBSurface(style: .elevated) {
                         HStack(spacing: GBSpacing.small) {
                             PlaceSummaryPill(title: "Ready now", value: "\(readyPlaces.count)", emphasis: .place)
-                            PlaceSummaryPill(title: "Collected", value: "\(masteredCount)", emphasis: .chronicle)
+                            PlaceSummaryPill(title: "Visited", value: "\(masteredCount)", emphasis: .chronicle)
                             PlaceSummaryPill(title: "Core forts", value: "\(places.filter(\.isCoreReleasePlace).count)", emphasis: .neutral)
                         }
                     }

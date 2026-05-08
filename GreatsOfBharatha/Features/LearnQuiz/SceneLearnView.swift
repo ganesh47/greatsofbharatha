@@ -41,7 +41,7 @@ struct SceneLearnView: View {
                                     .font(.system(size: 26, weight: .bold))
                                     .foregroundStyle(GBColor.Chronicle.gold)
                                 VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                                    Text("Chronicle reward shell")
+                                    Text("Your Chronicle reward")
                                         .font(GBFont.ui(size: 16, weight: .bold))
                                         .foregroundStyle(GBColor.Content.primary)
                                     Text(scene.chronicleEntry.title)
