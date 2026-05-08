@@ -61,6 +61,46 @@ enum SampleContent {
                         correctWithHintCadenceDays: 0,
                         rescuedCadenceDays: 0
                     ),
+                    ReviewSeed(
+                        id: "review-shivneri-place-to-hook",
+                        promptType: .openPrompt,
+                        front: "Shivneri",
+                        back: "Birth Fort",
+                        meaning: "Shivneri is remembered as the Birth Fort where the journey begins.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-shivneri-jijabai",
+                        promptType: .openPrompt,
+                        front: "Who taught Shivaji Maharaj courage and duty?",
+                        back: "Jijabai — at Shivneri",
+                        meaning: "Jijabai's guidance at Shivneri shaped the values Shivaji Maharaj carried forward.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-shivneri-event-to-place",
+                        promptType: .eventToPlaceMatch,
+                        front: "Where the journey begins / Jijabai's guidance",
+                        back: "Shivneri",
+                        meaning: "Shivneri is the place where the story and the values begin.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-shivneri-meaning",
+                        promptType: .openPrompt,
+                        front: "What does Shivneri teach?",
+                        back: "Great journeys begin in real places with real guidance.",
+                        meaning: "Shivneri anchors the idea that values and place are connected from the very start.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
                 ]
             ),
             ChronicleScene(
@@ -115,6 +155,46 @@ enum SampleContent {
                         correctWithHintCadenceDays: 0,
                         rescuedCadenceDays: 0
                     ),
+                    ReviewSeed(
+                        id: "review-torna-hook",
+                        promptType: .openPrompt,
+                        front: "Torna",
+                        back: "First Big Fort",
+                        meaning: "Torna is remembered as the First Big Fort, an early breakthrough in building Swarajya.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-rajgad-hook",
+                        promptType: .openPrompt,
+                        front: "Rajgad",
+                        back: "Early Capital",
+                        meaning: "Rajgad became the early capital and planning base.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-rajgad-planning-base",
+                        promptType: .compareFromMemory,
+                        front: "Which fort became the planning base?",
+                        back: "Rajgad",
+                        meaning: "Rajgad is where Shivaji Maharaj planned from the mountains.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-torna-rajgad-meaning",
+                        promptType: .openPrompt,
+                        front: "What does building Torna and Rajgad teach?",
+                        back: "Not just winning space — building a stronger base.",
+                        meaning: "The early forts teach that careful state-building matters as much as the first victory.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
                 ]
             ),
             ChronicleScene(
@@ -167,25 +247,337 @@ enum SampleContent {
                         correctWithHintCadenceDays: 0,
                         rescuedCadenceDays: 0
                     ),
+                    ReviewSeed(
+                        id: "review-pratapgad-place-to-hook",
+                        promptType: .openPrompt,
+                        front: "Pratapgad",
+                        back: "Turning Point",
+                        meaning: "Pratapgad is remembered as the fort where the balance shifted.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-pratapgad-what-changed",
+                        promptType: .openPrompt,
+                        front: "What changed at Pratapgad?",
+                        back: "Planning and terrain changed the balance.",
+                        meaning: "Knowing the land is a form of preparation — Pratapgad shows this clearly.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-pratapgad-sequence",
+                        promptType: .sequenceSlot,
+                        front: "Where does Pratapgad come in the journey?",
+                        back: "After Torna and Rajgad.",
+                        meaning: "Pratapgad comes third — after the birth fort and the early building forts.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-pratapgad-meaning",
+                        promptType: .openPrompt,
+                        front: "What does Pratapgad teach?",
+                        back: "Knowing the land is a form of preparation.",
+                        meaning: "Terrain and careful planning matter as much as courage in a difficult moment.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+            ChronicleScene(
+                id: "reset-scene-4-purandar-agra",
+                title: "Purandar and Agra - Pressure and Return",
+                timeMarker: "Pressure, setback, and patient return",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-purandar", name: "Purandar", regionLabel: "Southeast of Pune", memoryHook: "Pressure Fort"),
+                    PlaceAnchor(id: "place-agra", name: "Agra", regionLabel: "Northern India on the Yamuna", memoryHook: "Northern Court"),
+                ],
+                actionVerb: "endures",
+                memoryHook: "Pressure Fort / Northern Court",
+                childSafeStory: "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement at Purandar, then found a clever way to return home from Agra.",
+                meaning: "This scene matters because leaders sometimes face pressure, make hard choices, and still find a way back with patience and planning.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-purandar-agra-sequence",
+                        prompt: "Which happened first — Purandar or Agra?",
+                        acceptedAnswers: ["Purandar"],
+                        answerChips: ["Purandar", "Agra", "Rajgad"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Pressure comes before the northern city."),
+                            RecallHint(level: 2, title: "Place clue", body: "Purandar is near Pune; Agra is in the north."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Purandar."),
+                        ],
+                        successFeedback: "Yes. The difficult agreement at Purandar came before the period at Agra.",
+                        recoveryFeedback: "Remember: Purandar brings pressure first, then Agra and the return."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-purandar-pressure", left: "Purandar", right: "Pressure Fort", kind: .placeToHook, teachingFeedback: "Purandar is the Pressure Fort — where a hard agreement was made."),
+                    MatchPair(id: "match-agra-northern-court", left: "Agra", right: "Northern Court", kind: .placeToHook, teachingFeedback: "Agra is the Northern Court where Shivaji Maharaj was held under close watch."),
+                    MatchPair(id: "match-patience-return", left: "Patience and planning", right: "Made the return possible", kind: .actionToMeaning, teachingFeedback: "Setbacks don't end the story when patience stays alive."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-pressure-and-return-card",
+                    title: "Pressure and Return Card",
+                    subtitle: "Patient resolve keepsake",
+                    meaning: "A Chronicle card for remembering that setbacks are part of the journey and patience opens the way home.",
+                    unlockedBySceneID: "reset-scene-4-purandar-agra",
+                    mastery: .understood,
+                    category: .storyCard
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-purandar-hook",
+                        promptType: .openPrompt,
+                        front: "Pressure Fort",
+                        back: "Purandar",
+                        meaning: "Purandar is where a hard agreement was made under pressure.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-agra-hook",
+                        promptType: .openPrompt,
+                        front: "Northern Court",
+                        back: "Agra",
+                        meaning: "Agra is the northern city where Shivaji Maharaj was held under close watch before returning home.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-purandar-agra-sequence",
+                        promptType: .sequenceSlot,
+                        front: "Which came first — Purandar or Agra?",
+                        back: "Purandar, then Agra.",
+                        meaning: "The hard agreement at Purandar came before the period of watch in Agra.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-purandar-agra-pair",
+                        promptType: .eventToPlaceMatch,
+                        front: "Hard agreement / Under watch in the north",
+                        back: "Purandar / Agra",
+                        meaning: "Purandar and Agra form the setback-and-return arc in the journey.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-agra-meaning",
+                        promptType: .openPrompt,
+                        front: "What does the Agra episode teach?",
+                        back: "Setbacks don't end the story when patience stays alive.",
+                        meaning: "Even under pressure and watch, patience and planning kept the journey going.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+            ChronicleScene(
+                id: "reset-scene-5-rajgad-recovery",
+                title: "Recovery - Rebuilding After Agra",
+                timeMarker: "Comeback and rebuilding",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-rajgad", name: "Rajgad", regionLabel: "Sahyadri range near Torna", memoryHook: "Comeback"),
+                ],
+                actionVerb: "rebuilds",
+                memoryHook: "Comeback",
+                childSafeStory: "After a difficult time in Agra, Shivaji Maharaj did not give up. He returned to Rajgad, rebuilt his strength, reorganized, and grew stronger again.",
+                meaning: "Recovery matters because strength can be rebuilt through steady organization, not only dramatic moments.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-rajgad-comeback",
+                        prompt: "What did Shivaji Maharaj do after returning from Agra?",
+                        acceptedAnswers: ["He rebuilt strength", "He rebuilt and reorganized", "Rebuilt and grew stronger"],
+                        answerChips: ["Rebuilt and grew stronger", "Gave up the fight", "Left Maharashtra"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Think of the Comeback scene at Rajgad."),
+                            RecallHint(level: 2, title: "Action clue", body: "He did not give up — he rebuilt and reorganized."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Rebuilt and grew stronger."),
+                        ],
+                        successFeedback: "Yes. After Agra, Shivaji Maharaj rebuilt strength, reorganized, and grew stronger again.",
+                        recoveryFeedback: "The comeback scene is about rebuilding and returning to growth."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-rajgad-comeback", left: "Rajgad", right: "Comeback", kind: .placeToHook, teachingFeedback: "Rajgad is the comeback anchor — where strength was rebuilt."),
+                    MatchPair(id: "match-rebuilding-resilience", left: "Rebuilding and reorganizing", right: "Resilience in leadership", kind: .actionToMeaning, teachingFeedback: "Recovery shows that resilience is part of leadership."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-comeback-card",
+                    title: "Comeback Chronicle Card",
+                    subtitle: "Resilience keepsake",
+                    meaning: "A Chronicle card for remembering that Shivaji Maharaj rebuilt strength and grew stronger after a difficult time.",
+                    unlockedBySceneID: "reset-scene-5-rajgad-recovery",
+                    mastery: .understood,
+                    category: .storyCard
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-rajgad-comeback-hook",
+                        promptType: .openPrompt,
+                        front: "Comeback",
+                        back: "Rajgad — the recovery anchor.",
+                        meaning: "Rajgad is where Shivaji Maharaj rebuilt after the difficult time in Agra.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-rajgad-what-happened",
+                        promptType: .openPrompt,
+                        front: "What did Shivaji Maharaj do after returning from Agra?",
+                        back: "Rebuilt strength, reorganized, and grew stronger.",
+                        meaning: "The comeback shows that the journey continued even after a setback.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-rajgad-comeback-compare",
+                        promptType: .compareFromMemory,
+                        front: "Which fort is the comeback anchor?",
+                        back: "Rajgad",
+                        meaning: "Rajgad appears twice in the journey: first as Early Capital, then as the Comeback anchor.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-rajgad-comeback-meaning",
+                        promptType: .openPrompt,
+                        front: "What does the comeback teach?",
+                        back: "Resilience is part of leadership, especially after a setback.",
+                        meaning: "Steady rebuilding and reorganizing are how leaders recover and return to growth.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                ]
+            ),
+            ChronicleScene(
+                id: "reset-scene-6-raigad-coronation",
+                title: "Raigad - Coronation as Chhatrapati",
+                timeMarker: "Sovereign climax of the arc",
+                placeAnchors: [
+                    PlaceAnchor(id: "place-raigad", name: "Raigad", regionLabel: "Konkan edge of the Sahyadris", memoryHook: "Coronation Capital"),
+                ],
+                actionVerb: "crowns",
+                memoryHook: "Coronation Capital",
+                childSafeStory: "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati. This marked the rise of Swarajya — self-rule for the people.",
+                meaning: "Raigad matters because the coronation turns the whole journey into a clear statement of Swarajya and responsibility.",
+                quizItems: [
+                    QuizItem(
+                        id: "quiz-raigad-coronation",
+                        prompt: "At which fort was Shivaji Maharaj crowned Chhatrapati?",
+                        acceptedAnswers: ["Raigad"],
+                        answerChips: ["Raigad", "Rajgad", "Pratapgad"],
+                        hintLadder: [
+                            RecallHint(level: 1, title: "Memory hook", body: "Think of the Coronation Capital."),
+                            RecallHint(level: 2, title: "Place clue", body: "It stands on the Konkan edge of the Sahyadris."),
+                            RecallHint(level: 3, title: "Recognition rescue", body: "Choose Raigad."),
+                        ],
+                        successFeedback: "Yes. Raigad is the Coronation Capital where the journey reaches Swarajya.",
+                        recoveryFeedback: "Remember: Raigad is the Coronation Capital — the final fort in the arc."
+                    ),
+                ],
+                matchPairs: [
+                    MatchPair(id: "match-raigad-coronation-capital", left: "Raigad", right: "Coronation Capital", kind: .placeToHook, teachingFeedback: "Raigad is where Shivaji Maharaj was crowned Chhatrapati."),
+                    MatchPair(id: "match-swarajya-raigad", left: "Swarajya", right: "Raigad, 1674", kind: .eventToTime, teachingFeedback: "Swarajya became real at Raigad in 1674."),
+                    MatchPair(id: "match-raigad-meaning", left: "Self-rule and responsibility", right: "Meaning of the coronation", kind: .actionToMeaning, teachingFeedback: "The coronation shows self-rule, dignity, and responsibility."),
+                ],
+                chronicleReward: ChronicleReward(
+                    id: "reset-reward-chhatrapati-crown-card",
+                    title: "Chhatrapati Crown Card",
+                    subtitle: "Sovereign journey keepsake",
+                    meaning: "The final Chronicle card, remembering the coronation at Raigad and the rise of Swarajya.",
+                    unlockedBySceneID: "reset-scene-6-raigad-coronation",
+                    mastery: .remembered,
+                    category: .leadershipBadge
+                ),
+                reviewSeeds: [
+                    ReviewSeed(
+                        id: "review-raigad-hook-to-place",
+                        promptType: .openPrompt,
+                        front: "Coronation Capital",
+                        back: "Raigad",
+                        meaning: "Raigad is remembered as the Coronation Capital where Swarajya became real.",
+                        correctNoHintCadenceDays: 1,
+                        correctWithHintCadenceDays: 0,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-raigad-place-to-hook",
+                        promptType: .openPrompt,
+                        front: "Raigad",
+                        back: "Coronation Capital",
+                        meaning: "Raigad is the final fort in the arc — the Coronation Capital.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-raigad-what-happened",
+                        promptType: .openPrompt,
+                        front: "What happened at Raigad in 1674?",
+                        back: "Shivaji Maharaj was crowned Chhatrapati.",
+                        meaning: "The coronation at Raigad marks the sovereign climax of the whole journey.",
+                        correctNoHintCadenceDays: 2,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-swarajya-meaning",
+                        promptType: .openPrompt,
+                        front: "What does Swarajya mean?",
+                        back: "Self-rule — people governing themselves with dignity.",
+                        meaning: "Swarajya is the idea that Shivaji Maharaj worked toward through the whole journey.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
+                    ReviewSeed(
+                        id: "review-raigad-sequence",
+                        promptType: .sequenceSlot,
+                        front: "Where does Raigad come in the journey?",
+                        back: "Last — the sovereign climax after the comeback.",
+                        meaning: "Raigad is the sixth and final place, where the journey reaches its fullest meaning.",
+                        correctNoHintCadenceDays: 3,
+                        correctWithHintCadenceDays: 1,
+                        rescuedCadenceDays: 0
+                    ),
                 ]
             ),
         ],
         timelineBuilder: TimelineBuilderSeed(
             id: "timeline-shivaji-reset-pilot",
-            prompt: "Put the first three Shivaji scenes in order.",
+            prompt: "Put all six Shivaji scenes in order.",
             orderedSceneIDs: [
                 "reset-scene-1-shivneri",
                 "reset-scene-2-torna-rajgad",
                 "reset-scene-3-pratapgad",
+                "reset-scene-4-purandar-agra",
+                "reset-scene-5-rajgad-recovery",
+                "reset-scene-6-raigad-coronation",
             ],
-            completionRewardText: "The Chronicle gains a Journey So Far timeline strip."
+            completionRewardText: "The Chronicle gains a complete Journey So Far timeline strip."
         ),
         endOfPilotReward: ChronicleReward(
             id: "reset-reward-shivaji-journey-so-far",
             title: "Shivaji Journey So Far",
-            subtitle: "Pilot completion page",
-            meaning: "A page for remembering the order: Shivneri, Torna/Rajgad, Pratapgad.",
-            unlockedBySceneID: "reset-scene-3-pratapgad",
+            subtitle: "Full arc completion page",
+            meaning: "A page for remembering the order: Shivneri, Torna/Rajgad, Pratapgad, Purandar/Agra, Recovery, Raigad.",
+            unlockedBySceneID: "reset-scene-6-raigad-coronation",
             mastery: .remembered,
             category: .leadershipBadge
         )

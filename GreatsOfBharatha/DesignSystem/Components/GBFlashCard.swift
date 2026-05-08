@@ -52,9 +52,9 @@ final class GBNarrator: ObservableObject {
         }
 
         let utterance = AVSpeechUtterance(string: trimmedText)
-        // Slightly slower rate so young children can follow
+        // Child-appropriate rate: 70% from min to default, audible and clear
         utterance.rate = AVSpeechUtteranceMinimumSpeechRate
-            + (AVSpeechUtteranceDefaultSpeechRate - AVSpeechUtteranceMinimumSpeechRate) * 0.30
+            + (AVSpeechUtteranceDefaultSpeechRate - AVSpeechUtteranceMinimumSpeechRate) * 0.70
         utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
             ?? AVSpeechSynthesisVoice(language: "en-US")
         synthesizer.speak(utterance)

@@ -59,13 +59,19 @@ final class GreatsOfBharathaTests: XCTestCase {
             "reset-scene-1-shivneri",
             "reset-scene-2-torna-rajgad",
             "reset-scene-3-pratapgad",
+            "reset-scene-4-purandar-agra",
+            "reset-scene-5-rajgad-recovery",
+            "reset-scene-6-raigad-coronation",
         ])
         XCTAssertEqual(pilot.scenes.map(\.memoryHook), [
             "Birth Fort",
             "First Big Fort / Early Capital",
             "Turning Point",
+            "Pressure Fort / Northern Court",
+            "Comeback",
+            "Coronation Capital",
         ])
-        XCTAssertEqual(pilot.scenes.flatMap(\.quizItems).count, 3)
+        XCTAssertEqual(pilot.scenes.flatMap(\.quizItems).count, 6)
         XCTAssertGreaterThanOrEqual(pilot.scenes.flatMap(\.matchPairs).count, 6)
         XCTAssertEqual(pilot.timelineBuilder.orderedSceneIDs, pilot.scenes.map(\.id))
         XCTAssertEqual(pilot.endOfPilotReward.title, "Shivaji Journey So Far")
