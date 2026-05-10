@@ -68,6 +68,16 @@ struct SceneLearnCard: View {
     var ctaTitle: String = "Quiz me"
     var onCTA: (() -> Void)?
 
+    private var glossaryTerms: [GBGlossaryTerm] {
+        GBGlossaryTerm.matching([
+            scene.title,
+            scene.story,
+            scene.meaning,
+            scene.place,
+            scene.memoryHook,
+        ].joined(separator: " "))
+    }
+
     var body: some View {
         GBSurface(style: .plain, padding: GBSpacing.small) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
@@ -94,6 +104,8 @@ struct SceneLearnCard: View {
                         .font(GBFont.ui(size: 15, weight: .semibold))
                         .foregroundStyle(GBColor.Content.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    GBGlossaryTray(terms: glossaryTerms)
                 }
 
                 Button(action: { onCTA?() }) {

@@ -37,6 +37,7 @@ struct ChronicleView: View {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     chronicleHero
                     progressStrip
+                    GBGlossaryTray(terms: [.chronicle, .swarajya, .coronation])
 
                     if let highlightedReward {
                         NewRewardSpotlight(
@@ -54,8 +55,8 @@ struct ChronicleView: View {
                     if !previewedRewards.isEmpty {
                         shelfSection(
                             eyebrow: "Taking shape",
-                            title: "Previewed silhouettes",
-                            subtitle: "You have seen these moments in the story. Answer the recall card to reveal their meaning.",
+                            title: "Seen shapes",
+                            subtitle: "You have seen these story moments. Answer from memory to open the card.",
                             rewards: previewedRewards,
                             state: .previewed
                         )
@@ -73,9 +74,9 @@ struct ChronicleView: View {
 
                     if !deepenedRewards.isEmpty {
                         shelfSection(
-                            eyebrow: "Held more deeply",
-                            title: "Deepened keepsakes",
-                            subtitle: "These entries shine brighter because you remembered the story again.",
+                            eyebrow: "Remembered again",
+                            title: "Stronger keepsakes",
+                            subtitle: "These cards grew stronger because you remembered them again.",
                             rewards: deepenedRewards,
                             state: .deepened
                         )
@@ -85,7 +86,7 @@ struct ChronicleView: View {
                         shelfSection(
                             eyebrow: "Still sealed",
                             title: "More keepsakes ahead",
-                            subtitle: "These entries will appear after their story moments surface in the lesson journey.",
+                            subtitle: "These cards will appear after you reach their story scenes.",
                             rewards: hiddenRewards,
                             state: .hidden
                         )
@@ -131,7 +132,7 @@ struct ChronicleView: View {
     private var progressStrip: some View {
         HStack(spacing: GBSpacing.xSmall) {
             ChronicleStatTile(
-                title: "Previewed",
+                title: "Seen",
                 value: appModel.lessonStore.previewedChronicleCount,
                 total: appModel.lessonStore.totalChronicleEntries,
                 symbol: "eye.fill",
@@ -145,7 +146,7 @@ struct ChronicleView: View {
                 emphasis: .chronicle
             )
             ChronicleStatTile(
-                title: "Deepened",
+                title: "Stronger",
                 value: appModel.lessonStore.enrichedChronicleCount,
                 total: appModel.lessonStore.totalChronicleEntries,
                 symbol: GBIcon.success,
@@ -166,19 +167,19 @@ struct ChronicleView: View {
 
     private var heroDetail: String {
         if dueReviewScene != nil {
-            return "A short return to a remembered scene can help a keepsake shine brighter."
+            return "A quick return to a remembered scene can make an earned keepsake stronger."
         }
         if appModel.lessonStore.unlockedChronicleCount == 0 {
-            return "Story exposure lets a keepsake silhouette appear. Real Chronicle unlocks begin when you answer from memory."
+            return "Seeing a scene makes a faint card appear. A card opens when you answer from memory."
         }
-        return "The Chronicle now tracks what you have seen, what you have earned, and what you understand more deeply."
+        return "The Chronicle shows what you have seen, earned, and remembered again."
     }
 
     private var heroCTATitle: String {
         if dueReviewScene != nil {
-            return "Run due review"
+            return "Review now"
         }
-        return appModel.lessonStore.unlockedChronicleCount == 0 ? "Earn a keepsake" : "Keep deepening"
+        return appModel.lessonStore.unlockedChronicleCount == 0 ? "Earn a keepsake" : "Keep remembering"
     }
 
     private var deepeningScene: StoryScene? {
@@ -347,7 +348,7 @@ private struct NewRewardSpotlight: View {
                         .foregroundStyle(GBColor.Content.inverse)
                 } else {
                     Button(action: onCollect) {
-                        Label(state == .deepened ? "Collect deepened keepsake" : "Collect keepsake", systemImage: GBIcon.reward)
+                        Label(state == .deepened ? "Collect stronger keepsake" : "Collect keepsake", systemImage: GBIcon.reward)
                     }
                     .buttonStyle(.gbSecondary)
                 }
@@ -358,11 +359,11 @@ private struct NewRewardSpotlight: View {
     private var spotlightTitle: String {
         switch state {
         case .deepened:
-            return "Deepened keepsake"
+            return "Stronger keepsake"
         case .earned:
             return "New keepsake"
         case .previewed:
-            return "Previewed keepsake"
+            return "Seen keepsake"
         case .hidden:
             return "Chronicle keepsake"
         }
@@ -371,11 +372,11 @@ private struct NewRewardSpotlight: View {
     private var reasonText: String {
         switch state {
         case .deepened:
-            return "You remembered \(linkedSceneTitle) strongly enough to deepen this keepsake's meaning."
+            return "You remembered \(linkedSceneTitle) again, so this keepsake grew stronger."
         case .earned:
             return "You earned this by recalling \(linkedSceneTitle), not just by opening the scene."
         case .previewed:
-            return "You have seen the story moment for \(linkedSceneTitle), but this keepsake still needs a recall win."
+            return "You have seen \(linkedSceneTitle), but this keepsake still needs a memory answer."
         case .hidden:
             return linkedSceneTitle
         }
@@ -449,11 +450,11 @@ private struct ChronicleShelfCard: View {
         case .hidden:
             return "Sealed"
         case .previewed:
-            return "Previewed"
+            return "Seen"
         case .earned:
             return "Earned"
         case .deepened:
-            return "Deepened"
+            return "Stronger"
         }
     }
 
@@ -501,13 +502,13 @@ private struct ChronicleShelfCard: View {
     private var primaryText: String {
         switch state {
         case .hidden:
-            return "This keepsake has not appeared in the story yet. Reach its scene to let the silhouette appear."
+            return "This keepsake has not appeared yet. Reach its scene to see its shape."
         case .previewed:
-            return "You have seen this story moment, but the Chronicle only opens the keepsake after a successful recall."
+            return "You have seen this story moment. The Chronicle opens the keepsake after you answer from memory."
         case .earned:
             return reward.meaning
         case .deepened:
-            return reward.meaning + " This keepsake now has a deeper Chronicle glow because you remembered the story again."
+            return reward.meaning + " This keepsake now has a stronger Chronicle glow because you remembered it again."
         }
     }
 }
