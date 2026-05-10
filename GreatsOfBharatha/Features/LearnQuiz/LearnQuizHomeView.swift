@@ -27,10 +27,10 @@ struct LearnQuizHomeView: View {
 
     private var hero: some View {
         GBHeroCard(
-            eyebrow: "Shivaji pilot",
+            eyebrow: "Shivaji path",
             title: "Learn, remember, build your Chronicle",
             subtitle: "Three short scenes: Shivneri, Torna + Rajgad, and Pratapgad.",
-            detail: "Read a short story card, answer from memory, match the hook, and watch the Chronicle grow.",
+            detail: "Read a short story card, answer from memory, match each place to its clue, and watch the Chronicle grow.",
             ctaTitle: "Start with Shivneri",
             badgeTitle: "First path",
             emphasis: .story,
@@ -71,7 +71,7 @@ struct LearnQuizHomeView: View {
     private var sceneList: some View {
         VStack(alignment: .leading, spacing: GBSpacing.small) {
             GBSectionHeader(
-                eyebrow: "Pilot scenes",
+                eyebrow: "First scenes",
                 title: "Remember the first path",
                 subtitle: "One clear memory hook for each place in the opening journey."
             )
@@ -93,14 +93,14 @@ struct LearnQuizHomeView: View {
                 HStack {
                     GBBadge(title: "Due later", symbol: "rectangle.stack.fill", emphasis: .chronicle)
                     Spacer()
-                    Text("\(reviewCards.count) review seeds")
+                    Text("\(reviewCards.count) review cards")
                         .font(GBFont.ui(size: 12, weight: .bold))
                         .foregroundStyle(GBColor.Content.secondary)
                 }
                 Text("Flashcard review")
                     .font(GBFont.display(size: 21, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
-                Text("Flip quick cards for the pilot hooks, then choose I knew it, needed a clue, or teach me again.")
+                Text("Flip quick cards for the story clues, then choose I knew it, needed a clue, or teach me again.")
                     .font(GBFont.ui(size: 15, weight: .semibold))
                     .foregroundStyle(GBColor.Content.secondary)
                     .fixedSize(horizontal: false, vertical: true)
