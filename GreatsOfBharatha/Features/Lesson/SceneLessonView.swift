@@ -145,8 +145,11 @@ struct SceneLessonView: View {
                 dotView(phase)
             }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(phaseAccessibilityLabel)
+        .accessibilityElement(children: .ignore)
+        .accessibilityIdentifier("scene-phase-progress")
+        .accessibilityLabel("Lesson progress")
+        .accessibilityValue(phaseAccessibilityLabel)
+        .accessibilityHint("Shows which part of the lesson is active: story, place clues, quiz, or treasure.")
     }
 
     private func dotView(_ phase: LessonPhase) -> some View {
@@ -164,7 +167,7 @@ struct SceneLessonView: View {
     private var phaseAccessibilityLabel: String {
         switch currentPhase {
         case .storyCards:  return "Step 1 of 4: Story cards"
-        case .placeReveal: return "Step 2 of 4: Where it happened"
+        case .placeReveal: return "Step 2 of 4: Place clues"
         case .recall:      return "Step 3 of 4: Quick quiz"
         case .reward:      return "Step 4 of 4: Your treasure"
         }
@@ -220,12 +223,13 @@ struct SceneLessonView: View {
                     GBHaptic.stepAdvance()
                     advanceTo(.placeReveal)
                 } label: {
-                    Label("Show me the fort", systemImage: "map.fill")
+                    Label("Move to place clues", systemImage: "map.fill")
                         .frame(maxWidth: .infinity, minHeight: GBTouch.button)
                 }
                 .buttonStyle(.gbPrimary(.story))
-                .accessibilityLabel("Show me the fort")
-                .accessibilityHint("Moves to the map for this chapter.")
+                .accessibilityIdentifier("story-move-to-place-clues-button")
+                .accessibilityLabel("Move to place clues")
+                .accessibilityHint("Moves forward to the place clues and fort map for this chapter.")
             }
             .padding(GBSpacing.medium)
             .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
@@ -240,7 +244,7 @@ struct SceneLessonView: View {
     }
 
     private var storyNarration: String {
-        "Chapter \(scene.number). \(scene.title). \(scene.childSafeSummary) Next, tap Show me the fort."
+        "Chapter \(scene.number). \(scene.title). \(scene.childSafeSummary) Next, tap Move to place clues."
     }
 
     private func narrationControls(text: String, id: String) -> some View {
@@ -283,20 +287,23 @@ struct SceneLessonView: View {
 
     private var placeRevealView: some View {
         VStack(spacing: GBSpacing.medium) {
-            Text("Where it happened!")
+            Text("Place clues")
                 .font(GBFont.display(size: 24, weight: .bold))
                 .foregroundStyle(GBColor.Content.primary)
                 .padding(.horizontal, GBSpacing.medium)
+                .accessibilityAddTraits(.isHeader)
 
             if let place = primaryPlace {
                 GBFortMapView(place: place)
                     .frame(height: 260)
                     .padding(.horizontal, GBSpacing.medium)
+                    .accessibilityIdentifier("place-clues-map")
 
                 HStack(spacing: GBSpacing.small) {
                     Image(systemName: GBIcon.place)
                         .font(.system(size: 28))
                         .foregroundStyle(GBColor.Place.primary)
+                        .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
                         Text(place.name)
                             .font(GBFont.display(size: 20, weight: .bold))
@@ -307,6 +314,8 @@ struct SceneLessonView: View {
                     }
                 }
                 .padding(.horizontal, GBSpacing.medium)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Place clue: \(place.name). \(place.primaryEvent)")
 
                 narrationControls(
                     text: "This is \(place.name). \(place.primaryEvent). When you are ready, tap Got it.",
@@ -330,7 +339,20 @@ struct SceneLessonView: View {
             .buttonStyle(.gbPrimary(.place))
             .padding(.horizontal, GBSpacing.medium)
             .padding(.bottom, GBSpacing.medium)
+            .accessibilityIdentifier("place-clues-got-it-button")
+            .accessibilityLabel("Got it, start quick quiz")
+            .accessibilityHint("Moves from place clues to the recall question.")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(placeRevealAccessibilityLabel)
+        .accessibilityHint("Review the fort map and place clue, then continue to the quick quiz.")
+    }
+
+    private var placeRevealAccessibilityLabel: String {
+        if let place = primaryPlace {
+            return "Place clues for \(scene.title): \(place.name)."
+        }
+        return "Place clues for \(scene.title)."
     }
 
     // MARK: - Phase 3: MCQ recall
@@ -375,6 +397,8 @@ struct SceneLessonView: View {
                     }
                     .buttonStyle(.gbPrimary(.chronicle))
                     .padding(.horizontal, GBSpacing.medium)
+                    .accessibilityLabel("See this keepsake in my album")
+                    .accessibilityHint("Opens the Royal Chronicle and highlights the keepsake you earned.")
                 } else {
                     Text("Adventure complete!")
                         .font(GBFont.display(size: 22, weight: .bold))
@@ -455,6 +479,8 @@ private struct SimpleRecallView: View {
             }
             .padding(.horizontal, GBSpacing.medium)
             .padding(.top, GBSpacing.small)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Quick quiz question: \(challenge.prompt)")
 
             Text("Pick one choice before you collect your Chronicle reward.")
                 .font(GBFont.ui(size: 15, weight: .semibold))
@@ -505,6 +531,8 @@ private struct SimpleRecallView: View {
                 .padding(.horizontal, GBSpacing.medium)
                 .padding(.bottom, GBSpacing.medium)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+                .accessibilityLabel("Open my treasure")
+                .accessibilityHint("Moves to the Chronicle reward reveal.")
             } else {
                 Button("Check my choice") {
                     GBHaptic.stepAdvance()
@@ -515,6 +543,8 @@ private struct SimpleRecallView: View {
                 .padding(.horizontal, GBSpacing.medium)
                 .padding(.bottom, GBSpacing.medium)
                 .accessibilityIdentifier("recall-check-choice-button")
+                .accessibilityLabel("Check my choice")
+                .accessibilityHint(recallState.selectedChoiceID == nil ? "Choose an answer first." : "Checks the selected answer.")
             }
         }
         .animation(GBMotion.quick, value: recallState.hasAnsweredCorrectly)
@@ -562,9 +592,10 @@ private struct SimpleRecallView: View {
         .buttonStyle(.plain)
         .disabled(recallState.hasAnsweredCorrectly)
         .accessibilityIdentifier("recall-choice-\(choice.id)")
-        .accessibilityLabel("Choice: \(choice.title)")
+        .accessibilityLabel("Recall choice: \(choice.title)")
         .accessibilityValue(accessibilityValue(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
-        .accessibilityHint(recallState.hasAnsweredCorrectly ? "Choice checked" : "Tap to select this choice, then use Check my choice")
+        .accessibilityHint(recallState.hasAnsweredCorrectly ? "Choice checked" : "Double tap to select this choice, then use Check my choice.")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
         .animation(GBMotion.quick, value: isSelected)
     }
 

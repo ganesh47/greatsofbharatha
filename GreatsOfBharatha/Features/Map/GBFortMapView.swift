@@ -34,6 +34,9 @@ struct GBFortMapView: View {
         .mapStyle(.standard(elevation: .realistic))
         .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
         .gbShadow(.card)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Map clue for \(place.name)")
+        .accessibilityHint("The fort pin marks where this story happened. Double tap the pin to celebrate the place.")
     }
 
     private var fortPin: some View {
@@ -73,7 +76,9 @@ struct GBFortMapView: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Fort pin: \(place.name). Tap to celebrate!")
+        .accessibilityLabel("Fort pin: \(place.name)")
+        .accessibilityValue(pinTapped ? "celebrated" : "not celebrated")
+        .accessibilityHint("Double tap to celebrate finding this fort clue.")
     }
 
     private var fortIconName: String {
