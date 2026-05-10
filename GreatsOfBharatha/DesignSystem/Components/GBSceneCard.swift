@@ -117,7 +117,7 @@ struct GBSceneCard: View {
     ScrollView {
         VStack(spacing: GBSpacing.cardGap) {
             GBSceneCard(sceneNumber: 1, title: "Shivneri", subtitle: "The child who would become a leader", status: .current, emphasis: .story)
-            GBSceneCard(sceneNumber: 2, title: "Torna & Rajgad", subtitle: "The start of Swarajya", status: .locked)
+            GBSceneCard(sceneNumber: 2, title: "Torna & Rajgad", subtitle: "The start of self-rule", status: .locked)
             GBSceneCard(sceneNumber: 6, title: "Raigad", subtitle: "Coronation as Chhatrapati — 1674", status: .completed, emphasis: .chronicle)
         }
         .padding()
