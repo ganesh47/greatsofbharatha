@@ -65,6 +65,7 @@ final class ShivajiLessonStore: ObservableObject {
         mastery: MasteryState,
         detail: String
     ) {
+        let safeMastery = wasSuccessful ? mastery : .witnessed
         let evidenceType: MasteryEvidenceType
         if wasSuccessful {
             switch promptType {
@@ -73,7 +74,7 @@ final class ShivajiLessonStore: ObservableObject {
             case .sequenceSlot:
                 evidenceType = .timelinePlacementSuccess
             case .openPrompt, .compareFromMemory:
-                evidenceType = mastery >= .remembered ? .reviewSuccess : .recallSuccess
+                evidenceType = safeMastery >= .remembered ? .reviewSuccess : .recallSuccess
             }
         } else {
             evidenceType = .recallAttempt
@@ -82,7 +83,7 @@ final class ShivajiLessonStore: ObservableObject {
         updateRecord(
             subjectID: subjectID,
             subjectType: subjectType,
-            newState: mastery,
+            newState: safeMastery,
             evidenceType: evidenceType,
             detail: detail
         )
