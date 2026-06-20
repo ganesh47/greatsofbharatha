@@ -183,8 +183,14 @@ struct GBFlashCardDeck: View {
                               : GBColor.Content.tertiary)
                         .frame(width: idx == currentIndex ? 24 : 7, height: 7)
                         .animation(GBMotion.quick, value: currentIndex)
+                        .accessibilityHidden(true)
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("story-card-carousel-progress")
+            .accessibilityLabel("Story card progress")
+            .accessibilityValue("Card \(min(currentIndex + 1, max(cards.count, 1))) of \(max(cards.count, 1))")
+            .accessibilityHint("Shows your place in the story card carousel.")
 
             // CTA
             if currentIndex == cards.count - 1 {
@@ -195,6 +201,8 @@ struct GBFlashCardDeck: View {
                 }
                 .buttonStyle(.gbPrimary(emphasis: emphasis))
                 .padding(.horizontal, GBSpacing.medium)
+                .accessibilityLabel("Continue from story cards")
+                .accessibilityHint("Moves to the next lesson activity.")
             } else if reduceMotion {
                 Button {
                     withAnimation(GBMotion.standard) { currentIndex += 1 }
@@ -205,6 +213,8 @@ struct GBFlashCardDeck: View {
                 }
                 .buttonStyle(.gbPrimary(emphasis: emphasis))
                 .padding(.horizontal, GBSpacing.medium)
+                .accessibilityLabel("Next story card")
+                .accessibilityHint("Shows the next card in the story carousel.")
             } else {
                 Label("Swipe to turn the card", systemImage: "hand.draw")
                     .font(GBFont.ui(size: 13, weight: .bold))
@@ -213,6 +223,9 @@ struct GBFlashCardDeck: View {
         }
         .padding(.bottom, GBSpacing.medium)
         .environmentObject(narrator)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Story card carousel")
+        .accessibilityValue("Card \(min(currentIndex + 1, max(cards.count, 1))) of \(max(cards.count, 1))")
     }
 }
 

@@ -75,7 +75,7 @@ struct ChronicleView: View {
                         shelfSection(
                             eyebrow: "Held more deeply",
                             title: "Deepened keepsakes",
-                            subtitle: "These entries now carry richer meaning because your mastery went beyond the first unlock.",
+                            subtitle: "These entries shine brighter because you remembered the story again.",
                             rewards: deepenedRewards,
                             state: .deepened
                         )
@@ -166,7 +166,7 @@ struct ChronicleView: View {
 
     private var heroDetail: String {
         if dueReviewScene != nil {
-            return "A short return to a remembered scene can turn an earned keepsake into deeper mastery."
+            return "A short return to a remembered scene can help a keepsake shine brighter."
         }
         if appModel.lessonStore.unlockedChronicleCount == 0 {
             return "Story exposure lets a keepsake silhouette appear. Real Chronicle unlocks begin when you answer from memory."
@@ -507,7 +507,7 @@ private struct ChronicleShelfCard: View {
         case .earned:
             return reward.meaning
         case .deepened:
-            return reward.meaning + " This keepsake now carries a deeper Chronicle glow because your mastery went beyond the first unlock."
+            return reward.meaning + " This keepsake now has a deeper Chronicle glow because you remembered the story again."
         }
     }
 }
