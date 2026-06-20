@@ -138,6 +138,59 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .unlocked)
     }
 
+
+    func testFailedRecallDoesNotCompleteSceneAdvanceOrUnlockRewards() throws {
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defaults.removePersistentDomain(forName: #function)
+        let store = ShivajiLessonStore(defaults: defaults)
+        let shivneriPlace = try XCTUnwrap(SampleContent.shivajiVerticalSlice.corePlaces.first { $0.id == "place-shivneri" })
+        let guidanceEntry = try XCTUnwrap(SampleContent.shivajiHeroArc.chronicleEntry(withID: "reward-jijabai-guidance-badge"))
+
+        store.recordStoryExposure(for: "scene-1-shivneri")
+        store.recordRecallOutcome(
+            subjectID: "scene-1-shivneri",
+            promptType: .openPrompt,
+            wasSuccessful: false,
+            mastery: .remembered,
+            detail: "Wrong answer should stay an attempt"
+        )
+
+        XCTAssertEqual(store.mastery(for: "scene-1-shivneri"), .witnessed)
+        XCTAssertEqual(store.masteryRecord(for: "scene-1-shivneri")?.evidenceLog.last?.type, .recallAttempt)
+        XCTAssertEqual(store.completedScenes, 0)
+        XCTAssertEqual(store.nextSceneID, "scene-1-shivneri")
+        XCTAssertFalse(store.isUnlocked(SampleContent.birthFortCard))
+        XCTAssertEqual(store.chronicleUnlockState(for: guidanceEntry), .silhouette)
+        XCTAssertNotEqual(store.progress(for: shivneriPlace), .reviewed)
+        XCTAssertNotEqual(store.progress(for: shivneriPlace), .masteredLightly)
+    }
+
+    func testWrongChoiceRecallPreservesSupportiveFeedbackWithoutCompletionMastery() {
+        let challenge = RecallChallenge(
+            id: "scene-1-recall",
+            promptType: .openPrompt,
+            prompt: "Which fort is the birth place?",
+            correctAnswers: ["Shivneri Fort"],
+            hintLadder: [RecallHint(level: 1, title: "Anchor hint", body: "Think about the Birth Fort.")],
+            feedback: RecallFeedback(success: "Yes.", recovery: "Almost. Try the birth fort clue."),
+            masteryContribution: .remembered
+        )
+
+        let evaluation = LessonRecallEngine.submit(
+            state: LessonRecallState(),
+            challenge: challenge,
+            typedAnswer: "",
+            selectedChoiceTitle: "Rajgad Fort",
+            successMastery: challenge.masteryContribution
+        )
+
+        XCTAssertFalse(evaluation.wasSuccessful)
+        XCTAssertEqual(evaluation.masteryAwarded, .witnessed)
+        XCTAssertEqual(evaluation.revealedHintLevel, 1)
+        XCTAssertTrue(evaluation.feedbackText.contains("Try again"))
+        XCTAssertTrue(evaluation.feedbackText.contains("Birth Fort"))
+    }
+
     func testLessonStoreTracksEnrichedChronicleState() throws {
         let defaults = try XCTUnwrap(UserDefaults(suiteName: #function))
         defaults.removePersistentDomain(forName: #function)
