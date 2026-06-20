@@ -45,7 +45,7 @@ struct ChronicleMatchView: View {
             subtitle: "\(matchState.completedPairIDs.count) of \(pairs.count) matched",
             detail: "Tap a card on the left, then find the card on the right that belongs with it.",
             ctaTitle: "Keep matching",
-            badgeTitle: "\(pairs.count) pilot pairs",
+            badgeTitle: "\(pairs.count) story pairs",
             emphasis: .place,
             progress: pairs.isEmpty ? nil : Double(matchState.completedPairIDs.count) / Double(pairs.count)
         )

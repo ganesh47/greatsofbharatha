@@ -35,8 +35,8 @@ struct PlacesHubView: View {
                         VStack(alignment: .leading, spacing: GBSpacing.small) {
                             GBSectionHeader(
                                 eyebrow: "Quest",
-                                title: "Hold the story on the fort board",
-                                subtitle: "The place trail is the middle step between a story moment and its Chronicle reward."
+                                title: "Keep the story on the fort board",
+                                subtitle: "The place trail helps you remember where the story happened before you collect a Chronicle card."
                             )
 
                             GBQuestProgress(
@@ -49,7 +49,7 @@ struct PlacesHubView: View {
                     VStack(alignment: .leading, spacing: context.cardSpacing) {
                         GBSectionHeader(
                             eyebrow: "Fort Trail",
-                            title: "Walk the ready forts in order",
+                            title: "Visit the ready forts in order",
                             subtitle: "Open any ready fort to pin it on the board and compare it with nearby places."
                         )
 
@@ -104,9 +104,9 @@ struct PlacesHubView: View {
     private func placeHeroContent(ctaTitle: String, badgeTitle: String) -> some View {
         GBHeroCard(
             eyebrow: "Sahyadri Fort Trail",
-            title: "Remember the place, not just the plot",
-            subtitle: "The forts turn the story into a real landscape.",
-            detail: "Pin one fort at a time, compare it with nearby mountains, and keep the geography tied to Shivaji Maharaj's journey.",
+            title: "Remember the place, not just the story",
+            subtitle: "The forts show where the story happened.",
+            detail: "Pin one fort at a time, compare it with nearby mountains, and keep the map tied to Shivaji Maharaj's journey.",
             ctaTitle: ctaTitle,
             badgeTitle: badgeTitle,
             emphasis: .place,
@@ -174,7 +174,7 @@ private struct PlaceTrailCard: View {
                 .foregroundStyle(GBColor.Content.secondary)
 
                 HStack {
-                    Text(progress == .locked ? "Unlock this fort through the story first." : "Open fort board")
+                    Text(progress == .locked ? "Finish the story to unlock this fort." : "Open fort board")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(progress == .locked ? GBColor.Content.secondary : GBColor.Content.primary)
                     Spacer()
@@ -197,6 +197,17 @@ struct PlaceDetailView: View {
         SampleContent.shivajiVerticalSlice.corePlaces
     }
 
+    private var placeGlossaryTerms: [GBGlossaryTerm] {
+        let sourceText = [
+            place.name,
+            place.memoryHook,
+            place.primaryEvent,
+            place.regionLabel,
+            "fort",
+        ].joined(separator: " ")
+        return GBGlossaryTerm.matching(sourceText)
+    }
+
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
@@ -213,6 +224,9 @@ struct PlaceDetailView: View {
 
                     // Kid-friendly fact card
                     kidFactCard(padding: context.containerPadding)
+
+                    GBGlossaryTray(terms: placeGlossaryTerms)
+                        .padding(.horizontal, context.containerPadding)
 
                     // Map buttons
                     VStack(spacing: GBSpacing.small) {
@@ -348,13 +362,13 @@ private struct PlaceMapExplorerSheet: View {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSurface(style: .accented(.place)) {
                     VStack(alignment: .leading, spacing: GBSpacing.small) {
-                        Text("MapKit place explorer")
+                        Text("Map explorer")
                             .font(.caption.weight(.bold))
                             .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
                         Text(place.name)
                             .font(.system(.title, design: .rounded, weight: .bold))
                             .foregroundStyle(GBColor.Content.inverse)
-                        Text("See how this fort sits inside the wider region, then return to the fort board to pin it from memory.")
+                        Text("See where this fort sits in the wider area, then return to the fort board to pin it from memory.")
                             .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
                     }
                 }
@@ -473,7 +487,7 @@ private struct PlaceMapExplorerSheet: View {
 
     private var currentQuizClue: String {
         guard let prompt = mapQuizPrompts.first(where: { !mapQuizState.revealedPlaceIDs.contains($0.placeID) }) else {
-            return "Every fort name is revealed. Try a group highlight and compare the cluster."
+            return "Every fort name is revealed. Try a group highlight and compare the places."
         }
         return "\(prompt.anchorClue) Hook: \(prompt.memoryHook)."
     }

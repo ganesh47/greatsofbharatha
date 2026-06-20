@@ -8,7 +8,7 @@ enum SampleContent {
     static let shivajiLearnQuizResetPilot = HistoricalFigureArc(
         id: "shivaji-learn-quiz-reset-pilot",
         figureName: "Shivaji Maharaj",
-        title: "Shivaji Learn-and-Quiz Chronicle Pilot",
+        title: "Shivaji Learn-and-Quiz Chronicle Path",
         resetAnchorIssue: "#126",
         scenes: [
             ChronicleScene(
@@ -21,7 +21,7 @@ enum SampleContent {
                 actionVerb: "begins",
                 memoryHook: "Birth Fort",
                 childSafeStory: "Shivaji Maharaj's story begins at Shivneri Fort. Jijabai's guidance helped him grow with courage, care, and responsibility.",
-                meaning: "Shivneri matters because it anchors the beginning of the journey and the values Shivaji Maharaj carried forward.",
+                meaning: "Shivneri matters because it marks the beginning of the journey and the values Shivaji Maharaj carried forward.",
                 quizItems: [
                     QuizItem(
                         id: "quiz-shivneri-birth-fort",
@@ -44,7 +44,7 @@ enum SampleContent {
                 chronicleReward: ChronicleReward(
                     id: "reset-reward-birth-fort-card",
                     title: "Birth Fort Chronicle Card",
-                    subtitle: "First inked keepsake",
+                    subtitle: "First keepsake card",
                     meaning: "A Chronicle card for remembering Shivneri as the place where the journey begins.",
                     unlockedBySceneID: "reset-scene-1-shivneri",
                     mastery: .understood,
@@ -96,7 +96,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "What does Shivneri teach?",
                         back: "Great journeys begin in real places with real guidance.",
-                        meaning: "Shivneri anchors the idea that values and place are connected from the very start.",
+                        meaning: "Shivneri helps us remember that values and place are connected from the very start.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -106,15 +106,15 @@ enum SampleContent {
             ChronicleScene(
                 id: "reset-scene-2-torna-rajgad",
                 title: "Torna and Rajgad - Early Forts",
-                timeMarker: "Early self-rule steps",
+                timeMarker: "Early building for Swarajya",
                 placeAnchors: [
                     PlaceAnchor(id: "place-torna", name: "Torna", regionLabel: "Sahyadri range southwest of Pune", memoryHook: "First Big Fort"),
                     PlaceAnchor(id: "place-rajgad", name: "Rajgad", regionLabel: "Sahyadri range near Torna", memoryHook: "Early Capital"),
                 ],
                 actionVerb: "builds",
                 memoryHook: "First Big Fort / Early Capital",
-                childSafeStory: "Shivaji Maharaj began building self-rule with important forts. Torna was an early win, and Rajgad became a place to plan next steps.",
-                meaning: "These forts matter because the story is not only about winning a fort; it is about building a stronger base.",
+                childSafeStory: "Shivaji Maharaj began building Swarajya, or self-rule, through important forts. Torna was an early win, and Rajgad became a planning home base.",
+                meaning: "These forts matter because the story is not only about winning a fort. It is also about building a stronger home base.",
                 quizItems: [
                     QuizItem(
                         id: "quiz-rajgad-early-capital",
@@ -131,9 +131,9 @@ enum SampleContent {
                     ),
                 ],
                 matchPairs: [
-                    MatchPair(id: "match-torna-first-big-fort", left: "Torna", right: "First Big Fort", kind: .placeToHook, teachingFeedback: "Torna marks an early breakthrough."),
+                    MatchPair(id: "match-torna-first-big-fort", left: "Torna", right: "First Big Fort", kind: .placeToHook, teachingFeedback: "Torna marks an early win."),
                     MatchPair(id: "match-rajgad-early-capital", left: "Rajgad", right: "Early Capital", kind: .placeToHook, teachingFeedback: "Rajgad became an early capital."),
-                    MatchPair(id: "match-rajgad-planning-base", left: "Rajgad", right: "Planning base", kind: .placeToAction, teachingFeedback: "Rajgad helps children remember careful planning and building a strong home base."),
+                    MatchPair(id: "match-rajgad-planning-base", left: "Rajgad", right: "Planning base", kind: .placeToAction, teachingFeedback: "Rajgad helps children remember careful planning and building."),
                 ],
                 chronicleReward: ChronicleReward(
                     id: "reset-reward-first-fort-early-capital-card",
@@ -160,7 +160,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "Torna",
                         back: "First Big Fort",
-                        meaning: "Torna is remembered as the First Big Fort, an early win in building self-rule.",
+                        meaning: "Torna is remembered as the First Big Fort, an early win in building Swarajya, or self-rule.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -189,8 +189,8 @@ enum SampleContent {
                         id: "review-torna-rajgad-meaning",
                         promptType: .openPrompt,
                         front: "What does building Torna and Rajgad teach?",
-                        back: "Not just winning space — building a stronger base.",
-                        meaning: "The early forts teach that careful planning matters as much as the first win.",
+                        back: "Not just winning places — building a stronger base.",
+                        meaning: "The early forts teach that careful building matters as much as the first victory.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -206,8 +206,8 @@ enum SampleContent {
                 ],
                 actionVerb: "plans",
                 memoryHook: "Turning Point",
-                childSafeStory: "At Pratapgad, careful planning, courage, and hill terrain mattered in a dangerous moment. The story stays focused on preparation and judgment.",
-                meaning: "Pratapgad matters because terrain and planning changed the balance at a key moment.",
+                childSafeStory: "At Pratapgad, careful planning, courage, and hill terrain — the shape of the land — mattered in a dangerous moment. The story stays focused on preparation and wise choices.",
+                meaning: "Pratapgad matters because the hill terrain and careful planning changed what happened next.",
                 quizItems: [
                     QuizItem(
                         id: "quiz-pratapgad-turning-point",
@@ -225,13 +225,13 @@ enum SampleContent {
                 ],
                 matchPairs: [
                     MatchPair(id: "match-pratapgad-turning-point", left: "Pratapgad", right: "Turning Point", kind: .placeToHook, teachingFeedback: "Pratapgad is the turning point fort."),
-                    MatchPair(id: "match-planning-terrain", left: "Planning and terrain", right: "Changed the balance", kind: .actionToMeaning, teachingFeedback: "The meaning is preparation, courage, and wise use of terrain."),
+                    MatchPair(id: "match-planning-terrain", left: "Planning and terrain", right: "Changed what happened next", kind: .actionToMeaning, teachingFeedback: "The meaning is preparation, courage, and wise use of the land."),
                 ],
                 chronicleReward: ChronicleReward(
                     id: "reset-reward-turning-point-seal",
                     title: "Turning Point Seal",
-                    subtitle: "Deepened Chronicle mark",
-                    meaning: "A Chronicle seal for remembering Pratapgad as the turning point where planning and terrain mattered.",
+                    subtitle: "Extra Chronicle mark",
+                    meaning: "A Chronicle seal for remembering Pratapgad as the turning point where planning and the land mattered.",
                     unlockedBySceneID: "reset-scene-3-pratapgad",
                     mastery: .understood,
                     category: .emblemFragment
@@ -242,7 +242,7 @@ enum SampleContent {
                         promptType: .compareFromMemory,
                         front: "Turning Point",
                         back: "Pratapgad",
-                        meaning: "Pratapgad teaches planning, terrain, and courage.",
+                        meaning: "Pratapgad teaches planning, hill terrain, and courage.",
                         correctNoHintCadenceDays: 1,
                         correctWithHintCadenceDays: 0,
                         rescuedCadenceDays: 0
@@ -252,7 +252,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "Pratapgad",
                         back: "Turning Point",
-                        meaning: "Pratapgad is remembered as the fort where the balance shifted.",
+                        meaning: "Pratapgad is remembered as the fort where careful planning changed what happened next.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -261,7 +261,7 @@ enum SampleContent {
                         id: "review-pratapgad-what-changed",
                         promptType: .openPrompt,
                         front: "What changed at Pratapgad?",
-                        back: "Planning and terrain changed the balance.",
+                        back: "Planning and hill terrain changed what happened next.",
                         meaning: "Knowing the land is a form of preparation — Pratapgad shows this clearly.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
@@ -282,7 +282,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "What does Pratapgad teach?",
                         back: "Knowing the land is a form of preparation.",
-                        meaning: "Terrain and careful planning matter as much as courage in a difficult moment.",
+                        meaning: "The land and careful planning can matter as much as courage in a difficult moment.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -299,8 +299,8 @@ enum SampleContent {
                 ],
                 actionVerb: "endures",
                 memoryHook: "Pressure Fort / Northern Court",
-                childSafeStory: "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement at Purandar, then found a clever way to return home from Agra.",
-                meaning: "This scene matters because leaders sometimes face pressure, make hard choices, and still find a way back with patience and planning.",
+                childSafeStory: "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement at Purandar. Later, he found a clever way to return home from Agra.",
+                meaning: "This scene matters because leaders can face pressure, make hard choices, and still find a way back with patience and planning.",
                 quizItems: [
                     QuizItem(
                         id: "quiz-purandar-agra-sequence",
@@ -366,7 +366,7 @@ enum SampleContent {
                         promptType: .eventToPlaceMatch,
                         front: "Hard agreement / Under watch in the north",
                         back: "Purandar / Agra",
-                        meaning: "Purandar and Agra form the setback-and-return arc in the journey.",
+                        meaning: "Purandar and Agra form the setback-and-return part of the journey.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -410,7 +410,7 @@ enum SampleContent {
                     ),
                 ],
                 matchPairs: [
-                    MatchPair(id: "match-rajgad-comeback", left: "Rajgad", right: "Comeback", kind: .placeToHook, teachingFeedback: "Rajgad is the comeback anchor — where strength was rebuilt."),
+                    MatchPair(id: "match-rajgad-comeback", left: "Rajgad", right: "Comeback", kind: .placeToHook, teachingFeedback: "Rajgad is the comeback place — where strength was rebuilt."),
                     MatchPair(id: "match-rebuilding-resilience", left: "Rebuilding and reorganizing", right: "Resilience in leadership", kind: .actionToMeaning, teachingFeedback: "Recovery shows that resilience is part of leadership."),
                 ],
                 chronicleReward: ChronicleReward(
@@ -427,7 +427,7 @@ enum SampleContent {
                         id: "review-rajgad-comeback-hook",
                         promptType: .openPrompt,
                         front: "Comeback",
-                        back: "Rajgad — the recovery anchor.",
+                        back: "Rajgad — the recovery place.",
                         meaning: "Rajgad is where Shivaji Maharaj rebuilt after the difficult time in Agra.",
                         correctNoHintCadenceDays: 1,
                         correctWithHintCadenceDays: 0,
@@ -437,7 +437,7 @@ enum SampleContent {
                         id: "review-rajgad-what-happened",
                         promptType: .openPrompt,
                         front: "What did Shivaji Maharaj do after returning from Agra?",
-                        back: "Rebuilt strength, reorganized, and grew stronger.",
+                        back: "Rebuilt strength, planned again, and grew stronger.",
                         meaning: "The comeback shows that the journey continued even after a setback.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
@@ -446,9 +446,9 @@ enum SampleContent {
                     ReviewSeed(
                         id: "review-rajgad-comeback-compare",
                         promptType: .compareFromMemory,
-                        front: "Which fort is the comeback anchor?",
+                        front: "Which fort is the comeback place?",
                         back: "Rajgad",
-                        meaning: "Rajgad appears twice in the journey: first as Early Capital, then as the Comeback anchor.",
+                        meaning: "Rajgad appears twice in the journey: first as Early Capital, then as the Comeback place.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -458,7 +458,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "What does the comeback teach?",
                         back: "Resilience is part of leadership, especially after a setback.",
-                        meaning: "Steady rebuilding and reorganizing are how leaders recover and return to growth.",
+                        meaning: "Steady rebuilding and planning are how leaders recover and grow again.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -468,14 +468,14 @@ enum SampleContent {
             ChronicleScene(
                 id: "reset-scene-6-raigad-coronation",
                 title: "Raigad - Coronation as Chhatrapati",
-                timeMarker: "Crowning moment of the journey",
+                timeMarker: "Big final moment of the journey",
                 placeAnchors: [
                     PlaceAnchor(id: "place-raigad", name: "Raigad", regionLabel: "Konkan edge of the Sahyadris", memoryHook: "Coronation Capital"),
                 ],
                 actionVerb: "crowns",
                 memoryHook: "Coronation Capital",
-                childSafeStory: "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati. This marked Swarajya — self-rule for the people.",
-                meaning: "Raigad matters because the coronation showed self-rule and responsibility.",
+                childSafeStory: "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati in a coronation, or crowning ceremony. It marked Swarajya — self-rule for the people.",
+                meaning: "Raigad matters because the coronation shows the big idea of Swarajya and the duty to care for people.",
                 quizItems: [
                     QuizItem(
                         id: "quiz-raigad-coronation",
@@ -487,20 +487,20 @@ enum SampleContent {
                             RecallHint(level: 2, title: "Place clue", body: "It stands on the Konkan edge of the Sahyadris."),
                             RecallHint(level: 3, title: "Recognition rescue", body: "Choose Raigad."),
                         ],
-                        successFeedback: "Yes. Raigad is the Coronation Capital where the journey reaches self-rule.",
-                        recoveryFeedback: "Remember: Raigad is the Coronation Capital — the final fort in the arc."
+                        successFeedback: "Yes. Raigad is the Coronation Capital, the main fort for this crowning moment of Swarajya.",
+                        recoveryFeedback: "Remember: Raigad is the Coronation Capital — the final fort in the journey."
                     ),
                 ],
                 matchPairs: [
                     MatchPair(id: "match-raigad-coronation-capital", left: "Raigad", right: "Coronation Capital", kind: .placeToHook, teachingFeedback: "Raigad is where Shivaji Maharaj was crowned Chhatrapati."),
-                    MatchPair(id: "match-swarajya-raigad", left: "Swarajya", right: "Raigad, 1674", kind: .eventToTime, teachingFeedback: "Swarajya means self-rule. Raigad helps us remember that moment in 1674."),
+                    MatchPair(id: "match-swarajya-raigad", left: "Swarajya", right: "Raigad, 1674", kind: .eventToTime, teachingFeedback: "Swarajya, or self-rule, became clear at Raigad in 1674."),
                     MatchPair(id: "match-raigad-meaning", left: "Self-rule and responsibility", right: "Meaning of the coronation", kind: .actionToMeaning, teachingFeedback: "The coronation shows self-rule, dignity, and responsibility."),
                 ],
                 chronicleReward: ChronicleReward(
                     id: "reset-reward-chhatrapati-crown-card",
                     title: "Chhatrapati Crown Card",
-                    subtitle: "Sovereign journey keepsake",
-                    meaning: "The final Chronicle card remembers the coronation at Raigad and the rise of self-rule.",
+                    subtitle: "Self-rule journey keepsake",
+                    meaning: "The final Chronicle card remembers the coronation at Raigad and the rise of Swarajya, or self-rule.",
                     unlockedBySceneID: "reset-scene-6-raigad-coronation",
                     mastery: .remembered,
                     category: .leadershipBadge
@@ -511,7 +511,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "Coronation Capital",
                         back: "Raigad",
-                        meaning: "Raigad is remembered as the Coronation Capital where self-rule was celebrated.",
+                        meaning: "Raigad is remembered as the Coronation Capital where Swarajya became clear.",
                         correctNoHintCadenceDays: 1,
                         correctWithHintCadenceDays: 0,
                         rescuedCadenceDays: 0
@@ -521,7 +521,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "Raigad",
                         back: "Coronation Capital",
-                        meaning: "Raigad is the final fort in the arc — the Coronation Capital.",
+                        meaning: "Raigad is the final fort in the journey — the Coronation Capital.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -531,7 +531,7 @@ enum SampleContent {
                         promptType: .openPrompt,
                         front: "What happened at Raigad in 1674?",
                         back: "Shivaji Maharaj was crowned Chhatrapati.",
-                        meaning: "The coronation at Raigad is the crowning moment of the whole journey.",
+                        meaning: "The coronation at Raigad marks the big final moment of the whole journey.",
                         correctNoHintCadenceDays: 2,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -540,8 +540,8 @@ enum SampleContent {
                         id: "review-swarajya-meaning",
                         promptType: .openPrompt,
                         front: "What does Swarajya mean?",
-                        back: "Self-rule — people governing themselves with dignity.",
-                        meaning: "Swarajya means self-rule. It is the big idea Shivaji Maharaj worked toward through the whole journey.",
+                        back: "Self-rule — people caring for and guiding their own land with dignity.",
+                        meaning: "Swarajya is the idea that Shivaji Maharaj worked toward through the whole journey.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
                         rescuedCadenceDays: 0
@@ -550,7 +550,7 @@ enum SampleContent {
                         id: "review-raigad-sequence",
                         promptType: .sequenceSlot,
                         front: "Where does Raigad come in the journey?",
-                        back: "Last — the crowning moment after the comeback.",
+                        back: "Last — the big final moment after the comeback.",
                         meaning: "Raigad is the sixth and final place, where the journey reaches its fullest meaning.",
                         correctNoHintCadenceDays: 3,
                         correctWithHintCadenceDays: 1,
@@ -570,12 +570,12 @@ enum SampleContent {
                 "reset-scene-5-rajgad-recovery",
                 "reset-scene-6-raigad-coronation",
             ],
-            completionRewardText: "The Chronicle gains a complete Journey So Far timeline strip."
+            completionRewardText: "Your Chronicle, or story record, gains a complete Journey So Far timeline strip."
         ),
         endOfPilotReward: ChronicleReward(
             id: "reset-reward-shivaji-journey-so-far",
             title: "Shivaji Journey So Far",
-            subtitle: "Full arc completion page",
+            subtitle: "Full journey page",
             meaning: "A page for remembering the order: Shivneri, Torna/Rajgad, Pratapgad, Purandar/Agra, Recovery, Raigad.",
             unlockedBySceneID: "reset-scene-6-raigad-coronation",
             mastery: .remembered,
@@ -659,11 +659,11 @@ enum SampleContent {
     private static let shivajiHero = Hero(
         id: "shivaji-maharaj",
         name: "Shivaji Maharaj",
-        subtitle: "Retrieval-first Shivaji MVP",
-        culturalFramingNotes: "Story-first, child-safe framing centered on place, planning, resilience, and Swarajya (self-rule).",
+        subtitle: "Shivaji Maharaj story quest",
+        culturalFramingNotes: "Story-first, child-safe framing centered on place, planning, resilience, and Swarajya as self-rule.",
         ageBandCopyVariants: [
-            .assist: "Shivaji Maharaj's journey through forts, courage, and self-rule.",
-            .standard: "Follow Shivaji Maharaj from Shivneri to Raigad through six calm, recall-first story scenes.",
+            .assist: "Shivaji Maharaj's journey through forts, courage, and Swarajya — self-rule.",
+            .standard: "Follow Shivaji Maharaj from Shivneri to Raigad through six clear story scenes.",
         ]
     )
 
@@ -671,16 +671,16 @@ enum SampleContent {
         id: "scene-1-shivneri",
         sceneNumber: 1,
         title: "Shivneri, where Shivaji Maharaj's story begins",
-        narrativeObjective: "Introduce Shivaji Maharaj as a child shaped by place, courage, and Jijabai's guidance.",
+        narrativeObjective: "Show young Shivaji growing with place, courage, and Jijabai's guidance.",
         keyFact: "Shivaji Maharaj was born at Shivneri Fort, and Jijabai shaped his early values.",
-        meaningStatement: "Shivneri matters because it anchors the beginning of Shivaji Maharaj's journey and the values he carried forward.",
+        meaningStatement: "Shivneri matters because it is where Shivaji Maharaj's journey begins and where early values took root.",
         childSafeSummary: "At Shivneri Fort, young Shivaji began his journey. Jijabai helped him grow brave, caring, and ready to lead.",
         mapAnchorIDs: ["place-shivneri"],
         timelineEventID: bornAtShivneriEvent.id,
         cards: [
             makeCard(sceneID: "scene-1-shivneri", type: .story, title: "Hook", text: "A child named Shivaji begins at a hill fort above Junnar.", memoryHook: "Birth Fort"),
-            makeCard(sceneID: "scene-1-shivneri", type: .meaning, title: "Why this matters", text: "Great journeys begin in real places, with real guidance and values."),
-            makeCard(sceneID: "scene-1-shivneri", type: .anchor, title: "Anchor", text: "Remember Shivneri as the Birth Fort."),
+            makeCard(sceneID: "scene-1-shivneri", type: .meaning, title: "Why this matters", text: "Great journeys begin in real places, with real guidance and strong values."),
+            makeCard(sceneID: "scene-1-shivneri", type: .anchor, title: "Memory clue", text: "Remember Shivneri as the Birth Fort."),
             makeCard(sceneID: "scene-1-shivneri", type: .recall, title: "Recall", text: "Name the fort where Shivaji Maharaj was born."),
             makeCard(sceneID: "scene-1-shivneri", type: .reward, title: "Reward", text: "Unlock the Birth Fort keepsake in the Chronicle."),
         ],
@@ -691,7 +691,7 @@ enum SampleContent {
                 prompt: "Which fort is Shivaji Maharaj's birth place?",
                 correctAnswers: ["Shivneri Fort", "Shivneri"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Think about the Birth Fort."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Think about the Birth Fort."),
                     RecallHint(level: 2, title: "Place hint", body: "It is near Junnar, north of Pune."),
                     RecallHint(level: 3, title: "Category hint", body: "It is a hill fort where the story begins."),
                 ],
@@ -708,17 +708,17 @@ enum SampleContent {
     private static let sceneCluster2 = SceneCluster(
         id: "scene-2-torna-rajgad",
         sceneNumber: 2,
-        title: "Torna and Rajgad, first steps toward self-rule",
-        narrativeObjective: "Show how early fort victories turned into careful planning and a stronger home base.",
-        keyFact: "Torna was an early breakthrough, and Rajgad became an early capital and planning base.",
-        meaningStatement: "The early forts matter because Shivaji Maharaj did not just win places; he built a stronger base for self-rule.",
-        childSafeSummary: "Shivaji Maharaj began building self-rule by winning key forts and planning from the mountains.",
+        title: "Torna and Rajgad, first steps toward Swarajya",
+        narrativeObjective: "Show how early fort wins turned into careful planning and building.",
+        keyFact: "Torna was an early win, and Rajgad became an early capital, or main home base for planning.",
+        meaningStatement: "The early forts matter because Shivaji Maharaj did not just win places. He built a stronger base for Swarajya, or self-rule.",
+        childSafeSummary: "Shivaji Maharaj began building Swarajya, or self-rule, by winning key forts and planning from the mountains.",
         mapAnchorIDs: ["place-torna", "place-rajgad"],
         timelineEventID: earlyFortsEvent.id,
         cards: [
-            makeCard(sceneID: "scene-2-torna-rajgad", type: .story, title: "Hook", text: "The map stretches from childhood into action at Torna and Rajgad.", memoryHook: "First Big Fort"),
-            makeCard(sceneID: "scene-2-torna-rajgad", type: .meaning, title: "Why this matters", text: "Winning and holding forts made planning and protection possible."),
-            makeCard(sceneID: "scene-2-torna-rajgad", type: .anchor, title: "Anchor", text: "Torna comes first. Rajgad becomes the early capital."),
+            makeCard(sceneID: "scene-2-torna-rajgad", type: .story, title: "Hook", text: "The map moves from childhood to action at Torna and Rajgad.", memoryHook: "First Big Fort"),
+            makeCard(sceneID: "scene-2-torna-rajgad", type: .meaning, title: "Why this matters", text: "Winning and caring for forts made planning and protection possible."),
+            makeCard(sceneID: "scene-2-torna-rajgad", type: .anchor, title: "Memory clue", text: "Torna comes first. Rajgad becomes the early capital."),
             makeCard(sceneID: "scene-2-torna-rajgad", type: .recall, title: "Recall", text: "Which fort became the early capital?"),
             makeCard(sceneID: "scene-2-torna-rajgad", type: .reward, title: "Reward", text: "Collect the First Big Fort keepsake and planning symbols."),
         ],
@@ -729,13 +729,13 @@ enum SampleContent {
                 prompt: "Which fort became an early capital?",
                 correctAnswers: ["Rajgad"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Torna is the first big fort, but not the capital."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Torna is the first big fort, but not the capital."),
                     RecallHint(level: 2, title: "Pair hint", body: "Think of the fort that came next and supported planning."),
-                    RecallHint(level: 3, title: "Meaning hint", body: "It became an early capital and power center."),
+                    RecallHint(level: 3, title: "Meaning hint", body: "It became an early capital, a main place for planning."),
                 ],
                 feedback: RecallFeedback(
                     success: "Yes. Rajgad became an early capital and planning base.",
-                    recovery: "Rajgad is the early capital, while Torna marks the early breakthrough."
+                    recovery: "Rajgad is the early capital, while Torna marks the early win."
                 ),
                 masteryContribution: .observedClosely
             )
@@ -746,17 +746,17 @@ enum SampleContent {
     private static let sceneCluster3 = SceneCluster(
         id: "scene-3-pratapgad-turning-point",
         sceneNumber: 3,
-        title: "Pratapgad, a turning point in the mountains",
-        narrativeObjective: "Teach that terrain, planning, and nerve changed the balance at a dangerous moment.",
-        keyFact: "The confrontation near Pratapgad in 1659 became a major turning point in Shivaji Maharaj's rise.",
-        meaningStatement: "Pratapgad matters because planning and terrain can shift a difficult situation without turning the lesson into gore or spectacle.",
+        title: "Pratapgad, a mountain turning point",
+        narrativeObjective: "Teach that hill terrain, planning, and courage changed what happened in a dangerous moment.",
+        keyFact: "The dangerous meeting near Pratapgad in 1659 became a major turning point in Shivaji Maharaj's rise.",
+        meaningStatement: "Pratapgad matters because planning and terrain — the shape of the land — can change a difficult situation without focusing on scary details.",
         childSafeSummary: "At Pratapgad, Shivaji Maharaj used planning, local terrain, and courage in a dangerous moment.",
         mapAnchorIDs: ["place-pratapgad"],
         timelineEventID: pratapgadTurningPointEvent.id,
         cards: [
             makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .story, title: "Hook", text: "Mist, hills, and lookout points make the mountain fort feel tense and important.", memoryHook: "Turning Point"),
-            makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .meaning, title: "Why this matters", text: "Preparation and terrain can change what happens next."),
-            makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .anchor, title: "Anchor", text: "Remember Pratapgad as the turning point fort."),
+            makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .meaning, title: "Why this matters", text: "Preparation and terrain — the land shape — can change what happens next."),
+            makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .anchor, title: "Memory clue", text: "Remember Pratapgad as the turning point fort."),
             makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .recall, title: "Recall", text: "Name the fort where the turning point happened."),
             makeCard(sceneID: "scene-3-pratapgad-turning-point", type: .reward, title: "Reward", text: "Unlock the Turning Point keepsake and terrain badge."),
         ],
@@ -767,7 +767,7 @@ enum SampleContent {
                 prompt: "At which fort did a major turning point happen?",
                 correctAnswers: ["Pratapgad"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Think about the fort remembered as a Turning Point."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Think about the fort remembered as a Turning Point."),
                     RecallHint(level: 2, title: "Terrain hint", body: "It stands in steep hill country near Mahabaleshwar."),
                     RecallHint(level: 3, title: "Meaning hint", body: "This fort teaches planning, lookout points, and terrain."),
                 ],
@@ -784,19 +784,19 @@ enum SampleContent {
     private static let sceneCluster4 = SceneCluster(
         id: "scene-4-purandar-agra",
         sceneNumber: 4,
-        title: "Purandar to Agra, pressure and escape",
-        narrativeObjective: "Teach setback, hard compromise, and clever survival.",
-        keyFact: "Purandar brought heavy pressure, and Agra became the northern city where Shivaji Maharaj was held under close watch before returning.",
+        title: "Purandar to Agra, pressure and return",
+        narrativeObjective: "Teach setback, a hard agreement, and a clever return.",
+        keyFact: "Purandar brought heavy pressure, and Agra was the northern city where Shivaji Maharaj was kept under close watch before returning home.",
         meaningStatement: "This scene matters because leaders sometimes face pressure, make hard choices, and still find a way back with patience and planning.",
         childSafeSummary: "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement, then later found a clever way to return home.",
         mapAnchorIDs: ["place-purandar", "place-agra"],
         timelineEventID: agraReturnEvent.id,
         cards: [
-            makeCard(sceneID: "scene-4-purandar-agra", type: .story, title: "Hook", text: "The journey stretches far from Maharashtra to the Mughal court in Agra.", memoryHook: "Escape and Return"),
+            makeCard(sceneID: "scene-4-purandar-agra", type: .story, title: "Hook", text: "The journey moves far from Maharashtra to the northern city of Agra.", memoryHook: "Escape and Return"),
             makeCard(sceneID: "scene-4-purandar-agra", type: .meaning, title: "Why this matters", text: "Setbacks do not end the story when patience and planning stay alive."),
-            makeCard(sceneID: "scene-4-purandar-agra", type: .anchor, title: "Anchor", text: "Purandar brings pressure. Agra is the northern city under watch."),
+            makeCard(sceneID: "scene-4-purandar-agra", type: .anchor, title: "Memory clue", text: "Purandar brings pressure. Agra is the northern city under watch."),
             makeCard(sceneID: "scene-4-purandar-agra", type: .recall, title: "Recall", text: "Which happened first, Purandar or Agra?"),
-            makeCard(sceneID: "scene-4-purandar-agra", type: .reward, title: "Reward", text: "Earn the Escape and Return keepsake and northern-route ribbon."),
+            makeCard(sceneID: "scene-4-purandar-agra", type: .reward, title: "Reward", text: "Earn the Escape and Return keepsake and northern route ribbon."),
         ],
         recallChallenges: [
             RecallChallenge(
@@ -805,7 +805,7 @@ enum SampleContent {
                 prompt: "Which happened first, Purandar or Agra?",
                 correctAnswers: ["Purandar"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Pressure comes before the northern court scene."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Pressure comes before the northern court scene."),
                     RecallHint(level: 2, title: "Map hint", body: "Think first of the fort near Pune, then the city in the north."),
                     RecallHint(level: 3, title: "Meaning hint", body: "The agreement at Purandar came before the period under watch in Agra."),
                 ],
@@ -822,17 +822,17 @@ enum SampleContent {
     private static let sceneCluster5 = SceneCluster(
         id: "scene-5-rajgad-recovery",
         sceneNumber: 5,
-        title: "Recovery of strength, rebuilding after Agra",
-        narrativeObjective: "Show resilience, rebuilding, and regained confidence after setbacks.",
+        title: "Rebuilding strength after Agra",
+        narrativeObjective: "Show resilience, rebuilding, and confidence after setbacks.",
         keyFact: "After Agra, Shivaji Maharaj rebuilt strength, reorganized, and returned to growth.",
-        meaningStatement: "Recovery matters because strength can be rebuilt through steady organization, not only dramatic moments.",
+        meaningStatement: "Recovery matters because strength can be rebuilt through steady work, not only big dramatic moments.",
         childSafeSummary: "After a difficult time, Shivaji Maharaj did not give up. He rebuilt, reorganized, and grew stronger again.",
         mapAnchorIDs: ["place-rajgad"],
         timelineEventID: comebackRebuildingEvent.id,
         cards: [
             makeCard(sceneID: "scene-5-rajgad-recovery", type: .story, title: "Hook", text: "The network of forts begins to glow again as the comeback starts.", memoryHook: "Comeback"),
-            makeCard(sceneID: "scene-5-rajgad-recovery", type: .meaning, title: "Why this matters", text: "Resilience is part of leadership, especially after a setback."),
-            makeCard(sceneID: "scene-5-rajgad-recovery", type: .anchor, title: "Anchor", text: "Remember Rajgad as the comeback anchor."),
+            makeCard(sceneID: "scene-5-rajgad-recovery", type: .meaning, title: "Why this matters", text: "Good leaders keep going and rebuild after a setback."),
+            makeCard(sceneID: "scene-5-rajgad-recovery", type: .anchor, title: "Memory clue", text: "Remember Rajgad as the comeback place."),
             makeCard(sceneID: "scene-5-rajgad-recovery", type: .recall, title: "Recall", text: "What did Shivaji Maharaj do after returning from Agra?"),
             makeCard(sceneID: "scene-5-rajgad-recovery", type: .reward, title: "Reward", text: "Collect the Comeback keepsake and rebuilding symbols."),
         ],
@@ -843,7 +843,7 @@ enum SampleContent {
                 prompt: "What did Shivaji Maharaj do after returning from Agra?",
                 correctAnswers: ["He rebuilt strength", "He rebuilt and reorganized", "He rebuilt, reorganized, and grew stronger again"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Think about the comeback scene at Rajgad."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Think about the comeback scene at Rajgad."),
                     RecallHint(level: 2, title: "Action hint", body: "The answer is about rebuilding and reorganizing."),
                     RecallHint(level: 3, title: "Meaning hint", body: "He returned to growth instead of giving up."),
                 ],
@@ -860,17 +860,17 @@ enum SampleContent {
     private static let sceneCluster6 = SceneCluster(
         id: "scene-6-raigad-coronation",
         sceneNumber: 6,
-        title: "Raigad, coronation as Chhatrapati",
-        narrativeObjective: "Show the crowning moment and explain why Shivaji Maharaj mattered.",
-        keyFact: "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati, marking a major moment of self-rule.",
-        meaningStatement: "Raigad matters because the coronation shows self-rule and responsibility.",
-        childSafeSummary: "At Raigad, Shivaji Maharaj was crowned Chhatrapati. This marked Swarajya, or self-rule.",
+        title: "Raigad, the Coronation Capital",
+        narrativeObjective: "Show Raigad as the big final moment and explain why Shivaji Maharaj mattered.",
+        keyFact: "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati in a coronation, or crowning ceremony, for Swarajya.",
+        meaningStatement: "Raigad matters because the coronation shows Swarajya, or self-rule, and the duty to care for people.",
+        childSafeSummary: "At Raigad, Shivaji Maharaj was crowned Chhatrapati. The coronation, or crowning ceremony, marked Swarajya — self-rule.",
         mapAnchorIDs: ["place-raigad"],
         timelineEventID: raigadCoronationEvent.id,
         cards: [
-            makeCard(sceneID: "scene-6-raigad-coronation", type: .story, title: "Hook", text: "Symbols gathered across the arc come together at Raigad.", memoryHook: "Coronation Capital"),
+            makeCard(sceneID: "scene-6-raigad-coronation", type: .story, title: "Hook", text: "The journey comes together at Raigad for the coronation.", memoryHook: "Coronation Capital"),
             makeCard(sceneID: "scene-6-raigad-coronation", type: .meaning, title: "Why this matters", text: "The coronation shows self-rule, dignity, and responsibility."),
-            makeCard(sceneID: "scene-6-raigad-coronation", type: .anchor, title: "Anchor", text: "Remember Raigad as the Coronation Capital."),
+            makeCard(sceneID: "scene-6-raigad-coronation", type: .anchor, title: "Memory clue", text: "Remember Raigad as the Coronation Capital."),
             makeCard(sceneID: "scene-6-raigad-coronation", type: .recall, title: "Recall", text: "At which fort was Shivaji Maharaj crowned Chhatrapati?"),
             makeCard(sceneID: "scene-6-raigad-coronation", type: .reward, title: "Reward", text: "Complete the Chronicle page with the Chhatrapati Crown."),
         ],
@@ -881,13 +881,13 @@ enum SampleContent {
                 prompt: "At which fort was Shivaji Maharaj crowned Chhatrapati?",
                 correctAnswers: ["Raigad"],
                 hintLadder: [
-                    RecallHint(level: 1, title: "Anchor hint", body: "Think about the Coronation Capital."),
-                    RecallHint(level: 2, title: "Scene hint", body: "It is the final fort in the arc, on the Konkan edge of the Sahyadris."),
-                    RecallHint(level: 3, title: "Meaning hint", body: "This fort marks Swarajya, or self-rule."),
+                    RecallHint(level: 1, title: "Memory clue", body: "Think about the Coronation Capital."),
+                    RecallHint(level: 2, title: "Scene hint", body: "It is the final fort in the journey, on the Konkan edge of the Sahyadris."),
+                    RecallHint(level: 3, title: "Meaning hint", body: "This fort marks the rise of self-rule, or Swarajya."),
                 ],
                 feedback: RecallFeedback(
-                    success: "Yes. Raigad is the fort of the coronation as Chhatrapati.",
-                    recovery: "Raigad is remembered as the Coronation Capital where the journey reaches self-rule."
+                    success: "Yes. Raigad is the Coronation Capital, where Shivaji Maharaj was crowned Chhatrapati.",
+                    recovery: "Raigad is remembered as the Coronation Capital where the journey reaches Swarajya, or self-rule."
                 ),
                 masteryContribution: .remembered
             )
@@ -922,8 +922,8 @@ enum SampleContent {
     private static let dawnAtShivneriEntry = makeChronicleEntry(
         id: "reward-dawn-at-shivneri",
         title: "Dawn at Shivneri",
-        keepsakeTitle: "Emblem fragment",
-        meaning: "A dawn fragment for remembering that great journeys can begin quietly, in one strong place.",
+        keepsakeTitle: "Story piece",
+        meaning: "A dawn story piece for remembering that great journeys can begin quietly, in one strong place.",
         sceneID: "scene-1-shivneri",
         placeID: "place-shivneri",
         timelineEventID: bornAtShivneriEvent.id,
@@ -935,7 +935,7 @@ enum SampleContent {
         id: "reward-first-big-fort-card",
         title: "First Big Fort",
         keepsakeTitle: "Journey keepsake card",
-        meaning: "This keepsake remembers Torna as an early win in building self-rule.",
+        meaning: "This keepsake remembers Torna as an early win in building Swarajya, or self-rule.",
         sceneID: "scene-2-torna-rajgad",
         placeID: "place-torna",
         timelineEventID: earlyFortsEvent.id,
@@ -957,9 +957,9 @@ enum SampleContent {
 
     private static let mountainSealFragmentEntry = makeChronicleEntry(
         id: "reward-mountain-seal-fragment",
-        title: "Mountain Seal Fragment",
-        keepsakeTitle: "Emblem fragment",
-        meaning: "A mountain emblem fragment earned by linking Torna and Rajgad to the growing idea of self-rule.",
+        title: "Mountain Seal Piece",
+        keepsakeTitle: "Story piece",
+        meaning: "A mountain story piece earned by linking Torna and Rajgad to the growing idea of Swarajya, or self-rule.",
         sceneID: "scene-2-torna-rajgad",
         placeID: "place-rajgad",
         timelineEventID: earlyFortsEvent.id,
@@ -971,7 +971,7 @@ enum SampleContent {
         id: "reward-turning-point-card",
         title: "Turning Point",
         keepsakeTitle: "Journey keepsake card",
-        meaning: "This keepsake remembers Pratapgad as the moment when planning and terrain changed the balance.",
+        meaning: "This keepsake remembers Pratapgad as the moment when planning and terrain, the shape of the land, changed what happened next.",
         sceneID: "scene-3-pratapgad-turning-point",
         placeID: "place-pratapgad",
         timelineEventID: pratapgadTurningPointEvent.id,
@@ -983,7 +983,7 @@ enum SampleContent {
         id: "reward-terrain-wisdom-badge",
         title: "Terrain Wisdom",
         keepsakeTitle: "Leadership badge",
-        meaning: "A badge for remembering that local terrain can be part of good preparation and judgment.",
+        meaning: "A badge for remembering that local terrain, the shape of the land, can be part of good preparation and judgment.",
         sceneID: "scene-3-pratapgad-turning-point",
         placeID: "place-pratapgad",
         timelineEventID: pratapgadTurningPointEvent.id,
@@ -994,8 +994,8 @@ enum SampleContent {
     private static let lookoutSignalEntry = makeChronicleEntry(
         id: "reward-lookout-signal",
         title: "Lookout Signal",
-        keepsakeTitle: "Emblem fragment",
-        meaning: "This Chronicle fragment remembers the calm signals and readiness that mattered before the turning point.",
+        keepsakeTitle: "Story piece",
+        meaning: "This Chronicle story piece remembers the calm signals and readiness that mattered before the turning point.",
         sceneID: "scene-3-pratapgad-turning-point",
         placeID: "place-pratapgad",
         timelineEventID: pratapgadTurningPointEvent.id,
@@ -1017,9 +1017,9 @@ enum SampleContent {
 
     private static let northernRouteRibbonEntry = makeChronicleEntry(
         id: "reward-northern-route-ribbon",
-        title: "Northern Route Ribbon",
-        keepsakeTitle: "Route ribbon",
-        meaning: "A ribbon for remembering how far the journey stretched, from Purandar pressure to Agra and back.",
+        title: "Northern Route Trail",
+        keepsakeTitle: "Route trail",
+        meaning: "A trail card for remembering how far the journey stretched, from Purandar pressure to Agra and back.",
         sceneID: "scene-4-purandar-agra",
         placeID: "place-agra",
         timelineEventID: agraReturnEvent.id,
@@ -1054,8 +1054,8 @@ enum SampleContent {
     private static let rebuildingSealEntry = makeChronicleEntry(
         id: "reward-rebuilding-seal-fragment",
         title: "Rebuilding Seal",
-        keepsakeTitle: "Emblem fragment",
-        meaning: "A seal fragment for remembering that recovery comes from reorganizing, reconnecting, and growing stronger again.",
+        keepsakeTitle: "Story piece",
+        meaning: "A seal story piece for remembering that recovery comes from reorganizing, reconnecting, and growing stronger again.",
         sceneID: "scene-5-rajgad-recovery",
         placeID: "place-rajgad",
         timelineEventID: comebackRebuildingEvent.id,
@@ -1079,7 +1079,7 @@ enum SampleContent {
         id: "reward-chhatrapati-crown-card",
         title: "Chhatrapati Crown",
         keepsakeTitle: "Journey keepsake card",
-        meaning: "This final keepsake remembers the coronation at Raigad and the rise of self-rule.",
+        meaning: "This final keepsake remembers the coronation, or crowning ceremony, at Raigad and the rise of self-rule.",
         sceneID: "scene-6-raigad-coronation",
         placeID: "place-raigad",
         timelineEventID: raigadCoronationEvent.id,
@@ -1091,7 +1091,7 @@ enum SampleContent {
         id: "reward-swarajya-meaning-badge",
         title: "Self-Rule Meaning",
         keepsakeTitle: "Leadership badge",
-        meaning: "A badge for understanding that Raigad stands for self-rule, dignity, and responsibility.",
+        meaning: "A badge for understanding that Raigad stands for Swarajya — self-rule, dignity, and responsibility.",
         sceneID: "scene-6-raigad-coronation",
         placeID: "place-raigad",
         timelineEventID: raigadCoronationEvent.id,
@@ -1102,8 +1102,8 @@ enum SampleContent {
     private static let royalChronicleCompletionEntry = makeChronicleEntry(
         id: "reward-royal-chronicle-completion",
         title: "Royal Chronicle Complete",
-        keepsakeTitle: "Chronicle completion emblem",
-        meaning: "The first Chronicle page comes together only after the full six-scene journey is remembered with meaning.",
+        keepsakeTitle: "Chronicle story-record card",
+        meaning: "The first Chronicle page, your story record, comes together after the full six-scene journey is remembered with meaning.",
         sceneID: "scene-6-raigad-coronation",
         placeID: "place-raigad",
         timelineEventID: raigadCoronationEvent.id,
@@ -1130,7 +1130,7 @@ enum SampleContent {
         latitude: 18.2761,
         longitude: 73.6227,
         memoryHook: "First Big Fort",
-        primaryEvent: "Early win in the start of self-rule",
+        primaryEvent: "Early win in the start of Swarajya, or self-rule",
         regionLabel: "Sahyadri range, southwest of Pune",
         linkedSceneIDs: ["scene-2-torna-rajgad"],
         linkedTimelineEventIDs: [earlyFortsEvent.id],
@@ -1143,7 +1143,7 @@ enum SampleContent {
         latitude: 18.2460,
         longitude: 73.6822,
         memoryHook: "Early Capital",
-        primaryEvent: "Early power center, planning base, and comeback anchor",
+        primaryEvent: "Early capital, planning base, and comeback anchor",
         regionLabel: "Sahyadri range near Torna",
         linkedSceneIDs: ["scene-2-torna-rajgad", "scene-5-rajgad-recovery"],
         linkedTimelineEventIDs: [earlyFortsEvent.id, comebackRebuildingEvent.id],
@@ -1169,7 +1169,7 @@ enum SampleContent {
         latitude: 18.2808,
         longitude: 73.9736,
         memoryHook: "Pressure Fort",
-        primaryEvent: "Pressure, compromise, and a difficult agreement",
+        primaryEvent: "Pressure and a difficult agreement",
         regionLabel: "Southeast of Pune",
         linkedSceneIDs: ["scene-4-purandar-agra"],
         linkedTimelineEventIDs: [pressureAtPurandarEvent.id],
@@ -1195,7 +1195,7 @@ enum SampleContent {
         latitude: 18.2335,
         longitude: 73.4406,
         memoryHook: "Coronation Capital",
-        primaryEvent: "Coronation as Chhatrapati",
+        primaryEvent: "Coronation, or crowning ceremony, as Chhatrapati",
         regionLabel: "Konkan edge of the Sahyadris",
         linkedSceneIDs: ["scene-6-raigad-coronation"],
         linkedTimelineEventIDs: [raigadCoronationEvent.id],
@@ -1275,7 +1275,7 @@ enum SampleContent {
         broadEraLabel: "Shivaji Maharaj's journey",
         yearLabel: "1674",
         linkedPlaceIDs: ["place-raigad"],
-        recallPrompt: "Place the Raigad coronation as the crowning moment of the journey.",
+        recallPrompt: "Place Raigad coronation as the big final moment of the journey.",
         unlockRule: UnlockRule(requiredMastery: .remembered, enhancedMastery: .placed)
     )
 

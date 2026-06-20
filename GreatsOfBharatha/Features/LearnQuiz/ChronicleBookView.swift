@@ -48,9 +48,9 @@ struct ChronicleBookView: View {
     private var entriesSection: some View {
         VStack(alignment: .leading, spacing: GBSpacing.small) {
             GBSectionHeader(
-                eyebrow: "Reward states",
-                title: "Cards deepen with memory proof",
-                subtitle: "A card starts faint, then gains ink, a seal, and a remembered-again mark."
+                eyebrow: "Card steps",
+                title: "Cards grow when you remember",
+                subtitle: "A card starts faint, then opens, earns a seal, and grows stronger when you remember again."
             )
 
             ForEach(entries) { entry in
@@ -149,9 +149,9 @@ private struct ChronicleBookEntryCard: View {
 
     private var stateTitle: String {
         switch entry.state {
-        case .silhouette: return "Silhouette"
-        case .inked: return "Inked"
-        case .sealed: return "Sealed"
+        case .silhouette: return "Still hidden"
+        case .inked: return "Started"
+        case .sealed: return "Earned"
         case .rememberedAgain: return "Remembered again"
         }
     }
