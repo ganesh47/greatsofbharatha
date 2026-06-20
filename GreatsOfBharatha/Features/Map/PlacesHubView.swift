@@ -229,14 +229,14 @@ struct PlaceDetailView: View {
                                 Button {
                                     place.appleMapsHandoff.openInAppleMaps()
                                 } label: {
-                                    Label("Open in Apple Maps", systemImage: "arrow.up.right.square")
+                                    Label("Grown-up map option", systemImage: "arrow.up.right.square")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.gbSecondary)
                                 .accessibilityLabel("Open \(place.appleMapsDisplayName) in Apple Maps")
-                                .accessibilityHint("Opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
+                                .accessibilityHint("Grown-up option: opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
 
-                                Text("Opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
+                                Text("Grown-up option: opens Apple Maps for directions and place details. Ask a grown-up before planning a visit.")
                                     .font(.caption)
                                     .foregroundStyle(GBColor.Content.secondary)
                             }
