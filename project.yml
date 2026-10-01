@@ -10,7 +10,8 @@ settings:
     DEVELOPMENT_TEAM: "J3387FUR8X"
     CODE_SIGN_STYLE: Automatic
     CURRENT_PROJECT_VERSION: 1
-    MARKETING_VERSION: 0.1.0-dev
+    MARKETING_VERSION: 0.2.0
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
     GENERATE_INFOPLIST_FILE: YES
     TARGETED_DEVICE_FAMILY: "1,2"
     SUPPORTS_MACCATALYST: NO
@@ -21,7 +22,7 @@ settings:
       - UIInterfaceOrientationPortraitUpsideDown
       - UIInterfaceOrientationLandscapeLeft
       - UIInterfaceOrientationLandscapeRight
-    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+    INFOPLIST_KEY_UISupportedInterfaceOrientations:
       - UIInterfaceOrientationPortrait
       - UIInterfaceOrientationLandscapeLeft
       - UIInterfaceOrientationLandscapeRight
@@ -47,6 +48,7 @@ targets:
     scheme:
       testTargets:
         - GreatsOfBharathaTests
+        - GreatsOfBharathaUITests
   GreatsOfBharathaTests:
     type: bundle.unit-test
     platform: iOS
@@ -62,3 +64,16 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Greats Of Bharatha.app/Greats Of Bharatha"
         BUNDLE_LOADER: "$(TEST_HOST)"
+  GreatsOfBharathaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: GreatsOfBharathaUITests
+    dependencies:
+      - target: GreatsOfBharatha
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ganesh47.greatsofbharatha.uitests
+        PRODUCT_NAME: GreatsOfBharathaUITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: GreatsOfBharatha

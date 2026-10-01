@@ -26,6 +26,7 @@ enum DebugNavigationRoute: String {
     case parentHome = "parent-home"
 
     static func current(from environment: [String: String] = ProcessInfo.processInfo.environment) -> DebugNavigationRoute? {
+#if DEBUG
         if let raw = environment["GOB_CAPTURE_ROUTE"], let route = DebugNavigationRoute(rawValue: raw) {
             return route
         }
@@ -57,6 +58,9 @@ enum DebugNavigationRoute: String {
         default:
             return nil
         }
+#else
+        return nil
+#endif
     }
 
     var seedProfile: CaptureSeedProfile {

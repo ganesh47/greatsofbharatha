@@ -74,6 +74,11 @@ struct LessonRecallEvaluation: Equatable {
     let feedbackText: String
     let revealedHintLevel: Int
     let recognitionRescueUnlocked: Bool
+
+    var support: LearningSupport {
+        if recognitionRescueUnlocked { return .rescued }
+        return revealedHintLevel > 0 ? .hinted : .independent
+    }
 }
 
 enum LessonRecallEngine {

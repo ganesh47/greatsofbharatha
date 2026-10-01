@@ -4,511 +4,75 @@ struct ChronicleView: View {
     @EnvironmentObject private var appModel: AppModel
     let rewards: [ChronicleReward]
     var highlightRewardID: String?
+    @State private var placementIDs: [String: UUID] = [:]
 
-    @State private var celebratedRewardIDs: Set<String> = []
-
-    private var previewedRewards: [ChronicleReward] {
-        rewards.filter { appModel.lessonStore.isPreviewed($0) && !appModel.lessonStore.isUnlocked($0) }
-    }
-
-    private var earnedRewards: [ChronicleReward] {
-        rewards.filter { reward in
-            guard appModel.lessonStore.isUnlocked(reward) else { return false }
-            return !isEnriched(reward)
+    private var ordered: [ChronicleReward] {
+        rewards.sorted { lhs, rhs in
+            if lhs.id == rhs.id { return false }
+            if lhs.id == highlightRewardID { return true }
+            if rhs.id == highlightRewardID { return false }
+            let left = appModel.lessonStore.isUnlocked(lhs)
+            let right = appModel.lessonStore.isUnlocked(rhs)
+            if left != right { return left }
+            return rewards.firstIndex(where: { $0.id == lhs.id })! < rewards.firstIndex(where: { $0.id == rhs.id })!
         }
     }
-
-    private var deepenedRewards: [ChronicleReward] {
-        rewards.filter(isEnriched)
+    private func placed(_ reward: ChronicleReward) -> Bool {
+        appModel.lessonStore.masteryRecord(for: reward.id)?.evidenceLog.contains(where: { $0.type == .chronicleReflection }) == true
     }
-
-    private var hiddenRewards: [ChronicleReward] {
-        rewards.filter { !appModel.lessonStore.isPreviewed($0) && !appModel.lessonStore.isUnlocked($0) }
+    private func rememberedAgain(_ reward: ChronicleReward) -> Bool {
+        guard let entry = appModel.content.activeHeroArc.chronicleEntries.first(where: { $0.id == reward.id }) else { return false }
+        return appModel.lessonStore.chronicleProgress(for: entry).detailLevel == .rememberedAgain
     }
-
-    private var highlightedReward: ChronicleReward? {
-        guard let highlightRewardID else { return nil }
-        return rewards.first(where: { $0.id == highlightRewardID && appModel.lessonStore.isUnlocked($0) })
-    }
-
     var body: some View {
-        GBLayoutContextReader { context in
-            ScrollView {
-                VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    chronicleHero
-                    progressStrip
-                    GBGlossaryTray(terms: [.chronicle, .swarajya, .coronation])
-
-                    if let highlightedReward {
-                        NewRewardSpotlight(
-                            reward: highlightedReward,
-                            state: shelfState(for: highlightedReward),
-                            linkedSceneTitle: linkedSceneTitle(for: highlightedReward),
-                            collected: celebratedRewardIDs.contains(highlightedReward.id),
-                            onCollect: {
-                                celebratedRewardIDs.insert(highlightedReward.id)
-                                LessonFeedback.fire(.celebration)
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Text("My story Album").gbDisplay()
+                Text("Keepsakes from the places and stories you explored.").gbStory()
+                ForEach(ordered) { reward in
+                    let unlocked = appModel.lessonStore.isUnlocked(reward)
+                    VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                        HStack(alignment: .top) {
+                            Image(systemName: unlocked ? (placed(reward) ? "book.closed.fill" : "book.fill") : "lock.fill")
+                                .font(.largeTitle).foregroundStyle(GBColor.Chronicle.gold)
+                            VStack(alignment: .leading) {
+                                Text(reward.title).gbTitle()
+                                Text(unlocked ? (rememberedAgain(reward) ? "Remembered again" : "Earned through learning") :
+                                    (appModel.lessonStore.isPreviewed(reward) ? "Started — a keepsake to discover" : "A future adventure"))
+                                    .font(.caption)
                             }
-                        )
-                    }
-
-                    if !previewedRewards.isEmpty {
-                        shelfSection(
-                            eyebrow: "Taking shape",
-                            title: "Seen shapes",
-                            subtitle: "You have seen these story moments. Answer from memory to open the card.",
-                            rewards: previewedRewards,
-                            state: .previewed
-                        )
-                    }
-
-                    if !earnedRewards.isEmpty {
-                        shelfSection(
-                            eyebrow: "Kept from memory",
-                            title: "Earned keepsakes",
-                            subtitle: "These Chronicle cards opened because you remembered the scene, not just because you saw it.",
-                            rewards: earnedRewards,
-                            state: .earned
-                        )
-                    }
-
-                    if !deepenedRewards.isEmpty {
-                        shelfSection(
-                            eyebrow: "Remembered again",
-                            title: "Stronger keepsakes",
-                            subtitle: "These cards grew stronger because you remembered them again.",
-                            rewards: deepenedRewards,
-                            state: .deepened
-                        )
-                    }
-
-                    if !hiddenRewards.isEmpty {
-                        shelfSection(
-                            eyebrow: "Still sealed",
-                            title: "More keepsakes ahead",
-                            subtitle: "These cards will appear after you reach their story scenes.",
-                            rewards: hiddenRewards,
-                            state: .hidden
-                        )
-                    }
-                }
-                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
-                .padding(context.containerPadding)
-                .frame(maxWidth: .infinity)
-            }
-            .background(GBColor.Background.app)
-        }
-        .navigationTitle("Royal Chronicle")
-    }
-
-    @ViewBuilder
-    private var chronicleHero: some View {
-        if let deepeningScene {
-            NavigationLink {
-                SceneLessonView(scene: deepeningScene)
-            } label: {
-                chronicleHeroCard
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("Opens \(deepeningScene.title)")
-        } else {
-            chronicleHeroCard
-        }
-    }
-
-    private var chronicleHeroCard: some View {
-        GBHeroCard(
-            eyebrow: "Royal Chronicle",
-            title: appModel.lessonStore.chronicleHeadline,
-            subtitle: heroSubtitle,
-            detail: heroDetail,
-            ctaTitle: heroCTATitle,
-            badgeTitle: "\(appModel.lessonStore.unlockedChronicleCount)/\(max(appModel.lessonStore.totalChronicleEntries, 1)) earned",
-            emphasis: .chronicle,
-            progress: appModel.lessonStore.totalChronicleEntries == 0 ? nil : Double(appModel.lessonStore.unlockedChronicleCount) / Double(appModel.lessonStore.totalChronicleEntries)
-        )
-    }
-
-    private var progressStrip: some View {
-        HStack(spacing: GBSpacing.xSmall) {
-            ChronicleStatTile(
-                title: "Seen",
-                value: appModel.lessonStore.previewedChronicleCount,
-                total: appModel.lessonStore.totalChronicleEntries,
-                symbol: "eye.fill",
-                emphasis: .story
-            )
-            ChronicleStatTile(
-                title: "Earned",
-                value: appModel.lessonStore.unlockedChronicleCount,
-                total: appModel.lessonStore.totalChronicleEntries,
-                symbol: GBIcon.chronicle,
-                emphasis: .chronicle
-            )
-            ChronicleStatTile(
-                title: "Stronger",
-                value: appModel.lessonStore.enrichedChronicleCount,
-                total: appModel.lessonStore.totalChronicleEntries,
-                symbol: GBIcon.success,
-                emphasis: .place
-            )
-        }
-    }
-
-    private var heroSubtitle: String {
-        if let dueReviewScene {
-            return "Review ready: \(dueReviewScene.title)"
-        }
-        if let deepeningScene {
-            return "Next: \(deepeningScene.title)"
-        }
-        return "All keepsakes are on the shelf"
-    }
-
-    private var heroDetail: String {
-        if dueReviewScene != nil {
-            return "A quick return to a remembered scene can make an earned keepsake stronger."
-        }
-        if appModel.lessonStore.unlockedChronicleCount == 0 {
-            return "Seeing a scene makes a faint card appear. A card opens when you answer from memory."
-        }
-        return "The Chronicle shows what you have seen, earned, and remembered again."
-    }
-
-    private var heroCTATitle: String {
-        if dueReviewScene != nil {
-            return "Review now"
-        }
-        return appModel.lessonStore.unlockedChronicleCount == 0 ? "Earn a keepsake" : "Keep remembering"
-    }
-
-    private var deepeningScene: StoryScene? {
-        if let dueReviewScene {
-            return dueReviewScene
-        }
-
-        if let nextSceneID = appModel.lessonStore.nextSceneID,
-           let nextScene = scene(withID: nextSceneID) {
-            return nextScene
-        }
-
-        if let rewardScene = (previewedRewards.first ?? earnedRewards.first ?? deepenedRewards.first).flatMap({ scene(withID: $0.unlockedBySceneID) }) {
-            return rewardScene
-        }
-
-        return appModel.content.scenes.first
-    }
-
-    private var dueReviewScene: StoryScene? {
-        guard let dueSceneID = appModel.lessonStore.dueReviews().first(where: { $0.subjectType == .scene })?.subjectID else {
-            return nil
-        }
-        return scene(withID: dueSceneID)
-    }
-
-    private func scene(withID sceneID: String) -> StoryScene? {
-        appModel.content.scenes.first(where: { $0.id == sceneID })
-    }
-
-    @ViewBuilder
-    private func shelfSection(
-        eyebrow: String,
-        title: String,
-        subtitle: String,
-        rewards: [ChronicleReward],
-        state: ChronicleShelfState
-    ) -> some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            GBSectionHeader(eyebrow: eyebrow, title: title, subtitle: subtitle)
-
-            ForEach(rewards) { reward in
-                ChronicleShelfCard(
-                    reward: reward,
-                    state: state,
-                    linkedSceneTitle: linkedSceneTitle(for: reward),
-                    isHighlighted: reward.id == highlightRewardID,
-                    collected: celebratedRewardIDs.contains(reward.id)
-                )
-            }
-        }
-    }
-
-    private func linkedSceneTitle(for reward: ChronicleReward) -> String {
-        appModel.content.scenes.first(where: { $0.id == reward.unlockedBySceneID })?.title ?? "A story moment"
-    }
-
-    private func isEnriched(_ reward: ChronicleReward) -> Bool {
-        guard let entry = appModel.content.activeHeroArc.chronicleEntry(withID: reward.id) else {
-            return false
-        }
-        return appModel.lessonStore.chronicleUnlockState(for: entry) == .enriched
-    }
-
-    private func shelfState(for reward: ChronicleReward) -> ChronicleShelfState {
-        if isEnriched(reward) {
-            return .deepened
-        }
-        if appModel.lessonStore.isUnlocked(reward) {
-            return .earned
-        }
-        if appModel.lessonStore.isPreviewed(reward) {
-            return .previewed
-        }
-        return .hidden
-    }
-}
-
-private enum ChronicleShelfState {
-    case hidden
-    case previewed
-    case earned
-    case deepened
-}
-
-private struct ChronicleStatTile: View {
-    let title: String
-    let value: Int
-    let total: Int
-    let symbol: String
-    let emphasis: GBEmphasis
-
-    private var progress: Double {
-        guard total > 0 else { return 0 }
-        return Double(value) / Double(total)
-    }
-
-    var body: some View {
-        GBSurface(style: .plain, padding: GBSpacing.xSmall) {
-            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                HStack(spacing: GBSpacing.xxxSmall) {
-                    Image(systemName: symbol)
-                        .font(.caption.weight(.black))
-                        .foregroundStyle(GBColor.accent(for: emphasis))
-                    Text(title)
-                        .font(GBFont.ui(size: 11, weight: .heavy))
-                        .textCase(.uppercase)
-                        .foregroundStyle(GBColor.Content.tertiary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.78)
-                }
-
-                HStack(alignment: .lastTextBaseline, spacing: 2) {
-                    Text("\(value)")
-                        .font(GBFont.ui(size: 22, weight: .black))
-                        .foregroundStyle(value > 0 ? GBColor.accent(for: emphasis) : GBColor.State.locked)
-                    Text("/\(max(total, 1))")
-                        .font(GBFont.ui(size: 12, weight: .bold))
-                        .foregroundStyle(GBColor.Content.tertiary)
-                }
-
-                ProgressView(value: progress)
-                    .tint(GBColor.accent(for: emphasis))
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(title): \(value) of \(max(total, 1))")
-    }
-}
-
-private struct NewRewardSpotlight: View {
-    let reward: ChronicleReward
-    let state: ChronicleShelfState
-    let linkedSceneTitle: String
-    let collected: Bool
-    let onCollect: () -> Void
-
-    var body: some View {
-        GBSurface(style: .accented(.chronicle)) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack {
-                    GBBadge(title: spotlightTitle, symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .chronicle)
-                    Spacer()
-                    Text(reward.category.rawValue)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(GBColor.Content.inverse.opacity(0.82))
-                }
-
-                Text(reward.title)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .foregroundStyle(GBColor.Content.inverse)
-                Text(reward.subtitle)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(GBColor.Content.inverse.opacity(0.96))
-                Text(reward.meaning)
-                    .font(.body)
-                    .foregroundStyle(GBColor.Content.inverse.opacity(0.9))
-                Text(reasonText)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(GBColor.Content.inverse.opacity(0.88))
-
-                if collected {
-                    Label("Added to your Chronicle shelf", systemImage: GBIcon.success)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(GBColor.Content.inverse)
-                } else {
-                    Button(action: onCollect) {
-                        Label(state == .deepened ? "Collect stronger keepsake" : "Collect keepsake", systemImage: GBIcon.reward)
-                    }
-                    .buttonStyle(.gbSecondary)
-                }
-            }
-        }
-    }
-
-    private var spotlightTitle: String {
-        switch state {
-        case .deepened:
-            return "Stronger keepsake"
-        case .earned:
-            return "New keepsake"
-        case .previewed:
-            return "Seen keepsake"
-        case .hidden:
-            return "Chronicle keepsake"
-        }
-    }
-
-    private var reasonText: String {
-        switch state {
-        case .deepened:
-            return "You remembered \(linkedSceneTitle) again, so this keepsake grew stronger."
-        case .earned:
-            return "You earned this by recalling \(linkedSceneTitle), not just by opening the scene."
-        case .previewed:
-            return "You have seen \(linkedSceneTitle), but this keepsake still needs a memory answer."
-        case .hidden:
-            return linkedSceneTitle
-        }
-    }
-}
-
-private struct ChronicleShelfCard: View {
-    let reward: ChronicleReward
-    let state: ChronicleShelfState
-    let linkedSceneTitle: String
-    let isHighlighted: Bool
-    let collected: Bool
-
-    @ViewBuilder
-    var body: some View {
-        switch state {
-        case .hidden, .previewed:
-            cardSurface(style: .elevated)
-        case .earned:
-            cardSurface(style: .plain)
-        case .deepened:
-            cardSurface(style: .accented(.chronicle))
-        }
-    }
-
-    private func cardSurface(style: GBSurface<AnyView>.Style) -> some View {
-        GBSurface(style: style) {
-            AnyView(cardContent)
-        }
-    }
-
-    private var cardContent: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            HStack(alignment: .top, spacing: GBSpacing.small) {
-                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                    HStack(spacing: GBSpacing.xxSmall) {
-                        GBBadge(title: badgeTitle, symbol: badgeSymbol, emphasis: badgeEmphasis)
-                        if isHighlighted {
-                            GBBadge(title: collected ? "Collected" : "New", symbol: collected ? GBIcon.success : GBIcon.reward, emphasis: .story)
+                        }
+                        if unlocked {
+                            Text(reward.meaning).gbStory()
+                            LearningNarrationControls(id: reward.id + "-album", text: reward.title + ". " + reward.meaning)
+                            if placed(reward) {
+                                Label("Placed in my Album", systemImage: "checkmark.seal.fill")
+                                    .accessibilityIdentifier("album-placed-" + reward.id)
+                                Text("Tell someone why this place matters.").gbBody()
+                            } else {
+                                Button {
+                                    guard !placed(reward) else { return }
+                                    let eventID = placementIDs[reward.id] ?? UUID()
+                                    placementIDs[reward.id] = eventID
+                                    appModel.lessonStore.recordLearningOutcome(subjectID: reward.id, subjectType: .chronicle,
+                                        activity: .albumPlacement, wasSuccessful: true, mastery: .chronicled,
+                                        detail: "Placed an earned keepsake into the Album", eventID: eventID)
+                                    LessonFeedback.fire(.celebration)
+                                } label: { Label("Place keepsake in my Album", systemImage: "plus.rectangle.on.rectangle") }
+                                    .buttonStyle(.gbPrimary(.chronicle))
+                                    .accessibilityIdentifier("album-place-" + reward.id)
+                            }
+                            if let scene = appModel.content.scenes.first(where: { $0.id == reward.unlockedBySceneID }) {
+                                NavigationLink { SceneLessonView(scene: scene) } label: { Text("Explore this story again") }
+                                    .buttonStyle(.bordered)
+                            }
                         }
                     }
-
-                    Text(reward.title)
-                        .gbTitle()
-                        .foregroundStyle(titleColor)
-                    Text(reward.subtitle)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(GBColor.Content.secondary)
+                    .padding(GBSpacing.medium)
+                    .background(unlocked ? GBColor.Chronicle.goldBg : GBColor.Background.surface,
+                        in: RoundedRectangle(cornerRadius: GBRadius.hero))
                 }
-
-                Spacer()
-
-                Image(systemName: badgeSymbol)
-                    .font(.title2)
-                    .foregroundStyle(iconColor)
-            }
-
-            Text(primaryText)
-                .gbBody()
-                .foregroundStyle(GBColor.Content.secondary)
-
-            Text("From: \(linkedSceneTitle)")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(GBColor.accent(for: badgeEmphasis))
-        }
-        .opacity(state == .hidden ? 0.82 : 1)
-    }
-
-    private var badgeTitle: String {
-        switch state {
-        case .hidden:
-            return "Sealed"
-        case .previewed:
-            return "Seen"
-        case .earned:
-            return "Earned"
-        case .deepened:
-            return "Stronger"
-        }
-    }
-
-    private var badgeSymbol: String {
-        switch state {
-        case .hidden:
-            return GBIcon.locked
-        case .previewed:
-            return "eye.fill"
-        case .earned:
-            return GBIcon.chronicle
-        case .deepened:
-            return GBIcon.success
-        }
-    }
-
-    private var badgeEmphasis: GBEmphasis {
-        switch state {
-        case .hidden:
-            return .neutral
-        case .previewed:
-            return .story
-        case .earned, .deepened:
-            return .chronicle
-        }
-    }
-
-    private var titleColor: Color {
-        state == .deepened ? GBColor.Content.inverse : GBColor.Content.primary
-    }
-
-    private var iconColor: Color {
-        switch state {
-        case .deepened:
-            return GBColor.Content.inverse
-        case .earned:
-            return GBColor.Accent.chronicle
-        case .previewed:
-            return GBColor.Accent.story
-        case .hidden:
-            return GBColor.State.locked
-        }
-    }
-
-    private var primaryText: String {
-        switch state {
-        case .hidden:
-            return "This keepsake has not appeared yet. Reach its scene to see its shape."
-        case .previewed:
-            return "You have seen this story moment. The Chronicle opens the keepsake after you answer from memory."
-        case .earned:
-            return reward.meaning
-        case .deepened:
-            return reward.meaning + " This keepsake now has a stronger Chronicle glow because you remembered it again."
-        }
+            }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
+        }.background(GBColor.Background.app).navigationTitle("Album")
     }
 }

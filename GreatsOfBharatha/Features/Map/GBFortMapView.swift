@@ -8,6 +8,8 @@ import SwiftUI
 // ─────────────────────────────────────────────────────────────
 
 struct GBFortMapView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @EnvironmentObject private var appModel: AppModel
     let place: Place
 
     @State private var cameraPosition: MapCameraPosition
@@ -36,16 +38,15 @@ struct GBFortMapView: View {
         .gbShadow(.card)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Map clue for \(place.name)")
-        .accessibilityHint("The fort pin marks where this story happened. Double tap the pin to celebrate the place.")
+        .accessibilityHint("The fort pin marks where this story happened. Double tap the pin to explore the place.")
     }
 
     private var fortPin: some View {
         Button {
-            withAnimation(GBMotion.bounce) { pinTapped = true }
-            GBHaptic.pinCorrect()
+            withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.bounce) { pinTapped = true }
             Task { @MainActor in
                 try? await Task.sleep(nanoseconds: 1_100_000_000)
-                withAnimation(GBMotion.spring) { pinTapped = false }
+                withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.spring) { pinTapped = false }
             }
         } label: {
             VStack(spacing: 4) {
@@ -65,7 +66,7 @@ struct GBFortMapView: View {
                         .font(.system(size: pinTapped ? 30 : 24, weight: .medium))
                         .foregroundStyle(.white)
                 }
-                .animation(GBMotion.bounce, value: pinTapped)
+                .animation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.bounce, value: pinTapped)
 
                 Text(place.name)
                     .font(GBFont.ui(size: 12, weight: .bold))
@@ -77,8 +78,8 @@ struct GBFortMapView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Fort pin: \(place.name)")
-        .accessibilityValue(pinTapped ? "celebrated" : "not celebrated")
-        .accessibilityHint("Double tap to celebrate finding this fort clue.")
+        .accessibilityValue(pinTapped ? "explored" : "not explored")
+        .accessibilityHint("Double tap to explore finding this fort clue.")
     }
 
     private var fortIconName: String {
@@ -107,6 +108,7 @@ struct GBFortMapView: View {
         progress: .readyToLearn,
         isCoreReleasePlace: true
     ))
+    .environmentObject(AppModel())
     .frame(height: 300)
     .padding()
     .background(GBColor.Background.app)

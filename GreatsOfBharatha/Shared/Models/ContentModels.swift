@@ -347,3 +347,32 @@ enum LegacyAppContentAdapter {
         arcTitle.lowercased().replacingOccurrences(of: " ", with: "-")
     }
 }
+
+
+/// Recognition choices are authored separately from accepted free-text aliases.
+struct AuthoredLessonChoice: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let isCorrect: Bool
+}
+
+struct SceneLearningPlan: Equatable {
+    let sceneID: String
+    let teachingText: String
+    let choices: [AuthoredLessonChoice]
+    let artSymbol: String
+
+    var correctChoice: AuthoredLessonChoice? { choices.first(where: \.isCorrect) }
+    var imageAsset: String? {
+        switch sceneID {
+        case "scene-1-shivneri": "Chapter1ShivneriStory"
+        case "scene-2-torna-rajgad": "Chapter2TornaRajgadStory"
+        case "scene-3-pratapgad-turning-point": "Chapter3PratapgadStory"
+        case "scene-4-purandar-agra": "Chapter4PurandarAgraStory"
+        case "scene-5-rajgad-recovery": "Chapter5RajgadRecoveryStory"
+        case "scene-6-raigad-coronation": "Chapter6RaigadCoronationStory"
+        default: nil
+        }
+    }
+    func isCorrect(choiceID: String) -> Bool { choices.first(where: { $0.id == choiceID })?.isCorrect == true }
+}

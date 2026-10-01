@@ -1,7 +1,11 @@
 import SwiftUI
 
 struct ChronicleMatchView: View {
+    @EnvironmentObject private var appModel: AppModel
     let scenes: [LearnQuizPilotScene]
+    var sessionID = UUID()
+    @State private var completedSceneIDs: Set<String> = []
+    @State private var restored = false
 
     @State private var matchState = ChronicleMatchState()
 
@@ -22,6 +26,7 @@ struct ChronicleMatchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     header
+                    LearningNarrationControls(id: "matching-instructions", text: "Choose a place on the left and its memory hook on the right. Help is here when you try another pair.")
                     matchGrid
                     clueCard
                     completionCard
@@ -31,6 +36,21 @@ struct ChronicleMatchView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(GBColor.Background.app)
+        }
+        .accessibilityIdentifier("matching-scroll")
+        .onAppear {
+            guard !restored else { return }
+            restored = true
+            for scene in scenes {
+                if let point = appModel.lessonStore.resumePoint(for: scene.id) {
+                    matchState.completedPairIDs.formUnion(point.completedMatchPairIDs)
+                    matchState.mismatchCount = max(matchState.mismatchCount, point.matchMismatchCount)
+                    if appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains(where: { $0.eventID == point.matchEventID && $0.type == .matchSuccess }) == true {
+                        completedSceneIDs.insert(scene.id)
+                    }
+                }
+            }
+            recordCompletedScenes()
         }
         .navigationTitle("Chronicle Match")
 #if os(iOS)
@@ -73,13 +93,14 @@ struct ChronicleMatchView: View {
 
         return Button {
             matchState = ChronicleMatchEngine.select(tileID: tile.id, state: matchState, pairs: pairs)
+            saveMatchCheckpoint()
+            recordCompletedScenes()
         } label: {
             HStack {
                 if alignment == .trailing { Spacer(minLength: GBSpacing.xxSmall) }
                 Text(tile.text)
                     .font(GBFont.ui(size: 15, weight: .heavy))
                     .multilineTextAlignment(alignment == .leading ? .leading : .trailing)
-                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                 if alignment == .leading { Spacer(minLength: GBSpacing.xxSmall) }
             }
@@ -94,6 +115,7 @@ struct ChronicleMatchView: View {
         .buttonStyle(.plain)
         .foregroundStyle(isMatched ? GBColor.Place.primary : GBColor.Content.primary)
         .accessibilityLabel("\(tile.text), \(isMatched ? "matched" : "not matched")")
+        .accessibilityIdentifier("match-tile-" + tile.id)
     }
 
     @ViewBuilder
@@ -129,12 +151,38 @@ struct ChronicleMatchView: View {
 
     @ViewBuilder
     private var completionCard: some View {
-        if matchState.completedPairIDs.count == pairs.count {
+        if !pairs.isEmpty && matchState.completedPairIDs.count == pairs.count {
             GBSurface(style: .accented(.chronicle)) {
-                Label("All pairs matched. A Chronicle seal is ready.", systemImage: "checkmark.seal.fill")
+                Label("All pairs matched. Your Chronicle remembers this activity.", systemImage: "checkmark.seal.fill")
                     .font(GBFont.ui(size: 17, weight: .heavy))
                     .foregroundStyle(.white)
             }
+        }
+    }
+
+    private func saveMatchCheckpoint() {
+        for scene in scenes {
+            var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, phase: .story, sessionID: sessionID)
+            point.preferredActivity = .match
+            point.completedMatchPairIDs = Set(scene.matchPairs.map(\.id)).intersection(matchState.completedPairIDs)
+            point.matchMismatchCount = matchState.mismatchCount
+            point.updatedAt = Date()
+            appModel.lessonStore.saveResumePoint(point)
+        }
+    }
+
+    private func recordCompletedScenes() {
+        for scene in scenes where !completedSceneIDs.contains(scene.id) {
+            guard !scene.matchPairs.isEmpty,
+                  scene.matchPairs.allSatisfy({ matchState.completedPairIDs.contains($0.id) }) else { continue }
+            completedSceneIDs.insert(scene.id)
+            appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .match,
+                wasSuccessful: true, support: matchState.mismatchCount == 0 ? .independent : .hinted,
+                mastery: .observedClosely, promptType: .eventToPlaceMatch,
+                detail: "Completed authored matching set",
+                eventID: appModel.lessonStore.resumePoint(for: scene.id)?.matchEventID ?? UUID(),
+                sessionID: appModel.lessonStore.resumePoint(for: scene.id)?.sessionID ?? sessionID)
+            LessonFeedback.fire(.success)
         }
     }
 

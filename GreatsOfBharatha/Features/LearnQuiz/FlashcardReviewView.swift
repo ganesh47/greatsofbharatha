@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct FlashcardReviewView: View {
+    @EnvironmentObject private var appModel: AppModel
+    @State private var sessionID = UUID()
     let cards: [LearnQuizReviewCard]
 
     @State private var currentIndex = 0
@@ -21,7 +23,9 @@ struct FlashcardReviewView: View {
 
                     if let card = currentCard {
                         flipCard(card)
+                        LearningNarrationControls(id: card.id, text: isShowingBack ? card.back + ". " + card.meaning : card.front)
                         responseButtons(for: card)
+                            .disabled(!isShowingBack || reviewResult != nil)
                         resultCard
                     } else {
                         emptyState
@@ -87,7 +91,7 @@ struct FlashcardReviewView: View {
                 .opacity(isShowingBack ? 1 : 0)
                 .rotation3DEffect(.degrees(isShowingBack ? 0 : -180), axis: (x: 0, y: 1, z: 0))
             }
-            .animation(reduceMotion ? nil : GBMotion.standard, value: isShowingBack)
+            .animation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.standard, value: isShowingBack)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isShowingBack ? "Showing answer: \(card.back). \(card.meaning)" : "Showing prompt: \(card.front). Tap to flip.")
@@ -123,7 +127,6 @@ struct FlashcardReviewView: View {
                 Text(title)
                     .font(GBFont.display(size: 34, weight: .bold))
                     .foregroundStyle(.white)
-                    .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(body)
@@ -223,14 +226,10 @@ struct FlashcardReviewView: View {
     }
 
     private func record(_ response: LearningReviewResponse, for card: LearnQuizReviewCard) {
-        let now = Date()
-        let schedule = SpacedReviewScheduler.makeInitialSchedule(from: card.learningSeed, now: now)
-        reviewResult = SpacedReviewScheduler.schedule(
-            schedule,
-            after: response,
-            promptHistory: [card.promptType],
-            now: now
-        )
+        guard reviewResult == nil, isShowingBack else { return }
+        reviewResult = appModel.lessonStore.recordReviewResponse(subjectID: card.sceneID,
+            response: response, promptType: card.promptType, eventID: UUID(), sessionID: sessionID)
+
         isShowingBack = true
         GBHaptic.chronicleReveal()
     }
@@ -248,7 +247,7 @@ struct FlashcardReviewView: View {
     }
 
     private func resultTitle(for result: LearningReviewSchedulingResult) -> String {
-        result.shouldReviewInCurrentSession ? "We will teach it again now" : "Review saved"
+        result.shouldReviewInCurrentSession ? "Read the answer again" : "Review saved"
     }
 
     private func resultDetail(for result: LearningReviewSchedulingResult) -> String {

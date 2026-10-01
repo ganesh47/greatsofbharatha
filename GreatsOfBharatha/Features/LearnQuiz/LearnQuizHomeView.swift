@@ -1,123 +1,49 @@
 import SwiftUI
 
 struct LearnQuizHomeView: View {
+    @EnvironmentObject private var appModel: AppModel
     private let scenes = LearnQuizPilotData.scenes
-    private let reviewCards = LearnQuizPilotData.reviewCards
-
+    private var learned: [LearnQuizPilotScene] {
+        scenes.filter { appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false }
+    }
+    private var next: LearnQuizPilotScene? {
+        scenes.first { appModel.lessonStore.mastery(for: $0.id).map { $0 < .understood } ?? true } ?? scenes.first
+    }
+    private var reviewCards: [LearnQuizReviewCard] { learned.flatMap(\.reviewCards) }
     var body: some View {
-        GBLayoutContextReader { context in
-            ScrollView {
-                VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    hero
-                    continueCard
-                    sceneList
-                    reviewCard
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Text("Learn, remember, build your Chronicle").gbDisplay()
+                Text("\(learned.count) of \(scenes.count) opening adventures completed").gbBody()
+                if let next {
+                    NavigationLink(value: next.id) {
+                        Text("Continue: \(next.title)").frame(minHeight: GBTouch.button)
+                    }.buttonStyle(.gbPrimary(.story)).accessibilityIdentifier("pilot-home-continue")
                 }
-                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
-                .padding(context.containerPadding)
-                .frame(maxWidth: .infinity)
-            }
-            .background(GBColor.Background.app)
-        }
-        .navigationTitle("Learn & Quiz")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-#endif
-    }
-
-    private var hero: some View {
-        GBHeroCard(
-            eyebrow: "Shivaji path",
-            title: "Learn, remember, build your Chronicle",
-            subtitle: "Three short scenes: Shivneri, Torna + Rajgad, and Pratapgad.",
-            detail: "Read a short story card, answer from memory, match each place to its clue, and watch the Chronicle grow.",
-            ctaTitle: "Start with Shivneri",
-            badgeTitle: "First path",
-            emphasis: .story,
-            progress: 1.0 / 3.0
-        )
-    }
-
-    private var continueCard: some View {
-        NavigationLink {
-            if let first = scenes.first {
-                SceneLearnView(scene: first)
-            }
-        } label: {
-            GBSurface(style: .accented(.story)) {
-                HStack(spacing: GBSpacing.small) {
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundStyle(.white)
-                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                        Text("Continue")
-                            .font(GBFont.ui(size: 13, weight: .heavy))
-                            .textCase(.uppercase)
-                            .foregroundStyle(.white.opacity(0.78))
-                        Text("Shivneri - Birth Fort")
-                            .font(GBFont.display(size: 22, weight: .bold))
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.white.opacity(0.85))
+                ForEach(scenes) { scene in
+                    if let canonical = appModel.content.scenes.first(where: { $0.id == scene.id }),
+                       appModel.lessonStore.isSceneUnlocked(canonical) {
+                        NavigationLink(value: scene.id) { LearnQuizSceneRow(scene: scene) }
+                            .buttonStyle(.plain)
+                    } else { Text("\(scene.title) — ready after the previous adventure").gbBody() }
                 }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var sceneList: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            GBSectionHeader(
-                eyebrow: "First scenes",
-                title: "Remember the first path",
-                subtitle: "One clear memory hook for each place in the opening journey."
-            )
-
-            ForEach(scenes) { scene in
-                NavigationLink {
-                    SceneLearnView(scene: scene)
-                } label: {
-                    LearnQuizSceneRow(scene: scene)
+                if !learned.isEmpty {
+                    NavigationLink { ChronicleMatchView(scenes: learned) } label: {
+                        Label("Match the places you learned", systemImage: "square.grid.2x2.fill")
+                    }.buttonStyle(.gbPrimary(.place))
+                    NavigationLink { FlashcardReviewView(cards: reviewCards) } label: {
+                        Label("Review my story cards", systemImage: "rectangle.on.rectangle")
+                    }.buttonStyle(.gbSecondary)
                 }
-                .buttonStyle(.plain)
+                NavigationLink { ChronicleBookView(scenes: scenes) } label: {
+                    Label("Open my Chronicle", systemImage: "book.closed.fill")
+                }.buttonStyle(.gbPrimary(.chronicle))
+            }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
+        }.accessibilityIdentifier("pilot-home-scroll").background(GBColor.Background.app).navigationTitle("Learn & Play")
+        .navigationDestination(for: String.self) { sceneID in
+            if let scene = scenes.first(where: { $0.id == sceneID }) {
+                SceneLearnView(scene: scene).id(sceneID)
             }
         }
     }
-
-    private var reviewCard: some View {
-        GBSurface(style: .elevated) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack {
-                    GBBadge(title: "Due later", symbol: "rectangle.stack.fill", emphasis: .chronicle)
-                    Spacer()
-                    Text("\(reviewCards.count) review cards")
-                        .font(GBFont.ui(size: 12, weight: .bold))
-                        .foregroundStyle(GBColor.Content.secondary)
-                }
-                Text("Flashcard review")
-                    .font(GBFont.display(size: 21, weight: .bold))
-                    .foregroundStyle(GBColor.Content.primary)
-                Text("Flip quick cards for the story clues, then choose I knew it, needed a clue, or teach me again.")
-                    .font(GBFont.ui(size: 15, weight: .semibold))
-                    .foregroundStyle(GBColor.Content.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                NavigationLink {
-                    FlashcardReviewView(cards: reviewCards)
-                } label: {
-                    Label("Review flash cards", systemImage: "rectangle.on.rectangle.angled")
-                }
-                .buttonStyle(.gbPrimary(.chronicle))
-            }
-        }
-    }
-}
-
-#Preview("Learn Quiz Home") {
-    NavigationStack {
-        LearnQuizHomeView()
-    }
-    .environmentObject(AppModel())
 }

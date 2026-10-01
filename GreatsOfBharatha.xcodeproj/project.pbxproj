@@ -26,9 +26,11 @@
 		3D46D432D0A11FA9E2F27BD9 /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B510B04B44F609399601600C /* GBMotion.swift */; };
 		47729BBB9C78BD293A31A6BD /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
 		4C3F8F976E0CB196A3AEB41B /* GBNLRecallEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE07361DC3C1D6D864BB326 /* GBNLRecallEvaluator.swift */; };
+		4E4A0D584B0CECD001BDE1DC /* LearningJourneyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525ED658DB563C6BC161FB63 /* LearningJourneyUITests.swift */; };
 		5219DF64A6BC873CBD28A985 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
 		5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */; };
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
+		57D6DDF7802C564855FA5A9B /* StateReliabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
 		5BD4A172E915378D3A9CC856 /* GBShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 891FE8601621FF7A7BDE9AC6 /* GBShadow.swift */; };
 		5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */; };
@@ -36,6 +38,7 @@
 		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
 		62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
+		8639A42C77E94CB3E0ECF853 /* LearningExperienceComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2D3808653597C85662BD4 /* LearningExperienceComponents.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
 		88F9E6C20BBFA38264D4077B /* ChronicleMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */; };
 		89E3FE1D90324B34D697C540 /* GBCardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8609E7F8AFD990A81250F928 /* GBCardStyle.swift */; };
@@ -55,6 +58,7 @@
 		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
 		CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */; };
 		CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */; };
+		D6BB2EC69ED8AADF802F5639 /* AuthoredLearningContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
 		DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */; };
 		DF919F38C0D6D11586812C90 /* GBBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596CBD0FA93B029F56E14FDF /* GBBadge.swift */; };
@@ -68,6 +72,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		1B8E81FBEF4EDFBA191D91EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A262F71F3F0F07F3FD4F4D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEED15624C2241F4B6CD0477;
+			remoteInfo = GreatsOfBharatha;
+		};
+		47F4BF3494B0D256BDB845C1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A262F71F3F0F07F3FD4F4D5 /* Project object */;
 			proxyType = 1;
@@ -93,13 +104,17 @@
 		3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
 		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
 		49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardReviewView.swift; sourceTree = "<group>"; };
+		4FB2D3808653597C85662BD4 /* LearningExperienceComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningExperienceComponents.swift; sourceTree = "<group>"; };
+		525ED658DB563C6BC161FB63 /* LearningJourneyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningJourneyUITests.swift; sourceTree = "<group>"; };
 		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
 		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
+		5CDCE1598AC1D2C60C4ED5B3 /* GreatsOfBharathaUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6413C33179A188AA0729938F /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		70E8E42D945004543238A06E /* TimelineHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineHubView.swift; sourceTree = "<group>"; };
 		71BEDED465CA437D09ADDCD5 /* SampleContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleContent.swift; sourceTree = "<group>"; };
 		7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBRecallPrompt.swift; sourceTree = "<group>"; };
+		83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateReliabilityTests.swift; sourceTree = "<group>"; };
 		842D0166597E3756A21D8739 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentModels.swift; sourceTree = "<group>"; };
 		85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTests.swift; sourceTree = "<group>"; };
 		8609E7F8AFD990A81250F928 /* GBCardStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBCardStyle.swift; sourceTree = "<group>"; };
@@ -132,6 +147,7 @@
 		DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
 		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
 		E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizHomeView.swift; sourceTree = "<group>"; };
+		EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthoredLearningContentTests.swift; sourceTree = "<group>"; };
 		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
 		F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleMatchView.swift; sourceTree = "<group>"; };
 		FA553A6C52FF405536FB4B58 /* GBTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBTypography.swift; sourceTree = "<group>"; };
@@ -166,8 +182,10 @@
 		29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */ = {
 			isa = PBXGroup;
 			children = (
+				EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */,
 				85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */,
 				2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */,
+				83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */,
 			);
 			path = GreatsOfBharathaTests;
 			sourceTree = "<group>";
@@ -185,6 +203,7 @@
 		2CAF176D76684F7BB625884A /* Lesson */ = {
 			isa = PBXGroup;
 			children = (
+				4FB2D3808653597C85662BD4 /* LearningExperienceComponents.swift */,
 				AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */,
 				0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */,
 				DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */,
@@ -284,6 +303,7 @@
 			children = (
 				EBB69AAB1E89F302C4DD2B65 /* GreatsOfBharatha */,
 				29C18B9AA5DE074DEE2233A4 /* GreatsOfBharathaTests */,
+				B5CEEABF88DDC8EE09921A23 /* GreatsOfBharathaUITests */,
 				C38600D9652E838D51F7049E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -297,6 +317,14 @@
 				CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		B5CEEABF88DDC8EE09921A23 /* GreatsOfBharathaUITests */ = {
+			isa = PBXGroup;
+			children = (
+				525ED658DB563C6BC161FB63 /* LearningJourneyUITests.swift */,
+			);
+			path = GreatsOfBharathaUITests;
 			sourceTree = "<group>";
 		};
 		B8EE4101C55EA21501F66716 /* Map */ = {
@@ -313,6 +341,7 @@
 			children = (
 				8A94778E49C1F68D8BA267FB /* GreatsOfBharatha.app */,
 				38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */,
+				5CDCE1598AC1D2C60C4ED5B3 /* GreatsOfBharathaUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -385,6 +414,24 @@
 			productReference = 38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		C251DC8F2AB0F4A9DB2262C6 /* GreatsOfBharathaUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 204B114538F8E9A65BB250B2 /* Build configuration list for PBXNativeTarget "GreatsOfBharathaUITests" */;
+			buildPhases = (
+				D553AC5E5379DBDFA4F75FDC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62D39F47D6DC14EC29CE4E29 /* PBXTargetDependency */,
+			);
+			name = GreatsOfBharathaUITests;
+			packageProductDependencies = (
+			);
+			productName = GreatsOfBharathaUITests;
+			productReference = 5CDCE1598AC1D2C60C4ED5B3 /* GreatsOfBharathaUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C44C21608E4054D77ED127F3 /* Build configuration list for PBXNativeTarget "GreatsOfBharatha" */;
@@ -416,6 +463,11 @@
 						DevelopmentTeam = J3387FUR8X;
 						ProvisioningStyle = Automatic;
 					};
+					C251DC8F2AB0F4A9DB2262C6 = {
+						DevelopmentTeam = J3387FUR8X;
+						ProvisioningStyle = Automatic;
+						TestTargetID = EEED15624C2241F4B6CD0477;
+					};
 					EEED15624C2241F4B6CD0477 = {
 						DevelopmentTeam = J3387FUR8X;
 						ProvisioningStyle = Automatic;
@@ -438,6 +490,7 @@
 			targets = (
 				EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */,
 				BF73B710E3B0072602FD8B4A /* GreatsOfBharathaTests */,
+				C251DC8F2AB0F4A9DB2262C6 /* GreatsOfBharathaUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -500,6 +553,7 @@
 				DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */,
 				28F96E8FA507F0D5650F8C95 /* LearnQuizPilotData.swift in Sources */,
 				5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */,
+				8639A42C77E94CB3E0ECF853 /* LearningExperienceComponents.swift in Sources */,
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
 				22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */,
 				073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */,
@@ -519,14 +573,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6BB2EC69ED8AADF802F5639 /* AuthoredLearningContentTests.swift in Sources */,
 				E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */,
 				1D46FB6ECD9C7608AF1C984E /* LearningEnginesTests.swift in Sources */,
+				57D6DDF7802C564855FA5A9B /* StateReliabilityTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D553AC5E5379DBDFA4F75FDC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E4A0D584B0CECD001BDE1DC /* LearningJourneyUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		62D39F47D6DC14EC29CE4E29 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */;
+			targetProxy = 47F4BF3494B0D256BDB845C1 /* PBXContainerItemProxy */;
+		};
 		9AC98C2115D20D2C2A79F0DD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EEED15624C2241F4B6CD0477 /* GreatsOfBharatha */;
@@ -604,20 +673,21 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
 					UIInterfaceOrientationPortrait,
 					UIInterfaceOrientationPortraitUpsideDown,
 					UIInterfaceOrientationLandscapeLeft,
 					UIInterfaceOrientationLandscapeRight,
 				);
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
-					UIInterfaceOrientationPortrait,
-					UIInterfaceOrientationLandscapeLeft,
-					UIInterfaceOrientationLandscapeRight,
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = "0.1.0-dev";
+				MARKETING_VERSION = 0.2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "Greats Of Bharatha";
@@ -646,6 +716,42 @@
 				PRODUCT_NAME = "Greats Of Bharatha";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5165DF40D6B2CBA0B02D26C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.uitests;
+				PRODUCT_NAME = GreatsOfBharathaUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GreatsOfBharatha;
+			};
+			name = Release;
+		};
+		8B76AA897AD721326D0C4368 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ganesh47.greatsofbharatha.uitests;
+				PRODUCT_NAME = GreatsOfBharathaUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GreatsOfBharatha;
 			};
 			name = Debug;
 		};
@@ -705,20 +811,21 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
 					UIInterfaceOrientationPortrait,
 					UIInterfaceOrientationPortraitUpsideDown,
 					UIInterfaceOrientationLandscapeLeft,
 					UIInterfaceOrientationLandscapeRight,
 				);
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = (
-					UIInterfaceOrientationPortrait,
-					UIInterfaceOrientationLandscapeLeft,
-					UIInterfaceOrientationLandscapeRight,
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = "0.1.0-dev";
+				MARKETING_VERSION = 0.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -773,6 +880,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		204B114538F8E9A65BB250B2 /* Build configuration list for PBXNativeTarget "GreatsOfBharathaUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B76AA897AD721326D0C4368 /* Debug */,
+				5165DF40D6B2CBA0B02D26C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		38045A41A54DB3EEEEBB5A32 /* Build configuration list for PBXNativeTarget "GreatsOfBharathaTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

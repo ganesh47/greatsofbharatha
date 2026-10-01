@@ -1380,3 +1380,39 @@ enum SampleContent {
     }
 }
 // swiftlint:enable type_body_length
+
+
+extension SampleContent {
+    static func learningPlan(for scene: StoryScene) -> SceneLearningPlan {
+        let answers: [(String, String, Bool)]
+        let symbol: String
+        switch scene.id {
+        case "scene-1-shivneri":
+            answers = [("shivneri", "Shivneri Fort", true), ("rajgad", "Rajgad", false), ("pratapgad", "Pratapgad", false)]
+            symbol = "sunrise.fill"
+        case "scene-2-torna-rajgad":
+            answers = [("torna", "Torna", false), ("rajgad", "Rajgad", true), ("shivneri", "Shivneri", false)]
+            symbol = "mountain.2.fill"
+        case "scene-3-pratapgad-turning-point":
+            answers = [("raigad", "Raigad", false), ("shivneri", "Shivneri", false), ("pratapgad", "Pratapgad", true)]
+            symbol = "binoculars.fill"
+        case "scene-4-purandar-agra":
+            answers = [("agra", "Agra", false), ("purandar", "Purandar", true)]
+            symbol = "arrow.uturn.backward.circle.fill"
+        case "scene-5-rajgad-recovery":
+            answers = [("rebuilt", "He rebuilt strength", true), ("stopped", "He stopped planning", false), ("gave-up", "He gave up caring for the forts", false)]
+            symbol = "leaf.fill"
+        case "scene-6-raigad-coronation":
+            answers = [("raigad", "Raigad", true), ("rajgad", "Rajgad", false), ("torna", "Torna", false)]
+            symbol = "crown.fill"
+        default:
+            answers = [("answer", scene.recallPrompt.answer, true)]
+            symbol = "book.fill"
+        }
+        let teaching = scene.id == "scene-4-purandar-agra"
+            ? scene.keyFact + " First came the agreement at Purandar; later came Agra and the return home."
+            : scene.keyFact
+        return SceneLearningPlan(sceneID: scene.id, teachingText: teaching,
+            choices: answers.map { AuthoredLessonChoice(id: scene.id + "-" + $0.0, title: $0.1, isCorrect: $0.2) }, artSymbol: symbol)
+    }
+}

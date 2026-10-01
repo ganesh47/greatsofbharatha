@@ -8,7 +8,7 @@ struct GreatsOfBharathaApp: SwiftUI.App {
     init() {
         let route = DebugNavigationRoute.current()
         self.captureRoute = route
-        _appModel = StateObject(wrappedValue: AppModel(captureSeedProfile: route?.seedProfile ?? .pristine))
+        _appModel = StateObject(wrappedValue: AppModel(defaults: AppLaunchConfiguration.defaults(captureRoute: route), captureSeedProfile: route?.seedProfile))
     }
 
     var body: some SwiftUI.Scene {
