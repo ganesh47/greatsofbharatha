@@ -99,6 +99,11 @@ final class LearningJourneyUITests: XCTestCase {
         openParentSettings()
         XCTAssertTrue(narration.waitForExistence(timeout: 10))
         XCTAssertEqual(narration.value as? String, "0")
+        tap("Done")
+        app.buttons["Story"].firstMatch.tap()
+        tap("home-primary-lesson")
+        XCTAssertFalse(app.buttons["listen-scene-1-shivneri-story"].exists)
+        XCTAssertTrue(app.staticTexts["Read-aloud is off in parent settings."].firstMatch.exists)
     }
 
     func testConnectedQuizAndMatchingSurviveRelaunch() {
@@ -134,6 +139,10 @@ final class LearningJourneyUITests: XCTestCase {
         launch(largeText: true)
         tap("home-primary-lesson")
         completeRecognition()
+        tap("listen-scene-1-shivneri-question")
+        XCTAssertTrue(app.buttons["stop-scene-1-shivneri-question"].isEnabled)
+        tap("stop-scene-1-shivneri-question")
+        XCTAssertFalse(app.buttons["stop-scene-1-shivneri-question"].isEnabled)
         capture("09-large-text-quiz")
     }
 

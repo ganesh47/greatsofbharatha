@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LearningNarrationControls: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var appModel: AppModel
     @ObservedObject private var narrator = GBNarrator.shared
     let id: String
@@ -9,18 +10,13 @@ struct LearningNarrationControls: View {
     var body: some View {
         VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
             if appModel.parentSettings.narrationEnabled {
-                HStack {
-                    Button { narrator.speak(id: id, text: text) } label: {
-                        Label("Listen", systemImage: "speaker.wave.2.fill")
-                    }
-                    .accessibilityIdentifier("listen-" + id)
-                    Button { narrator.stop() } label: {
-                        Label("Stop", systemImage: "stop.fill")
-                    }
-                    .disabled(narrator.activeCardID == nil)
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.bordered)
+                } else {
+                    HStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
-                .frame(minHeight: GBTouch.button)
                 if let message = narrator.statusMessage { Text(message).font(.caption) }
             } else {
                 Text("Read-aloud is off in parent settings.").font(.caption)
@@ -32,6 +28,23 @@ struct LearningNarrationControls: View {
         .onChange(of: text) { _, _ in narrator.stop() }
         .onDisappear { narrator.stop() }
     }
+
+    @ViewBuilder private var narrationButtons: some View {
+        Button { narrator.speak(id: id, text: text) } label: {
+            Label("Listen", systemImage: "speaker.wave.2.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .accessibilityIdentifier("listen-" + id)
+        Button { narrator.stop() } label: {
+            Label("Stop", systemImage: "stop.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .disabled(narrator.activeCardID == nil)
+        .accessibilityIdentifier("stop-" + id)
+    }
+
 }
 
 struct LessonSceneArt: View {

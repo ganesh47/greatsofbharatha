@@ -1,6 +1,6 @@
 # Multi-agent app repair and TestFlight delivery plan
 
-Date: 2026-10-01 (India time) · Baseline: `7b6f189` · Status: implementation complete; integration validation and publication in progress
+Date: 2026-10-01 (India time) · Baseline: `7b6f189` · Status: implemented in [PR #208](https://github.com/ganesh47/greatsofbharatha/pull/208); automated acceptance recorded
 
 Source review: [App review and kids enrichment](../research/2026-10-01-app-review-and-kids-enrichment.md). Linked issue: [Kids app readiness #149](https://github.com/ganesh47/greatsofbharatha/issues/149).
 
@@ -144,7 +144,7 @@ The user authorized implementation, multi-agent execution, merge, and TestFlight
 - Connected activities: canonical six-chapter IDs, real matching/review/book progress, persisted activity checkpoints, accessible optional read-aloud and motion settings, gated parent settings and external Maps.
 - Release infrastructure: numeric version stamping, exact main-SHA checks, auto-tag Cloud run reuse, terminal-aware polling, exact App Store Connect build and existing internal-group verification, sanitized evidence artifacts.
 - Preflight: Apple agreement cleared; Cloud workflow `Default` is enabled and connected to the correct repository, with an existing signed internal Archive action. Existing group: `GoB - Internal Testing`. Latest observed version before this release: `0.1.13 (16)`; target: `0.2.0`.
-- Integration: running all state/content/unit and full UI tests; lint and pipeline fixtures checked locally. Final CI, merge, Cloud archive, and tester availability evidence will be recorded in the release report.
+- Integration: 57 phone tests, five iPad UI journeys, and 41 release fixtures pass. Lint and pinned dependency audit pass. [Beta readiness and publication evidence](../releases/0.2.0-beta-readiness.md) records acceptance and the source of final CD verification.
 - Device installation, VoiceOver listening, actual offline network disconnection, and child/parent sessions require human validation; simulator automation is not evidence for those claims.
 
 Illustration provenance and full prompts: [art manifest](../design/2026-10-02-chapter-illustration-prompts.json). These are interpreted story illustrations, not documented reconstructions.
