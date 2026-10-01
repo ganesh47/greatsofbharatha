@@ -32,9 +32,10 @@ struct SceneLessonView: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: GBSpacing.medium) {
-                Text(phaseTitle).font(.headline).accessibilityIdentifier("scene-phase-progress")
+                Text(phaseTitle).font(.headline).accessibilityIdentifier("scene-phase-progress").id("scene-top")
                 switch phase {
                 case .story: story
                 case .place: placeStep
@@ -46,8 +47,9 @@ struct SceneLessonView: View {
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
-        .id(phase.rawValue)
         .background(GBColor.Background.app)
+        .onChange(of: phase) { _, _ in proxy.scrollTo("scene-top", anchor: .top) }
+        }
         .navigationTitle(scene.title)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

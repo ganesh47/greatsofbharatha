@@ -177,7 +177,10 @@ struct ChronicleMatchView: View {
             completedSceneIDs.insert(scene.id)
             appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .match,
                 wasSuccessful: true, support: matchState.mismatchCount == 0 ? .independent : .hinted,
-                mastery: .observedClosely, promptType: .eventToPlaceMatch, detail: "Completed authored matching set", eventID: appModel.lessonStore.resumePoint(for: scene.id)?.matchEventID ?? UUID(), sessionID: appModel.lessonStore.resumePoint(for: scene.id)?.sessionID ?? sessionID)
+                mastery: .observedClosely, promptType: .eventToPlaceMatch,
+                detail: "Completed authored matching set",
+                eventID: appModel.lessonStore.resumePoint(for: scene.id)?.matchEventID ?? UUID(),
+                sessionID: appModel.lessonStore.resumePoint(for: scene.id)?.sessionID ?? sessionID)
             LessonFeedback.fire(.success)
         }
     }

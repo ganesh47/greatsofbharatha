@@ -2,7 +2,7 @@
 
 Date: 2026-10-01 (India time) · Baseline: `7b6f189` · Status: implementation complete; integration validation and publication in progress
 
-Source review: [App review and kids enrichment](../research/2026-10-01-app-review-and-kids-enrichment.md). Existing tracker: [Kids app readiness #149](https://github.com/ganesh47/greatsofbharatha/issues/149).
+Source review: [App review and kids enrichment](../research/2026-10-01-app-review-and-kids-enrichment.md). Linked issue: [Kids app readiness #149](https://github.com/ganesh47/greatsofbharatha/issues/149).
 
 ## Outcome
 

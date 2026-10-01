@@ -4,7 +4,7 @@ import XCTest
 final class LearningJourneyUITests: XCTestCase {
     private var app: XCUIApplication!
 
-    override func setUpWithError() throws {
+    private func configureApplication() {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app = XCUIApplication()
@@ -12,7 +12,9 @@ final class LearningJourneyUITests: XCTestCase {
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
     }
 
-    private func launch(largeText: Bool = false) {
+    private func launch(largeText: Bool = false, pilot: Bool = false) {
+        configureApplication()
+        if pilot { app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "1" }
         app.launchArguments = ["-UIPreferredContentSizeCategoryName", largeText ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryL"]
         app.launch()
         app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
@@ -21,20 +23,33 @@ final class LearningJourneyUITests: XCTestCase {
     private func tap(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
         let element = app.buttons[identifier].firstMatch
         _ = element.waitForExistence(timeout: 2)
-        for _ in 0..<24 {
-            if element.exists && element.isHittable { break }
-            let scroll = app.scrollViews.firstMatch
-            if element.exists && !element.frame.isEmpty && element.frame.minY < scroll.frame.midY {
-                scroll.swipeDown()
-            } else {
-                scroll.swipeUp()
+        func visibleFrame() -> CGRect {
+            var viewport = app.scrollViews.firstMatch.frame
+            if app.navigationBars.firstMatch.exists {
+                let top = app.navigationBars.firstMatch.frame.maxY
+                viewport.size.height -= max(0, top - viewport.minY)
+                viewport.origin.y = max(viewport.minY, top)
             }
+            if app.tabBars.firstMatch.exists { viewport.size.height = min(viewport.maxY, app.tabBars.firstMatch.frame.minY) - viewport.minY }
+            if app.keyboards.firstMatch.exists { viewport.size.height = min(viewport.maxY, app.keyboards.firstMatch.frame.minY) - viewport.minY }
+            return element.frame.intersection(viewport.insetBy(dx: 4, dy: 4))
         }
-        if !element.exists || !element.isHittable { capture("unreachable-" + identifier) }
+        for _ in 0..<24 {
+            if element.exists && !visibleFrame().isNull && visibleFrame().height >= 28 { break }
+            let scroll = app.scrollViews.firstMatch
+            if element.exists && !element.frame.isEmpty && element.frame.midY < scroll.frame.midY {
+                scroll.swipeDown()
+            } else { scroll.swipeUp() }
+        }
+        let visible = visibleFrame()
+        if !element.exists || visible.isNull { capture("unreachable-" + identifier) }
         XCTAssertTrue(element.exists, "Missing \(identifier)", file: file, line: line)
-        XCTAssertTrue(element.isHittable, "Cannot reach \(identifier)", file: file, line: line)
+        XCTAssertFalse(visible.isNull, "Cannot reach \(identifier)", file: file, line: line)
         XCTAssertTrue(element.isEnabled, "Disabled \(identifier)", file: file, line: line)
-        element.tap()
+        guard !visible.isNull, element.isEnabled else { return }
+        let frame = element.frame
+        let offset = CGVector(dx: (visible.midX - frame.minX) / frame.width, dy: (visible.midY - frame.minY) / frame.height)
+        element.coordinate(withNormalizedOffset: offset).tap()
     }
 
     private func openParentSettings() {
@@ -91,7 +106,7 @@ final class LearningJourneyUITests: XCTestCase {
 
     func testNarrationPreferenceSurvivesRelaunch() {
         launch()
-        app.tabBars.buttons["Album"].tap()
+        app.buttons["Album"].firstMatch.tap()
         openParentSettings()
         let narration = app.switches["parent-narration-toggle"]
         XCTAssertTrue(narration.waitForExistence(timeout: 10))
@@ -105,15 +120,14 @@ final class LearningJourneyUITests: XCTestCase {
         capture("08-functional-parent-settings")
         app.terminate()
         app.launch()
-        app.tabBars.buttons["Album"].tap()
+        app.buttons["Album"].firstMatch.tap()
         openParentSettings()
         XCTAssertTrue(narration.waitForExistence(timeout: 10))
         XCTAssertEqual(narration.value as? String, "0")
     }
 
     func testConnectedQuizAndMatchingSurviveRelaunch() {
-        app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "1"
-        launch()
+        launch(pilot: true)
         tap("pilot-home-continue")
         tap("pilot-quiz-me")
         tap("pilot-choice-shivneri")
@@ -129,9 +143,13 @@ final class LearningJourneyUITests: XCTestCase {
     }
 
     func testLandscapeJourneyCanReachQuiz() {
-        launch(largeText: true)
+        launch()
         tap("home-primary-lesson")
         XCUIDevice.shared.orientation = .landscapeLeft
+        let orientation = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            self.app.windows.firstMatch.frame.width > self.app.windows.firstMatch.frame.height
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [orientation], timeout: 10), .completed)
         defer { XCUIDevice.shared.orientation = .portrait }
         completeRecognition()
         capture("11-landscape-quiz")

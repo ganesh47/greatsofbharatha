@@ -11,6 +11,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     CURRENT_PROJECT_VERSION: 1
     MARKETING_VERSION: 0.2.0
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
     GENERATE_INFOPLIST_FILE: YES
     TARGETED_DEVICE_FAMILY: "1,2"
     SUPPORTS_MACCATALYST: NO
@@ -21,7 +22,7 @@ settings:
       - UIInterfaceOrientationPortraitUpsideDown
       - UIInterfaceOrientationLandscapeLeft
       - UIInterfaceOrientationLandscapeRight
-    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+    INFOPLIST_KEY_UISupportedInterfaceOrientations:
       - UIInterfaceOrientationPortrait
       - UIInterfaceOrientationLandscapeLeft
       - UIInterfaceOrientationLandscapeRight

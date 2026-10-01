@@ -3,7 +3,10 @@
 import unittest
 from unittest.mock import Mock, patch
 
+import jwt
 import requests
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from release_gates import GateError
 from release_gates import check_github_gates as shared_gates
 from stamp_release import stamp
@@ -296,6 +299,35 @@ class GitHubGateTests(unittest.TestCase):
     def test_annotated_tag_is_peeled(self, get):
         get.side_effect = [{"object": {"type": "tag", "sha": "tag-object"}}, {"object": {"type": "commit", "sha": SHA}}]
         check_tag_sha("v0.2.0", SHA)
+
+
+class ES256TokenTests(unittest.TestCase):
+    def test_actual_apple_token_can_be_signed_and_verified(self):
+        # Ephemeral fixture key; no account credentials are read or printed.
+        key = ec.generate_private_key(ec.SECP256R1())
+        private = key.private_bytes(
+            serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
+        ).decode()
+        api = AppleAPI()
+        response = Mock(ok=True, content=b"{}")
+        response.json.return_value = {"data": []}
+        api.session.request = Mock(return_value=response)
+        with patch.dict(
+            "testflight_release.os.environ",
+            {
+                "APP_STORE_CONNECT_ISSUER_ID": "fixture-issuer",
+                "APP_STORE_CONNECT_KEY_ID": "fixture-key",
+                "APP_STORE_CONNECT_PRIVATE_KEY": private,
+            },
+        ):
+            api.get("/v1/builds")
+        authorization = api.session.request.call_args.kwargs["headers"]["Authorization"]
+        token = authorization.removeprefix("Bearer ")
+        claims = jwt.decode(
+            token, key.public_key(), algorithms=["ES256"], audience="appstoreconnect-v1", issuer="fixture-issuer"
+        )
+        self.assertEqual(claims["exp"] - claims["iat"], 600)
+        self.assertEqual(jwt.get_unverified_header(token)["kid"], "fixture-key")
 
 
 class TransportTests(unittest.TestCase):
