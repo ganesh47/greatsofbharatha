@@ -114,21 +114,36 @@ def discover(api, app_id):
                           "hasAccessToAllBuilds": g.get("attributes", {}).get("hasAccessToAllBuilds")}
                          for g in groups], "products": []}
     for product in products:
-        workflows, _ = api.collection(f"/v1/ciProducts/{product['id']}/workflows", {"limit": 200})
+        workflows, workflow_includes = api.collection(f"/v1/ciProducts/{product['id']}/workflows",
+                                                     {"limit": 200, "include": "repository,xcodeVersion,macOsVersion"})
         summaries = []
         for workflow in workflows:
             attrs = workflow.get("attributes", {})
-            runs, _ = api.collection(f"/v1/ciWorkflows/{workflow['id']}/buildRuns", {"limit": 5, "sort": "-number"})
+            repository = api.get(f"/v1/ciWorkflows/{workflow['id']}/repository")["data"]
+            repo_attrs = repository.get("attributes", {})
+            refs, _ = api.collection(f"/v1/scmRepositories/{repository['id']}/gitReferences", {"limit": 200})
+            runs = api.get(f"/v1/ciWorkflows/{workflow['id']}/buildRuns", {"limit": 5, "sort": "-number"}).get("data", [])
             # Do not expose other applications, author identities, or commit messages.
             summaries.append({"id": workflow["id"], "name": attrs.get("name"),
                               "enabled": attrs.get("isEnabled"), "locked": attrs.get("isLockedForEditing"),
                               "container": attrs.get("containerFilePath"), "actions": attrs.get("actions", []),
-                              "repository": relation(workflow, "repository"),
+                              "repository": {"id": repository["id"], "owner": repo_attrs.get("ownerName"),
+                                             "name": repo_attrs.get("repositoryName")},
+                              "toolchain": {name: workflow_includes.get((rel["type"], rel["id"]), {}).get("attributes", {})
+                                            for name in ["xcodeVersion", "macOsVersion"]
+                                            if (rel := relation(workflow, name))},
+                              "startConditions": {name: attrs.get(name) for name in
+                                                  ["manualTagStartCondition", "tagStartCondition", "branchStartCondition"]},
+                              "gitTags": [{"id": r["id"], "name": r.get("attributes", {}).get("name")}
+                                          for r in refs if r.get("attributes", {}).get("kind") == "TAG"
+                                          and not r.get("attributes", {}).get("isDeleted")][-10:],
                               "recentRuns": [summarize_run(r) for r in runs[:5]]})
         report["products"].append({"id": product["id"], "name": product.get("attributes", {}).get("name"),
                                    "workflows": summaries})
-    builds, included = api.collection("/v1/builds", {"filter[app]": app_id, "limit": 5,
-                                                     "sort": "-uploadedDate", "include": "preReleaseVersion"})
+    build_document = api.get("/v1/builds", {"filter[app]": app_id, "limit": 5,
+                                          "sort": "-uploadedDate", "include": "preReleaseVersion"})
+    builds = build_document.get("data", [])
+    included = {(r["type"], r["id"]): r for r in build_document.get("included", [])}
     report["recentBuilds"] = []
     for build in builds[:5]:
         rel = relation(build, "preReleaseVersion") or {}
@@ -193,7 +208,7 @@ def selected_workflow(api, report, workflow_id):
     valid_ids = {w["id"] for p in report["products"] for w in p["workflows"]}
     if workflow_id not in valid_ids:
         raise ReleaseError("Select an existing workflow belonging to this app from preflight")
-    return api.get(f"/v1/ciWorkflows/{workflow_id}")["data"]
+    return api.get(f"/v1/ciWorkflows/{workflow_id}", {"include": "repository,product"})["data"]
 
 
 def selected_group(report, group_id):
@@ -392,6 +407,7 @@ def main():
                     body={"data": [{"type": "builds", "id": build["id"]}]})
     if not group_contains_build(api, group["id"], build["id"]):
         raise ReleaseError("Group assignment did not verify")
+    build, state = exact_build(api, app_id, args.version, build_number)
     write_report({"result": "AVAILABLE_TO_INTERNAL_TESTERS", "sourceSha": args.sha, "tag": args.tag,
                   "marketingVersion": args.version, "buildNumber": build_number, "appId": app_id,
                   "ascBuildId": build["id"], "cloudRunId": run_id, "workflowId": workflow["id"],
