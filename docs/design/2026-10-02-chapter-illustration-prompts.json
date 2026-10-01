@@ -1,0 +1,42 @@
+[
+  {
+    "asset": "Chapter2TornaRajgadStory",
+    "sourcePath": "/Users/ganesh/.codex/generated_images/01a0f880-04b4-7ad2-9fab-e2cc3469ccfa/exec-65270ebf-ad89-40ca-b7dd-874031e5f6ca.png",
+    "prompt": "Use case: illustration-story. Create a single landscape 3:2 children's history story illustration, standalone no text, no UI or watermark. Match the warm painterly animated storybook style of the provided style reference, golden orange sunlight, teal green Sahyadri hills, soft expressive figures. Depict a young adult Shivaji Maharaj with period appropriate saffron turban, trimmed beard and simple Maratha attire studying a hand-drawn plan on a table overlooking two hill forts: Torna and Rajgad. Focus on calm planning and caring for places rather than battle. Fictionalized illustrative scene, not documentary reconstruction. Rich clear shapes visible at 400-point card width, center-safe composition. No weapon display, violence or mythical powers. Input image is STYLE reference only, do not reuse its mother and child subjects.",
+    "tool": "built-in image_gen",
+    "reviewed": true,
+    "interpretation": "Illustrative imagined scene, not an exact historical reconstruction"
+  },
+  {
+    "asset": "Chapter3PratapgadStory",
+    "sourcePath": "/Users/ganesh/.codex/generated_images/01a0f880-04b4-7ad2-9fab-e2cc3469ccfa/exec-4ea0a75e-0720-495a-9452-c2c38a57e73c.png",
+    "prompt": "Use case: illustration-story. Single landscape 3:2 children's history illustration for Pratapgad mountain turning point. Warm painterly animated storybook style matching style reference. Adult Shivaji Maharaj in Maratha attire with saffron turban and beard calmly surveying forest paths beneath a majestic Sahyadri hill fort, with a friendly trusted adviser nearby studying the landscape. Golden morning sun, deep green forest, inviting strategic curiosity. Emphasize geography, preparation and care. No fight, confrontation, weapons, frightening figures, gore, text, UI, watermark. Fictionalized educational illustration, no claim exact historical appearance. Input image STYLE only; don't reuse mother/child. Center-safe subject for wide lesson card.",
+    "tool": "built-in image_gen",
+    "reviewed": true,
+    "interpretation": "Illustrative imagined scene, not an exact historical reconstruction"
+  },
+  {
+    "asset": "Chapter4PurandarAgraStory",
+    "sourcePath": "/Users/ganesh/.codex/generated_images/01a0f880-04b4-7ad2-9fab-e2cc3469ccfa/exec-ad6e0cc0-2628-4e5d-9292-f4a6a22ea3d3.png",
+    "prompt": "Use case: illustration-story. Single landscape 3:2 children's educational history story card illustration, no text, UI or watermark. Warm painterly expressive animated storybook style matching style reference. Adult Shivaji Maharaj in saffron Maratha turban/beard, seated calmly with a thoughtful expression beside a respectful adviser; a parchment plan between them, a sturdy distant Deccan hill fort through an arch window. Represent difficult decisions and patience for chapter Purandar and Agra, avoid inventing a specific documented meeting. Warm sunset amber and subdued teal, reassuring mood, authentic broad 17th-century Indian attire/stone setting. No weapons, prison, hostility, humiliation or battle. Style reference only, do not copy mother/child. Center-safe landscape 3:2.",
+    "tool": "built-in image_gen",
+    "reviewed": true,
+    "interpretation": "Illustrative imagined scene, not an exact historical reconstruction"
+  },
+  {
+    "asset": "Chapter5RajgadRecoveryStory",
+    "sourcePath": "/Users/ganesh/.codex/generated_images/01a0f880-04b4-7ad2-9fab-e2cc3469ccfa/exec-4cc49b28-7272-4660-8780-e4d85c28eb1a.png",
+    "prompt": "Use case: illustration-story. Standalone landscape 3:2 children's story illustration of rebuilding and reorganizing at Rajgad, no text UI or watermark. Match style reference warm painterly animated storybook palette golden sunlight green hills, clear friendly shapes. Adult Shivaji Maharaj saffron turban and beard helping a small group of period-dressed fort workers and planners repair a stone fort wall and organize supplies, peaceful teamwork with a parchment plan and baskets. Distant terraced Sahyadri ridge. Illustrative imagined scene, not literal reconstruction. No warfare, weapons, danger, modern objects or magical glow. Center-safe composition. Reference STYLE only no mother/child.",
+    "tool": "built-in image_gen",
+    "reviewed": true,
+    "interpretation": "Illustrative imagined scene, not an exact historical reconstruction"
+  },
+  {
+    "asset": "Chapter6RaigadCoronationStory",
+    "sourcePath": "/Users/ganesh/.codex/generated_images/01a0f880-04b4-7ad2-9fab-e2cc3469ccfa/exec-777f7623-3a7c-4a2f-89ef-1ec3cae50030.png",
+    "prompt": "Use case: illustration-story. Standalone landscape 3:2 children's history story illustration for Raigad coronation, no text UI or watermark. Match warm painterly animated storybook style reference. Adult Shivaji Maharaj with beard, regal saffron/cream Maratha attire and turban seated with dignity in a stone fort courtyard, respectful small group of smiling attendants, flower garlands, distant Sahyadri hills and celebratory warm golden sunlight. Child appropriate calm joy, leadership and responsibility. Broad period-inspired illustration not exact ceremony reconstruction. No giant crown, weapons, violence, modern objects or religious caricature. Subjects center-safe for lesson card. Reference image STYLE only do not reuse mother/child.",
+    "tool": "built-in image_gen",
+    "reviewed": true,
+    "interpretation": "Illustrative imagined scene, not an exact historical reconstruction"
+  }
+]

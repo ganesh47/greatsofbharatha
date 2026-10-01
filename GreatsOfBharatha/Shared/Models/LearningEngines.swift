@@ -65,8 +65,6 @@ enum ChronicleQuizEngine {
         return challenge.correctAnswers.contains { correctAnswer in
             let normalizedCorrectAnswer = normalizedAnswer(correctAnswer)
             return candidate == normalizedCorrectAnswer
-                || candidate.hasPrefix(normalizedCorrectAnswer + " ")
-                || normalizedCorrectAnswer.hasPrefix(candidate + " ")
         }
     }
 
@@ -461,14 +459,16 @@ enum SpacedReviewScheduler {
         calendar: Calendar = .current
     ) -> LearningReviewSchedulingResult {
         var nextSchedule = schedule
+        let lastIndex = max(schedule.cadenceDays.count - 1, 0)
+        nextSchedule.intervalIndex = min(max(schedule.intervalIndex, 0), lastIndex)
         let shouldReviewInCurrentSession: Bool
 
         switch response {
         case .knewIt:
-            nextSchedule.intervalIndex = min(schedule.intervalIndex + 1, max(schedule.cadenceDays.count - 1, 0))
+            nextSchedule.intervalIndex = min(nextSchedule.intervalIndex + 1, lastIndex)
             shouldReviewInCurrentSession = false
         case .neededClue:
-            nextSchedule.intervalIndex = max(schedule.intervalIndex, min(1, max(schedule.cadenceDays.count - 1, 0)))
+            nextSchedule.intervalIndex = max(nextSchedule.intervalIndex, min(1, lastIndex))
             shouldReviewInCurrentSession = false
         case .teachAgain:
             nextSchedule.intervalIndex = 0

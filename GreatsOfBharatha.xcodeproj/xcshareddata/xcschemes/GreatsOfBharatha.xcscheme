@@ -50,6 +50,17 @@
                ReferencedContainer = "container:GreatsOfBharatha.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C251DC8F2AB0F4A9DB2262C6"
+               BuildableName = "GreatsOfBharathaUITests.xctest"
+               BlueprintName = "GreatsOfBharathaUITests"
+               ReferencedContainer = "container:GreatsOfBharatha.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

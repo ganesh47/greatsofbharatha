@@ -1,266 +1,90 @@
 import SwiftUI
 
-// ─────────────────────────────────────────────────────────────
-// LessonHomeView.swift — kid-first chapter entry.
-// One dominant Chapter 1 story stage, then quieter progress and
-// lower-priority future scenes for grown-up browsing.
-// ─────────────────────────────────────────────────────────────
-
 struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
-    @StateObject private var narrator = GBNarrator()
 
-    private var firstScene: StoryScene? { appModel.content.scenes.first }
-    private var nextSceneID: String? { appModel.lessonStore.nextSceneID }
+    private var recommended: StoryScene? {
+        if let resume = appModel.lessonStore.latestResumePoint, resume.phase != .reward, resume.preferredActivity != .match,
+           let scene = appModel.content.scenes.first(where: { $0.id == resume.sceneID }) { return scene }
+        return appModel.content.scenes.first(where: { $0.id == appModel.lessonStore.nextSceneID })
+            ?? appModel.content.scenes.first
+    }
 
     var body: some View {
-        GBLayoutContextReader { context in
-            ScrollView {
-                VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    if let firstScene {
-                        chapterOneStage(scene: firstScene)
-                    }
-                    progressStarRow
-                    tuckedSceneList(context: context)
-                }
-                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
-                .padding(context.containerPadding)
-                .frame(maxWidth: .infinity)
-            }
-            .background(GBColor.Background.app)
-        }
-        .navigationTitle("Story Time")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-#endif
-        .onDisappear { narrator.stop() }
-    }
-
-    // MARK: - Chapter 1 stage
-
-    private func chapterOneStage(scene: StoryScene) -> some View {
-        let isCompleted = (appModel.lessonStore.mastery(for: scene.id) ?? .witnessed) >= .understood
-        let narration = "Chapter 1. Shivneri Fort. At Shivneri Fort, young Shivaji began his journey. Jijabai helped him grow brave, caring, and ready to lead. Tap Start Chapter 1."
-
-        return VStack(alignment: .leading, spacing: GBSpacing.medium) {
-            Image("Chapter1ShivneriStory")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .frame(height: 238)
-                .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
-                .overlay(alignment: .topLeading) {
-                    Text("Chapter 1")
-                        .font(GBFont.ui(size: 14, weight: .heavy))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, GBSpacing.small)
-                        .padding(.vertical, GBSpacing.xxSmall)
-                        .background(.black.opacity(0.24), in: Capsule())
-                        .padding(GBSpacing.small)
-                }
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
-                Text("Chapter 1")
-                    .font(GBFont.ui(size: 13, weight: .heavy))
-                    .textCase(.uppercase)
-                    .tracking(1.2)
-                    .foregroundStyle(.white.opacity(0.78))
-
-                Text("Shivneri, where the story begins")
-                    .font(GBFont.display(size: 30, weight: .bold))
-                    .foregroundStyle(.white)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("Meet young Shivaji and Jijabai at a warm hill fort. We will listen, look, and answer one easy question.")
-                    .font(GBFont.story(size: 18))
-                    .foregroundStyle(.white.opacity(0.92))
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            narrationRow(text: narration)
-
-            NavigationLink {
-                SceneLessonView(scene: scene)
-            } label: {
-                Label(isCompleted ? "Play Chapter 1 Again" : "Start Chapter 1", systemImage: "play.fill")
-                    .frame(maxWidth: .infinity, minHeight: GBTouch.button)
-            }
-            .buttonStyle(.gbPrimary(.chronicle))
-            .accessibilityLabel(isCompleted ? "Play Chapter 1 again" : "Start Chapter 1")
-            .accessibilityHint("Opens one story card with read aloud and one next button.")
-        }
-        .padding(GBSpacing.medium)
-        .background(GBColor.gradient(for: .story), in: RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
-        .gbShadow(.story)
-        .accessibilityElement(children: .contain)
-    }
-
-    private func narrationRow(text: String) -> some View {
-        VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-            HStack(spacing: GBSpacing.xSmall) {
-                narrationButton(title: "Listen", icon: "speaker.wave.2.fill") {
-                    narrator.speak(id: "home-chapter-1", text: text)
-                }
-                narrationButton(title: "Repeat", icon: "arrow.clockwise") {
-                    narrator.repeatLast()
-                }
-                narrationButton(title: "Stop", icon: "stop.fill") {
-                    narrator.stop()
-                }
-            }
-            .accessibilityElement(children: .contain)
-
-            if let statusMessage = narrator.statusMessage {
-                Text(statusMessage)
-                    .font(GBFont.ui(size: 13, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.86))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityLabel(statusMessage)
-            }
-        }
-    }
-
-    private func narrationButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(GBFont.ui(size: 14, weight: .bold))
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(.white.opacity(0.22))
-        .foregroundStyle(.white)
-        .accessibilityHint(title == "Stop" ? "Stops read aloud." : "Reads the Chapter 1 card aloud.")
-    }
-
-    // MARK: - Progress star row
-
-    private var progressStarRow: some View {
-        let completed = appModel.lessonStore.completedScenes
-        let total = appModel.lessonStore.totalScenes
-
-        return VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
-            HStack {
-                Text("Chapters")
-                    .font(GBFont.ui(size: 12, weight: .heavy))
-                    .foregroundStyle(GBColor.Content.secondary)
-                Spacer()
-                Text("\(completed) of \(total)")
-                    .font(GBFont.ui(size: 14, weight: .bold))
-                    .foregroundStyle(GBColor.Content.secondary)
-            }
-
-            HStack(spacing: 7) {
-                ForEach(0..<total, id: \.self) { idx in
-                    Image(systemName: idx < completed ? "circle.fill" : "circle")
-                        .font(.system(size: 20))
-                        .foregroundStyle(idx < completed ? GBColor.Chronicle.gold : GBColor.Content.tertiary)
-                        .animation(GBMotion.bounce.delay(Double(idx) * 0.06), value: completed)
-                }
-            }
-        }
-        .padding(GBSpacing.small)
-        .background(
-            RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                .fill(GBColor.Background.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                        .stroke(GBColor.Border.default, lineWidth: 1)
-                )
-        )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Chapters, \(completed) of \(total) complete")
-    }
-
-    // MARK: - Tucked lower-priority scenes
-
-    private func tuckedSceneList(context: GBLayoutContext) -> some View {
-        VStack(alignment: .leading, spacing: context.cardSpacing) {
-            Text("More chapters")
-                .font(GBFont.ui(size: 12, weight: .heavy))
-                .foregroundStyle(GBColor.Content.tertiary)
-
-            ForEach(appModel.content.scenes.dropFirst()) { scene in
-                let mastery = appModel.lessonStore.mastery(for: scene.id)
-                let isNext = scene.id == nextSceneID
-                let isLocked = mastery == nil && !isNext
-
-                Group {
-                    if isLocked {
-                        tuckedSceneCard(scene: scene, mastery: mastery, isNext: false, isLocked: true)
-                    } else {
-                        NavigationLink {
-                            SceneLessonView(scene: scene)
-                        } label: {
-                            tuckedSceneCard(scene: scene, mastery: mastery, isNext: isNext, isLocked: false)
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.large) {
+                if let scene = recommended {
+                    VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                        LessonSceneArt(plan: SampleContent.learningPlan(for: scene))
+                        Text(scene.title).gbDisplay()
+                        Text(scene.childSafeSummary).gbStory()
+                        NavigationLink(value: scene.id) {
+                            Label(primaryTitle(scene), systemImage: "play.fill")
+                                .frame(maxWidth: .infinity, minHeight: GBTouch.primary)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.gbPrimary(.story))
+                        .accessibilityIdentifier("home-primary-lesson")
+                        LearningNarrationControls(id: "home-" + scene.id, text: scene.title + ". " + scene.childSafeSummary)
                     }
                 }
+                Text("\(appModel.lessonStore.completedScenes) of \(appModel.lessonStore.totalScenes) chapters completed")
+                    .gbBody().accessibilityIdentifier("home-chapter-progress")
+                Text("Your adventures").gbTitle()
+                ForEach(appModel.content.scenes) { scene in
+                    if appModel.lessonStore.isSceneUnlocked(scene) {
+                        NavigationLink(value: scene.id) { sceneRow(scene, locked: false) }
+                            .buttonStyle(.plain)
+                    } else { sceneRow(scene, locked: true) }
+                }
+                let learned = LearnQuizPilotData.scenes.filter {
+                    appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false
+                }
+                if !learned.isEmpty {
+                    Text("Play with your story clues").gbTitle()
+                    NavigationLink { ChronicleMatchView(scenes: learned) } label: {
+                        Label("Match places", systemImage: "square.grid.2x2.fill")
+                    }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-match-places")
+                    NavigationLink { FlashcardReviewView(cards: learned.flatMap(\.reviewCards)) } label: {
+                        Label("Review story cards", systemImage: "rectangle.on.rectangle")
+                    }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-review-cards")
+                    NavigationLink { ChronicleBookView(scenes: LearnQuizPilotData.scenes) } label: {
+                        Label("Open my Chronicle book", systemImage: "book.closed.fill")
+                    }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-chronicle-book")
+                }
+            }
+            .padding(GBSpacing.medium)
+            .frame(maxWidth: 700).frame(maxWidth: .infinity)
+        }
+        .background(GBColor.Background.app)
+        .navigationTitle("Story Time")
+        .navigationDestination(for: String.self) { sceneID in
+            if let scene = appModel.content.scenes.first(where: { $0.id == sceneID }) {
+                SceneLessonView(scene: scene).id(sceneID)
             }
         }
-        .padding(.top, GBSpacing.xSmall)
     }
 
-    private func tuckedSceneCard(
-        scene: StoryScene,
-        mastery: MasteryState?,
-        isNext: Bool,
-        isLocked: Bool
-    ) -> some View {
-        HStack(spacing: GBSpacing.small) {
-            ZStack {
-                RoundedRectangle(cornerRadius: GBRadius.compact, style: .continuous)
-                    .fill(isLocked ? GBColor.State.lockedBg : GBColor.Story.bg)
-                Text("\(scene.number)")
-                    .font(GBFont.display(size: 16, weight: .bold))
-                    .foregroundStyle(isLocked ? GBColor.State.locked : GBColor.Story.primary)
-            }
-            .frame(width: 48, height: 48)
+    private func primaryTitle(_ scene: StoryScene) -> String {
+        if appModel.lessonStore.resumePoint(for: scene.id) != nil { return "Continue: \(scene.title)" }
+        if let mastery = appModel.lessonStore.mastery(for: scene.id), mastery >= .understood { return "Explore again: \(scene.title)" }
+        return "Start: \(scene.title)"
+    }
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(scene.title)
-                    .font(GBFont.ui(size: 16, weight: .bold))
-                    .foregroundStyle(isLocked ? GBColor.State.locked : GBColor.Content.primary)
-                    .lineLimit(2)
-                Text(isLocked ? "Unlock after the next chapter" : isNext ? "Next when you are ready" : "Ready to revisit")
-                    .font(GBFont.ui(size: 13, weight: .semibold))
-                    .foregroundStyle(GBColor.Content.secondary)
+    private func sceneRow(_ scene: StoryScene, locked: Bool) -> some View {
+        let mastery = appModel.lessonStore.mastery(for: scene.id)
+        let status = locked ? "Ready after the previous chapter" : (mastery.map { $0 >= .understood ? "Completed" : "Started" } ?? "Ready to explore")
+        return HStack {
+            Image(systemName: locked ? "lock.fill" : (mastery.map { $0 >= .understood } == true ? "checkmark.circle.fill" : "book.fill"))
+            VStack(alignment: .leading) {
+                Text("Chapter \(scene.number): \(scene.title)").gbHeadline()
+                Text(status).font(.caption)
             }
-
             Spacer()
-
-            Image(systemName: statusIcon(mastery: mastery, isNext: isNext, isLocked: isLocked))
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(isLocked ? GBColor.State.locked : isNext ? GBColor.Story.primary : GBColor.Place.primary)
         }
-        .padding(GBSpacing.small)
+        .foregroundStyle(locked ? GBColor.Content.secondary : GBColor.Content.primary)
+        .padding(GBSpacing.medium)
         .frame(minHeight: GBTouch.button)
-        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                .stroke(isNext ? GBColor.Story.light : GBColor.Border.default, lineWidth: isNext ? 2 : 1)
-        )
-        .accessibilityLabel(accessibilityLabel(scene: scene, mastery: mastery, isNext: isNext, isLocked: isLocked))
-    }
-
-    private func statusIcon(mastery: MasteryState?, isNext: Bool, isLocked: Bool) -> String {
-        if isLocked { return GBIcon.locked }
-        if mastery != nil { return "checkmark.circle.fill" }
-        if isNext { return "play.fill" }
-        return "book.fill"
-    }
-
-    private func accessibilityLabel(
-        scene: StoryScene,
-        mastery: MasteryState?,
-        isNext: Bool,
-        isLocked: Bool
-    ) -> String {
-        if isLocked { return "Chapter \(scene.number): \(scene.title). Locked until earlier chapters are done." }
-        if mastery != nil { return "Chapter \(scene.number): \(scene.title). Completed." }
-        if isNext { return "Chapter \(scene.number): \(scene.title). Next chapter." }
-        return "Chapter \(scene.number): \(scene.title)."
+        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.card))
+        .accessibilityElement(children: .combine)
     }
 }

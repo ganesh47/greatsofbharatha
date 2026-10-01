@@ -6,33 +6,14 @@ struct LearnQuizHeroArt: View {
     var height: CGFloat = 184
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
-                .fill(GBColor.gradient(for: art.emphasis))
-                .overlay {
-                    Image(systemName: art.symbol)
-                        .font(.system(size: 76, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.30))
-                        .offset(x: 92, y: -26)
-                }
-
-            VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                Image(systemName: art.symbol)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(.white)
-                Text(title)
-                    .font(GBFont.display(size: 27, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(GBSpacing.medium)
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            Image(art.assetSlot).resizable().scaledToFit()
+                .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero)).accessibilityHidden(true)
+            Text(title).gbTitle()
+            Text("Story illustration").font(.caption).foregroundStyle(GBColor.Content.secondary)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: height)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(title) illustration placeholder, asset slot \(art.assetSlot)")
     }
+
 }
 
 struct LearnQuizMetadataChip: View {
@@ -112,6 +93,7 @@ struct SceneLearnCard: View {
                     Label(ctaTitle, systemImage: "questionmark.bubble.fill")
                 }
                 .buttonStyle(.gbPrimary(scene.art.emphasis))
+                .accessibilityIdentifier("pilot-quiz-me")
             }
         }
     }
@@ -135,11 +117,9 @@ struct LearnQuizSceneRow: View {
                 Text(scene.title)
                     .font(GBFont.ui(size: 16, weight: .bold))
                     .foregroundStyle(GBColor.Content.primary)
-                    .lineLimit(1)
                 Text(scene.memoryHook)
                     .font(GBFont.ui(size: 13, weight: .semibold))
                     .foregroundStyle(GBColor.Content.secondary)
-                    .lineLimit(1)
             }
 
             Spacer()

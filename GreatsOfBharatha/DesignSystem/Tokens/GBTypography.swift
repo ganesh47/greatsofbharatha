@@ -1,36 +1,18 @@
 import SwiftUI
 
-// ─────────────────────────────────────────────────────────────
-// GBTypography.swift — Greats of Bharatha Design System
-// Version: 2.0 · April 2026
-//
-// Three-voice system:
-//   Display (Cinzel)      — majestic arc/scene titles
-//   Story   (Crimson Pro) — narrative body text
-//   UI      (Nunito)      — labels, buttons, metadata
-//
-// Custom fonts must be bundled in the app target:
-//   Cinzel-Regular.ttf, Cinzel-SemiBold.ttf, Cinzel-Bold.ttf
-//   CrimsonPro-Regular.ttf, CrimsonPro-Italic.ttf, CrimsonPro-SemiBold.ttf
-//   Nunito-Regular.ttf … Nunito-Black.ttf (full weight range)
-//
-// All fonts: SIL Open Font License — distributable
-// Source: fonts.google.com
-//
-// Fallback: .system(.rounded) until fonts are bundled.
-// ─────────────────────────────────────────────────────────────
+// Semantic system fonts scale through the full Dynamic Type range.
+// Serif story/headings and rounded controls retain the three voices without
+// referring to font files that are not bundled with this application.
 
 enum GBFont {
     static func display(size: CGFloat = 28, weight: Font.Weight = .bold) -> Font {
-        Font.custom("Cinzel", size: size).weight(weight)
+        Font.system(size >= 30 ? .largeTitle : (size >= 22 ? .title2 : (size >= 17 ? .headline : .subheadline)), design: .serif).weight(weight)
     }
     static func story(size: CGFloat = 17, italic: Bool = false) -> Font {
-        italic
-            ? Font.custom("CrimsonPro-Italic", size: size)
-            : Font.custom("CrimsonPro-Regular", size: size)
+        italic ? Font.system(.body, design: .serif).italic() : Font.system(.body, design: .serif)
     }
     static func ui(size: CGFloat = 15, weight: Font.Weight = .semibold) -> Font {
-        Font.custom("Nunito", size: size).weight(weight)
+        Font.system(size >= 17 ? .headline : (size >= 14 ? .body : (size >= 11 ? .caption : .caption2)), design: .rounded).weight(weight)
     }
 }
 
@@ -42,7 +24,6 @@ enum GBTypography {
     static func display(_ text: Text) -> some View {
         text
             .font(GBFont.display(size: 32, weight: .bold))
-            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .tracking(-0.4)
             .lineSpacing(2)
     }
@@ -52,7 +33,6 @@ enum GBTypography {
     static func title(_ text: Text) -> some View {
         text
             .font(GBFont.display(size: 22, weight: .semibold))
-            .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 
     // ── Story — Crimson Pro, literary ────────────────────────
@@ -61,7 +41,6 @@ enum GBTypography {
     static func storyBody(_ text: Text) -> some View {
         text
             .font(GBFont.story(size: 18))
-            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
             .lineSpacing(5)
     }
 
@@ -70,7 +49,6 @@ enum GBTypography {
     static func storyQuote(_ text: Text) -> some View {
         text
             .font(GBFont.story(size: 17, italic: true))
-            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
             .lineSpacing(4)
     }
 
@@ -80,7 +58,6 @@ enum GBTypography {
     static func headline(_ text: Text) -> some View {
         text
             .font(GBFont.ui(size: 17, weight: .heavy))
-            .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 
     /// Card title, fort name, scene label
@@ -88,7 +65,6 @@ enum GBTypography {
     static func body(_ text: Text) -> some View {
         text
             .font(GBFont.ui(size: 15, weight: .semibold))
-            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
     }
 
     /// Eyebrow / metadata label (uppercase + tracked)
@@ -98,7 +74,6 @@ enum GBTypography {
             .font(GBFont.ui(size: 11, weight: .heavy))
             .textCase(.uppercase)
             .tracking(1.5)
-            .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 
     /// Mastery / badge micro label
@@ -108,7 +83,6 @@ enum GBTypography {
             .font(GBFont.ui(size: 10, weight: .heavy))
             .textCase(.uppercase)
             .tracking(1.3)
-            .dynamicTypeSize(...DynamicTypeSize.xLarge)
     }
 }
 

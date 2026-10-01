@@ -1,10 +1,23 @@
 import SwiftUI
 
 struct ChronicleBookView: View {
+    @EnvironmentObject private var appModel: AppModel
     let scenes: [LearnQuizPilotScene]
 
     private var entries: [LearnQuizChronicleEntry] {
-        scenes.map(\.chronicleEntry) + [LearnQuizPilotData.journeyEntry]
+        scenes.compactMap { scene in
+            guard let entry = appModel.content.activeHeroArc.chronicleEntries.first(where: { $0.id == scene.chronicleEntry.id }) else { return nil }
+            let progress = appModel.lessonStore.chronicleProgress(for: entry)
+            let state: LearnQuizChronicleEntry.State
+            switch progress.detailLevel {
+            case .hidden, .silhouette: state = .silhouette
+            case .inked: state = .inked
+            case .sealed: state = .sealed
+            case .rememberedAgain: state = .rememberedAgain
+            }
+            return LearnQuizChronicleEntry(id: entry.id, title: entry.title, subtitle: entry.keepsakeTitle,
+                meaning: entry.meaningStatement, state: state)
+        }
     }
 
     var body: some View {
@@ -150,8 +163,8 @@ private struct ChronicleBookEntryCard: View {
     private var stateTitle: String {
         switch entry.state {
         case .silhouette: return "Still hidden"
-        case .inked: return "Started"
-        case .sealed: return "Earned"
+        case .inked: return "Earned"
+        case .sealed: return "Explored further"
         case .rememberedAgain: return "Remembered again"
         }
     }

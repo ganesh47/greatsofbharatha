@@ -209,12 +209,20 @@ enum MasteryEvidenceType: String, Codable, CaseIterable, Equatable {
     case timelinePlacementSuccess
     case reviewSuccess
     case chronicleReflection
+    case matchSuccess
+    case selfReportedReview
 }
 
 struct MasteryEvidence: Codable, Equatable {
     let type: MasteryEvidenceType
     let recordedAt: Date
     let detail: String
+    var eventID: UUID? = nil
+    var activity: LearningActivityKind? = nil
+    var support: LearningSupport? = nil
+    var sessionID: UUID? = nil
+    var promptType: RecallPromptType? = nil
+    var reviewResponse: LearningReviewResponse? = nil
 }
 
 struct MasteryRecord: Codable, Equatable {
@@ -302,4 +310,88 @@ enum ReviewStabilityBand: String, Codable, CaseIterable, Equatable {
     case warming
     case steady
     case durable
+}
+
+
+/// Authored facts and observed actions are separate from the amount of help offered.
+enum LearningActivityKind: String, Codable, Equatable {
+    case storyExposure, recall, match, mapPlacement, timelinePlacement, review, albumPlacement
+}
+
+enum LearningSupport: String, Codable, Equatable {
+    case independent, hinted, rescued, selfReported
+}
+
+enum LessonResumePhase: String, Codable, Equatable {
+    case story, place, recall, reward
+}
+
+struct LessonResumePoint: Codable, Equatable {
+    let sceneID: String
+    var phase: LessonResumePhase = .story
+    var sessionID: UUID = UUID()
+    var storyCardIndex: Int = 0
+    var revealedHintLevel: Int = 0
+    var recognitionRescueUnlocked: Bool = false
+    var recallCompleted: Bool = false
+    var completedMatchPairIDs: Set<String> = []
+    var matchMismatchCount: Int = 0
+    var recallEventID: UUID = UUID()
+    var matchEventID: UUID = UUID()
+    var preferredActivity: LearningActivityKind? = nil
+    var discoveredDetailIDs: Set<String> = []
+    var solvedPlaceIDs: Set<String> = []
+    var helpedPlaceIDs: Set<String> = []
+    var updatedAt: Date = Date()
+
+    private enum CodingKeys: String, CodingKey {
+        case sceneID, phase, sessionID, storyCardIndex, revealedHintLevel, recognitionRescueUnlocked
+        case recallCompleted, completedMatchPairIDs, matchMismatchCount, recallEventID, matchEventID, preferredActivity
+        case discoveredDetailIDs, solvedPlaceIDs, helpedPlaceIDs, updatedAt
+    }
+
+    // Optional checkpoint fields keep existing callers and older saved lessons compatible.
+    // swiftlint:disable:next function_parameter_count
+    init(sceneID: String, phase: LessonResumePhase = .story, sessionID: UUID = UUID(), storyCardIndex: Int = 0,
+         revealedHintLevel: Int = 0, recognitionRescueUnlocked: Bool = false, recallCompleted: Bool = false,
+         completedMatchPairIDs: Set<String> = [], matchMismatchCount: Int = 0, recallEventID: UUID = UUID(),
+         matchEventID: UUID = UUID(), preferredActivity: LearningActivityKind? = nil,
+         discoveredDetailIDs: Set<String> = [], solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [], updatedAt: Date = Date()) {
+        self.sceneID = sceneID
+        self.phase = phase
+        self.sessionID = sessionID
+        self.storyCardIndex = max(storyCardIndex, 0)
+        self.revealedHintLevel = max(revealedHintLevel, 0)
+        self.recognitionRescueUnlocked = recognitionRescueUnlocked
+        self.recallCompleted = recallCompleted
+        self.completedMatchPairIDs = completedMatchPairIDs
+        self.matchMismatchCount = max(matchMismatchCount, 0)
+        self.recallEventID = recallEventID
+        self.matchEventID = matchEventID
+        self.preferredActivity = preferredActivity
+        self.discoveredDetailIDs = discoveredDetailIDs
+        self.solvedPlaceIDs = solvedPlaceIDs
+        self.helpedPlaceIDs = helpedPlaceIDs
+        self.updatedAt = updatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        sceneID = try values.decode(String.self, forKey: .sceneID)
+        phase = try values.decodeIfPresent(LessonResumePhase.self, forKey: .phase) ?? .story
+        sessionID = try values.decodeIfPresent(UUID.self, forKey: .sessionID) ?? UUID()
+        storyCardIndex = max(try values.decodeIfPresent(Int.self, forKey: .storyCardIndex) ?? 0, 0)
+        revealedHintLevel = max(try values.decodeIfPresent(Int.self, forKey: .revealedHintLevel) ?? 0, 0)
+        recognitionRescueUnlocked = try values.decodeIfPresent(Bool.self, forKey: .recognitionRescueUnlocked) ?? false
+        recallCompleted = try values.decodeIfPresent(Bool.self, forKey: .recallCompleted) ?? false
+        completedMatchPairIDs = try values.decodeIfPresent(Set<String>.self, forKey: .completedMatchPairIDs) ?? []
+        matchMismatchCount = max(try values.decodeIfPresent(Int.self, forKey: .matchMismatchCount) ?? 0, 0)
+        recallEventID = try values.decodeIfPresent(UUID.self, forKey: .recallEventID) ?? UUID()
+        matchEventID = try values.decodeIfPresent(UUID.self, forKey: .matchEventID) ?? UUID()
+        preferredActivity = try values.decodeIfPresent(LearningActivityKind.self, forKey: .preferredActivity)
+        discoveredDetailIDs = try values.decodeIfPresent(Set<String>.self, forKey: .discoveredDetailIDs) ?? []
+        solvedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .solvedPlaceIDs) ?? []
+        helpedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .helpedPlaceIDs) ?? []
+        updatedAt = try values.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast
+    }
 }

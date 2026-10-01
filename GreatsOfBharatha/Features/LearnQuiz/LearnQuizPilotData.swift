@@ -1,15 +1,5 @@
 import SwiftUI
 
-enum GBFeatureFlags {
-    static var historyLearnQuizResetEnabled: Bool {
-        let environment = ProcessInfo.processInfo.environment
-        if let rawValue = environment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"],
-           ["1", "true", "yes"].contains(rawValue.lowercased()) {
-            return true
-        }
-        return UserDefaults.standard.bool(forKey: "historyLearnQuizResetEnabled")
-    }
-}
 
 struct LearnQuizPilotScene: Identifiable {
     let id: String
@@ -84,6 +74,18 @@ struct LearnQuizArt: Equatable {
 enum LearnQuizPilotData {
     private static let pilot = SampleContent.shivajiLearnQuizResetPilot
 
+    static let canonicalSceneIDs: [String: String] = [
+        "reset-scene-1-shivneri": "scene-1-shivneri",
+        "reset-scene-2-torna-rajgad": "scene-2-torna-rajgad",
+        "reset-scene-3-pratapgad": "scene-3-pratapgad-turning-point",
+        "reset-scene-4-purandar-agra": "scene-4-purandar-agra",
+        "reset-scene-5-rajgad-recovery": "scene-5-rajgad-recovery",
+        "reset-scene-6-raigad-coronation": "scene-6-raigad-coronation",
+    ]
+
+    static func canonicalSceneID(for pilotID: String) -> String? { canonicalSceneIDs[pilotID] }
+
+
     static var scenes: [LearnQuizPilotScene] {
         pilot.scenes.enumerated().map { index, scene in
             makeScene(from: scene, number: index + 1)
@@ -100,7 +102,7 @@ enum LearnQuizPilotData {
             title: pilot.endOfPilotReward.title,
             subtitle: pilot.endOfPilotReward.subtitle,
             meaning: pilot.endOfPilotReward.meaning,
-            state: .rememberedAgain
+            state: .silhouette
         )
     }
 
@@ -108,7 +110,7 @@ enum LearnQuizPilotData {
         let quizItem = scene.quizItems.first ?? fallbackQuizItem(for: scene)
         let art = art(for: scene)
         return LearnQuizPilotScene(
-            id: scene.id,
+            id: canonicalSceneIDs[scene.id] ?? scene.id,
             number: number,
             title: scene.title,
             subtitle: scene.memoryHook,
@@ -119,7 +121,7 @@ enum LearnQuizPilotData {
             story: scene.childSafeStory,
             meaning: scene.meaning,
             quiz: makePrompt(from: quizItem),
-            matchPairs: scene.matchPairs.map(makeMatchPair),
+            matchPairs: scene.matchPairs.filter { $0.kind == .placeToHook }.map(makeMatchPair),
             chronicleEntry: makeChronicleEntry(from: scene),
             reviewCards: scene.reviewSeeds.map { makeReviewCard(from: $0, scene: scene, art: art) },
             art: art
@@ -139,7 +141,7 @@ enum LearnQuizPilotData {
         return LearnQuizPrompt(
             question: item.prompt,
             options: item.answerChips,
-            correctAnswer: item.acceptedAnswers.first ?? item.answerChips.first ?? "",
+            correctAnswer: item.answerChips.first(where: { chip in item.acceptedAnswers.contains(where: { LessonRecallEngine.normalized($0) == LessonRecallEngine.normalized(chip) }) }) ?? "",
             hintLadder: item.hintLadder.map(\.body),
             teachingFeedback: item.recoveryFeedback,
             challenge: challenge
@@ -174,7 +176,7 @@ enum LearnQuizPilotData {
     private static func makeReviewCard(from seed: ReviewSeed, scene: ChronicleScene, art: LearnQuizArt) -> LearnQuizReviewCard {
         LearnQuizReviewCard(
             id: seed.id,
-            sceneID: scene.id,
+            sceneID: canonicalSceneIDs[scene.id] ?? scene.id,
             sceneTitle: scene.title,
             promptType: seed.promptType,
             front: seed.front,
@@ -186,28 +188,10 @@ enum LearnQuizPilotData {
     }
 
     private static func makeChronicleEntry(from scene: ChronicleScene) -> LearnQuizChronicleEntry {
-        let entry = ChronicleEntry(
-            id: scene.chronicleReward.id,
-            title: scene.chronicleReward.title,
-            keepsakeTitle: scene.chronicleReward.subtitle,
-            meaningStatement: scene.chronicleReward.meaning,
-            linkedSceneID: scene.id,
-            linkedPlaceID: scene.placeAnchors.first?.id,
-            linkedTimelineEventID: nil,
-            unlockRule: UnlockRule(requiredMastery: .understood, enhancedMastery: .remembered)
-        )
-        let progress = ChronicleProgressEngine.progress(
-            for: entry,
-            evidence: [.lessonSeen, .recallCorrect],
-            at: Date()
-        )
-        return LearnQuizChronicleEntry(
-            id: scene.chronicleReward.id,
-            title: scene.chronicleReward.title,
-            subtitle: scene.chronicleReward.subtitle,
-            meaning: scene.chronicleReward.meaning,
-            state: makeEntryState(from: progress.detailLevel)
-        )
+        let canonicalID = canonicalSceneIDs[scene.id] ?? scene.id
+        let rewardID = SampleContent.shivajiVerticalSlice.scenes.first(where: { $0.id == canonicalID })?.rewardID ?? scene.chronicleReward.id
+        return LearnQuizChronicleEntry(id: rewardID, title: scene.chronicleReward.title,
+            subtitle: scene.chronicleReward.subtitle, meaning: scene.chronicleReward.meaning, state: .silhouette)
     }
 
     private static func makeEntryState(from detailLevel: ChronicleRewardDetailLevel) -> LearnQuizChronicleEntry.State {
@@ -224,13 +208,12 @@ enum LearnQuizPilotData {
     }
 
     private static func art(for scene: ChronicleScene) -> LearnQuizArt {
-        if scene.id.contains("shivneri") {
-            return LearnQuizArt(assetSlot: "LearnQuizShivneriHero", symbol: "sunrise.fill", emphasis: .story)
+        if let canonicalID = canonicalSceneIDs[scene.id],
+           let canonical = SampleContent.shivajiVerticalSlice.scenes.first(where: { $0.id == canonicalID }) {
+            let plan = SampleContent.learningPlan(for: canonical)
+            return LearnQuizArt(assetSlot: plan.imageAsset ?? "Chapter1ShivneriStory", symbol: plan.artSymbol, emphasis: .story)
         }
-        if scene.id.contains("torna") || scene.id.contains("rajgad") {
-            return LearnQuizArt(assetSlot: "LearnQuizTornaRajgadHero", symbol: "mountain.2.fill", emphasis: .place)
-        }
-        return LearnQuizArt(assetSlot: "LearnQuizPratapgadHero", symbol: "seal.fill", emphasis: .chronicle)
+        return LearnQuizArt(assetSlot: "Chapter1ShivneriStory", symbol: "book.fill", emphasis: .story)
     }
 
     private static func fallbackQuizItem(for scene: ChronicleScene) -> QuizItem {

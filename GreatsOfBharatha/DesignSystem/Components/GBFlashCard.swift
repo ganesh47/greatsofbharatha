@@ -18,11 +18,31 @@ struct GBFlashCardData: Identifiable, Sendable {
 
 // ── Read-aloud controller ─────────────────────────────────────
 @MainActor
-final class GBNarrator: ObservableObject {
+final class GBNarrator: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+    static let shared = GBNarrator()
     private let synthesizer = AVSpeechSynthesizer()
     @Published private(set) var activeCardID: String? = nil
     @Published private(set) var statusMessage: String? = nil
     private var lastRequest: (id: String, text: String)?
+
+    override init() {
+        super.init()
+        synthesizer.delegate = self
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            guard let self, !self.synthesizer.isSpeaking else { return }
+            self.activeCardID = nil
+        }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            guard let self, !self.synthesizer.isSpeaking else { return }
+            self.activeCardID = nil
+        }
+    }
 
     func toggle(cardID: String, text: String) {
         if activeCardID == cardID, synthesizer.isSpeaking {

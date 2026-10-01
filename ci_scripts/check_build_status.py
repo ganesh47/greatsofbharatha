@@ -1,47 +1,31 @@
-import json
+"""Read-only exact version/build availability check (does not publish).
+
+The release orchestrator additionally checks Cloud SHA/run and group membership.
+"""
+
 import os
+import re
 import sys
-import time
 
-import jwt
-import requests
+from testflight_release import VERSION_RE, AppleAPI, Pending, ReleaseError, exact_build
 
-issuer = os.environ["APP_STORE_CONNECT_ISSUER_ID"]
-key_id = os.environ["APP_STORE_CONNECT_KEY_ID"]
-private_key = os.environ["APP_STORE_CONNECT_PRIVATE_KEY"]
-app_id = os.environ["APP_STORE_CONNECT_APP_ID"]
-target_version = os.environ["TARGET_VERSION"]
 
-now = int(time.time())
-token = jwt.encode(
-    {
-        "iss": issuer,
-        "iat": now,
-        "exp": now + 1200,
-        "aud": "appstoreconnect-v1",
-    },
-    private_key,
-    algorithm="ES256",
-    headers={"kid": key_id, "typ": "JWT"},
-)
-headers = {"Authorization": f"Bearer {token}"}
-url = f"https://api.appstoreconnect.apple.com/v1/builds?filter[app]={app_id}&limit=20&sort=-uploadedDate"
-r = requests.get(url, headers=headers, timeout=30)
-r.raise_for_status()
-data = r.json().get("data", [])
-for build in data:
-    attrs = build.get("attributes", {})
-    version = attrs.get("version")
-    processing = attrs.get("processingState")
-    print(json.dumps({"version": version, "processingState": processing}))
-    if version != target_version:
-        continue
-    if processing == "VALID":
-        sys.exit(0)
-    if processing in {"FAILED", "INVALID"}:
+def main():
+    version = os.environ["TARGET_VERSION"]
+    number = os.environ.get("TARGET_BUILD_NUMBER", "")
+    if not VERSION_RE.fullmatch(version) or not re.fullmatch(r"[1-9]\d*", number):
+        raise ReleaseError("Numeric TARGET_VERSION and exact TARGET_BUILD_NUMBER are required")
+    build, state = exact_build(AppleAPI(), os.environ["APP_STORE_CONNECT_APP_ID"], version, number)
+    print(f"Exact build {build['id']}: {version} ({number}), {state}; group assignment not checked")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Pending as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(2)
+    except (ReleaseError, KeyError) as exc:
+        print(str(exc), file=sys.stderr)
         sys.exit(1)
-    if processing == "PROCESSING":
-        print("Target build found, still processing")
-        sys.exit(1)
-print("Target build not found yet")
-sys.exit(1)

@@ -128,6 +128,7 @@ struct GBRewardReveal: View {
     let mastery:     GBMasteryLevel
     var onDismiss:   (() -> Void)?
 
+    @EnvironmentObject private var appModel: AppModel
     @State private var appeared = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -174,10 +175,10 @@ struct GBRewardReveal: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
             .gbShadow(.gold)
-            .scaleEffect(appeared ? 1.0 : (reduceMotion ? 1.0 : 0.82))
+            .scaleEffect(appeared ? 1.0 : (reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? 1.0 : 0.82))
             .opacity(appeared ? 1.0 : 0.0)
             .onAppear {
-                withAnimation(GBMotion.ceremony.delay(0.2)) {
+                withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.ceremony.delay(0.2)) {
                     appeared = true
                 }
                 GBHaptic.chronicleReveal()

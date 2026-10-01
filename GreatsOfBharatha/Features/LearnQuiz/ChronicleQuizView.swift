@@ -1,155 +1,106 @@
 import SwiftUI
 
 struct ChronicleQuizView: View {
+    @EnvironmentObject private var appModel: AppModel
     let scene: LearnQuizPilotScene
-
+    var sessionID = UUID()
+    @State private var activeSessionID: UUID?
     @State private var quizState = ChronicleQuizState()
     @State private var result: ChronicleQuizResult?
-
-    private var selectedAnswer: String? {
-        quizState.selectedAnswer
-    }
-
-    private var isCorrect: Bool {
-        result?.isCorrect == true
-    }
-
-    private var visibleHintIndex: Int {
-        max(0, min(quizState.revealedHintCount, scene.quiz.hintLadder.count) - 1)
-    }
+    @State private var completionID = UUID()
+    @State private var taught = false
 
     var body: some View {
-        GBLayoutContextReader { context in
-            ScrollView {
-                VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    promptCard
-                    answerGrid
-                    hintCard
-                    feedbackCard
-                }
-                .frame(maxWidth: context.maxContentWidth, alignment: .leading)
-                .padding(context.containerPadding)
-                .frame(maxWidth: .infinity)
-            }
-            .background(GBColor.Background.app)
-        }
-        .navigationTitle("Quick Quiz")
-#if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-#endif
-    }
-
-    private var promptCard: some View {
-        GBSurface(style: .accented(.story)) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBBadge(title: scene.memoryHook, symbol: "lightbulb.fill", emphasis: .story)
-                Text(scene.quiz.question)
-                    .font(GBFont.display(size: 28, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(4)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("Try from memory first. Hints are here when you want a clue.")
-                    .font(GBFont.ui(size: 15, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.88))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    private var answerGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: GBSpacing.xSmall) {
-            ForEach(scene.quiz.options, id: \.self) { option in
-                Button {
-                    result = ChronicleQuizEngine.evaluate(
-                        state: quizState,
-                        challenge: scene.quiz.challenge,
-                        selectedAnswer: option
-                    )
-                    quizState = result?.nextState ?? quizState
-                } label: {
-                    HStack {
-                        Text(option)
-                            .font(GBFont.ui(size: 16, weight: .heavy))
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Spacer()
-                        Image(systemName: selectedAnswer == option ? selectedIcon(for: option) : "circle")
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Text(scene.quiz.question).gbTitle()
+                LearningNarrationControls(id: scene.id + "-pilot-question", text: scene.quiz.question)
+                Text("Try from memory. Help is here whenever you want it.").gbBody()
+                ForEach(scene.quiz.options, id: \.self) { option in
+                    Button { answer(option) } label: {
+                        Text(option).gbHeadline().frame(maxWidth: .infinity, minHeight: GBTouch.button)
                     }
-                    .padding(GBSpacing.small)
-                    .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
-                    .background(answerBackground(for: option), in: RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                            .stroke(answerBorder(for: option), lineWidth: selectedAnswer == option ? 2 : 1)
-                    )
+                    .buttonStyle(.bordered)
+                    .disabled(result?.isCorrect == true)
+                    .accessibilityIdentifier("pilot-choice-" + option.lowercased().replacingOccurrences(of: " ", with: "-"))
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(GBColor.Content.primary)
+                if let hint = ChronicleQuizEngine.currentHint(for: quizState, challenge: scene.quiz.challenge) {
+                    Text(hint.body).gbStory()
+                    LearningNarrationControls(id: scene.id + "-pilot-hint", text: hint.body)
+                }
+                if result?.isCorrect != true {
+                    Button("Help me remember") {
+                        quizState = ChronicleQuizEngine.revealNextHint(from: quizState, challenge: scene.quiz.challenge)
+                        saveCheckpoint()
+                    }.buttonStyle(.bordered).frame(minHeight: GBTouch.button)
+                }
+                if let result {
+                    Text(result.feedback).gbStory().accessibilityIdentifier("pilot-quiz-feedback")
+                    LearningNarrationControls(id: scene.id + "-pilot-feedback", text: result.feedback)
+                    if result.isCorrect {
+                        NavigationLink { ChronicleMatchView(scenes: [scene], sessionID: activeSessionID ?? sessionID) } label: {
+                            Text("Play a matching game")
+                        }.buttonStyle(.gbPrimary(.place))
+                        NavigationLink { ChronicleBookView(scenes: LearnQuizPilotData.scenes) } label: {
+                            Text("See my Chronicle")
+                        }.buttonStyle(.gbPrimary(.chronicle))
+                    }
+                }
+            }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
+        }
+        .navigationTitle("Try your memory")
+        .onAppear {
+            guard !taught else { return }
+            taught = true
+            let point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, sessionID: activeSessionID ?? sessionID)
+            activeSessionID = point.sessionID
+            completionID = point.recallEventID
+            quizState.revealedHintCount = point.revealedHintLevel
+            quizState.recognitionRescueUnlocked = point.recognitionRescueUnlocked
+            let durableSuccess = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {
+                $0.eventID == point.recallEventID && ($0.type == .recallSuccess || $0.type == .reviewSuccess)
+            } == true
+            if point.recallCompleted || durableSuccess {
+                result = ChronicleQuizResult(kind: point.recognitionRescueUnlocked ? .rescuedRecognition : (point.revealedHintLevel > 0 ? .correctWithHint : .correctWithoutHint),
+                    isCorrect: true, masteryAwarded: .understood, feedback: scene.quiz.challenge.feedback.success, nextState: quizState)
+            } else if quizState.revealedHintCount == 0 && appModel.parentSettings.assistModeEnabled {
+                quizState = ChronicleQuizEngine.revealNextHint(from: quizState, challenge: scene.quiz.challenge)
             }
+            saveCheckpoint()
         }
     }
 
-    private var hintCard: some View {
-        GBSurface(style: .elevated) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack {
-                    GBBadge(title: "Hint ladder", symbol: "sparkle.magnifyingglass", emphasis: .chronicle)
-                    Spacer()
-                    Text("\(min(visibleHintIndex + 1, scene.quiz.hintLadder.count))/\(scene.quiz.hintLadder.count)")
-                        .font(GBFont.ui(size: 12, weight: .heavy))
-                        .foregroundStyle(GBColor.Content.tertiary)
-                }
-
-                Text(scene.quiz.hintLadder[visibleHintIndex])
-                    .font(GBFont.ui(size: 17, weight: .bold))
-                    .foregroundStyle(GBColor.Content.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Button {
-                    quizState = ChronicleQuizEngine.revealNextHint(from: quizState, challenge: scene.quiz.challenge)
-                } label: {
-                    Label("Show next clue", systemImage: "arrow.down.circle.fill")
-                }
-                .buttonStyle(.gbSecondary)
-                .disabled(quizState.revealedHintCount >= scene.quiz.hintLadder.count)
-            }
+    private func answer(_ option: String) {
+        guard result?.isCorrect != true else { return }
+        let next = ChronicleQuizEngine.evaluate(state: quizState, challenge: scene.quiz.challenge, selectedAnswer: option)
+        quizState = next.nextState
+        result = next
+        let support: LearningSupport
+        switch next.kind {
+        case .correctWithoutHint: support = .independent
+        case .correctWithHint, .incorrect: support = quizState.revealedHintCount > 0 ? .hinted : .independent
+        case .rescuedRecognition: support = .rescued
         }
+        let prior = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {
+            $0.type == .recallSuccess || $0.type == .reviewSuccess
+        } == true
+        appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: prior ? .review : .recall,
+            wasSuccessful: next.isCorrect, support: support, mastery: prior ? .remembered : .understood,
+            promptType: scene.quiz.challenge.promptType, detail: "Chronicle quiz", eventID: next.isCorrect ? completionID : UUID(),
+            sessionID: activeSessionID ?? sessionID)
+        saveCheckpoint()
+        if next.isCorrect { LessonFeedback.fire(.success) }
     }
 
-    @ViewBuilder
-    private var feedbackCard: some View {
-        if selectedAnswer != nil, let result {
-            GBSurface(style: isCorrect ? .accented(.chronicle) : .elevated) {
-                VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
-                    Label(isCorrect ? "Remembered" : "Try with this clue", systemImage: isCorrect ? "checkmark.seal.fill" : "heart.text.square.fill")
-                        .font(GBFont.ui(size: 17, weight: .heavy))
-                        .foregroundStyle(isCorrect ? .white : GBColor.Content.primary)
-                    Text(result.feedback)
-                        .font(GBFont.story(size: 18))
-                        .foregroundStyle(isCorrect ? .white.opacity(0.92) : GBColor.Content.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        }
-    }
-
-    private func selectedIcon(for option: String) -> String {
-        option == scene.quiz.correctAnswer ? "checkmark.circle.fill" : "arrow.counterclockwise.circle.fill"
-    }
-
-    private func answerBackground(for option: String) -> Color {
-        guard selectedAnswer == option else { return GBColor.Background.surface }
-        return option == scene.quiz.correctAnswer ? GBColor.Chronicle.goldBg : GBColor.Story.bg
-    }
-
-    private func answerBorder(for option: String) -> Color {
-        guard selectedAnswer == option else { return GBColor.Border.default }
-        return option == scene.quiz.correctAnswer ? GBColor.Chronicle.gold : GBColor.Story.primary
-    }
-}
-
-#Preview("Chronicle Quiz") {
-    NavigationStack {
-        ChronicleQuizView(scene: LearnQuizPilotData.scenes[0])
+    private func saveCheckpoint() {
+        var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, sessionID: activeSessionID ?? sessionID)
+        point.phase = result?.isCorrect == true ? .reward : .recall
+        point.preferredActivity = .recall
+        point.revealedHintLevel = quizState.revealedHintCount
+        point.recognitionRescueUnlocked = quizState.recognitionRescueUnlocked
+        point.recallCompleted = result?.isCorrect == true
+        point.recallEventID = completionID
+        point.updatedAt = Date()
+        appModel.lessonStore.saveResumePoint(point)
     }
 }
