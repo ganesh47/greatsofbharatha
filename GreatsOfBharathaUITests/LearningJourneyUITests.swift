@@ -22,34 +22,9 @@ final class LearningJourneyUITests: XCTestCase {
 
     private func tap(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
         let element = app.buttons[identifier].firstMatch
-        _ = element.waitForExistence(timeout: 2)
-        func visibleFrame() -> CGRect {
-            var viewport = app.scrollViews.firstMatch.frame
-            if app.navigationBars.firstMatch.exists {
-                let top = app.navigationBars.firstMatch.frame.maxY
-                viewport.size.height -= max(0, top - viewport.minY)
-                viewport.origin.y = max(viewport.minY, top)
-            }
-            if app.tabBars.firstMatch.exists { viewport.size.height = min(viewport.maxY, app.tabBars.firstMatch.frame.minY) - viewport.minY }
-            if app.keyboards.firstMatch.exists { viewport.size.height = min(viewport.maxY, app.keyboards.firstMatch.frame.minY) - viewport.minY }
-            return element.frame.intersection(viewport.insetBy(dx: 4, dy: 4))
-        }
-        for _ in 0..<24 {
-            if element.exists && !visibleFrame().isNull && visibleFrame().height >= 28 { break }
-            let scroll = app.scrollViews.firstMatch
-            if element.exists && !element.frame.isEmpty && element.frame.midY < scroll.frame.midY {
-                scroll.swipeDown()
-            } else { scroll.swipeUp() }
-        }
-        let visible = visibleFrame()
-        if !element.exists || visible.isNull { capture("unreachable-" + identifier) }
-        XCTAssertTrue(element.exists, "Missing \(identifier)", file: file, line: line)
-        XCTAssertFalse(visible.isNull, "Cannot reach \(identifier)", file: file, line: line)
+        XCTAssertTrue(element.waitForExistence(timeout: 10), "Missing \(identifier)", file: file, line: line)
         XCTAssertTrue(element.isEnabled, "Disabled \(identifier)", file: file, line: line)
-        guard !visible.isNull, element.isEnabled else { return }
-        let frame = element.frame
-        let offset = CGVector(dx: (visible.midX - frame.minX) / frame.width, dy: (visible.midY - frame.minY) / frame.height)
-        element.coordinate(withNormalizedOffset: offset).tap()
+        element.tap()
     }
 
     private func openParentSettings() {

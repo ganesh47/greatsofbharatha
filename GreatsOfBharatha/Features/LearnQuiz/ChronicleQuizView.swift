@@ -48,6 +48,7 @@ struct ChronicleQuizView: View {
                 }
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("pilot-quiz-scroll")
         .navigationTitle("Try your memory")
         .onAppear {
             guard !taught else { return }

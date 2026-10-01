@@ -69,6 +69,7 @@ struct SceneLearnView: View {
             }
             .background(GBColor.Background.app)
         }
+        .accessibilityIdentifier("pilot-scene-scroll")
         .navigationDestination(isPresented: $showsQuiz) { ChronicleQuizView(scene: scene, sessionID: sessionID) }
         .navigationDestination(isPresented: $showsMatch) { ChronicleMatchView(scenes: [scene], sessionID: sessionID) }
         .onAppear {

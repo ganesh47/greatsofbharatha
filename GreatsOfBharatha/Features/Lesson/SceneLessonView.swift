@@ -47,6 +47,7 @@ struct SceneLessonView: View {
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("scene-lesson-scroll")
         .background(GBColor.Background.app)
         .onChange(of: phase) { _, _ in proxy.scrollTo("scene-top", anchor: .top) }
         }

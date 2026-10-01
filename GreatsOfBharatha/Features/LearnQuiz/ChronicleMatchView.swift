@@ -37,6 +37,7 @@ struct ChronicleMatchView: View {
             }
             .background(GBColor.Background.app)
         }
+        .accessibilityIdentifier("matching-scroll")
         .onAppear {
             guard !restored else { return }
             restored = true

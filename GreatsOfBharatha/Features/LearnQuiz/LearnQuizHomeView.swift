@@ -39,7 +39,7 @@ struct LearnQuizHomeView: View {
                     Label("Open my Chronicle", systemImage: "book.closed.fill")
                 }.buttonStyle(.gbPrimary(.chronicle))
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
-        }.background(GBColor.Background.app).navigationTitle("Learn & Play")
+        }.accessibilityIdentifier("pilot-home-scroll").background(GBColor.Background.app).navigationTitle("Learn & Play")
         .navigationDestination(for: String.self) { sceneID in
             if let scene = scenes.first(where: { $0.id == sceneID }) {
                 SceneLearnView(scene: scene).id(sceneID)

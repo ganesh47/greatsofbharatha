@@ -55,6 +55,7 @@ struct LessonHomeView: View {
             .padding(GBSpacing.medium)
             .frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("home-story-scroll")
         .background(GBColor.Background.app)
         .navigationTitle("Story Time")
         .navigationDestination(for: String.self) { sceneID in
