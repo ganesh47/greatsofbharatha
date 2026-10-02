@@ -32,9 +32,8 @@ struct LearnNavigationStack<Content: View>: View {
     }
 }
 
-/// A reset replaces the native stack and its path owner together. Retaining the
-/// old path owner across native-stack recreation leaves two stack lifetimes
-/// temporarily attached to one binding on older supported SwiftUI runtimes.
+/// A reset replaces the native stack and its path owner together, preventing
+/// departing and entering stacks from sharing the same path binding.
 private struct LearnNavigationSession<Content: View>: View {
     @StateObject private var navigation: LearnNavigationCoordinator
     private let content: () -> Content
