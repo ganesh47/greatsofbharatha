@@ -183,6 +183,9 @@ final class ChapterDiscoveryUITests: XCTestCase {
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [rotated], timeout: 10), .completed)
         tap("story-discovery-hill")
+        let initialDetail = app.staticTexts["chapter-discovery-text-scene-1-shivneri-discovery-1"]
+        reveal(initialDetail, in: app.scrollViews["scene-lesson-scroll"].firstMatch)
+        XCTAssertTrue(initialDetail.exists, "The first discovery tap must reveal its text before testing relaunch")
         XCTAssertFalse(app.buttons["listen-scene-1-shivneri-discovery-1"].exists)
         capture("discovery-accessibility-text-landscape")
         app.terminate()

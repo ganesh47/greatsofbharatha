@@ -78,6 +78,8 @@ The discovery helper now accepts XCTest's native `exists` and `isHittable` resul
 
 A separate CI run at integration head `450aec1` failed before rotation: the narration switch was tapped at 19.03 seconds and its value was read immediately at 19.51 seconds, still enabled. That log does not establish whether the switch missed the interaction or updated later. The preference helper now waits up to five seconds for the requested value after one native switch tap. It fails with retained live accessibility, geometry, current/expected values, and screenshot evidence if the preference remains unchanged or cannot be reached. It neither writes preferences directly nor repeats a toggle blindly. This is a test postcondition correction; runtime success still requires the coordinator rerun. Evidence: `/tmp/gob-enrichment-20261002/integration-450-ios-ci.log`; pure checks: `/tmp/gob-enrichment-20261002/discovery-layout-validation`.
 
+The native-hit rerun reached the hill tap but failed to find its detail after relaunch. The landscape case now positively reveals and asserts the selected detail before termination, in addition to checking that narration controls are absent. This separates first-tap activation from later restoration; a logged tap alone is not proof that a detail opened. The fresh rerun's missing-detail failure requires its live hierarchy before assigning the cause to Home navigation, selection, or persistence. Evidence: `/tmp/gob-enrichment-20261002/ios-native-hit-fixes.log`.
+
 ## Owned file list
 
 - `GreatsOfBharatha/Features/Lesson/SceneLessonView.swift`
