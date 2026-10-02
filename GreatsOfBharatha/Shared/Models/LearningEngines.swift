@@ -332,7 +332,8 @@ enum ChronicleMatchEngine {
             nextState.lastOutcome = .ignored
             return nextState
         }
-        guard let selectedTile = tiles.first(where: { $0.id == selectedTileID }) else {
+        guard let selectedTile = tiles.first(where: { $0.id == selectedTileID }),
+              !state.completedPairIDs.contains(selectedTile.pairID) else {
             var nextState = state
             nextState.selectedTileID = tile.id
             nextState.lastOutcome = .selected(tile)
@@ -340,30 +341,36 @@ enum ChronicleMatchEngine {
         }
 
         var nextState = state
-        nextState.selectedTileID = nil
+        // Exploring either panel changes the source card, without attempting an answer.
+        if selectedTile.side == tile.side {
+            nextState.selectedTileID = tile.id
+            nextState.lastOutcome = .selected(tile)
+            return nextState
+        }
 
-        if selectedTile.pairID == tile.pairID && selectedTile.side != tile.side {
+        if selectedTile.pairID == tile.pairID {
+            nextState.selectedTileID = nil
             nextState.completedPairIDs.insert(tile.pairID)
             nextState.lastOutcome = .matched(
                 pairID: tile.pairID,
                 feedback: "Yes. \(selectedTile.text) belongs with \(tile.text).",
-                completedSet: nextState.completedPairIDs.count == pairs.count
+                completedSet: pairs.allSatisfy { nextState.completedPairIDs.contains($0.id) }
             )
             return nextState
         }
 
         nextState.mismatchCount += 1
-        let clue = mismatchClue(first: selectedTile, second: tile, pairs: pairs)
+        // Keep the source visible so a child can use the clue to choose another partner.
+        let clue = mismatchClue(for: selectedTile, pairs: pairs)
         nextState.lastOutcome = .mismatched(clue: clue)
         return nextState
     }
 
-    private static func mismatchClue(first: ChronicleMatchTile, second: ChronicleMatchTile, pairs: [ChronicleMatchPair]) -> String {
-        let preferredPairID = first.side == .left ? first.pairID : second.pairID
-        if let pair = pairs.first(where: { $0.id == preferredPairID }) {
+    private static func mismatchClue(for source: ChronicleMatchTile, pairs: [ChronicleMatchPair]) -> String {
+        if let pair = pairs.first(where: { $0.id == source.pairID }) {
             return pair.teachingClue
         }
-        return "Look for the memory hook that belongs with this place."
+        return "Look for the story card that belongs with your selected card."
     }
 
     private static func seededShuffle<T>(_ values: [T], seed: Int) -> [T] {

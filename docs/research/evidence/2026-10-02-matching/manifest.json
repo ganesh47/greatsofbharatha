@@ -1,0 +1,102 @@
+[
+  {
+    "file": "ios-accessibility-completed.png",
+    "resultBundle": "/tmp/gob-matching-ios-final-07.xcresult",
+    "testIdentifier": "LearningJourneyUITests/testLargeTextMatchingUsesStackedPanelsAndReachableCompletion()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "exportedFileName": "AD6A8CA7-F877-43BE-A2BD-68B858FC6FB7.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-accessibility-text-completed_0_38D56055-72D4-472A-AD65-860CC9E3B58A.png",
+    "timestamp": 1790940354.794
+  },
+  {
+    "file": "ios-completed.png",
+    "resultBundle": "/tmp/gob-matching-ios-final-07.xcresult",
+    "testIdentifier": "LearningJourneyUITests/testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "exportedFileName": "BE5D9113-0D2A-445E-ADAF-4A26E5D724F9.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-completed-associations_0_5401AA17-FF3F-46FC-AE7F-A00ACE4A2963.png",
+    "timestamp": 1790940441.384
+  },
+  {
+    "file": "ios-retry.png",
+    "resultBundle": "/tmp/gob-matching-ios-final-07.xcresult",
+    "testIdentifier": "LearningJourneyUITests/testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "exportedFileName": "CEE17192-4716-4FA2-B6AB-5C3B21115D4A.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-gentle-mismatch_0_D44C21DA-23DF-4F8E-92D2-59F4864F1D86.png",
+    "timestamp": 1790940424.786
+  },
+  {
+    "file": "ios-selected.png",
+    "resultBundle": "/tmp/gob-matching-ios-final-07.xcresult",
+    "testIdentifier": "LearningJourneyUITests/testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "exportedFileName": "C9C89109-C40C-4798-9096-D1184B3DC001.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-selected_0_2DE24CEF-9E39-40F2-81E6-434C7AD0FB9E.png",
+    "timestamp": 1790940421.519
+  },
+  {
+    "file": "tv-1080-selected-focus.png",
+    "resultBundle": "/tmp/gob-matching-tv-readable-1080p.xcresult",
+    "testIdentifier": "TVLearningJourneyUITests/testMatchingPanelsKeepChosenSeparateFromFocusAndRestoreAfterRelaunch()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "954977D6-6CC4-4C7D-AD7E-DEBEF531D303",
+    "deviceName": "GoB-TV-Acceptance",
+    "exportedFileName": "F9ED847A-8D80-491B-938B-5B4F818B615D.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-chosen-source-focused-partner_0_C03C5FF5-AFE2-4207-8559-2D285EDBD575.png",
+    "timestamp": 1790940231.604
+  },
+  {
+    "file": "tv-1080-three-pair-completed.png",
+    "resultBundle": "/tmp/gob-matching-tv-readable-1080p.xcresult",
+    "testIdentifier": "TVLearningJourneyUITests/testThreePairMatchingRecapAndContinueFitTheScreen()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "954977D6-6CC4-4C7D-AD7E-DEBEF531D303",
+    "deviceName": "GoB-TV-Acceptance",
+    "exportedFileName": "93CCA0B1-FDFF-423F-8D3B-7C07D972E05D.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-three-pairs-readable-completion_0_34BDAFF0-7C2B-41AB-9734-59433F96B15A.png",
+    "timestamp": 1790940282.907
+  },
+  {
+    "file": "tv-4k-selected-focus.png",
+    "resultBundle": "/tmp/gob-matching-tv-readable-4k.xcresult",
+    "testIdentifier": "TVLearningJourneyUITests/testMatchingPanelsKeepChosenSeparateFromFocusAndRestoreAfterRelaunch()",
+    "configurationName": "Test Scheme Action",
+    "deviceId": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "deviceName": "GoB-TV-4K-Review",
+    "exportedFileName": "1033399E-F803-411F-A34C-865AD361F95E.png",
+    "isAssociatedWithFailure": false,
+    "suggestedHumanReadableName": "matching-chosen-source-focused-partner_0_2AFD87A7-0144-488F-ADF4-D4ED7D370208.png",
+    "timestamp": 1790940447.843
+  },
+  {
+    "file": "ios-accessibility-places.png",
+    "captureMethod": "Read-only simctl screenshot during unchanged LargeText UI replay08",
+    "resultBundle": "/tmp/gob-matching-ios-visual-08.xcresult",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "sourceFile": "/tmp/gob-matching-ios-evidence/08-accessibility-places-panel.png"
+  },
+  {
+    "file": "ios-accessibility-memory.png",
+    "captureMethod": "Read-only simctl screenshot during unchanged LargeText UI replay08",
+    "resultBundle": "/tmp/gob-matching-ios-visual-08.xcresult",
+    "deviceId": "CCC1E1A9-C2AD-4791-84A1-00645537802C",
+    "deviceName": "GoB-iOS-Regression",
+    "sourceFile": "/tmp/gob-matching-ios-evidence/09-accessibility-memory-panel.png"
+  }
+]

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct TVLessonView: View {
     let sceneID: String
@@ -24,7 +25,7 @@ struct TVLessonView: View {
     var body: some View {
         ScrollView {
             if let chapter {
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: isMatchingPuzzle ? 18 : 28) {
                     HStack(alignment: .firstTextBaseline) {
                         Text("Chapter \(chapter.number) · \(stageTitle)").font(.system(size: 24, weight: .semibold)).foregroundStyle(GBColor.Content.secondary)
                         Spacer()
@@ -70,6 +71,12 @@ struct TVLessonView: View {
         case .puzzle: "Little puzzle"
         case .keepsake: "Keepsake album"
         }
+    }
+
+    private var isMatchingPuzzle: Bool {
+        guard checkpoint.stage == .puzzle, let chapter else { return false }
+        if case .match = chapter.puzzle { return true }
+        return false
     }
 
     @ViewBuilder private func stageContent(_ chapter: TVChapter) -> some View {
@@ -246,15 +253,18 @@ struct TVLessonView: View {
     }
 
     @ViewBuilder private func puzzle(_ chapter: TVChapter) -> some View {
-        VStack(alignment: .leading, spacing: 26) {
-            TVFireflyGuide(message: "Our little puzzle uses what the story taught. Choose a card and its partner, or a card and its place in the story.")
+        VStack(alignment: .leading, spacing: isMatchingPuzzle ? 16 : 26) {
             switch chapter.puzzle {
             case .match(let pairs):
-                TVMatchPuzzle(pairs: pairs, state: $matchState,
+                TVMatchPuzzle(pairs: pairs,
+                              presentation: ChronicleMatchPresentation(pairs: pairs,
+                                  kind: chapter.number == 1 ? .peopleAndPlaces : (chapter.number == 2 ? .fortsAndMemoryClues : nil)),
+                              state: $matchState,
                               helped: checkpoint.helpedActivityIDs.contains("puzzle"),
                               hintLevel: checkpoint.hintLevels["puzzle", default: 0],
                               onChange: { updateMatch(pairs) }, onHelp: { matchHelp(pairs) }, onRescue: { matchRescue(pairs) })
             case .order(let cards):
+                TVFireflyGuide(message: "Our little puzzle uses what the story taught. Choose a card and its place in the story.")
                 TVSequencePuzzle(cards: cards, state: $sequenceState, onChange: { updateSequence(cards) })
             }
             if puzzleComplete(chapter) {
@@ -412,8 +422,16 @@ struct TVLessonView: View {
         saveCheckpoint()
     }
 
+    private func requestedMatchPair(_ pairs: [ChronicleMatchPair]) -> ChronicleMatchPair? {
+        if let selected = ChronicleMatchEngine.tiles(for: pairs).first(where: { $0.id == matchState.selectedTileID }),
+           !matchState.completedPairIDs.contains(selected.pairID) {
+            return pairs.first(where: { $0.id == selected.pairID })
+        }
+        return pairs.first(where: { !matchState.completedPairIDs.contains($0.id) })
+    }
+
     private func matchHelp(_ pairs: [ChronicleMatchPair]) {
-        guard let pair = pairs.first(where: { !matchState.completedPairIDs.contains($0.id) }) else { return }
+        guard let pair = requestedMatchPair(pairs) else { return }
         checkpoint.helpedActivityIDs.insert("puzzle")
         checkpoint.hintLevels["puzzle", default: 0] += 1
         matchState.lastOutcome = .mismatched(clue: "Choose \(pair.leftText), then \(pair.rightText). " + pair.teachingClue)
@@ -421,7 +439,7 @@ struct TVLessonView: View {
     }
 
     private func matchRescue(_ pairs: [ChronicleMatchPair]) {
-        guard let pair = pairs.first(where: { !matchState.completedPairIDs.contains($0.id) }) else { return }
+        guard let pair = requestedMatchPair(pairs) else { return }
         checkpoint.hintLevels["puzzle"] = max(checkpoint.hintLevels["puzzle", default: 0], 2)
         checkpoint.helpedActivityIDs.insert("puzzle")
         checkpoint.helpedActivityIDs.insert("puzzle-rescued")
@@ -497,7 +515,15 @@ struct TVLessonView: View {
         discovery = nil
         helpText = nil
         keepsakeSelected = false
-        matchState = ChronicleMatchState(selectedTileID: checkpoint.selectedTileID, completedPairIDs: checkpoint.matchedPairIDs)
+        if case .match(let pairs) = chapter.puzzle {
+            checkpoint.matchedPairIDs.formIntersection(Set(pairs.map(\.id)))
+            let selected = ChronicleMatchEngine.tiles(for: pairs).first {
+                $0.id == checkpoint.selectedTileID && !checkpoint.matchedPairIDs.contains($0.pairID)
+            }
+            if checkpoint.stage == .puzzle { checkpoint.selectedTileID = selected?.id }
+            matchState = ChronicleMatchState(selectedTileID: checkpoint.stage == .puzzle ? selected?.id : nil,
+                                             completedPairIDs: checkpoint.matchedPairIDs)
+        } else { matchState = ChronicleMatchState() }
         if case .order(let cards) = chapter.puzzle {
             let stored = checkpoint.sequenceSlots.count == cards.count ? checkpoint.sequenceSlots : Array(repeating: nil, count: cards.count)
             let slots = stored.enumerated().map { index, id in id == cards[index].id ? id : nil }
@@ -578,6 +604,7 @@ struct TVLessonView: View {
         if checkpoint.selectedTileID != nil {
             checkpoint.selectedTileID = nil
             matchState.selectedTileID = nil
+            matchState.lastOutcome = .ignored
             sequenceState.selectedCardID = nil
             saveCheckpoint()
             restoreFocus()
@@ -588,6 +615,7 @@ struct TVLessonView: View {
     }
 
     private func playPause() {
+        guard !UIAccessibility.isVoiceOverRunning else { narrator.stop(); return }
         guard appModel.parentSettings.narrationEnabled, let chapter else { return }
         if narrator.activeCardID != nil { narrator.togglePlayback(); return }
         let text: String
@@ -597,7 +625,10 @@ struct TVLessonView: View {
             case .discover: text = "Choose a discovery, or continue to become a fort detective."
             case .place: text = feedback ?? chapter.placeClues.first(where: { !checkpoint.solvedPlaceIDs.contains($0.id) })?.clue ?? "Places found. Let's try your memory."
             case .recall: text = feedback ?? chapter.pilot.quiz.question
-            case .puzzle: text = sequenceState.feedback ?? "Choose a story card and its place, or choose a card on the left and its partner on the right."
+            case .puzzle:
+                if case .match(let pairs) = chapter.puzzle {
+                    text = ChronicleMatchPresentation(pairs: pairs).feedback(for: matchState)
+                } else { text = sequenceState.feedback ?? "Choose a story card, then its place in the story." }
             case .keepsake: text = chapter.pilot.chronicleEntry.meaning
             }
         }

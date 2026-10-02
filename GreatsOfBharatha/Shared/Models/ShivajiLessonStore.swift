@@ -902,6 +902,7 @@ extension ShivajiLessonStore {
             Set(values.sorted().prefix(collectionLimit).map { String($0.prefix(160)) })
         }
         point.completedMatchPairIDs = bounded(point.completedMatchPairIDs)
+        point.selectedMatchTileID = point.selectedMatchTileID.map { String($0.prefix(160)) }
         point.discoveredDetailIDs = bounded(point.discoveredDetailIDs)
         point.solvedPlaceIDs = bounded(point.solvedPlaceIDs)
         point.helpedPlaceIDs = bounded(point.helpedPlaceIDs)

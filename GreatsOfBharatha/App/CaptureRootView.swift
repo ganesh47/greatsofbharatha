@@ -13,7 +13,7 @@ struct CaptureRootView: View {
     private var captureScreen: some View {
         switch route {
         case .learnQuizReset:
-            NavigationStack { LearnQuizHomeView() }
+            LearnNavigationStack { LearnQuizHomeView() }
         case .scene1:
             if let scene = appModel.content.scenes.first(where: { $0.id == "scene-1-shivneri" }) {
                 NavigationStack { SceneLessonView(scene: scene) }
@@ -46,9 +46,9 @@ struct CaptureRootView: View {
         case .parentHome:
             NavigationStack { ParentProgressView() }
         case .learnHome:
-            NavigationStack { LessonHomeView() }
+            LearnNavigationStack { LessonHomeView() }
         case .learnQuizHome:
-            NavigationStack { LearnQuizHomeView() }
+            LearnNavigationStack { LearnQuizHomeView() }
         }
     }
 }

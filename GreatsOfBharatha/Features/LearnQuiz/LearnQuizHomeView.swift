@@ -7,7 +7,15 @@ struct LearnQuizHomeView: View {
         scenes.filter { appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false }
     }
     private var next: LearnQuizPilotScene? {
-        scenes.first { appModel.lessonStore.mastery(for: $0.id).map { $0 < .understood } ?? true } ?? scenes.first
+        let unlocked = scenes.filter { scene in
+            guard let canonical = appModel.content.scenes.first(where: { $0.id == scene.id }),
+                  appModel.lessonStore.isSceneUnlocked(canonical) else { return false }
+            return true
+        }
+        let unfinishedMatch = LearnQuizMatchingResume.nextScene(in: unlocked,
+            resumePoints: unlocked.compactMap { appModel.lessonStore.resumePoint(for: $0.id) })
+        if let unfinishedMatch { return unfinishedMatch }
+        return scenes.first { appModel.lessonStore.mastery(for: $0.id).map { $0 < .understood } ?? true } ?? scenes.first
     }
     private var reviewCards: [LearnQuizReviewCard] { learned.flatMap(\.reviewCards) }
     var body: some View {
@@ -25,6 +33,7 @@ struct LearnQuizHomeView: View {
                        appModel.lessonStore.isSceneUnlocked(canonical) {
                         NavigationLink(value: scene.id) { LearnQuizSceneRow(scene: scene) }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("pilot-home-scene-" + scene.id)
                     } else { Text("\(scene.title) — ready after the previous adventure").gbBody() }
                 }
                 if !learned.isEmpty {
@@ -45,5 +54,31 @@ struct LearnQuizHomeView: View {
                 SceneLearnView(scene: scene).id(sceneID)
             }
         }
+    }
+}
+
+/// Combined boards save one checkpoint per scene. The selected card's owner
+/// takes priority over the order in which those checkpoints were written.
+enum LearnQuizMatchingResume {
+    private struct Candidate {
+        let scene: LearnQuizPilotScene
+        let point: LessonResumePoint
+        let hasSelection: Bool
+    }
+
+    static func nextScene(in scenes: [LearnQuizPilotScene], resumePoints: [LessonResumePoint]) -> LearnQuizPilotScene? {
+        let candidates = scenes.compactMap { scene -> Candidate? in
+            guard let point = resumePoints.first(where: { $0.sceneID == scene.id }), point.preferredActivity == .match,
+                  scene.matchPairs.contains(where: { !point.completedMatchPairIDs.contains($0.id) }) else { return nil }
+            let hasSelection = scene.matchPairs.contains { pair in
+                !point.completedMatchPairIDs.contains(pair.id) &&
+                    (point.selectedMatchTileID == pair.leftID || point.selectedMatchTileID == pair.rightID)
+            }
+            return Candidate(scene: scene, point: point, hasSelection: hasSelection)
+        }
+        return candidates.max { first, second in
+            if first.hasSelection != second.hasSelection { return !first.hasSelection && second.hasSelection }
+            return first.point.updatedAt < second.point.updatedAt
+        }?.scene
     }
 }

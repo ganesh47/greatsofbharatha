@@ -29,7 +29,12 @@ final class TVLearningJourneyUITests: XCTestCase {
     /// Exercise the actual directional focus engine. No element.tap(), pointer, or debug route bypasses navigation.
     private func focus(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
         let target = app.buttons[identifier].firstMatch
-        XCTAssertTrue(target.waitForExistence(timeout: 10), "Missing \(identifier)", file: file, line: line)
+        let exists = target.waitForExistence(timeout: 10)
+        if !exists {
+            capture("missing-" + identifier)
+            print("Missing remote target \(identifier):\n" + app.debugDescription)
+        }
+        XCTAssertTrue(exists, "Missing \(identifier)", file: file, line: line)
         XCTAssertTrue(target.isEnabled, "Disabled \(identifier)", file: file, line: line)
         var attemptedDirections: [String: Set<String>] = [:]
         var recoveryIndex = 0
@@ -81,6 +86,136 @@ final class TVLearningJourneyUITests: XCTestCase {
         select("tv-fort-place-shivneri")
         select("tv-fort-continue")
         XCTAssertTrue(app.buttons["tv-recall-scene-1-shivneri-shivneri"].waitForExistence(timeout: 10))
+    }
+
+    private func reachFirstMatching() {
+        reachFirstRecall()
+        select("tv-recall-scene-1-shivneri-shivneri")
+        select("tv-recall-check")
+        select("tv-recall-continue")
+        XCTAssertTrue(app.staticTexts["tv-match-left-title"].waitForExistence(timeout: 10))
+    }
+
+    private func expectFocus(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hasFocus == true"), object: app.buttons[identifier])
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: 5), .completed, "Expected focus on \(identifier)", file: file, line: line)
+    }
+
+    func testMatchingPanelsKeepChosenSeparateFromFocusAndRestoreAfterRelaunch() {
+        launch()
+        reachFirstMatching()
+        let birth = "tv-puzzle-left-match-shivneri-birth-fort"
+        let mother = "tv-puzzle-left-tv-match-jijabai-guidance"
+        let birthClue = "tv-puzzle-right-match-shivneri-birth-fort"
+        let guidance = "tv-puzzle-right-tv-match-jijabai-guidance"
+        XCTAssertEqual(app.staticTexts["tv-match-left-title"].label, "People and places")
+        XCTAssertEqual(app.staticTexts["tv-match-right-title"].label, "Story clues")
+        capture("matching-panels-entry")
+
+        focus(birth)
+        XCTAssertEqual(app.buttons[birth].value as? String, "Available", "Remote focus must not choose a source")
+        remote.press(.select)
+        XCTAssertEqual(app.buttons[birth].value as? String, "Selected")
+        expectFocus(guidance)
+        XCTAssertEqual(app.buttons[guidance].value as? String, "Available", "A focused partner is not a submitted answer")
+        capture("matching-chosen-source-focused-partner")
+
+        // Choosing a different source is a replacement, not a failed association.
+        select(mother)
+        XCTAssertEqual(app.buttons[mother].value as? String, "Selected")
+        XCTAssertEqual(app.buttons[birth].value as? String, "Available")
+        XCTAssertFalse(app.staticTexts["tv-puzzle-feedback"].label.contains("look again"))
+        select(birth)
+        expectFocus(guidance)
+        remote.press(.select)
+        XCTAssertEqual(app.buttons[birth].value as? String, "Selected", "A wrong partner must retain the chosen source")
+        XCTAssertEqual(app.buttons[guidance].value as? String, "Available")
+        XCTAssertTrue(app.buttons[guidance].hasFocus, "A rejected partner must retain actual remote focus")
+        XCTAssertFalse(app.buttons["tv-puzzle-continue"].exists)
+        capture("matching-gentle-retry-retains-source")
+
+        remote.press(.menu)
+        XCTAssertEqual(app.buttons[birth].value as? String, "Available", "Back first puts the choice away")
+        XCTAssertTrue(app.staticTexts["tv-match-left-title"].exists, "Back must not exit while clearing a choice")
+        select(birth)
+        app.terminate()
+        app.launch()
+        select("tv-home-continue")
+        XCTAssertTrue(app.staticTexts["tv-match-left-title"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.buttons[birth].value as? String, "Selected")
+        expectFocus(guidance)
+        capture("matching-selected-source-restored")
+
+        select(birthClue) // Submit the retained source without toggling it off.
+        XCTAssertEqual(app.buttons[birth].value as? String, "Matched")
+        select(mother)
+        select(guidance)
+        let recap = app.staticTexts["tv-match-recap"]
+        XCTAssertTrue(recap.waitForExistence(timeout: 10))
+        XCTAssertTrue(recap.label.contains("Shivneri — Birth Fort"))
+        XCTAssertTrue(recap.label.contains("Jijabai — Guidance and care"))
+        expectFocus("tv-puzzle-continue")
+        capture("matching-readable-completed-story-links")
+    }
+
+    func testMatchingClueAndSharedPlacementRemainUsableWithGentleMotionAndNarrationOff() {
+        launch()
+        select("tv-home-parent")
+        select("tv-parent-narration")
+        select("tv-parent-calm")
+        XCTAssertEqual(app.buttons["tv-parent-narration"].value as? String, "Off")
+        XCTAssertEqual(app.buttons["tv-parent-calm"].value as? String, "Off")
+        remote.press(.menu)
+        reachFirstMatching()
+        select("tv-puzzle-right-tv-match-jijabai-guidance")
+        select("tv-puzzle-help")
+        XCTAssertEqual(app.buttons["tv-puzzle-right-tv-match-jijabai-guidance"].value as? String, "Selected")
+        XCTAssertTrue(app.staticTexts["tv-puzzle-feedback"].label.contains("Choose Jijabai"), "Help should teach the chosen source's pair")
+        select("tv-puzzle-rescue")
+        XCTAssertEqual(app.buttons["tv-puzzle-left-tv-match-jijabai-guidance"].value as? String, "Matched")
+        XCTAssertEqual(app.buttons["tv-puzzle-left-match-shivneri-birth-fort"].value as? String, "Available")
+        capture("matching-firefly-shared-link")
+        select("tv-puzzle-left-match-shivneri-birth-fort")
+        select("tv-puzzle-right-match-shivneri-birth-fort")
+        XCTAssertTrue(app.staticTexts["tv-match-recap"].waitForExistence(timeout: 10))
+        select("tv-puzzle-continue")
+        XCTAssertTrue(app.buttons["tv-keepsake-select"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'tv-listen-'")).firstMatch.exists)
+    }
+
+    func testThreePairMatchingRecapAndContinueFitTheScreen() {
+        app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = "3"
+        launch()
+        let chapter = chapters[2]
+        select("tv-home-chapter-" + chapter.id)
+        for _ in 0..<3 { select("tv-lesson-story-next") }
+        select("tv-discovery-continue")
+        select("tv-fort-place-pratapgad")
+        select("tv-fort-continue")
+        select("tv-recall-" + chapter.id + "-pratapgad")
+        select("tv-recall-check")
+        select("tv-recall-continue")
+        XCTAssertEqual(app.staticTexts["tv-match-left-title"].label, "Story cards")
+        XCTAssertEqual(app.staticTexts["tv-match-right-title"].label, "What they mean")
+        capture("matching-three-pairs-readable-entry")
+        for pairID in chapter.pairIDs {
+            select("tv-puzzle-left-" + pairID)
+            select("tv-puzzle-right-" + pairID)
+            XCTAssertEqual(app.buttons["tv-puzzle-left-" + pairID].value as? String, "Matched")
+        }
+        let recap = app.staticTexts["tv-match-recap"]
+        XCTAssertTrue(recap.waitForExistence(timeout: 10))
+        XCTAssertTrue(recap.label.contains("Pratapgad"))
+        let continuation = app.buttons["tv-puzzle-continue"]
+        expectFocus("tv-puzzle-continue")
+        let safeFrame = app.frame.insetBy(dx: 72, dy: 44)
+        for element in [recap, continuation] {
+            XCTAssertGreaterThanOrEqual(element.frame.minX, safeFrame.minX)
+            XCTAssertLessThanOrEqual(element.frame.maxX, safeFrame.maxX)
+            XCTAssertGreaterThanOrEqual(element.frame.minY, safeFrame.minY)
+            XCTAssertLessThanOrEqual(element.frame.maxY, safeFrame.maxY, "All three links and Continue must fit without scrolling")
+        }
+        capture("matching-three-pairs-readable-completion")
     }
 
     func testFocusNeedsSelectAndParentPreferencesPersist() {
@@ -267,9 +402,12 @@ final class TVLearningJourneyUITests: XCTestCase {
                     select("tv-puzzle-right-" + chapter.pairIDs[1])
                     XCTAssertFalse(app.buttons["tv-puzzle-continue"].exists)
                     XCTAssertTrue(app.staticTexts["tv-puzzle-feedback"].label.contains("look again"))
+                    XCTAssertEqual(app.buttons["tv-puzzle-left-" + chapter.pairIDs[0]].value as? String, "Selected")
                 }
                 for pairID in chapter.pairIDs {
-                    select("tv-puzzle-left-" + pairID)
+                    if app.buttons["tv-puzzle-left-" + pairID].value as? String != "Selected" {
+                        select("tv-puzzle-left-" + pairID)
+                    }
                     select("tv-puzzle-right-" + pairID)
                     XCTAssertEqual(app.buttons["tv-puzzle-left-" + pairID].value as? String, "Matched")
                 }

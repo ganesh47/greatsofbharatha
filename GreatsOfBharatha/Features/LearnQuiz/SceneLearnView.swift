@@ -98,7 +98,8 @@ struct SceneLearnView: View {
 }
 
 #Preview("Scene Learn Cards") {
-    NavigationStack {
+    LearnNavigationStack {
         SceneLearnView(scene: LearnQuizPilotData.scenes[0])
     }
+    .environmentObject(AppModel(defaults: UserDefaults(suiteName: "gob.preview.scene-learn")!))
 }
