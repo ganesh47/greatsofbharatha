@@ -1,63 +1,74 @@
 import SwiftUI
 
+/// The coordinator supplies durable storage and the checked-placement adapter.
+/// The no-argument initializer remains useful for the existing isolated capture route.
 struct TimelineHubView: View {
     @EnvironmentObject private var appModel: AppModel
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var checkpoint: TimelineActivityCheckpoint
+    @State private var loaded = false
+    @State private var showingRecap = false
 
-    private var timelineEvents: [TimelineEvent] {
-        appModel.content.activeHeroArc.timelineEvents.sorted { $0.orderIndex < $1.orderIndex }
+    private let initialCheckpoint: TimelineActivityCheckpoint?
+    private let onCheckpointChange: ((TimelineActivityCheckpoint) -> Void)?
+    private let onPlacementChecked: ((TimelinePlacementCheck) -> Bool)?
+
+    init(checkpoint: TimelineActivityCheckpoint? = nil,
+         onCheckpointChange: ((TimelineActivityCheckpoint) -> Void)? = nil,
+         onPlacementChecked: ((TimelinePlacementCheck) -> Bool)? = nil) {
+        initialCheckpoint = checkpoint
+        _checkpoint = State(initialValue: checkpoint ?? TimelineActivityCheckpoint())
+        self.onCheckpointChange = onCheckpointChange
+        self.onPlacementChecked = onPlacementChecked
     }
 
-    private var dueReviews: [ReviewSchedule] {
-        appModel.lessonStore.dueReviews()
+    private var allRounds: [TimelineActivityRound] {
+        TimelineActivityCatalog.allRounds(events: appModel.content.activeHeroArc.timelineEvents)
     }
 
-    private var upcomingReviews: [ReviewSchedule] {
-        appModel.lessonStore.upcomingReviews(limit: 3)
+    private var checkedSceneIDs: Set<String> {
+        Set(appModel.content.scenes.compactMap { scene in
+            let evidence = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog ?? []
+            return TimelineActivityCatalog.hasCheckedLearning(evidence: evidence) ? scene.id : nil
+        })
+    }
+
+    private var rounds: [TimelineActivityRound] {
+        TimelineActivityCatalog.availableRounds(events: appModel.content.activeHeroArc.timelineEvents, checkedSceneIDs: checkedSceneIDs)
+    }
+
+    private var currentRound: TimelineActivityRound? {
+        rounds.first { $0.id == checkpoint.currentRoundID }
+    }
+
+    private var progress: TimelineRoundProgress {
+        checkpoint.rounds[checkpoint.currentRoundID] ?? TimelineRoundProgress()
+    }
+
+    private var completedRoundCount: Int {
+        rounds.filter { TimelineActivityEngine.isComplete(round: $0, checkpoint: checkpoint) }.count
+    }
+
+    private var allAvailableComplete: Bool {
+        !rounds.isEmpty && completedRoundCount == rounds.count
     }
 
     var body: some View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
-                    heroCard
-
-                    GBSurface(style: .elevated) {
-                        HStack(spacing: GBSpacing.small) {
-                            TimelineSummaryPill(title: "Ready", value: "\(appModel.lessonStore.unlockedTimelineCount)", emphasis: .story)
-                            TimelineSummaryPill(title: "Mastered", value: "\(appModel.lessonStore.masteredTimelineCount)", emphasis: .place)
-                            TimelineSummaryPill(title: "Due now", value: "\(dueReviews.count)", emphasis: .chronicle)
+                    heading
+                    if let round = currentRound {
+                        if showingRecap || !progress.teachingSeen {
+                            recap(round: round)
+                        } else if allAvailableComplete {
+                            completion
+                        } else {
+                            activity(round: round)
                         }
+                    } else {
+                        lockedIntroduction
                     }
-
-                    GBSurface(style: .elevated) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Order the journey before exact dates",
-                                subtitle: "The timeline turns separate scenes into one remembered arc, then feeds due items back into short review runs."
-                            )
-
-                            HStack(spacing: GBSpacing.small) {
-                                timelineChip(title: "Story order first", symbol: GBIcon.story, emphasis: .story)
-                                timelineChip(title: "Place links", symbol: GBIcon.place, emphasis: .place)
-                                timelineChip(title: "Review returns", symbol: GBIcon.timeline, emphasis: .chronicle)
-                            }
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: context.cardSpacing) {
-                        GBSectionHeader(
-                            eyebrow: "Hero Timeline",
-                            title: "Walk the Shivaji arc in order",
-                            subtitle: "Each marker teaches what came first, what came next, and which place anchors the moment."
-                        )
-
-                        ForEach(timelineEvents) { event in
-                            TimelineEventCard(event: event)
-                        }
-                    }
-
-                    reviewQueueSection
                 }
                 .frame(maxWidth: context.maxContentWidth, alignment: .leading)
                 .padding(context.containerPadding)
@@ -65,365 +76,243 @@ struct TimelineHubView: View {
             }
             .background(GBColor.Background.app)
         }
-        .navigationTitle("Timeline")
+        .navigationTitle("Story timeline")
+        .onAppear(perform: restore)
+        .onDisappear(perform: save)
+        .onChange(of: scenePhase) { _, phase in if phase != .active { save() } }
+        .onChange(of: checkedSceneIDs) { _, _ in
+            checkpoint = TimelineActivityEngine.restored(checkpoint, allRounds: allRounds, availableRounds: rounds)
+            saveAndDeliverChecks()
+        }
     }
 
-    private var heroCard: some View {
-        GBHeroCard(
-            eyebrow: "Hero Timeline",
-            title: "Put the journey in living order",
-            subtitle: appModel.lessonStore.timelineHeadline,
-            detail: "Start with broad sequence, then use quick review returns to keep forts, turning points, and recovery moments connected.",
-            ctaTitle: dueReviews.isEmpty ? "Trace the next marker" : "Run due reviews",
-            badgeTitle: "\(appModel.lessonStore.unlockedTimelineCount)/\(max(appModel.lessonStore.totalTimelineEvents, 1)) ready",
-            emphasis: .story,
-            progress: appModel.lessonStore.totalTimelineEvents == 0 ? nil : Double(appModel.lessonStore.unlockedTimelineCount) / Double(appModel.lessonStore.totalTimelineEvents)
-        )
-    }
-
-
-    private func timelineChip(title: String, symbol: String, emphasis: GBEmphasis) -> some View {
-        Label(title, systemImage: symbol)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(GBColor.accent(for: emphasis))
-            .padding(.horizontal, GBSpacing.xSmall)
-            .padding(.vertical, GBSpacing.xxxSmall)
-            .background(GBColor.Background.surface, in: Capsule())
-    }
-
-    @ViewBuilder
-    private var reviewQueueSection: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            GBSectionHeader(
-                eyebrow: "Review Queue",
-                title: dueReviews.isEmpty ? "Upcoming revisit moments" : "Due now for a short revisit",
-                subtitle: dueReviews.isEmpty
-                    ? (upcomingReviews.isEmpty
-                        ? "Start in the Learn tab to unlock your first timeline moment. Complete a scene and the timeline wakes up."
-                        : "Nothing is overdue. These are the next moments the child will re-enter for calm spaced review.")
-                    : "These items are ready to come back into the journey through a quick memory run."
-            )
-
-            if dueReviews.isEmpty {
-                ForEach(upcomingReviews, id: \.subjectID) { schedule in
-                    ReviewScheduleCard(schedule: schedule, title: reviewTitle(for: schedule), isDue: false)
-                }
-            } else {
-                ForEach(dueReviews, id: \.subjectID) { schedule in
-                    ReviewScheduleCard(schedule: schedule, title: reviewTitle(for: schedule), isDue: true)
+    private var heading: some View {
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+                Label("Shivaji Maharaj's journey", systemImage: GBIcon.timeline)
+                    .font(.caption.weight(.semibold)).foregroundStyle(GBColor.Story.primary)
+                Text("Put the story in order").gbTitle().foregroundStyle(GBColor.Content.primary)
+                Text("Remember what came first, what came next, and how the little parts connect.")
+                    .gbBody().foregroundStyle(GBColor.Content.secondary)
+                if !rounds.isEmpty {
+                    Text("\(completedRoundCount) of \(rounds.count) parts checked")
+                        .gbCaption().accessibilityIdentifier("timeline-round-progress")
+                    ProgressView(value: Double(completedRoundCount), total: Double(rounds.count))
+                        .tint(GBColor.Place.primary)
                 }
             }
         }
     }
 
-    private func reviewTitle(for schedule: ReviewSchedule) -> String {
-        switch schedule.subjectType {
-        case .scene:
-            return appModel.content.activeHeroArc.scene(withID: schedule.subjectID)?.title ?? schedule.subjectID
-        case .location:
-            return appModel.content.activeHeroArc.locationNode(withID: schedule.subjectID)?.name ?? schedule.subjectID
-        case .timeline:
-            return appModel.content.activeHeroArc.timelineEvent(withID: schedule.subjectID)?.title ?? schedule.subjectID
-        case .chronicle:
-            return appModel.content.activeHeroArc.chronicleEntry(withID: schedule.subjectID)?.title ?? schedule.subjectID
-        }
-    }
-}
-
-private struct TimelineSummaryPill: View {
-    let title: String
-    let value: String
-    let emphasis: GBEmphasis
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-            Text(title)
-                .gbCaption()
-                .foregroundStyle(GBColor.Content.secondary)
-            Text(value)
-                .gbHeadline()
-                .foregroundStyle(GBColor.accent(for: emphasis))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(GBSpacing.xSmall)
-        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.control, style: .continuous))
-    }
-}
-
-private struct TimelineEventCard: View {
-    @EnvironmentObject private var appModel: AppModel
-    let event: TimelineEvent
-
-    private var unlockState: LocationUnlockState {
-        appModel.lessonStore.timelineUnlockState(for: event)
-    }
-
-    private var linkedPlaces: [Place] {
-        appModel.content.places.filter { event.linkedPlaceIDs.contains($0.id) }
-    }
-
-    private var linkedScene: StoryScene? {
-        appModel.content.scenes.first(where: { $0.timelineMarker == event.id })
-    }
-
-    @ViewBuilder
-    var body: some View {
-        switch unlockState {
-        case .hidden:
-            GBSurface(style: .elevated) {
-                cardContent
-            }
-        case .seenInStory, .learnable:
-            GBSurface(style: .plain) {
-                cardContent
-            }
-        case .remembered, .placedAccurately, .masteredInReview:
-            GBSurface(style: .accented(.story)) {
-                cardContent
-            }
-        }
-    }
-
-    private var cardContent: some View {
-        VStack(alignment: .leading, spacing: GBSpacing.small) {
-            HStack(alignment: .top, spacing: GBSpacing.small) {
-                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                    HStack(spacing: GBSpacing.xxSmall) {
-                        GBBadge(title: "Step \(event.orderIndex + 1)", symbol: GBIcon.timeline, emphasis: .story)
-                        GBBadge(title: stateTitle, symbol: stateSymbol, emphasis: stateEmphasis)
-                    }
-
-                    Text(event.title)
-                        .gbTitle()
-                        .foregroundStyle(titleColor)
-                    Text(event.broadEraLabel)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(subtitleColor)
-                }
-
-                Spacer()
-
-                if let yearLabel = event.yearLabel {
-                    Text(yearLabel)
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(trailingColor)
-                }
-            }
-
-            Text(primaryText)
-                .gbBody()
-                .foregroundStyle(bodyColor)
-
-            if !linkedPlaces.isEmpty {
-                HStack(spacing: GBSpacing.small) {
-                    ForEach(linkedPlaces) { place in
-                        Label(place.name, systemImage: GBIcon.place)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(chipColor)
-                            .padding(.horizontal, GBSpacing.xSmall)
-                            .padding(.vertical, GBSpacing.xxxSmall)
-                            .background(chipBackground, in: Capsule())
-                    }
-                }
-            }
-
-            if let linkedScene {
-                if case .remembered = unlockState {
-                    GBSurface(style: .plain, padding: GBSpacing.small) {
-                        sceneDetail(linkedScene)
-                    }
-                } else if case .placedAccurately = unlockState {
-                    GBSurface(style: .plain, padding: GBSpacing.small) {
-                        sceneDetail(linkedScene)
-                    }
-                } else if case .masteredInReview = unlockState {
-                    GBSurface(style: .plain, padding: GBSpacing.small) {
-                        sceneDetail(linkedScene)
-                    }
-                } else {
-                    GBSurface(style: .elevated, padding: GBSpacing.small) {
-                        sceneDetail(linkedScene)
-                    }
-                }
-            }
-        }
-    }
-
-    private var titleColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.inverse
-        default:
-            return GBColor.Content.primary
-        }
-    }
-
-    private var subtitleColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.inverse.opacity(0.92)
-        default:
-            return GBColor.Accent.story
-        }
-    }
-
-    private var trailingColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.inverse.opacity(0.9)
-        default:
-            return GBColor.Content.secondary
-        }
-    }
-
-    private var bodyColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.inverse.opacity(0.9)
-        default:
-            return GBColor.Content.secondary
-        }
-    }
-
-    private var chipColor: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return GBColor.Content.inverse
-        default:
-            return GBColor.Content.secondary
-        }
-    }
-
-    private var chipBackground: Color {
-        switch unlockState {
-        case .remembered, .placedAccurately, .masteredInReview:
-            return .white.opacity(0.14)
-        default:
-            return GBColor.Background.elevated
-        }
-    }
-
-    private func sceneDetail(_ linkedScene: StoryScene) -> some View {
-        VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-            Text("Re-entry scene")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(GBColor.Content.secondary)
-            Text(linkedScene.title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(GBColor.Content.primary)
-            Text(event.recallPrompt)
-                .font(.caption)
-                .foregroundStyle(GBColor.Content.secondary)
-        }
-    }
-
-    private var stateTitle: String {
-        switch unlockState {
-        case .hidden:
-            return "Locked"
-        case .seenInStory, .learnable:
-            return "Ready"
-        case .remembered:
-            return "Remembered"
-        case .placedAccurately, .masteredInReview:
-            return "Placed"
-        }
-    }
-
-    private var stateSymbol: String {
-        switch unlockState {
-        case .hidden:
-            return GBIcon.locked
-        case .seenInStory, .learnable:
-            return GBIcon.next
-        case .remembered:
-            return GBIcon.story
-        case .placedAccurately, .masteredInReview:
-            return GBIcon.success
-        }
-    }
-
-    private var stateEmphasis: GBEmphasis {
-        switch unlockState {
-        case .hidden:
-            return .neutral
-        case .seenInStory, .learnable, .remembered:
-            return .story
-        case .placedAccurately, .masteredInReview:
-            return .place
-        }
-    }
-
-    private var primaryText: String {
-        switch unlockState {
-        case .hidden:
-            return "This moment will open after its scene becomes strong enough to place in order."
-        case .seenInStory, .learnable:
-            return "The scene is visible. Next step is to remember where this moment belongs in the journey."
-        case .remembered:
-            return "This event is now part of the remembered sequence. Keep reviewing so it becomes easier to place on sight."
-        case .placedAccurately, .masteredInReview:
-            return "This moment is holding firmly in order. The timeline is starting to feel like one connected story."
-        }
-    }
-}
-
-private struct ReviewScheduleCard: View {
-    let schedule: ReviewSchedule
-    let title: String
-    let isDue: Bool
-
-    var body: some View {
-        GBSurface(style: isDue ? .plain : .elevated) {
+    private var lockedIntroduction: some View {
+        GBSurface {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(spacing: GBSpacing.small) {
-                    GBBadge(title: badgeTitle, symbol: badgeSymbol, emphasis: badgeEmphasis)
-                    Spacer()
-                    Text(schedule.stabilityBand.rawValue.capitalized)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(GBColor.Content.secondary)
-                }
-
-                Text(title)
-                    .gbTitle()
-                    .foregroundStyle(GBColor.Content.primary)
-
-                Text(detailText)
+                Label("A little story recap is coming", systemImage: "book.closed")
+                    .font(.headline)
+                Text("Learn the first three chapters and check an answer in each. Then put that part of the story in order here.")
                     .gbBody()
-                    .foregroundStyle(GBColor.Content.secondary)
+                Text("Looking at cards and saying you remember them are useful practice. The ordering activity opens after checked answers.")
+                    .gbCaption().foregroundStyle(GBColor.Content.secondary)
+            }
+            .accessibilityIdentifier("timeline-locked")
+        }
+    }
+
+    private func recap(round: TimelineActivityRound) -> some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            GBSectionHeader(eyebrow: "Look back together", title: "Three moments in the story",
+                            subtitle: "Read this little part before you try. Story order comes before exact dates.")
+            ForEach(round.cards) { card in
+                GBSurface {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Label(card.title, systemImage: card.symbol).font(.headline)
+                        Text(card.teachingText).gbBody()
+                        if let scene = appModel.content.activeHeroArc.scene(withID: card.sceneID) {
+                            Text(scene.childSafeSummary).gbBody()
+                            Text(scene.meaningStatement).gbBody().foregroundStyle(GBColor.Content.secondary)
+                        }
+                        if let yearLabel = card.yearLabel {
+                            Text(yearLabel).gbCaption().foregroundStyle(GBColor.Content.secondary)
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            Button(progress.teachingSeen ? "Return to the order" : "Ready to put them in order") {
+                if !progress.teachingSeen { TimelineActivityEngine.begin(round: round, checkpoint: &checkpoint) }
+                showingRecap = false
+                save()
+            }
+            .buttonStyle(.gbPrimary)
+            .accessibilityIdentifier("timeline-start")
+        }
+    }
+
+    private func activity(round: TimelineActivityRound) -> some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            Text("Tap a story card, then tap First, Then, or After that. Cards that belong stay in place.")
+                .gbBody().accessibilityIdentifier("timeline-instructions")
+            Text("Choose a card").gbHeadline().accessibilityAddTraits(.isHeader)
+            // A fixed mixed order keeps all choices available and avoids teaching the answer by layout.
+            ForEach([round.cards[2], round.cards[0], round.cards[1]]) { card in
+                choice(card: card, round: round)
+            }
+            Text("Choose its place").gbHeadline().accessibilityAddTraits(.isHeader)
+                .padding(.top, GBSpacing.xSmall)
+            if let selected = round.cards.first(where: { $0.id == progress.selectedCardID }) {
+                Text("Selected: " + selected.title).gbBody().foregroundStyle(GBColor.Story.primary)
+                    .accessibilityIdentifier("timeline-selected-card")
+            }
+            ForEach(round.cards.indices, id: \.self) { index in
+                slot(index: index, round: round)
+            }
+            if let feedback = progress.feedback {
+                Label(feedback, systemImage: "leaf.fill")
+                    .font(.body).foregroundStyle(GBColor.Content.primary)
+                    .padding(GBSpacing.small)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
+                    .accessibilityIdentifier("timeline-feedback")
+            }
+            if TimelineActivityEngine.isComplete(round: round, checkpoint: checkpoint) {
+                Button("Next part of the story") {
+                    TimelineActivityEngine.advance(rounds: rounds, checkpoint: &checkpoint)
+                    saveAndDeliverChecks()
+                }
+                .buttonStyle(.gbPrimary)
+                .accessibilityIdentifier("timeline-next")
+            } else {
+                Button("Give me a clue") {
+                    TimelineActivityEngine.hint(round: round, checkpoint: &checkpoint)
+                    save()
+                }
+                .buttonStyle(.gbSecondary)
+                .frame(minHeight: GBTouch.button)
+                .accessibilityIdentifier("timeline-hint")
+            }
+            Button("Look at these story cards again") {
+                if !TimelineActivityEngine.isComplete(round: round, checkpoint: checkpoint) {
+                    TimelineActivityEngine.hint(round: round, checkpoint: &checkpoint)
+                }
+                showingRecap = true
+                save()
+            }
+            .buttonStyle(.gbSecondary)
+            .frame(minHeight: GBTouch.button)
+            .accessibilityIdentifier("timeline-recap")
+        }
+    }
+
+    private func choice(card: TimelineActivityCard, round: TimelineActivityRound) -> some View {
+        let placed = progress.slots.contains(card.id)
+        let selected = progress.selectedCardID == card.id
+        return Button {
+            TimelineActivityEngine.select(cardID: card.id, round: round, checkpoint: &checkpoint)
+            save()
+        } label: {
+            HStack(spacing: GBSpacing.small) {
+                Image(systemName: placed ? "checkmark.circle.fill" : card.symbol)
+                    .font(.title2).foregroundStyle(placed ? GBColor.Place.primary : GBColor.Story.primary)
+                Text(card.title).gbHeadline().multilineTextAlignment(.leading)
+                Spacer(minLength: GBSpacing.xxSmall)
+                if selected { Image(systemName: "hand.tap.fill").foregroundStyle(GBColor.Story.primary) }
+            }
+            .foregroundStyle(GBColor.Content.primary)
+            .padding(GBSpacing.small)
+            .frame(maxWidth: .infinity, minHeight: GBTouch.primary, alignment: .leading)
+            .background(selected ? GBColor.Story.bg : GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.card))
+            .overlay(RoundedRectangle(cornerRadius: GBRadius.card).stroke(selected ? GBColor.Story.primary : GBColor.Border.panel,
+                                                                        lineWidth: selected ? 3 : 1))
+        }
+        .buttonStyle(.plain)
+        .disabled(placed)
+        .accessibilityLabel(card.title)
+        .accessibilityValue(placed ? "Checked and placed" : (selected ? "Selected" : "Available"))
+        .accessibilityHint(placed ? "This correct card stays in place." : "Select this card, then choose its place in the story.")
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+        .accessibilityIdentifier("timeline-card-" + card.id)
+    }
+
+    private func slot(index: Int, round: TimelineActivityRound) -> some View {
+        let placedID = progress.slots.indices.contains(index) ? progress.slots[index] : nil
+        let placedCard = round.cards.first { $0.id == placedID }
+        let title = TimelineActivityEngine.slotTitle(index)
+        return Button {
+            let check = TimelineActivityEngine.place(slotIndex: index, round: round, checkpoint: &checkpoint)
+            if check != nil { GBHaptic.pinCorrect() }
+            saveAndDeliverChecks()
+        } label: {
+            HStack(alignment: .center, spacing: GBSpacing.small) {
+                Image(systemName: placedCard == nil ? "circle.dashed" : "checkmark.circle.fill")
+                    .foregroundStyle(placedCard == nil ? GBColor.Story.primary : GBColor.Place.primary)
+                VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
+                    Text(title).gbHeadline()
+                    Text(placedCard?.title ?? (progress.selectedCardID == nil ? "Choose a card first" : "Tap to place your card"))
+                        .gbBody().multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(GBColor.Content.primary)
+            .padding(GBSpacing.small)
+            .frame(maxWidth: .infinity, minHeight: GBTouch.primary, alignment: .leading)
+            .background(placedCard == nil ? GBColor.Background.surface : GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
+            .overlay(RoundedRectangle(cornerRadius: GBRadius.card).stroke(GBColor.Border.panel, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .disabled(placedCard != nil || progress.selectedCardID == nil)
+        .accessibilityLabel(title + (placedCard.map { ", " + $0.title } ?? ", empty"))
+        .accessibilityValue(placedCard == nil ? "Waiting for a card" : "Checked and placed")
+        .accessibilityHint("Place the selected story card here.")
+        .accessibilityIdentifier("timeline-slot-\(index)")
+    }
+
+    private var completion: some View {
+        GBSurface {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                Label(rounds.count == allRounds.count ? "The journey belongs together" : "The opening story belongs together",
+                      systemImage: "book.closed.fill")
+                    .font(.title2.weight(.bold)).foregroundStyle(GBColor.Place.primary)
+                    .accessibilityIdentifier("timeline-success")
+                Text("You checked the order of these story cards. Retell this part with someone if you want.")
+                    .gbBody()
+                if rounds.count < allRounds.count {
+                    Text("After checked answers in all six chapters, the next parts connect Purandar, Agra and return, recovery, and Raigad.")
+                        .gbBody()
+                }
+                if checkpoint.rounds.values.contains(where: { $0.support != .independent }) {
+                    Text("We used clues along the way. This records order checked with help.")
+                        .gbCaption().foregroundStyle(GBColor.Content.secondary)
+                } else {
+                    Text("This records checked story order. A later revisit can help you remember it again.")
+                        .gbCaption().foregroundStyle(GBColor.Content.secondary)
+                }
+                Button("Look back at these story cards") { showingRecap = true }
+                    .buttonStyle(.gbSecondary)
+                    .frame(minHeight: GBTouch.button)
+                    .accessibilityIdentifier("timeline-complete-recap")
             }
         }
     }
 
-    private var badgeTitle: String {
-        isDue ? "Due now" : "Next revisit"
+    private func restore() {
+        guard !loaded else { return }
+        loaded = true
+        checkpoint = TimelineActivityEngine.restored(initialCheckpoint, allRounds: allRounds, availableRounds: rounds)
+        saveAndDeliverChecks()
     }
 
-    private var badgeSymbol: String {
-        isDue ? GBIcon.timeline : GBIcon.next
+    private func save() {
+        guard loaded, !rounds.isEmpty else { return }
+        onCheckpointChange?(checkpoint)
     }
 
-    private var badgeEmphasis: GBEmphasis {
-        isDue ? .chronicle : .neutral
-    }
-
-    private var detailText: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        let when = formatter.localizedString(for: schedule.nextDueAt, relativeTo: Date())
-        return "\(subjectLabel) review, interval \(schedule.intervalIndex + 1), \(when)."
-    }
-
-    private var subjectLabel: String {
-        switch schedule.subjectType {
-        case .scene:
-            return "Scene"
-        case .location:
-            return "Place"
-        case .timeline:
-            return "Timeline"
-        case .chronicle:
-            return "Chronicle"
+    private func saveAndDeliverChecks() {
+        save()
+        guard loaded, let onPlacementChecked else { return }
+        // Save-before-check closes the crash window; a retry always uses the same eventID.
+        for check in TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: checkpoint) where onPlacementChecked(check) {
+            TimelineActivityEngine.acknowledge(check, checkpoint: &checkpoint)
         }
+        save()
     }
 }
