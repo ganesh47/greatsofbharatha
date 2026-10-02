@@ -204,7 +204,7 @@ struct TVReviewJourneyView: View {
         }
         .navigationTitle("Family review")
         .onAppear { load() }
-        .onExitCommand { dismiss() }
+        .onExitCommand(perform: handleBack)
         .onDisappear { narrator.clearCurrent() }
         .defaultFocus($focusedAction, "finish")
     }
@@ -229,6 +229,7 @@ struct TVReviewJourneyView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(TVCardButtonStyle()).focused($focusedAction, equals: "choice-" + choice.id)
+                    .accessibilityValue(point?.selectedChoiceID == choice.id ? "Selected" : "Available")
                     .disabled(actionsBlocked).accessibilityIdentifier("tv-review-choice-" + choice.id)
                 }
                 if point?.helpWasRequested == true {
@@ -362,6 +363,16 @@ struct TVReviewJourneyView: View {
         let next = TVReviewJourneyAdapter.start(archive: archive, cards: cards, learnedSceneIDs: learnedSceneIDs,
             sceneSchedules: appModel.lessonStore.reviewSchedulesBySubject, selection: selection, sessionID: sessionID, now: now())
         commit(next)
+    }
+    private func handleBack() {
+        if point?.phase == .prompt, point?.selectedChoiceID != nil {
+            var next = archive
+            next.checkpoint?.selectedChoiceID = nil
+            commit(next)
+        } else {
+            narrator.stop()
+            dismiss()
+        }
     }
     private func commit(_ next: ReviewJourneyArchive) {
         guard let saved = ReviewJourneyPersistence.saveAndReplay(next, hooks: hooks) else {

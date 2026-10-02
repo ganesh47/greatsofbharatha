@@ -14,7 +14,7 @@ No roots, chapter screens, maps, shared store, content models, historical conten
 TVReviewJourneyView(hooks: ReviewJourneyHooks, now: @escaping () -> Date = Date.init)
 ```
 
-Inject the existing `AppModel` and `GBNarrator` environments. `ReviewJourneyHooks(load:save:record:)` uses the same durable root `.review` activity archive as iOS, independently of the chapter checkpoint. `TVReviewJourneyContent.descriptors: [ReviewJourneyCard]` supplies known TV cards/check prompts. `TVReviewJourneyContent.cards: [TVReviewJourneyCard]` additionally supplies the existing authored choices for callback validation. The caller determines the route; Continue our chapter, All done, Finish for now and the remote Back command dismiss to it.
+Inject the existing `AppModel` and `GBNarrator` environments. `ReviewJourneyHooks(load:save:record:)` uses the same durable root `.review` activity archive as iOS, independently of the chapter checkpoint. `TVReviewJourneyContent.descriptors: [ReviewJourneyCard]` supplies known TV cards/check prompts. `TVReviewJourneyContent.cards: [TVReviewJourneyCard]` additionally supplies the existing authored choices for callback validation. The caller determines the route; Continue our chapter, All done and Finish for now dismiss to it. Remote Back first clears and durably saves a selected unchecked choice without evidence; otherwise it stops narration and dismisses. Selection persists across process relaunch when Back was not pressed.
 
 Checkpoint additions are optional `selectedChoiceID`, `helpWasRequested` and `sharedFamilyResponse`. Evidence additions are optional `priorIndependentWitness`, `responseContext` and `selectedChoiceID`. Existing archives decode absent fields. The submitted choice ID stays in the event so the durable callback can verify the authored selected answer after checkpoint selection clears. Choice titles are fed to the checker only in memory; TV never persists a typed answer.
 
@@ -54,3 +54,13 @@ Before merge/release the coordinator must:
 No worker merge, project generation, full app build, simulator slot or TestFlight operation was performed.
 
 Refs #212: [combined enrichment validation](https://github.com/ganesh47/greatsofbharatha/pull/212).
+## Focused remote UI follow-up
+
+`GreatsOfBharathaTVUITests/TVReviewJourneyUITests.swift` adds four coordinator-run acceptance tests. It uses the established native directional focus helper and `XCUIRemote.shared.press(.select/.menu)` only; it contains no element taps, pointer coordinates or debug route bypass. Each test has a unique `gob.tv.ui.review.*` defaults suite and the existing debug-only seed through chapter three. Reset is removed after the initial launch, so relaunch reads the same durable archive. The route is the coordinator-owned `tv-home-review` / `TVRoute.review` entry. Explicit optional practice handles the seed's future due dates.
+
+1. Focus on the home entry does not navigate. Focus on an answer does not select/check; selection enables Check without changing prompt/progress/result; only remote Check produces a family-choice result.
+2. Selection restores after termination with native focus on Check. First Back clears it without result or queue advancement; relaunch retains the cleared selection. Next Back returns home with the original chapter continuation unchanged.
+3. Opening an authored clue displays captions/read-aloud and creates no checked result. Relaunch retains help; a subsequent Check says the family checked with help. Finish returns home.
+4. Reveal/report/Teach again shows authored teaching captions/read-aloud, appends one tail revisit and keeps it rescued. Repeat teaching on that tail cannot append another turn; completion, Continue our chapter, All done and Finish remain reachable. Screenshots accompany selected, restored, clue, teaching, revisit and completion states.
+
+The follow-up also adds Selected/Available accessibility values to TV review choices and the Back behavior above. Strict SwiftLint and frontend syntax parsing passed for the view and new UI-test source. These four UI tests have NOT been run by the worker; coordinator owns the reserved TV simulator/device and integrated test execution. The earlier 47 synthetic passes remain the domain/adapter evidence, not proof that these remote scenarios passed.
