@@ -1,4 +1,3 @@
-import AVFoundation
 import SwiftUI
 
 // ─────────────────────────────────────────────────────────────
@@ -14,90 +13,6 @@ struct GBFlashCardData: Identifiable, Sendable {
     let storyBeat: String
     var emphasis: GBEmphasis = .story
     var narrationText: String? = nil
-}
-
-// ── Read-aloud controller ─────────────────────────────────────
-@MainActor
-final class GBNarrator: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
-    static let shared = GBNarrator()
-    private let synthesizer = AVSpeechSynthesizer()
-    @Published private(set) var activeCardID: String? = nil
-    @Published private(set) var statusMessage: String? = nil
-    private var lastRequest: (id: String, text: String)?
-
-    override init() {
-        super.init()
-        synthesizer.delegate = self
-    }
-
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        Task { @MainActor [weak self] in
-            guard let self, !self.synthesizer.isSpeaking else { return }
-            self.activeCardID = nil
-        }
-    }
-
-    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        Task { @MainActor [weak self] in
-            guard let self, !self.synthesizer.isSpeaking else { return }
-            self.activeCardID = nil
-        }
-    }
-
-    func toggle(cardID: String, text: String) {
-        if activeCardID == cardID, synthesizer.isSpeaking {
-            synthesizer.stopSpeaking(at: .immediate)
-            activeCardID = nil
-            return
-        }
-        speak(id: cardID, text: text)
-    }
-
-    func speak(id: String, text: String) {
-        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty else {
-            statusMessage = "Nothing to read aloud yet."
-            activeCardID = nil
-            return
-        }
-
-        lastRequest = (id: id, text: trimmedText)
-        synthesizer.stopSpeaking(at: .immediate)
-
-        do {
-            try prepareAudioSessionForSpeech()
-            statusMessage = nil
-        } catch {
-            statusMessage = "Narration is unavailable. Check volume and try again."
-        }
-
-        let utterance = AVSpeechUtterance(string: trimmedText)
-        // Child-appropriate rate: 70% from min to default, audible and clear
-        utterance.rate = AVSpeechUtteranceMinimumSpeechRate
-            + (AVSpeechUtteranceDefaultSpeechRate - AVSpeechUtteranceMinimumSpeechRate) * 0.70
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
-            ?? AVSpeechSynthesisVoice(language: "en-US")
-        synthesizer.speak(utterance)
-        activeCardID = id
-    }
-
-    func repeatLast() {
-        guard let lastRequest else { return }
-        speak(id: lastRequest.id, text: lastRequest.text)
-    }
-
-    func stop() {
-        synthesizer.stopSpeaking(at: .immediate)
-        activeCardID = nil
-    }
-
-    private func prepareAudioSessionForSpeech() throws {
-#if os(iOS)
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        try session.setActive(true)
-#endif
-    }
 }
 
 // ── Single flashcard ──────────────────────────────────────────

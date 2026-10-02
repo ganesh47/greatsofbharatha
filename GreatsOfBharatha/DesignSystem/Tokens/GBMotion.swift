@@ -41,7 +41,7 @@ extension Animation {
 }
 
 // ── Haptic token system ───────────────────────────────────────
-#if canImport(UIKit)
+#if os(iOS)
 import UIKit
 
 enum GBHaptic {
@@ -91,5 +91,15 @@ enum GBHaptic {
     }
 
     // Wrong answer: intentionally NO haptic — no shame signal.
+}
+#else
+/// Siri Remote has no haptic output. The same calls stay source compatible on TV.
+enum GBHaptic {
+    static func pinCorrect() {}
+    static func pinClose() {}
+    static func timelineLocked() {}
+    static func chronicleReveal() {}
+    static func coronation() {}
+    static func stepAdvance() {}
 }
 #endif

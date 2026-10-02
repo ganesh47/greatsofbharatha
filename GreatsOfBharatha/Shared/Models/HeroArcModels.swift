@@ -342,12 +342,13 @@ struct LessonResumePoint: Codable, Equatable {
     var discoveredDetailIDs: Set<String> = []
     var solvedPlaceIDs: Set<String> = []
     var helpedPlaceIDs: Set<String> = []
+    var tvCheckpoint: TVActivityCheckpoint? = nil
     var updatedAt: Date = Date()
 
     private enum CodingKeys: String, CodingKey {
         case sceneID, phase, sessionID, storyCardIndex, revealedHintLevel, recognitionRescueUnlocked
         case recallCompleted, completedMatchPairIDs, matchMismatchCount, recallEventID, matchEventID, preferredActivity
-        case discoveredDetailIDs, solvedPlaceIDs, helpedPlaceIDs, updatedAt
+        case discoveredDetailIDs, solvedPlaceIDs, helpedPlaceIDs, tvCheckpoint, updatedAt
     }
 
     // Optional checkpoint fields keep existing callers and older saved lessons compatible.
@@ -356,7 +357,8 @@ struct LessonResumePoint: Codable, Equatable {
          revealedHintLevel: Int = 0, recognitionRescueUnlocked: Bool = false, recallCompleted: Bool = false,
          completedMatchPairIDs: Set<String> = [], matchMismatchCount: Int = 0, recallEventID: UUID = UUID(),
          matchEventID: UUID = UUID(), preferredActivity: LearningActivityKind? = nil,
-         discoveredDetailIDs: Set<String> = [], solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [], updatedAt: Date = Date()) {
+         discoveredDetailIDs: Set<String> = [], solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [],
+         tvCheckpoint: TVActivityCheckpoint? = nil, updatedAt: Date = Date()) {
         self.sceneID = sceneID
         self.phase = phase
         self.sessionID = sessionID
@@ -372,6 +374,7 @@ struct LessonResumePoint: Codable, Equatable {
         self.discoveredDetailIDs = discoveredDetailIDs
         self.solvedPlaceIDs = solvedPlaceIDs
         self.helpedPlaceIDs = helpedPlaceIDs
+        self.tvCheckpoint = tvCheckpoint
         self.updatedAt = updatedAt
     }
 
@@ -392,6 +395,7 @@ struct LessonResumePoint: Codable, Equatable {
         discoveredDetailIDs = try values.decodeIfPresent(Set<String>.self, forKey: .discoveredDetailIDs) ?? []
         solvedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .solvedPlaceIDs) ?? []
         helpedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .helpedPlaceIDs) ?? []
+        tvCheckpoint = try values.decodeIfPresent(TVActivityCheckpoint.self, forKey: .tvCheckpoint)
         updatedAt = try values.decodeIfPresent(Date.self, forKey: .updatedAt) ?? .distantPast
     }
 }

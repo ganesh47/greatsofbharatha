@@ -11,9 +11,11 @@ def stamp(source, tag, build_number):
     if not re.fullmatch(r"[1-9]\d*", build_number):
         raise ValueError("Build number must be a positive integer")
     if tag:
-        if not tag.startswith("v") or not VERSION_RE.fullmatch(tag[1:]):
-            raise ValueError("Release tag must be v plus three numeric version components")
-        source, count = re.subn(r"(?m)^(\s*MARKETING_VERSION:) [^\n]+$", rf"\g<1> {tag[1:]}", source)
+        prefix = "tvos-v" if tag.startswith("tvos-v") else "v"
+        version = tag.removeprefix(prefix)
+        if not tag.startswith(prefix) or not VERSION_RE.fullmatch(version):
+            raise ValueError("Release tag must be v or tvos-v plus three numeric version components")
+        source, count = re.subn(r"(?m)^(\s*MARKETING_VERSION:) [^\n]+$", rf"\g<1> {version}", source)
         if count != 1:
             raise ValueError("Expected exactly one MARKETING_VERSION in project.yml")
     source, count = re.subn(r"(?m)^(\s*CURRENT_PROJECT_VERSION:) [^\n]+$", rf"\g<1> {build_number}", source)

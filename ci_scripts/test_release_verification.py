@@ -17,19 +17,23 @@ from testflight_release import (
     check_github_gates,
     check_tag_sha,
     configure_archive,
+    ensure_tv_workflow,
     exact_build,
     find_or_start_run,
     group_contains_build,
+    has_archive,
     observe_cloud,
+    platform_config,
     selected_group,
     tag_starts_automatically,
     validate_inputs,
+    validate_release_workflow,
 )
 
 SHA = "a" * 40
 
 
-def fixture_build(marketing="0.2.0", number="17", state="VALID", beta="IN_BETA_TESTING", expired=False):
+def fixture_build(marketing="0.2.0", number="17", state="VALID", beta="IN_BETA_TESTING", expired=False, platform="IOS"):
     build = {
         "type": "builds",
         "id": "build-17",
@@ -40,12 +44,69 @@ def fixture_build(marketing="0.2.0", number="17", state="VALID", beta="IN_BETA_T
         },
     }
     included = {
-        ("preReleaseVersions", "version-02"): {"attributes": {"version": marketing}},
+        ("preReleaseVersions", "version-02"): {"attributes": {"version": marketing, "platform": platform}},
         ("buildBetaDetails", "beta-17"): {"attributes": {"internalBuildState": beta}},
     }
     api = Mock()
     api.collection.return_value = ([build], included)
     return api
+
+
+def fixture_archive(platform="TVOS"):
+    return {
+        "name": "Archive for TestFlight",
+        "actionType": "ARCHIVE",
+        "platform": platform,
+        "scheme": "GreatsOfBharathaTV" if platform == "TVOS" else "GreatsOfBharatha",
+        "destination": "ANY_TVOS_DEVICE" if platform == "TVOS" else "ANY_IOS_DEVICE",
+        "isRequiredToPass": True,
+        "buildDistributionAudience": "INTERNAL_ONLY",
+    }
+
+
+def fixture_gate_runs(include_tv=False):
+    names = [
+        "CI",
+        "Python CI Scripts",
+        "Workflow Lint",
+        "Workflow Security",
+        "XcodeGen Drift",
+        "SwiftLint",
+        "Secret Scan",
+    ]
+    if include_tv:
+        names.append("tvOS")
+    return [
+        {
+            "id": i,
+            "name": name,
+            "event": "push",
+            "head_branch": "main",
+            "head_sha": SHA,
+            "status": "completed",
+            "conclusion": "success",
+            "html_url": "https://example.com/run/" + str(i),
+        }
+        for i, name in enumerate(names)
+    ]
+
+
+def fixture_workflow_seed():
+    return {
+        "id": "ios-workflow",
+        "attributes": {
+            "name": "Default",
+            "containerFilePath": "GreatsOfBharatha.xcodeproj",
+            "actions": [fixture_archive("IOS")],
+            "tagStartCondition": {"source": {"isAllMatch": False, "patterns": [{"pattern": "v", "isPrefix": True}]}},
+        },
+        "relationships": {
+            "product": {"data": {"type": "ciProducts", "id": "same-app-product"}},
+            "repository": {"data": {"type": "scmRepositories", "id": "same-repository"}},
+            "xcodeVersion": {"data": {"type": "ciXcodeVersions", "id": "selected-xcode"}},
+            "macOsVersion": {"data": {"type": "ciMacOsVersions", "id": "selected-macos"}},
+        },
+    }
 
 
 def fixture_run(sha=SHA, progress="COMPLETE", status="SUCCEEDED", ref="tag-02"):
@@ -106,6 +167,239 @@ class ExactBuildTests(unittest.TestCase):
         api.collection.return_value = (builds * 2, included)
         with self.assertRaises(ReleaseError):
             exact_build(api, "app", "0.2.0", "17")
+
+
+class TVBuildIdentityTests(unittest.TestCase):
+    def test_ready_tv_build_requires_explicit_prerelease_tv_os(self):
+        build, state = exact_build(fixture_build(platform="TV_OS"), "app", "0.2.0", "17", platform="TVOS")
+        self.assertEqual(build["id"], "build-17")
+        self.assertEqual(state, "IN_BETA_TESTING")
+
+    def test_identical_ios_version_and_number_cannot_satisfy_tv_release(self):
+        with self.assertRaises(Pending):
+            exact_build(fixture_build(), "app", "0.2.0", "17", platform="TVOS")
+
+    def test_tv_build_cannot_satisfy_default_ios_release(self):
+        with self.assertRaises(Pending):
+            exact_build(fixture_build(platform="TV_OS"), "app", "0.2.0", "17")
+
+    def test_missing_null_or_cloud_platform_spelling_cannot_pass(self):
+        for platform in [None, "TVOS", "MAC_OS"]:
+            with self.subTest(platform=platform), self.assertRaises(Pending):
+                exact_build(fixture_build(platform=platform), "app", "0.2.0", "17", platform="TVOS")
+        api = fixture_build(platform="TV_OS")
+        del api.collection.return_value[1][("preReleaseVersions", "version-02")]["attributes"]["platform"]
+        with self.assertRaises(Pending):
+            exact_build(api, "app", "0.2.0", "17", platform="TVOS")
+
+    def test_same_number_on_two_platforms_selects_only_requested_platform(self):
+        api = fixture_build()
+        ios_builds, included = api.collection.return_value
+        tv_builds, tv_included = fixture_build(platform="TV_OS").collection.return_value
+        tv_builds[0]["id"] = "build-tv-17"
+        tv_builds[0]["relationships"]["preReleaseVersion"]["data"]["id"] = "version-tv"
+        included[("preReleaseVersions", "version-tv")] = tv_included[("preReleaseVersions", "version-02")]
+        api.collection.return_value = (ios_builds + tv_builds, included)
+        self.assertEqual(exact_build(api, "app", "0.2.0", "17", platform="TVOS")[0]["id"], "build-tv-17")
+        self.assertEqual(exact_build(api, "app", "0.2.0", "17")[0]["id"], "build-17")
+
+    def test_duplicate_tv_build_is_terminal_even_with_an_ios_match(self):
+        api = fixture_build(platform="TV_OS")
+        builds, included = api.collection.return_value
+        api.collection.return_value = (builds * 2, included)
+        with self.assertRaises(ReleaseError):
+            exact_build(api, "app", "0.2.0", "17", platform="TVOS")
+
+    def test_tv_identity_does_not_bypass_processing_expiry_or_compliance(self):
+        for kwargs in [
+            {"state": "FAILED"},
+            {"state": "INVALID"},
+            {"expired": True},
+            {"beta": "MISSING_EXPORT_COMPLIANCE"},
+        ]:
+            with self.subTest(kwargs=kwargs), self.assertRaises(ReleaseError):
+                exact_build(fixture_build(platform="TV_OS", **kwargs), "app", "0.2.0", "17", platform="TVOS")
+        with self.assertRaises(Pending):
+            exact_build(fixture_build(platform="TV_OS", state="PROCESSING"), "app", "0.2.0", "17", platform="TVOS")
+
+    def test_unknown_release_platform_fails_before_api_lookup(self):
+        api = fixture_build(platform="TV_OS")
+        with self.assertRaises(ReleaseError):
+            exact_build(api, "app", "0.2.0", "17", platform="TV_OS")
+        api.collection.assert_not_called()
+
+
+class TVArchiveTests(unittest.TestCase):
+    def test_publish_rejects_mixed_platform_workflow_even_with_valid_tv_archive(self):
+        workflow = {"attributes": {"isEnabled": True, "actions": [fixture_archive(), fixture_archive("IOS")]}}
+        with self.assertRaisesRegex(ReleaseError, "TV-only"):
+            validate_release_workflow(workflow, "TVOS")
+
+    def test_publish_rejects_disabled_or_noncanonical_tv_workflow(self):
+        for attrs in [
+            {"isEnabled": False, "actions": [fixture_archive()]},
+            {"isEnabled": True, "actions": [fixture_archive("IOS")]},
+            {"isEnabled": True, "actions": []},
+        ]:
+            with self.subTest(attrs=attrs), self.assertRaises(ReleaseError):
+                validate_release_workflow({"attributes": attrs}, "TVOS")
+
+    def test_publish_accepts_enabled_canonical_tv_only_workflow(self):
+        validate_release_workflow({"attributes": {"isEnabled": True, "actions": [fixture_archive()]}}, "TVOS")
+
+    def test_ios_default_workflow_validation_remains_compatible(self):
+        validate_release_workflow({"attributes": {"isEnabled": True, "actions": [fixture_archive("IOS")]}}, "IOS")
+
+    def test_tv_archive_has_tv_scheme_and_internal_required_distribution(self):
+        api = Mock()
+        api.request.return_value = {"data": {}}
+        configure_archive(api, {"id": "w", "attributes": {"actions": []}}, platform="TVOS")
+        action = api.request.call_args.kwargs["body"]["data"]["attributes"]["actions"][0]
+        self.assertEqual(action["actionType"], "ARCHIVE")
+        self.assertEqual(action["platform"], "TVOS")
+        self.assertEqual(action["scheme"], "GreatsOfBharathaTV")
+        self.assertEqual(action["destination"], "ANY_TVOS_DEVICE")
+        self.assertEqual(action["buildDistributionAudience"], "INTERNAL_ONLY")
+        self.assertIs(action["isRequiredToPass"], True)
+
+    def test_configure_tv_preserves_existing_ios_and_build_actions(self):
+        api = Mock()
+        api.request.return_value = {"data": {}}
+        previous = [fixture_archive("IOS"), {"name": "Build", "actionType": "BUILD"}]
+        configure_archive(api, {"id": "w", "attributes": {"actions": previous}}, platform="TVOS")
+        actions = api.request.call_args.kwargs["body"]["data"]["attributes"]["actions"]
+        self.assertEqual(actions[:2], previous)
+        self.assertEqual(len(actions), 3)
+        self.assertTrue(has_archive({"attributes": {"actions": actions}}, "TVOS"))
+
+    def test_existing_valid_tv_archive_is_not_duplicated(self):
+        for destination in ["ANY_TVOS_DEVICE", None]:
+            with self.subTest(destination=destination):
+                api = Mock()
+                api.request.return_value = {"data": {}}
+                action = fixture_archive()
+                action["destination"] = destination
+                workflow = {"id": "w", "attributes": {"actions": [action]}}
+                self.assertTrue(has_archive(workflow, "TVOS"))
+                configure_archive(api, workflow, platform="TVOS")
+                actions = api.request.call_args.kwargs["body"]["data"]["attributes"]["actions"]
+                self.assertEqual(actions, [action])
+
+    def test_wrong_platform_scheme_destination_or_audience_is_not_accepted(self):
+        invalid_fields = [
+            ("platform", "IOS"),
+            ("scheme", "GreatsOfBharatha"),
+            ("destination", "ANY_IOS_DEVICE"),
+            ("destination", "ANY_TVOS_SIMULATOR"),
+            ("buildDistributionAudience", "APP_STORE_ELIGIBLE"),
+            ("buildDistributionAudience", None),
+            ("isRequiredToPass", False),
+        ]
+        for name, value in invalid_fields:
+            with self.subTest(name=name, value=value):
+                action = fixture_archive()
+                action[name] = value
+                self.assertFalse(has_archive({"attributes": {"actions": [action]}}, "TVOS"))
+
+    def test_locked_workflow_cannot_be_reconfigured(self):
+        api = Mock()
+        with self.assertRaises(ReleaseError):
+            configure_archive(api, {"id": "w", "attributes": {"isLockedForEditing": True}}, platform="TVOS")
+        api.request.assert_not_called()
+
+    def test_platform_names_are_distinct_between_cloud_and_prerelease(self):
+        self.assertEqual(platform_config("TVOS")["prerelease"], "TV_OS")
+        self.assertEqual(platform_config("IOS")["prerelease"], "IOS")
+        with self.assertRaises(ReleaseError):
+            platform_config("TV_OS")
+
+
+class TVWorkflowCreationTests(unittest.TestCase):
+    def test_creates_only_tv_action_from_same_product_repository_and_toolchain(self):
+        api = Mock()
+        api.request.return_value = {"data": {"id": "new-tv-workflow"}}
+        seed = fixture_workflow_seed()
+        report = {"products": [{"id": "same-app-product", "workflows": [{"id": seed["id"], "name": "Default"}]}]}
+        result = ensure_tv_workflow(api, report, seed)
+        self.assertEqual(result["id"], "new-tv-workflow")
+        self.assertEqual(api.request.call_args.args, ("POST", "/v1/ciWorkflows"))
+        data = api.request.call_args.kwargs["body"]["data"]
+        self.assertEqual(data["type"], "ciWorkflows")
+        self.assertEqual(data["relationships"], seed["relationships"])
+        attrs = data["attributes"]
+        self.assertEqual(attrs["name"], "Apple TV TestFlight")
+        self.assertEqual(attrs["containerFilePath"], "GreatsOfBharatha.xcodeproj")
+        self.assertIs(attrs["clean"], True)
+        self.assertIs(attrs["isEnabled"], True)
+        self.assertEqual(len(attrs["actions"]), 1)
+        self.assertTrue(has_archive({"attributes": attrs}, "TVOS"))
+        self.assertNotIn("tagStartCondition", attrs)
+        self.assertNotIn("branchStartCondition", attrs)
+        self.assertNotIn("pullRequestStartCondition", attrs)
+        self.assertEqual(
+            attrs["manualTagStartCondition"]["source"],
+            {"isAllMatch": False, "patterns": [{"pattern": "tvos-v", "isPrefix": True}]},
+        )
+        self.assertEqual(seed["attributes"]["actions"], [fixture_archive("IOS")])
+        self.assertTrue(tag_starts_automatically(seed, "v0.2.1"))
+        self.assertFalse(tag_starts_automatically(seed, "tvos-v0.2.1"))
+
+    def test_unique_existing_tv_workflow_is_reused_without_post(self):
+        api = Mock()
+        workflow = {"id": "tv-existing", "attributes": {"actions": [fixture_archive()]}}
+        api.get.return_value = {"data": workflow}
+        api.request.return_value = {"data": workflow}
+        report = {"products": [{"workflows": [{"id": "tv-existing", "name": "Apple TV TestFlight"}]}]}
+        self.assertEqual(ensure_tv_workflow(api, report, fixture_workflow_seed())["id"], "tv-existing")
+        api.get.assert_called_once_with(
+            "/v1/ciWorkflows/tv-existing", {"include": "repository,product,xcodeVersion,macOsVersion"}
+        )
+        self.assertEqual(api.request.call_count, 1)
+        self.assertEqual(api.request.call_args.args, ("PATCH", "/v1/ciWorkflows/tv-existing"))
+        self.assertEqual(api.request.call_args.kwargs["body"]["data"]["attributes"]["actions"], [fixture_archive()])
+
+    def test_duplicate_named_tv_workflows_fail_before_mutation(self):
+        api = Mock()
+        report = {
+            "products": [{"workflows": [{"id": name, "name": "Apple TV TestFlight"} for name in ["tv-1", "tv-2"]]}]
+        }
+        with self.assertRaises(ReleaseError):
+            ensure_tv_workflow(api, report, fixture_workflow_seed())
+        api.request.assert_not_called()
+        api.get.assert_not_called()
+
+    def test_existing_tv_name_with_ios_action_is_not_repaired_or_uploaded(self):
+        api = Mock()
+        api.get.return_value = {"data": {"id": "tv-existing", "attributes": {"actions": [fixture_archive("IOS")]}}}
+        report = {"products": [{"workflows": [{"id": "tv-existing", "name": "Apple TV TestFlight"}]}]}
+        with self.assertRaises(ReleaseError):
+            ensure_tv_workflow(api, report, fixture_workflow_seed())
+        api.request.assert_not_called()
+
+    def test_missing_or_mistyped_seed_identity_fails_without_creation(self):
+        for relationship in ["product", "repository", "xcodeVersion", "macOsVersion"]:
+            for mutation in ["missing", "wrong-type", "empty-id"]:
+                with self.subTest(relationship=relationship, mutation=mutation):
+                    seed = fixture_workflow_seed()
+                    data = seed["relationships"][relationship]["data"]
+                    if mutation == "missing":
+                        del seed["relationships"][relationship]
+                    elif mutation == "wrong-type":
+                        data["type"] = "wrongResource"
+                    else:
+                        data["id"] = ""
+                    api = Mock()
+                    with self.assertRaises(ReleaseError):
+                        ensure_tv_workflow(api, {"products": []}, seed)
+                    api.request.assert_not_called()
+
+    def test_unexpected_seed_project_fails_without_creation(self):
+        seed = fixture_workflow_seed()
+        seed["attributes"]["containerFilePath"] = "OtherApp.xcodeproj"
+        api = Mock()
+        with self.assertRaises(ReleaseError):
+            ensure_tv_workflow(api, {"products": []}, seed)
+        api.request.assert_not_called()
 
 
 class CloudIdentityTests(unittest.TestCase):
@@ -176,6 +470,23 @@ class CloudIdentityTests(unittest.TestCase):
         self.assertTrue(tag_starts_automatically(workflow, "v0.2.0"))
         self.assertFalse(tag_starts_automatically(workflow, "candidate-02"))
 
+    def test_tv_tag_does_not_trigger_existing_ios_version_prefix(self):
+        ios_workflow = {
+            "attributes": {
+                "tagStartCondition": {"source": {"isAllMatch": False, "patterns": [{"pattern": "v", "isPrefix": True}]}}
+            }
+        }
+        self.assertFalse(tag_starts_automatically(ios_workflow, "tvos-v0.2.1"))
+        tv_workflow = {
+            "attributes": {
+                "tagStartCondition": {
+                    "source": {"isAllMatch": False, "patterns": [{"pattern": "tvos-v", "isPrefix": True}]}
+                }
+            }
+        }
+        self.assertTrue(tag_starts_automatically(tv_workflow, "tvos-v0.2.1"))
+        self.assertFalse(tag_starts_automatically(tv_workflow, "v0.2.1"))
+
     def test_external_or_other_app_group_is_rejected(self):
         report = {"groups": [{"id": "external", "internal": False}, {"id": "internal", "internal": True}]}
         for group in ["external", "another-app"]:
@@ -199,6 +510,61 @@ class CloudIdentityTests(unittest.TestCase):
 
 
 class GitHubGateTests(unittest.TestCase):
+    def test_default_ios_retains_all_seven_existing_gates(self):
+        runs = fixture_gate_runs()
+        result = shared_gates(SHA, get=lambda path: {"workflow_runs": runs}, repository="owner/repo")
+        self.assertEqual(len(result), 7)
+
+    def test_ios_only_green_cannot_authorize_tv_release(self):
+        with self.assertRaisesRegex(GateError, "tvOS"):
+            shared_gates(
+                SHA, get=lambda path: {"workflow_runs": fixture_gate_runs()}, repository="owner/repo", platform="TVOS"
+            )
+
+    def test_all_eight_exact_main_gates_authorize_tv_release(self):
+        result = shared_gates(
+            SHA,
+            get=lambda path: {"workflow_runs": fixture_gate_runs(include_tv=True)},
+            repository="owner/repo",
+            platform="TVOS",
+        )
+        self.assertEqual(len(result), 8)
+        self.assertIn("tvOS", result)
+
+    def test_wrong_sha_pr_or_branch_tv_run_cannot_authorize_release(self):
+        for field, value in [("head_sha", "b" * 40), ("event", "pull_request"), ("head_branch", "codex/tv")]:
+            with self.subTest(field=field), self.assertRaises(GateError):
+                runs = fixture_gate_runs(include_tv=True)
+                runs[-1][field] = value
+                shared_gates(SHA, get=lambda path: {"workflow_runs": runs}, repository="owner/repo", platform="TVOS")
+
+    def test_latest_tv_failure_cannot_be_masked_by_older_green(self):
+        runs = fixture_gate_runs(include_tv=True)
+        runs.append({**runs[-1], "id": 99, "conclusion": "failure"})
+        with self.assertRaises(GateError):
+            shared_gates(SHA, get=lambda path: {"workflow_runs": runs}, repository="owner/repo", platform="TVOS")
+
+    def test_green_tv_does_not_bypass_a_failed_base_gate(self):
+        runs = fixture_gate_runs(include_tv=True)
+        runs[0]["conclusion"] = "failure"
+        with self.assertRaises(GateError):
+            shared_gates(SHA, get=lambda path: {"workflow_runs": runs}, repository="owner/repo", platform="TVOS")
+
+    @patch("testflight_release.os.environ", {"GITHUB_REPOSITORY": "owner/repo"})
+    @patch("testflight_release.github_get")
+    def test_release_wrapper_passes_tv_platform_to_shared_gates(self, get):
+        get.return_value = {"workflow_runs": fixture_gate_runs()}
+        with self.assertRaisesRegex(ReleaseError, "tvOS"):
+            check_github_gates(SHA, platform="TVOS")
+        get.return_value = {"workflow_runs": fixture_gate_runs(include_tv=True)}
+        self.assertEqual(len(check_github_gates(SHA, platform="TVOS")), 8)
+
+    def test_unknown_gate_platform_cannot_fall_back_to_ios(self):
+        with self.assertRaises(GateError):
+            shared_gates(
+                SHA, get=lambda path: {"workflow_runs": fixture_gate_runs()}, repository="owner/repo", platform="TV_OS"
+            )
+
     def test_all_green_other_sha_cannot_authorize_release(self):
         names = [
             "CI",
@@ -396,6 +762,28 @@ class VersionStampTests(unittest.TestCase):
         output = stamp(self.source, "v0.2.0", "17")
         self.assertIn("MARKETING_VERSION: 0.2.0", output)
         self.assertIn("CURRENT_PROJECT_VERSION: 17", output)
+
+    def test_tv_tag_stamps_shared_version_without_platform_prefix(self):
+        output = stamp(self.source, "tvos-v0.2.1", "21")
+        self.assertIn("MARKETING_VERSION: 0.2.1", output)
+        self.assertIn("CURRENT_PROJECT_VERSION: 21", output)
+        self.assertNotIn("tvos-v", output)
+
+    def test_tv_tag_requires_exact_requested_version_and_tv_platform(self):
+        validate_inputs("0.2.1", SHA, "tvos-v0.2.1", platform="TVOS")
+        for tag in ["v0.2.1", "tvos-v0.2.0"]:
+            with self.subTest(tag=tag), self.assertRaises(ReleaseError):
+                validate_inputs("0.2.1", SHA, tag, platform="TVOS")
+        with self.assertRaises(ReleaseError):
+            validate_inputs("0.2.1", SHA, "tvos-v0.2.1")
+
+    def test_invalid_tv_tags_and_nonpositive_builds_are_rejected(self):
+        for tag in ["tvos-v0.2.1-dev", "tvos-v0.2", "tvos-v00.2.1", "tvos-v0.2.1\nOTHER: injected", "TVOS-v0.2.1"]:
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                stamp(self.source, tag, "21")
+        for number in ["0", "-1", "01", "21\nOTHER: injected"]:
+            with self.subTest(number=number), self.assertRaises(ValueError):
+                stamp(self.source, "tvos-v0.2.1", number)
 
     def test_malformed_tags_rejected(self):
         for tag in ["v0.2.0-dev", "v0.2", "v00.2.0", "v0.2.0\nOTHER: injected", "0.2.0"]:

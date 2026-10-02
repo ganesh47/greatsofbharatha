@@ -1,6 +1,9 @@
 included:
   - GreatsOfBharatha
   - GreatsOfBharathaTests
+  - GreatsOfBharathaTV
+  - GreatsOfBharathaTVTests
+  - GreatsOfBharathaTVUITests
 
 excluded:
   - .build

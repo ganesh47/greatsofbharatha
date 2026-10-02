@@ -1,5 +1,35 @@
 import Combine
+import Compression
 import Foundation
+
+/// Injectable so migrations and the TV storage ceiling can be exercised in either test target.
+struct LessonPersistencePolicy: Equatable {
+    let maximumDefaultsBytes: Int?
+    let recentEvidenceLimit: Int
+    let recentEventLimit: Int
+    let evidenceDetailLimit: Int
+    let recoveryLimitBytes: Int
+
+    static let standard = LessonPersistencePolicy(maximumDefaultsBytes: nil, recentEvidenceLimit: .max,
+        recentEventLimit: 0, evidenceDetailLimit: .max, recoveryLimitBytes: .max)
+    static let compactTV = LessonPersistencePolicy(maximumDefaultsBytes: 256 * 1024, recentEvidenceLimit: 8,
+        recentEventLimit: 256, evidenceDetailLimit: 160, recoveryLimitBytes: 16 * 1024)
+    static var platformDefault: LessonPersistencePolicy {
+#if os(tvOS)
+        .compactTV
+#else
+        .standard
+#endif
+    }
+}
+
+struct LessonPersistenceDiagnostics: Equatable {
+    var snapshotBytes = 0
+    var appOwnedDefaultsBytes = 0
+    var limitBytes: Int?
+    var statusMessage: String?
+    var isWithinBudget: Bool { limitBytes.map { appOwnedDefaultsBytes <= $0 } ?? true }
+}
 
 final class ShivajiLessonStore: ObservableObject {
     @Published private(set) var masteryByScene: [String: MasteryState] = [:]
@@ -7,29 +37,50 @@ final class ShivajiLessonStore: ObservableObject {
     @Published private(set) var reviewSchedulesBySubject: [String: ReviewSchedule] = [:]
 
     @Published private(set) var resumePointsByScene: [String: LessonResumePoint] = [:]
+    @Published private(set) var persistenceDiagnostics = LessonPersistenceDiagnostics()
 
     private let content: AppContent
     private let defaults: UserDefaults
+    private let persistencePolicy: LessonPersistencePolicy
+    private var recentEventIDs: [UUID] = []
+    private var pendingRecoveryData: Data?
     private let recordsStorageKey = "shivajiLessonStore.masteryRecords"
     private let reviewStorageKey = "shivajiLessonStore.reviewSchedules"
     private let snapshotStorageKey = "shivajiLessonStore.snapshot.v1"
     private let legacyMasteryStorageKey = "shivajiLessonStore.masteryByScene"
 
-    init(content: AppContent = SampleContent.shivajiVerticalSlice, defaults: UserDefaults = .standard) {
+    init(content: AppContent = SampleContent.shivajiVerticalSlice, defaults: UserDefaults = .standard,
+         persistencePolicy: LessonPersistencePolicy = .platformDefault) {
         self.content = content
         self.defaults = defaults
+        self.persistencePolicy = persistencePolicy
         self.masteryRecordsBySubject = Self.loadRecords(from: defaults, key: recordsStorageKey)
         self.reviewSchedulesBySubject = Self.loadSchedules(from: defaults, key: reviewStorageKey)
         var loadedSnapshot = false
         if let data = defaults.data(forKey: snapshotStorageKey) {
-            if let snapshot = try? JSONDecoder().decode(LessonStoreSnapshot.self, from: data), snapshot.schemaVersion == 1 {
+            if let snapshot = Self.decodeSnapshot(data), (1...2).contains(snapshot.schemaVersion) {
                 loadedSnapshot = true
                 masteryRecordsBySubject = snapshot.records
                 reviewSchedulesBySubject = snapshot.schedules
                 resumePointsByScene = snapshot.resumePoints
+                recentEventIDs = snapshot.recentEventIDs
             } else {
-                // Keep damaged/unknown data for recovery before falling back to healthy legacy copies.
-                defaults.set(data, forKey: snapshotStorageKey + ".recovery")
+                if persistencePolicy.maximumDefaultsBytes != nil {
+                    // A bounded, healthy recovery retains earned learning facts even if the main write is damaged.
+                    if let recovery = defaults.data(forKey: snapshotStorageKey + ".recovery"),
+                       let snapshot = Self.decodeSnapshot(recovery), (1...2).contains(snapshot.schemaVersion) {
+                        loadedSnapshot = true
+                        masteryRecordsBySubject = snapshot.records
+                        reviewSchedulesBySubject = snapshot.schedules
+                        resumePointsByScene = snapshot.resumePoints
+                        recentEventIDs = snapshot.recentEventIDs
+                    } else {
+                        pendingRecoveryData = Data(data.prefix(persistencePolicy.recoveryLimitBytes))
+                    }
+                } else {
+                    // Preserve existing iOS fallback and recovery behavior.
+                    defaults.set(data, forKey: snapshotStorageKey + ".recovery")
+                }
             }
         }
 
@@ -62,6 +113,12 @@ final class ShivajiLessonStore: ObservableObject {
         }
 
         syncLegacySceneMastery()
+        if persistencePolicy.maximumDefaultsBytes != nil {
+            // Import first, then remove duplicate legacy writes and compact even before the first new activity.
+            persist()
+        } else {
+            updatePersistenceDiagnostics()
+        }
     }
 
     func mastery(for sceneID: String) -> MasteryState? {
@@ -70,6 +127,10 @@ final class ShivajiLessonStore: ObservableObject {
 
     func masteryRecord(for subjectID: String) -> MasteryRecord? {
         masteryRecordsBySubject[subjectID]
+    }
+
+    func refreshPersistenceDiagnostics() {
+        updatePersistenceDiagnostics()
     }
 
     @discardableResult
@@ -181,6 +242,7 @@ final class ShivajiLessonStore: ObservableObject {
                                                   eventID: eventID, activity: activity, support: support,
                                                   sessionID: sessionID, promptType: promptType))
         masteryRecordsBySubject[subjectID] = record
+        rememberEventID(eventID)
         if activity != .storyExposure && activity != .albumPlacement {
             let response: LearningReviewResponse = !wasSuccessful || support == .rescued ? .teachAgain : (support == .hinted ? .neededClue : .knewIt)
             _ = scheduleReview(subjectID: subjectID, subjectType: subjectType, response: response, promptType: promptType,
@@ -210,6 +272,7 @@ final class ShivajiLessonStore: ObservableObject {
             detail: "Self-reported review: \(response.rawValue)", eventID: eventID, activity: .review,
             support: .selfReported, sessionID: sessionID, promptType: promptType, reviewResponse: response))
         masteryRecordsBySubject[subjectID] = record
+        rememberEventID(eventID)
         let result = scheduleReview(subjectID: subjectID, subjectType: subjectType, response: response, promptType: promptType,
                                     eventID: eventID, sessionID: sessionID, at: date)
         persist()
@@ -497,7 +560,7 @@ final class ShivajiLessonStore: ObservableObject {
         switch (previewedCount, unlockedCount, enrichedCount) {
         case (0, 0, 0):
             return "Begin the Chronicle"
-        case let (_, 0, _):
+        case (_, 0, _):
             return "Your first keepsake is taking shape"
         case let (_, unlocked, enriched) where unlocked == totalChronicleEntries && enriched == totalChronicleEntries:
             return "Your Chronicle shelf glows with meaning"
@@ -618,7 +681,19 @@ final class ShivajiLessonStore: ObservableObject {
     }
 
     private func hasRecorded(eventID: UUID) -> Bool {
-        masteryRecordsBySubject.values.contains { $0.evidenceLog.contains { $0.eventID == eventID } }
+        if recentEventIDs.contains(eventID) { return true }
+        if resumePointsByScene.values.contains(where: { point in
+            guard let checkpoint = point.tvCheckpoint else { return false }
+            return checkpoint.completedActivityIDs.contains { checkpoint.completionEventIDs[$0] == eventID }
+        }) { return true }
+        return masteryRecordsBySubject.values.contains { $0.evidenceLog.contains { $0.eventID == eventID } }
+    }
+
+    private func rememberEventID(_ eventID: UUID) {
+        guard persistencePolicy.maximumDefaultsBytes != nil else { return }
+        recentEventIDs.removeAll { $0 == eventID }
+        recentEventIDs.append(eventID)
+        recentEventIDs = Array(recentEventIDs.suffix(persistencePolicy.recentEventLimit))
     }
 
     private func isLearnedSubject(_ subjectID: String) -> Bool {
@@ -677,8 +752,11 @@ final class ShivajiLessonStore: ObservableObject {
 
     private func persist() {
         syncLegacySceneMastery()
+        if let limit = persistencePolicy.maximumDefaultsBytes {
+            persistCompactSnapshot(limit: limit)
+            return
+        }
         defaults.set(masteryByScene.mapValues { $0.rawValue }, forKey: legacyMasteryStorageKey)
-
         let encoder = JSONEncoder()
         let snapshot = LessonStoreSnapshot(schemaVersion: 1, records: masteryRecordsBySubject,
                                            schedules: reviewSchedulesBySubject, resumePoints: resumePointsByScene)
@@ -689,6 +767,7 @@ final class ShivajiLessonStore: ObservableObject {
         if let scheduleData = try? encoder.encode(reviewSchedulesBySubject) {
             defaults.set(scheduleData, forKey: reviewStorageKey)
         }
+        updatePersistenceDiagnostics()
     }
 
     private static func loadRecords(from defaults: UserDefaults, key: String) -> [String: MasteryRecord] {
@@ -720,9 +799,259 @@ final class ShivajiLessonStore: ObservableObject {
 }
 
 
+// TV-only storage compaction is separate from the learning outcome boundary.
+extension ShivajiLessonStore {
+    private func persistCompactSnapshot(limit: Int) {
+        let encoder = JSONEncoder()
+        var records = masteryRecordsBySubject
+        for (id, var record) in records {
+            record.evidenceLog = compactEvidence(record.evidenceLog, recentLimit: persistencePolicy.recentEvidenceLimit)
+            records[id] = record
+        }
+        var points = resumePointsByScene.mapValues { boundedResumePoint($0, collectionLimit: 32) }
+        var snapshot = LessonStoreSnapshot(schemaVersion: 2, records: records,
+            schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs)
+        guard var data = try? encoder.encode(snapshot) else { return }
+
+        // Count the resulting full defaults domain before writing, including parent settings and recovery.
+        var prospective = appOwnedDefaults()
+        prospective.removeValue(forKey: recordsStorageKey)
+        prospective.removeValue(forKey: reviewStorageKey)
+        prospective.removeValue(forKey: legacyMasteryStorageKey)
+        let recoveryKey = snapshotStorageKey + ".recovery"
+        if let pendingRecoveryData { prospective[recoveryKey] = pendingRecoveryData }
+        if let recovery = prospective[recoveryKey] as? Data, recovery.count > persistencePolicy.recoveryLimitBytes {
+            prospective[recoveryKey] = Data(recovery.prefix(persistencePolicy.recoveryLimitBytes))
+        }
+        prospective[snapshotStorageKey] = data
+        // Keep small room for the fixed parent settings record, including a future toggle.
+        let writeBudget = max(limit - 1024, 0)
+        if Self.defaultsByteCount(prospective) > writeBudget {
+            for (id, var record) in records {
+                record.evidenceLog = compactEvidence(record.evidenceLog, recentLimit: 0)
+                records[id] = record
+            }
+            points = points.mapValues { boundedResumePoint($0, collectionLimit: 16) }
+            snapshot = LessonStoreSnapshot(schemaVersion: 2, records: records,
+                schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs)
+            guard let smallerData = try? encoder.encode(snapshot) else { return }
+            data = smallerData
+            prospective[snapshotStorageKey] = data
+        }
+        if Self.defaultsByteCount(prospective) > writeBudget {
+            prospective.removeValue(forKey: recoveryKey)
+        }
+        guard Self.defaultsByteCount(prospective) <= writeBudget else {
+            updatePersistenceDiagnostics(status: "The saved journey is safe. This activity could not be saved within the TV storage limit.")
+            return
+        }
+
+        // No legacy copies are written on TV. Publish precisely the compact facts that were saved.
+        masteryRecordsBySubject = records
+        resumePointsByScene = points
+        defaults.removeObject(forKey: recordsStorageKey)
+        defaults.removeObject(forKey: reviewStorageKey)
+        defaults.removeObject(forKey: legacyMasteryStorageKey)
+        if let recovery = prospective[recoveryKey] as? Data {
+            defaults.set(recovery, forKey: recoveryKey)
+        } else {
+            defaults.removeObject(forKey: recoveryKey)
+        }
+        defaults.set(data, forKey: snapshotStorageKey)
+        pendingRecoveryData = nil
+        // Recovery is a small semantic backup rather than another full history. It is never truncated mid-encoding.
+        if let recovery = recoveryData(for: snapshot), recovery.count <= persistencePolicy.recoveryLimitBytes {
+            prospective[recoveryKey] = recovery
+            if Self.defaultsByteCount(prospective) <= writeBudget { defaults.set(recovery, forKey: recoveryKey) }
+        }
+        updatePersistenceDiagnostics()
+    }
+
+    private func compactEvidence(_ evidence: [MasteryEvidence], recentLimit: Int) -> [MasteryEvidence] {
+        var indices = Set(evidence.indices.suffix(max(recentLimit, 0)))
+        // These witnesses drive earned album state, placement, and independent later review.
+        for type in MasteryEvidenceType.allCases {
+            if let index = evidence.lastIndex(where: { $0.type == type }) { indices.insert(index) }
+        }
+        if let index = evidence.lastIndex(where: {
+            $0.type == .reviewSuccess && $0.activity == .review && $0.support == .independent
+        }) { indices.insert(index) }
+        // A later assisted answer must not erase the witness that established independent recall or placement.
+        for type in [MasteryEvidenceType.recallSuccess, .matchSuccess, .mapPlacementSuccess, .timelinePlacementSuccess] {
+            if let index = evidence.lastIndex(where: { $0.type == type && $0.support == .independent }) {
+                indices.insert(index)
+            }
+        }
+        // Distinct-review checks must still see the latest qualifying recall/placement and its session.
+        if let index = evidence.lastIndex(where: {
+            $0.type == .recallSuccess || $0.type == .reviewSuccess
+                || $0.type == .mapPlacementSuccess || $0.type == .timelinePlacementSuccess
+        }) { indices.insert(index) }
+        return indices.sorted().map { index in
+            let item = evidence[index]
+            return MasteryEvidence(type: item.type, recordedAt: item.recordedAt,
+                detail: String(item.detail.prefix(persistencePolicy.evidenceDetailLimit)), eventID: item.eventID,
+                activity: item.activity, support: item.support, sessionID: item.sessionID,
+                promptType: item.promptType, reviewResponse: item.reviewResponse)
+        }
+    }
+
+    private func boundedResumePoint(_ original: LessonResumePoint, collectionLimit: Int) -> LessonResumePoint {
+        var point = original
+        func bounded(_ values: Set<String>) -> Set<String> {
+            Set(values.sorted().prefix(collectionLimit).map { String($0.prefix(160)) })
+        }
+        point.completedMatchPairIDs = bounded(point.completedMatchPairIDs)
+        point.discoveredDetailIDs = bounded(point.discoveredDetailIDs)
+        point.solvedPlaceIDs = bounded(point.solvedPlaceIDs)
+        point.helpedPlaceIDs = bounded(point.helpedPlaceIDs)
+        if var checkpoint = point.tvCheckpoint {
+            checkpoint.storyBeatIndex = max(checkpoint.storyBeatIndex, 0)
+            checkpoint.discoveredDetailIDs = bounded(checkpoint.discoveredDetailIDs)
+            checkpoint.solvedPlaceIDs = bounded(checkpoint.solvedPlaceIDs)
+            checkpoint.helpedActivityIDs = bounded(checkpoint.helpedActivityIDs)
+            checkpoint.matchedPairIDs = bounded(checkpoint.matchedPairIDs)
+            checkpoint.completedActivityIDs = bounded(checkpoint.completedActivityIDs)
+            checkpoint.hintLevels = Dictionary(uniqueKeysWithValues: checkpoint.hintLevels.keys.sorted()
+                .prefix(collectionLimit).map { ($0, min(max(checkpoint.hintLevels[$0] ?? 0, 0), 3)) })
+            checkpoint.sequenceSlots = Array(checkpoint.sequenceSlots.prefix(16)).map { $0.map { String($0.prefix(160)) } }
+            // Completed IDs outrank allocated IDs so replays cannot re-award compacted evidence.
+            let eventKeys = checkpoint.completionEventIDs.keys.sorted {
+                let left = checkpoint.completedActivityIDs.contains($0)
+                let right = checkpoint.completedActivityIDs.contains($1)
+                return left == right ? $0 < $1 : left
+            }
+            checkpoint.completionEventIDs = Dictionary(uniqueKeysWithValues: eventKeys.prefix(collectionLimit)
+                .compactMap { key in checkpoint.completionEventIDs[key].map { (key, $0) } })
+            checkpoint.selectedTileID = checkpoint.selectedTileID.map { String($0.prefix(160)) }
+            if var timeline = checkpoint.timelineCheckpoint {
+                timeline.mode = timeline.mode == "full" ? "full" : "opening"
+                timeline.roundIndex = min(max(timeline.roundIndex, 0), 6)
+                timeline.slots = Array(timeline.slots.prefix(3)).map { $0.map { String($0.prefix(160)) } }
+                timeline.selectedCardID = timeline.selectedCardID.map { String($0.prefix(160)) }
+                timeline.hintLevel = min(max(timeline.hintLevel, 0), 3)
+                timeline.helpedRoundIndices = Set(timeline.helpedRoundIndices.filter { (0...6).contains($0) })
+                timeline.completedRoundIndices = Set(timeline.completedRoundIndices.filter { (0...6).contains($0) })
+                checkpoint.timelineCheckpoint = timeline
+            }
+            point.tvCheckpoint = checkpoint
+        }
+        return point
+    }
+
+    private func recoveryData(for snapshot: LessonStoreSnapshot) -> Data? {
+        var records = snapshot.records
+        for (id, var record) in records {
+            record.evidenceLog = compactEvidence(record.evidenceLog, recentLimit: 0).map { item in
+                MasteryEvidence(type: item.type, recordedAt: item.recordedAt, detail: "", activity: item.activity,
+                    support: item.support, sessionID: item.sessionID, promptType: item.promptType,
+                    reviewResponse: item.reviewResponse)
+            }
+            records[id] = record
+        }
+        let recovery = LessonStoreSnapshot(schemaVersion: 2, records: records, schedules: snapshot.schedules,
+            resumePoints: snapshot.resumePoints, recentEventIDs: Array(snapshot.recentEventIDs.suffix(32)))
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .binary
+        guard let raw = try? encoder.encode(recovery) else { return nil }
+        return LessonRecoveryCodec.encode(raw)
+    }
+
+    private func appOwnedDefaults() -> [String: Any] {
+        defaults.dictionaryRepresentation().filter { key, _ in
+            key.hasPrefix("shivajiLessonStore.") || key.hasPrefix("greatsOfBharatha.")
+        }
+    }
+
+    private static func defaultsByteCount(_ values: [String: Any]) -> Int {
+        (try? PropertyListSerialization.data(fromPropertyList: values, format: .binary, options: 0).count) ?? Int.max
+    }
+
+    private func updatePersistenceDiagnostics(status: String? = nil) {
+        persistenceDiagnostics = LessonPersistenceDiagnostics(
+            snapshotBytes: defaults.data(forKey: snapshotStorageKey)?.count ?? 0,
+            appOwnedDefaultsBytes: Self.defaultsByteCount(appOwnedDefaults()),
+            limitBytes: persistencePolicy.maximumDefaultsBytes, statusMessage: status)
+    }
+
+    private static func decodeSnapshot(_ data: Data) -> LessonStoreSnapshot? {
+        if LessonRecoveryCodec.isEncodedRecovery(data) {
+            guard let decoded = LessonRecoveryCodec.decode(data) else { return nil }
+            return try? PropertyListDecoder().decode(LessonStoreSnapshot.self, from: decoded)
+        }
+        return (try? JSONDecoder().decode(LessonStoreSnapshot.self, from: data))
+            ?? (try? PropertyListDecoder().decode(LessonStoreSnapshot.self, from: data))
+    }
+}
+
+/// The recovery cap includes all current chapter checkpoints. Repeated keys compress;
+/// UUIDs and authored evidence remain intact rather than dropping the latest saved chapter.
+private enum LessonRecoveryCodec {
+    private static let magic = Data("GBR2".utf8)
+    private static let maximumDecodedBytes = 256 * 1024
+    private static let maximumEncodedBytes = 16 * 1024
+    private static let headerBytes = 8
+
+    static func isEncodedRecovery(_ data: Data) -> Bool { data.starts(with: magic) }
+
+    static func encode(_ raw: Data) -> Data? {
+        guard !raw.isEmpty, raw.count <= maximumDecodedBytes,
+              let compressed = try? (raw as NSData).compressed(using: .lzfse) as Data else { return nil }
+        var encoded = magic
+        var count = UInt32(raw.count).bigEndian
+        withUnsafeBytes(of: &count) { encoded.append(contentsOf: $0) }
+        encoded.append(compressed)
+        return encoded.count <= maximumEncodedBytes ? encoded : nil
+    }
+
+    static func decode(_ encoded: Data) -> Data? {
+        guard encoded.count > headerBytes, encoded.count <= maximumEncodedBytes,
+              isEncodedRecovery(encoded) else { return nil }
+        let expectedCount = encoded.dropFirst(magic.count).prefix(4).reduce(0) { ($0 << 8) | Int($1) }
+        guard expectedCount > 0, expectedCount <= maximumDecodedBytes else { return nil }
+        let payload = Data(encoded.dropFirst(headerBytes))
+        // One extra byte detects output larger than its declared size without an unbounded allocation.
+        var decoded = Data(count: expectedCount + 1)
+        let written = decoded.withUnsafeMutableBytes { output in
+            payload.withUnsafeBytes { input in
+                guard let destination = output.bindMemory(to: UInt8.self).baseAddress,
+                      let source = input.bindMemory(to: UInt8.self).baseAddress else { return 0 }
+                return compression_decode_buffer(destination, expectedCount + 1, source, payload.count, nil, COMPRESSION_LZFSE)
+            }
+        }
+        guard written == expectedCount else { return nil }
+        decoded.removeLast()
+        return decoded
+    }
+}
+
+
 private struct LessonStoreSnapshot: Codable {
     let schemaVersion: Int
     let records: [String: MasteryRecord]
     let schedules: [String: ReviewSchedule]
     let resumePoints: [String: LessonResumePoint]
+    var recentEventIDs: [UUID] = []
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, records, schedules, resumePoints, recentEventIDs
+    }
+
+    init(schemaVersion: Int, records: [String: MasteryRecord], schedules: [String: ReviewSchedule],
+         resumePoints: [String: LessonResumePoint], recentEventIDs: [UUID] = []) {
+        self.schemaVersion = schemaVersion
+        self.records = records
+        self.schedules = schedules
+        self.resumePoints = resumePoints
+        self.recentEventIDs = recentEventIDs
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try values.decode(Int.self, forKey: .schemaVersion)
+        records = try values.decode([String: MasteryRecord].self, forKey: .records)
+        schedules = try values.decode([String: ReviewSchedule].self, forKey: .schedules)
+        resumePoints = try values.decodeIfPresent([String: LessonResumePoint].self, forKey: .resumePoints) ?? [:]
+        recentEventIDs = try values.decodeIfPresent([UUID].self, forKey: .recentEventIDs) ?? []
+    }
 }

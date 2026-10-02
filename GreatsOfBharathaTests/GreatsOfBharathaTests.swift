@@ -371,7 +371,7 @@ final class GreatsOfBharathaTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
         let narratorURL = repoRoot
-            .appendingPathComponent("GreatsOfBharatha/DesignSystem/Components/GBFlashCard.swift")
+            .appendingPathComponent("GreatsOfBharatha/Shared/Audio/GBNarrator.swift")
         let source = try String(contentsOf: narratorURL, encoding: .utf8)
 
         XCTAssertTrue(source.contains("AVSpeechSynthesizer()"))

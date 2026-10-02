@@ -1,0 +1,133 @@
+name: tvOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tvos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test Apple TV learning journey
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Show Apple toolchain
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      - name: Choose an available Apple TV simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          def simctl(*args):
+              return json.loads(subprocess.check_output(["xcrun", "simctl", "list", *args, "--json"], text=True))
+
+          runtimes = {
+              runtime["identifier"]: tuple(int(part) for part in runtime["version"].split("."))
+              for runtime in simctl("runtimes")["runtimes"]
+              if runtime.get("isAvailable") and runtime["identifier"].startswith("com.apple.CoreSimulator.SimRuntime.tvOS-")
+          }
+          candidates = [
+              (runtimes[runtime_id], "1080p" in device["name"], device)
+              for runtime_id, devices in simctl("devices", "available")["devices"].items()
+              if runtime_id in runtimes
+              for device in devices
+              if device.get("isAvailable") and device["name"].startswith("Apple TV")
+          ]
+          if not candidates:
+              raise SystemExit("No available tvOS runtime and Apple TV simulator; this gate cannot be skipped.")
+          _, _, device = max(candidates, key=lambda candidate: candidate[:2])
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as output:
+              output.write("TV_SIM_ID=" + device["udid"] + "\n")
+          print("Testing on " + device["name"] + " (" + device["udid"] + ")")
+          PY
+
+      - name: Build tvOS tests
+        run: |
+          xcodebuild build-for-testing \
+            -project GreatsOfBharatha.xcodeproj \
+            -scheme GreatsOfBharathaTV \
+            -destination 'generic/platform=tvOS Simulator' \
+            -derivedDataPath TVDerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Boot selected simulator
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! xcrun simctl list devices booted --json | python3 -c 'import json,os,sys; sys.exit(not any(d["udid"] == os.environ["TV_SIM_ID"] for ds in json.load(sys.stdin)["devices"].values() for d in ds))'; then
+            xcrun simctl boot "$TV_SIM_ID"
+          fi
+          xcrun simctl bootstatus "$TV_SIM_ID" -b
+
+      - name: Verify Apple TV resources are packaged
+        run: |
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+
+          products = Path("TVDerivedData/Build/Products/Debug-appletvsimulator")
+          apps = list(products.glob("*.app"))
+          matching = []
+          for app in apps:
+              with (app / "Info.plist").open("rb") as source:
+                  info = plistlib.load(source)
+              if info.get("CFBundleIdentifier") == "com.ganesh47.greatsofbharatha":
+                  matching.append((app, info))
+          if len(matching) != 1:
+              raise SystemExit("Expected one tvOS app product, found " + str(len(matching)))
+          app, info = matching[0]
+          if not (app / "Assets.car").is_file():
+              raise SystemExit("Compiled TV art is missing from the app product")
+          shelf = info.get("TVTopShelfImage", {})
+          if not shelf.get("TVTopShelfPrimaryImage") or not shelf.get("TVTopShelfPrimaryImageWide"):
+              raise SystemExit("Static Top Shelf image declarations are missing")
+          print("Verified compiled assets and Top Shelf declarations in " + str(app))
+          PY
+
+      - name: Test learning, persistence and remote navigation
+        timeout-minutes: 25
+        run: |
+          xcodebuild test-without-building \
+            -project GreatsOfBharatha.xcodeproj \
+            -scheme GreatsOfBharathaTV \
+            -destination "platform=tvOS Simulator,id=$TV_SIM_ID" \
+            -derivedDataPath TVDerivedData \
+            -parallel-testing-enabled NO \
+            -resultBundlePath TVTestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload tvOS test evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: tvos-test-results-${{ github.run_number }}-${{ github.run_attempt }}
+          path: TVTestResults.xcresult
+          if-no-files-found: warn
+          retention-days: 30

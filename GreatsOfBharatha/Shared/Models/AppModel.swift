@@ -32,6 +32,7 @@ final class AppModel: ObservableObject {
         didSet {
             if let data = try? JSONEncoder().encode(parentSettings) {
                 defaults.set(data, forKey: Self.settingsKey)
+                lessonStore.refreshPersistenceDiagnostics()
             }
         }
     }

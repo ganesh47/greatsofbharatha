@@ -10,6 +10,11 @@ on:
       target_version:
         description: 'Numeric marketing version, for example 0.2.0'
         default: ''
+      target_platform:
+        description: 'Apple platform to archive and verify (tvOS requires the TV CI gate)'
+        type: choice
+        options: [IOS, TVOS]
+        default: IOS
       source_sha:
         description: 'Exact fully tested commit SHA'
         default: ''
@@ -57,6 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPERATION: ${{ inputs.operation }}
           TARGET_VERSION: ${{ inputs.target_version }}
+          TARGET_PLATFORM: ${{ inputs.target_platform }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           RELEASE_TAG: ${{ inputs.release_tag }}
           CLOUD_WORKFLOW_ID: ${{ inputs.cloud_workflow_id }}
@@ -66,6 +72,7 @@ jobs:
         run: |
           python3 ci_scripts/testflight_release.py \
             --operation "$OPERATION" --version "$TARGET_VERSION" \
+            --platform "$TARGET_PLATFORM" \
             --sha "$SOURCE_SHA" --tag "$RELEASE_TAG" \
             --workflow-id "$CLOUD_WORKFLOW_ID" --group-id "$BETA_GROUP_ID" \
             --cloud-run-id "$CLOUD_RUN_ID" --build-number "$BUILD_NUMBER"

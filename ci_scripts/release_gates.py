@@ -49,7 +49,10 @@ def github_get(path):
     raise GateError("GitHub gate API retries exhausted")
 
 
-def check_github_gates(sha, get=None, repository=None):
+def check_github_gates(sha, get=None, repository=None, platform="IOS"):
+    if platform not in {"IOS", "TVOS"}:
+        raise GateError("Release platform must be IOS or TVOS")
+    required = REQUIRED_WORKFLOWS | ({"tvOS"} if platform == "TVOS" else set())
     if not re.fullmatch(r"[0-9a-f]{40}", sha):
         raise GateError("An exact full lowercase source SHA is required")
     repo = repository or os.environ["GITHUB_REPOSITORY"]
@@ -69,10 +72,10 @@ def check_github_gates(sha, get=None, repository=None):
             run.get("event") == "push"
             and run.get("head_branch") == "main"
             and run.get("head_sha") == sha
-            and run.get("name") in REQUIRED_WORKFLOWS
+            and run.get("name") in required
         ):
             latest[run["name"]] = run
-    missing = REQUIRED_WORKFLOWS - latest.keys()
+    missing = required - latest.keys()
     failing = [name for name, run in latest.items() if run.get("conclusion") != "success"]
     if missing or failing:
         raise GateError(f"Exact-SHA main CI gate not green; missing={sorted(missing)}, non-success={sorted(failing)}")
@@ -83,11 +86,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sha", required=True)
     parser.add_argument("--repository", required=True)
+    parser.add_argument("--platform", choices=["IOS", "TVOS"], default="IOS")
     args = parser.parse_args()
     # Only missing check metadata is retried. Reported failed checks fail fast.
     for attempt in range(4):
         try:
-            report = check_github_gates(args.sha, repository=args.repository)
+            report = check_github_gates(args.sha, repository=args.repository, platform=args.platform)
             print(json.dumps({"sourceSha": args.sha, "ciGates": report}, indent=2))
             return
         except GateError as exc:
