@@ -18,12 +18,19 @@ final class EnrichmentJourneyUITests: XCTestCase {
         let button = app.buttons[id].firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
         for _ in 0..<16 {
-            if app.windows.firstMatch.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) && button.isHittable { break }
+            if button.exists && button.isHittable { break }
             if scroll.isEmpty { app.swipeUp() } else { app.scrollViews[scroll].firstMatch.swipeUp() }
         }
         for _ in 0..<16 {
-            if app.windows.firstMatch.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) && button.isHittable { break }
+            if button.exists && button.isHittable { break }
             if scroll.isEmpty { app.swipeDown() } else { app.scrollViews[scroll].firstMatch.swipeDown() }
+        }
+        if !button.isHittable {
+            capture("unreachable-" + id)
+            let detail = XCTAttachment(string: "Window: \(app.windows.firstMatch.frame)\nTarget: \(button.frame)\n" + app.debugDescription)
+            detail.name = "unreachable-" + id + "-hierarchy"
+            detail.lifetime = .keepAlways
+            add(detail)
         }
         XCTAssertTrue(button.isHittable, "Unreachable " + id)
         XCTAssertTrue(button.isEnabled, "Disabled " + id)
