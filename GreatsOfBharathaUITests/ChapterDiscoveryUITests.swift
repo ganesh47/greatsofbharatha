@@ -27,12 +27,13 @@ final class ChapterDiscoveryUITests: XCTestCase {
             let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
             let frames = scrollFrames(in: scroll)
             let viewport = frames.viewport
-            if let targetFrame, frames.isVisible(targetFrame, isButton: element.elementType == .button), element.isHittable {
+            let isButton = targetFrame != nil && element.elementType == .button
+            if let targetFrame, frames.isVisible(targetFrame, isButton: isButton), element.isHittable {
                 return
             }
             guard attempt < 64, !viewport.isNull else { break }
             let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
-            let distance = frames.dragDistance(to: targetFrame)
+            let distance = frames.dragDistance(to: targetFrame, isButton: isButton)
             let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
             let endY = viewport.midY + (towardEnd ? -distance / 2 : distance / 2)
             let start = scroll.coordinate(withNormalizedOffset: CGVector(
@@ -267,13 +268,15 @@ private struct DiscoveryScrollFrames {
         return true
     }
 
-    func dragDistance(to targetFrame: CGRect?) -> CGFloat {
+    func dragDistance(to targetFrame: CGRect?, isButton: Bool = false) -> CGFloat {
         let visible = viewport
+        let nearDistance = min(76, visible.height * 0.4)
         if let targetFrame {
             let gap = abs(targetFrame.midY - visible.midY)
             if gap > visible.height { return min(gap, visible.height * 0.7) }
+            if isButton, targetFrame.height <= visible.height { return min(nearDistance, gap) }
         }
-        return min(76, visible.height * 0.4)
+        return nearDistance
     }
 
     var description: String {
