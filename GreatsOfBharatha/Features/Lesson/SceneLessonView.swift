@@ -4,7 +4,6 @@ struct SceneLessonView: View {
     @EnvironmentObject private var appModel: AppModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let scene: StoryScene
     @State private var point: LessonResumePoint?
     @State private var selectedChoiceID: String?
@@ -12,11 +11,11 @@ struct SceneLessonView: View {
     @State private var correct = false
     @State private var usedHelp = false
     @State private var completed = false
-    @State private var detailText: String?
     @State private var shuffledChoices: [AuthoredLessonChoice] = []
     @State private var completionEventID = UUID()
 
     private var plan: SceneLearningPlan { SampleContent.learningPlan(for: scene) }
+    private var discoveryContent: ChapterDiscoveryContent? { ChapterDiscoveryContent.chapter(sceneID: scene.id) }
     private var phase: LessonResumePhase { point?.phase ?? .story }
     private var calm: Bool { reduceMotion || appModel.parentSettings.calmTransitionsEnabled }
     private var challenge: RecallChallenge? {
@@ -74,52 +73,22 @@ struct SceneLessonView: View {
             Text(scene.childSafeSummary).gbStory()
             Text(plan.teachingText).gbStory().accessibilityIdentifier("lesson-key-fact")
             GBGlossaryTray(terms: GBGlossaryTerm.matching(scene.childSafeSummary + " " + plan.teachingText))
-            if scene.number == 1 {
-                Text("Look closely. Choose a detail to discover its clue.").gbBody()
-                if dynamicTypeSize.isAccessibilitySize {
-                    VStack(spacing: GBSpacing.small) { discoveryButtons }
-                } else {
-                    HStack(alignment: .top, spacing: GBSpacing.small) { discoveryButtons }
-                }
-                if let detailText {
-                    Text(detailText).gbStory()
-                    LearningNarrationControls(id: scene.id + "-discovery", text: detailText)
-                }
-            }
             LearningNarrationControls(id: scene.id + "-story", text: scene.childSafeSummary + " " + plan.teachingText)
+            if let discoveryContent { ChapterStoryDiscoveryView(content: discoveryContent) }
             Button("Move to place clues") { advance(.place) }
                 .buttonStyle(.gbPrimary(.story))
                 .accessibilityIdentifier("story-move-to-place-clues-button")
         }
     }
 
-    @ViewBuilder private var discoveryButtons: some View {
-        discovery("hill", title: "Hill", symbol: "mountain.2.fill",
-            text: "Shivneri is a hill fort near Junnar. Remember it as Shivaji Maharaj's Birth Fort.")
-        discovery("gate", title: "Fort gate", symbol: "door.left.hand.open",
-            text: "A fort is a protected place. Shivneri is the fort where Shivaji Maharaj's story begins.")
-        discovery("book", title: "Storybook", symbol: "book.fill",
-            text: "Jijabai guided young Shivaji with courage, care, and responsibility. Shivneri reminds us of these beginnings.")
-    }
-
-    private func discovery(_ id: String, title: String, symbol: String, text: String) -> some View {
-        Button {
-            detailText = text
-            mutatePoint { $0.discoveredDetailIDs.insert(id) }
-        } label: {
-            Label(title, systemImage: symbol).frame(maxWidth: .infinity, minHeight: GBTouch.button)
-        }
-        .buttonStyle(.bordered)
-        .accessibilityIdentifier("story-discovery-" + id)
-        .accessibilityValue(point?.discoveredDetailIDs.contains(id) == true ? "Discovered" : "Ready to discover")
-    }
-
     private var placeStep: some View {
         VStack(alignment: .leading, spacing: GBSpacing.medium) {
             Text("These places belong to our story.").gbTitle()
             ForEach(places) { place in
-                Text("\(place.name): \(place.primaryEvent)").gbStory()
+                let authoredClue = discoveryContent?.placeClue(placeID: place.id)
+                Text("\(place.name): " + (authoredClue?.hint ?? place.primaryEvent)).gbStory()
                 OfflineFortChallenge(target: place, candidates: candidates(for: place),
+                    authoredClue: authoredClue,
                     solvedPlaceIDs: Binding(get: { point?.solvedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.solvedPlaceIDs = ids } }),
                     helpedPlaceIDs: Binding(get: { point?.helpedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.helpedPlaceIDs = ids } })) { support in
                         appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
@@ -251,7 +220,9 @@ struct SceneLessonView: View {
     }
 
     private func mutatePoint(_ change: (inout LessonResumePoint) -> Void) {
-        var next = point ?? LessonResumePoint(sceneID: scene.id)
+        // Child discovery controls save to the same checkpoint. Read the latest value
+        // before a phase change so their exposure IDs cannot be overwritten by local state.
+        var next = appModel.lessonStore.resumePoint(for: scene.id) ?? point ?? LessonResumePoint(sceneID: scene.id)
         change(&next)
         next.updatedAt = Date()
         point = next

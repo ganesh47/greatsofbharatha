@@ -1,5 +1,99 @@
 import SwiftUI
 
+/// Shared hook for SceneLessonView and the active SceneLearnView adapter.
+struct ChapterStoryDiscoveryView: View {
+    @EnvironmentObject private var appModel: AppModel
+    let content: ChapterDiscoveryContent
+    private var point: LessonResumePoint? { appModel.lessonStore.resumePoint(for: content.id) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            Text(content.teachingText).gbStory().accessibilityIdentifier("chapter-teaching-" + content.id)
+            GBGlossaryTray(terms: GBGlossaryTerm.matching(content.teachingText))
+            LearningNarrationControls(id: content.id + "-chapter-teaching", text: content.teachingText)
+            ChapterDiscoverySection(content: content,
+                discoveredDetailIDs: content.openedDiscoveryIDs(in: point?.discoveredDetailIDs ?? []),
+                selectedDetailID: content.restoredDiscovery(id: point?.selectedDiscoveryDetailID)?.id) { discovery in
+                    ChapterDiscoveryInteraction.open(discovery, content: content, store: appModel.lessonStore)
+                }
+            ChapterFamilyReflection(content: content)
+        }
+        .onAppear {
+            // Finish an interrupted prepared exposure with its original event identity.
+            if let selected = content.restoredDiscovery(id: point?.selectedDiscoveryDetailID),
+               !selected.wasOpened(in: point?.discoveredDetailIDs ?? []) {
+                ChapterDiscoveryInteraction.open(selected, content: content, store: appModel.lessonStore)
+            }
+        }
+    }
+}
+
+struct ChapterDiscoverySection: View {
+    @AccessibilityFocusState private var focusedDetailID: String?
+    let content: ChapterDiscoveryContent
+    let discoveredDetailIDs: Set<String>
+    let selectedDetailID: String?
+    var onSelect: (ChapterDiscovery) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            Text("Look closely").gbTitle()
+            Text("Choose something that makes you curious. Explore any detail, or continue when you're ready.").gbBody()
+            ForEach(content.discoveries) { discovery in
+                VStack(alignment: .leading, spacing: GBSpacing.small) {
+                    Button {
+                        onSelect(discovery)
+                        focusedDetailID = discovery.id
+                    } label: {
+                        Label(discovery.title, systemImage: discovery.symbol)
+                            .frame(maxWidth: .infinity, minHeight: GBTouch.button, alignment: .leading)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier(discovery.accessibilityID)
+                    .accessibilityValue(discoveredDetailIDs.contains(discovery.id) ? "Opened. Read again" : "Ready to discover")
+                    .accessibilityHint("Opens a story detail. You can continue without opening every detail.")
+                    if selectedDetailID == discovery.id || (selectedDetailID == nil && discoveredDetailIDs.contains(discovery.id)) {
+                        Text(discovery.text).gbStory()
+                            .accessibilityIdentifier("chapter-discovery-text-" + discovery.id)
+                            .accessibilityFocused($focusedDetailID, equals: discovery.id)
+                        LearningNarrationControls(id: discovery.id, text: discovery.text)
+                    }
+                }
+                .padding(GBSpacing.small)
+                .background(GBColor.Background.app, in: RoundedRectangle(cornerRadius: GBRadius.card))
+            }
+        }
+        .accessibilityIdentifier("chapter-discoveries-" + content.id)
+    }
+}
+
+/// Talking and modern reflection are optional; no response or learning evidence is recorded.
+struct ChapterFamilyReflection: View {
+    @State private var showsPrompt = false
+    let content: ChapterDiscoveryContent
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            Button {
+                showsPrompt.toggle()
+            } label: {
+                Label("Talk together (optional)", systemImage: "person.2.fill")
+                    .frame(maxWidth: .infinity, minHeight: GBTouch.button, alignment: .leading)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("chapter-family-reflection-" + content.id)
+            .accessibilityValue(showsPrompt ? "Expanded" : "Collapsed")
+            if showsPrompt {
+                Text(content.familyPrompt).gbStory().accessibilityIdentifier("chapter-family-prompt-" + content.id)
+                LearningNarrationControls(id: content.id + "-family-prompt", text: content.familyPrompt)
+                Text("Think about your own day").gbHeadline()
+                Text("When could care, planning, or steady work help you or someone else?").gbBody()
+                Text("This is your own reflection. There is no answer to check, and you can skip it.").font(.caption)
+            }
+        }
+    }
+}
+
 struct LearningNarrationControls: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var appModel: AppModel
@@ -74,23 +168,25 @@ struct OfflineFortChallenge: View {
     @EnvironmentObject private var appModel: AppModel
     let target: Place
     let candidates: [Place]
+    var authoredClue: ChapterPlaceClue?
     @Binding var solvedPlaceIDs: Set<String>
     @Binding var helpedPlaceIDs: Set<String>
     var onSuccess: (LearningSupport) -> Void
     @State private var feedback: String?
     private var usedHint: Bool { helpedPlaceIDs.contains(target.id) }
+    private var clueText: String { authoredClue?.clue ?? "Find the place for this clue: \(target.memoryHook)." }
 
     private var solved: Bool { solvedPlaceIDs.contains(target.id) }
     var body: some View {
         VStack(alignment: .leading, spacing: GBSpacing.medium) {
             Text("Fort detective").gbTitle()
-            Text("Find the place for this clue: \(target.memoryHook).")
+            Text(clueText)
                 .gbStory().accessibilityIdentifier("fort-detective-clue")
             if appModel.parentSettings.assistModeEnabled {
                 Text(target.regionLabel).gbBody()
             }
             LearningNarrationControls(id: "fort-clue-" + target.id,
-                text: "Find the place for this clue: \(target.memoryHook). Choose a fort on the board.")
+                text: clueText + " Choose a place on the board.")
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(spacing: GBSpacing.small) {
                     ForEach(candidates) { place in candidateButton(place) }
@@ -113,7 +209,7 @@ struct OfflineFortChallenge: View {
             if !solved {
                 Button("Help me find it") {
                     helpedPlaceIDs.insert(target.id)
-                    feedback = "Look for \(target.name): \(target.memoryHook)."
+                    feedback = authoredClue?.hint ?? "Look for \(target.name): \(target.memoryHook)."
                 }
                 .buttonStyle(.bordered)
                 .accessibilityIdentifier("fort-clue-help")
@@ -121,6 +217,8 @@ struct OfflineFortChallenge: View {
         }
         .padding(GBSpacing.medium)
         .background(GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("fort-challenge-" + target.id)
         .onAppear {
             if appModel.parentSettings.assistModeEnabled { helpedPlaceIDs.insert(target.id) }
         }
@@ -130,7 +228,7 @@ struct OfflineFortChallenge: View {
         Button {
             if place.id == target.id {
                 solvedPlaceIDs.insert(target.id)
-                feedback = "Found it! \(target.name). \(target.primaryEvent)"
+                feedback = "Found it! \(target.name). " + (authoredClue?.hint ?? target.primaryEvent)
                 onSuccess(usedHint || appModel.parentSettings.assistModeEnabled ? .hinted : .independent)
                 LessonFeedback.fire(.success)
             } else {

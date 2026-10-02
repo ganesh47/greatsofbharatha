@@ -1,0 +1,83 @@
+# Six chapter iOS discovery and story transfer
+
+- Pinned source: `dabaca93539ec574ad65fd1d21838e7da5fda048`.
+- Worker branch: `codex/ios-chapter-discoveries`.
+- Shared schema dependency: coordinator commit `7d2959f834174c49447c387465e4e07b5e33ee51`.
+- Scope: authored story discovery, chapter-specific place teaching, and optional family reflection.
+- Project generation, active navigation integration, integrated testing, PR merge, and release belong to the coordinator.
+
+## Content and learning boundaries
+
+The [shared catalog](../../GreatsOfBharatha/Shared/Models/ChapterDiscoveryContent.swift) reuses the exact teaching, discoveries, place clues, answers, hints, and family prompts from the six chapters in [TVLearningContent](../../GreatsOfBharathaTV/Learning/TVLearningContent.swift). A dedicated parity test compares every field. There are 18 discoveries and eight chapter/place clues, under the existing six canonical scene IDs. Rajgad keeps its distinct Early Capital and Comeback clues; Purandar precedes Agra; Raigad remains the coronation capital. The existing story, historical chronology, Chhatrapati, Swarajya, geography, planning, and responsibility framing remain in place. No historical facts, dialogue, or tradition claims were added.
+
+Story and extra chapter teaching precede checked activities. Discovery controls remain optional, with no all-details gate. Each first opened detail records `.storyExposure` only. Reading, replay, and family reflection cannot award recall, successful reviews, a keepsake, or a more advanced mastery state. Checked recognition, helped recognition, self-report, and later independent recall remain the store's distinct activity types.
+
+“Talk together (optional)” opens the exact authored family prompt. A separate “Think about your own day” prompt is explicitly described as personal reflection with no answer to check. No response, completion, evidence, or personal information is saved for reflection.
+
+## Integration API
+
+The coordinator inserts this hook in `SceneLearnView`, before Quiz/Match/Cards actions:
+
+```swift
+if let content = ChapterDiscoveryContent.chapter(sceneID: scene.id) {
+    ChapterStoryDiscoveryView(content: content)
+}
+```
+
+The wrapper provides teaching, glossary, read-aloud controls, discovery state, and optional family reflection using the existing `AppModel` environment object. Its presentation component also supports explicit state injection:
+
+```swift
+ChapterDiscoverySection(
+    content: ChapterDiscoveryContent,
+    discoveredDetailIDs: Set<String>,
+    selectedDetailID: String?,
+    onSelect: (ChapterDiscovery) -> Void
+)
+```
+
+`ChapterDiscoveryInteraction.open(_:content:store:) -> LessonResumePoint?` validates authored content, uses the existing session, saves the selected detail before exposure, and saves the opened ID afterwards. The exposure event UUID is a deterministic SHA-256-derived identity scoped to session and canonical detail. Retrying between either write is idempotent. Relaunch restores the exact selected detail and finishes a prepared but interrupted exposure using the original identity.
+
+Legacy `hill`, `gate`, and `book` exposure IDs remain in the saved set and are recognized as opened chapter-one details. Opening them adds their canonical identity without inventing new checked evidence. Existing chapter-one UI button IDs remain compatible. Other checkpoint fields, including matching and TV checkpoints, are preserved. `SceneLessonView` reads the latest stored checkpoint before phase changes, so a child discovery write is retained.
+
+`OfflineFortChallenge` accepts an optional `authoredClue: ChapterPlaceClue?`; existing callers retain their fallback behavior. The story lesson supplies the exact chapter clue and hint, including Rajgad's comeback role. Each challenge has a `fort-challenge-<placeID>` accessibility container for unambiguous testing when two boards contain the same candidate.
+
+## Validation evidence
+
+These are source and native test results, not released-build or simulator rendering evidence.
+
+| Gate | Worker result | Evidence |
+| --- | --- | --- |
+| Canonical catalog, exploration-only progress, replay, interrupted writes, legacy IDs, selection restoration, preserved activity state | Passed: 10/10 native XCTest cases | `/tmp/gob-enrichment-20261002/discovery-validation/native-tests.log` |
+| Exact six-chapter TV authored content parity | Passed: 1/1 native XCTest case | `/tmp/gob-enrichment-20261002/discovery-validation/native-tv-tests.log` |
+| Swift 6 production core/module compile | Passed | `native-build.log` in the same validation directory |
+| Complete iOS production source frontend check | Passed: all 56 production Swift files with the coordinator schema overlay | `ios-typecheck.log` in the same validation directory (exit 0, no diagnostics) |
+| Dedicated iOS UI test source frontend check | Passed | `ios-ui-test-typecheck.log` in the same validation directory |
+| Scoped SwiftLint and whitespace | Passed; only the existing renamed-rule configuration notice | `lint.log`; `git diff --check` |
+| Integrated iOS/tvOS builds, simulator UI execution, visual and VoiceOver inspection | Pending coordinator | Project generation and a coordinated simulator slot are required |
+
+The native harness compiles the real production content, engines, models, and store, and executes the checked-in XCTest classes. It uses unique synthetic defaults suites and removes each suite afterwards. To honor ownership, the coordinator's exact `HeroArcModels.swift` from commit `7d2959f` is supplied as an external compiler overlay, without editing that worker file. Its SHA-256 is `afce85de17fa9f2fcbd2161a549b098e846d33a804bcea38ecb0bdd815dc73aa`. The native TV parity harness also compiles the real TV content adapter, sequence engine, and pilot adapter; its color-independent `GBEmphasis` declaration is copied verbatim from the existing token file. This checks content, not TV rendering or remote behavior.
+
+Source checks use per-command `DEVELOPER_DIR`, isolated module caches, and no simulator. The SwiftUI compiler macro runner could not create a nested sandbox; the source frontend check used an auto-reviewed per-command escalation. No project generation, `xcodebuild`, simulator use, process termination, global developer setting, credential change, merge, or release was performed by the worker.
+
+## Integrated acceptance to run
+
+Run the new `ChapterDiscoveryTests` and `ChapterDiscoveryParityTests` under their actual iOS/tvOS targets after coordinator project generation. Run `ChapterDiscoveryUITests` on the coordinator's reserved iOS simulator. Its two cases cover:
+
+1. All six chapters with teaching before recall, all three discoveries, optional family prompts, distinct place boards, checked recognition, and the final keepsake. Chapter two restores the selected detail after cold relaunch; chapter three uses recall help. The journey uses normal transitions.
+2. Large accessibility text in landscape with narration disabled and calm transitions enabled. A revealed detail survives cold relaunch; unopened discoveries remain optional and place learning can continue.
+
+Retain screenshots from the test result bundle and inspect each chapter's revealed text, optional reflection, and place clues in portrait and landscape. Confirm long text remains readable and all controls are reachable. Check narration off, Stop, returning from another phase, and device Reduce Motion. Test VoiceOver reading order, button labels, opened state, focus on newly opened detail text, optional reflection, and continuation. The worker prepared native accessibility labels and focus handling; actual VoiceOver usability remains unverified.
+
+With networking unavailable, verify that bundled teaching, all discoveries, place clues, and reflection remain usable; read-aloud may depend on the installed system voice, while readable text and continuation remain available. This source has no network request or remote content dependency. Preserve the existing rich six chapter TV journey and matching acceptance while integrating this iOS hook.
+
+## Owned file list
+
+- `GreatsOfBharatha/Features/Lesson/SceneLessonView.swift`
+- `GreatsOfBharatha/Features/Lesson/LearningExperienceComponents.swift`
+- `GreatsOfBharatha/Shared/Models/ChapterDiscoveryContent.swift` (new)
+- `GreatsOfBharathaTests/ChapterDiscoveryTests.swift` (new)
+- `GreatsOfBharathaTVTests/ChapterDiscoveryParityTests.swift` (new)
+- `GreatsOfBharathaUITests/ChapterDiscoveryUITests.swift` (new)
+- `docs/specs/2026-10-02-ios-chapter-discovery-acceptance.md` (new)
+
+No existing shared schema/store, authored sample content, map, root/navigation, project, matching, TV production, CI, or release file was changed by this slice. The original dirty checkout remains untouched.
