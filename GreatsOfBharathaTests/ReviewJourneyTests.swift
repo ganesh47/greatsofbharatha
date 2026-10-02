@@ -22,7 +22,7 @@ final class ReviewJourneyTests: XCTestCase {
     private func start(_ cards: [ReviewJourneyCard] = [], archive: ReviewJourneyArchive = ReviewJourneyArchive(),
                        sessionID: UUID = UUID(), date: Date? = nil) -> ReviewJourneyArchive {
         let selected = cards.isEmpty ? [card()] : cards
-        return ReviewJourneyEngine.start(archive: archive, cards: selected, learnedSceneIDs: Set(selected.map(\.sceneID)),
+        return ReviewJourneyEngine.start(archive: acknowledged(archive), cards: selected, learnedSceneIDs: Set(selected.map(\.sceneID)),
             sceneSchedules: [:], sessionID: sessionID, now: date ?? now)
     }
     private func correct(_ archive: ReviewJourneyArchive, card: ReviewJourneyCard? = nil, date: Date? = nil) -> ReviewJourneyArchive {
@@ -32,6 +32,9 @@ final class ReviewJourneyTests: XCTestCase {
     }
     private func report(_ response: LearningReviewResponse, in archive: ReviewJourneyArchive) -> ReviewJourneyArchive {
         ReviewJourneyEngine.selfReport(response, archive: ReviewJourneyEngine.reveal(archive), card: card(), now: now, calendar: utc)
+    }
+    private func acknowledged(_ archive: ReviewJourneyArchive) -> ReviewJourneyArchive {
+        archive.pendingEvidence.reduce(archive) { ReviewJourneyEngine.acknowledge($1.id, in: $0) }
     }
 
     func testDueQueueUsesStableCardOrderingAndExcludesUnlearnedAndFutureCards() {
@@ -164,7 +167,7 @@ final class ReviewJourneyTests: XCTestCase {
 
     func testAnotherSessionWithinFourHoursIsFreshCheckedNotLaterRecall() {
         let first = correct(start())
-        let early = ReviewJourneyEngine.start(archive: first, cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:], selection: .practiceLearned,
+        let early = ReviewJourneyEngine.start(archive: acknowledged(first), cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:], selection: .practiceLearned,
                                              now: now.addingTimeInterval(4 * 3600))
         let checked = correct(early, date: now.addingTimeInterval(4 * 3600))
         XCTAssertEqual(checked.checkpoint?.currentEvidence?.kind, .freshChecked)
@@ -176,7 +179,7 @@ final class ReviewJourneyTests: XCTestCase {
         let originalSchedule = archive.schedulesByCardID
         for offset in 1...6 {
             let date = now.addingTimeInterval(TimeInterval(offset * 60))
-            archive = ReviewJourneyEngine.start(archive: archive, cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
+            archive = ReviewJourneyEngine.start(archive: acknowledged(archive), cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
                                                selection: .practiceLearned, now: date)
             archive = correct(archive, date: date)
             XCTAssertEqual(archive.checkpoint?.currentEvidence?.kind, .freshChecked)
@@ -200,7 +203,7 @@ final class ReviewJourneyTests: XCTestCase {
     func testClockRollbackCannotCreateLaterRecallOrAdvanceTheFutureSchedule() {
         let first = correct(start())
         let earlier = now.addingTimeInterval(-86400)
-        let restarted = ReviewJourneyEngine.start(archive: first, cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
+        let restarted = ReviewJourneyEngine.start(archive: acknowledged(first), cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
                                                  selection: .practiceLearned, now: earlier)
         let checked = correct(restarted, date: earlier)
         XCTAssertEqual(checked.checkpoint?.currentEvidence?.kind, .freshChecked)
@@ -215,6 +218,85 @@ final class ReviewJourneyTests: XCTestCase {
         XCTAssertEqual(later.checkpoint?.currentEvidence?.checkedPromptID, "synthetic-second")
         XCTAssertEqual(later.checkpoint?.currentEvidence?.promptType, .compareFromMemory)
         XCTAssertEqual(later.checkpoint?.currentEvidence?.kind, .laterIndependentRecall)
+    }
+
+    func testLaterRecallCarriesPriorWitnessAfterCurrentWitnessWasOverwrittenAndRelaunch() throws {
+        let first = correct(start())
+        let previous = try XCTUnwrap(first.independentWitnessesByCardID[card().id])
+        let date = now.addingTimeInterval(86400)
+        let later = correct(start(archive: first, date: date), date: date)
+        XCTAssertEqual(later.checkpoint?.currentEvidence?.priorIndependentWitness, previous)
+        XCTAssertEqual(later.independentWitnessesByCardID[card().id]?.recordedAt, date)
+        XCTAssertEqual(later.checkpoint?.currentEvidence?.hasValidLaterIndependentWitness, true)
+        let resumed = try JSONDecoder().decode(ReviewJourneyArchive.self, from: JSONEncoder().encode(later))
+        XCTAssertEqual(resumed.pendingEvidence.first?.priorIndependentWitness, previous)
+        XCTAssertEqual(resumed.pendingEvidence.first?.hasValidLaterIndependentWitness, true)
+    }
+
+    func testDurableLaterWitnessRejectsSameSessionTooSoonSamePromptAndFamilyClaims() throws {
+        let first = correct(start())
+        let date = now.addingTimeInterval(86400)
+        let later = correct(start(archive: first, date: date), date: date)
+        let valid = try XCTUnwrap(later.checkpoint?.currentEvidence)
+        func claim(_ previous: ReviewJourneyRecallWitness, family: Bool = false) -> ReviewJourneyEvidence {
+            ReviewJourneyEvidence(id: valid.id, sessionID: valid.sessionID, cardID: valid.cardID, sceneID: valid.sceneID,
+                promptType: valid.promptType, checkedPromptID: valid.checkedPromptID, kind: .laterIndependentRecall,
+                support: .independent, wasSuccessful: true, response: .knewIt, recordedAt: date,
+                priorIndependentWitness: previous, responseContext: family ? .sharedFamilyRecognition : nil)
+        }
+        XCTAssertFalse(claim(ReviewJourneyRecallWitness(sessionID: valid.sessionID, recordedAt: now, promptID: "synthetic-first")).hasValidLaterIndependentWitness)
+        let tooSoon = ReviewJourneyRecallWitness(sessionID: UUID(), recordedAt: date.addingTimeInterval(-86399), promptID: "synthetic-first")
+        XCTAssertFalse(claim(tooSoon).hasValidLaterIndependentWitness)
+        XCTAssertFalse(claim(ReviewJourneyRecallWitness(sessionID: UUID(), recordedAt: now, promptID: valid.checkedPromptID ?? "")).hasValidLaterIndependentWitness)
+        XCTAssertFalse(claim(ReviewJourneyRecallWitness(sessionID: UUID(), recordedAt: now, promptID: "synthetic-first"), family: true).hasValidLaterIndependentWitness)
+    }
+
+    func testOlderEvidenceAndCheckpointDecodeWithoutNewOptionalProofOrTVFields() throws {
+        let first = correct(start())
+        let date = now.addingTimeInterval(86400)
+        let later = correct(start(archive: first, date: date), date: date)
+        let event = try XCTUnwrap(later.checkpoint?.currentEvidence)
+        var legacyEvent = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(event)) as? [String: Any])
+        for key in ["priorIndependentWitness", "responseContext", "selectedChoiceID"] { legacyEvent.removeValue(forKey: key) }
+        let decodedEvent = try JSONDecoder().decode(ReviewJourneyEvidence.self, from: JSONSerialization.data(withJSONObject: legacyEvent))
+        XCTAssertNil(decodedEvent.priorIndependentWitness)
+        XCTAssertNil(decodedEvent.responseContext)
+        XCTAssertFalse(decodedEvent.hasValidLaterIndependentWitness)
+        let point = try XCTUnwrap(first.checkpoint)
+        var legacyPoint = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(point)) as? [String: Any])
+        for key in ["selectedChoiceID", "helpWasRequested", "sharedFamilyResponse"] { legacyPoint.removeValue(forKey: key) }
+        let decodedPoint = try JSONDecoder().decode(ReviewJourneyCheckpoint.self, from: JSONSerialization.data(withJSONObject: legacyPoint))
+        XCTAssertEqual(decodedPoint.sessionID, point.sessionID)
+        XCTAssertNil(decodedPoint.selectedChoiceID)
+        XCTAssertNil(decodedPoint.helpWasRequested)
+        XCTAssertNil(decodedPoint.sharedFamilyResponse)
+    }
+
+    @MainActor
+    func testCallbackFalseRelaunchKeepsOldSessionUntilOutboxAcknowledgement() throws {
+        let proposed = correct(start())
+        var durable = ReviewJourneyArchive()
+        var rejects = true
+        var recordedIDs: Set<UUID> = []
+        let hooks = ReviewJourneyHooks(load: { durable }, save: { durable = $0; return true }, record: { event in
+            if rejects { return false }
+            recordedIDs.insert(event.id)
+            return true
+        })
+        let saved = try XCTUnwrap(ReviewJourneyPersistence.saveAndReplay(proposed, hooks: hooks))
+        XCTAssertEqual(saved.pendingEvidence.count, 1)
+        let relaunched = try JSONDecoder().decode(ReviewJourneyArchive.self, from: JSONEncoder().encode(hooks.load()))
+        let blocked = ReviewJourneyEngine.start(archive: relaunched, cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
+                                               now: now.addingTimeInterval(86400))
+        XCTAssertEqual(blocked, relaunched)
+        rejects = false
+        let acknowledged = try XCTUnwrap(ReviewJourneyPersistence.saveAndReplay(relaunched, hooks: hooks))
+        XCTAssertTrue(acknowledged.pendingEvidence.isEmpty)
+        XCTAssertEqual(recordedIDs, Set(proposed.pendingEvidence.map(\.id)))
+        let next = ReviewJourneyEngine.start(archive: acknowledged, cards: [card()], learnedSceneIDs: ["scene-a"], sceneSchedules: [:],
+                                            now: now.addingTimeInterval(86400))
+        XCTAssertNotEqual(next.checkpoint?.sessionID, relaunched.checkpoint?.sessionID)
+        XCTAssertNotEqual(next.checkpoint?.currentTurn?.id, relaunched.checkpoint?.currentTurn?.id)
     }
 
     func testSingleAuthoredPromptCannotClaimChangedPromptLaterRecall() {

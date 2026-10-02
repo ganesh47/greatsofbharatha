@@ -29,7 +29,7 @@ struct FlashcardReviewView: View {
         Set(cards.filter { (appModel.lessonStore.mastery(for: $0.sceneID) ?? .witnessed) >= .understood }.map(\.sceneID))
     }
     private var descriptors: [ReviewJourneyCard] { cards.map(descriptor) }
-    private var pendingBlocked: Bool { archive.pendingEvidence.count >= ReviewJourneyEngine.maximumPendingEvidence }
+    private var pendingBlocked: Bool { !archive.pendingEvidence.isEmpty }
     private var actionsBlocked: Bool { saveFailed || pendingBlocked }
     private var currentCheckedPrompt: ReviewJourneyCheckPrompt? {
         guard let card = currentCard else { return nil }
@@ -281,6 +281,10 @@ struct FlashcardReviewView: View {
         guard !loaded, let hooks else { return }
         loaded = true
         archive = hooks.load()
+        if !archive.pendingEvidence.isEmpty {
+            commit(archive)
+            if actionsBlocked { return }
+        }
         if let point = archive.checkpoint, point.phase != .complete {
             commit(ReviewJourneyEngine.resume(archive, cards: descriptors, learnedSceneIDs: learnedSceneIDs))
         } else {

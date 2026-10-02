@@ -23,6 +23,10 @@ enum ReviewJourneyEvidenceKind: String, Codable, Equatable {
     case selfReported, freshChecked, laterIndependentRecall, helpedChecked, incorrectChecked, reteachingExposure
 }
 
+enum ReviewJourneyResponseContext: String, Codable, Equatable {
+    case sharedFamilyRecognition
+}
+
 struct ReviewJourneyEvidence: Identifiable, Codable, Equatable {
     let id: UUID
     let sessionID: UUID
@@ -35,6 +39,17 @@ struct ReviewJourneyEvidence: Identifiable, Codable, Equatable {
     let wasSuccessful: Bool
     let response: LearningReviewResponse?
     let recordedAt: Date
+    var priorIndependentWitness: ReviewJourneyRecallWitness?
+    var responseContext: ReviewJourneyResponseContext?
+    var selectedChoiceID: String?
+
+    /// Validate a durable pending claim without consulting the witness overwritten by this response.
+    var hasValidLaterIndependentWitness: Bool {
+        guard kind == .laterIndependentRecall, wasSuccessful, support == .independent, responseContext == nil,
+              let previous = priorIndependentWitness, let checkedPromptID,
+              previous.sessionID != sessionID, previous.promptID != checkedPromptID else { return false }
+        return recordedAt.timeIntervalSince(previous.recordedAt) >= 24 * 60 * 60
+    }
 }
 
 struct ReviewJourneyRecallWitness: Codable, Equatable {
@@ -52,7 +67,7 @@ struct ReviewJourneyTurn: Identifiable, Codable, Equatable {
     let teachingEventID: UUID
     let cardID: String
     let isTaughtRevisit: Bool
-    let checkedPromptID: String?
+    var checkedPromptID: String?
 
     init(cardID: String, isTaughtRevisit: Bool = false, checkedPromptID: String? = nil) {
         id = UUID()
@@ -73,6 +88,10 @@ struct ReviewJourneyCheckpoint: Codable, Equatable {
     var helped = false
     var requeuedCardIDs: Set<String> = []
     var evidence: [ReviewJourneyEvidence] = []
+    // Optional additions decode older archives without retaining an individual's identity or typed answer history.
+    var selectedChoiceID: String?
+    var helpWasRequested: Bool?
+    var sharedFamilyResponse: Bool?
 
     var currentTurn: ReviewJourneyTurn? {
         queue.indices.contains(cursor) ? queue[cursor] : nil
@@ -135,7 +154,8 @@ enum ReviewJourneyEngine {
         now: Date
     ) -> ReviewJourneyArchive {
         var next = archive
-        guard next.pendingEvidence.count < maximumPendingEvidence else { return next }
+        // An older session's durable outbox must be acknowledged before replacing its validation checkpoint.
+        guard next.pendingEvidence.isEmpty else { return next }
         var uniqueIDs: Set<String> = []
         let learned = cards.filter { learnedSceneIDs.contains($0.sceneID) && uniqueIDs.insert($0.id).inserted }
         // Seed each card once. Preserve its own cadence and identity rather than repeatedly resetting it.
@@ -205,7 +225,7 @@ enum ReviewJourneyEngine {
             kind = .incorrectChecked
         } else if support != .independent {
             kind = .helpedChecked
-        } else if let previous = archive.independentWitnessesByCardID[card.id],
+        } else if point.sharedFamilyResponse != true, let previous = archive.independentWitnessesByCardID[card.id],
                   previous.sessionID != point.sessionID,
                   previous.promptID != prompt.id,
                   now.timeIntervalSince(previous.recordedAt) >= 24 * 60 * 60 {
@@ -245,7 +265,8 @@ enum ReviewJourneyEngine {
               next.pendingEvidence.count < maximumPendingEvidence else { return next }
         let event = ReviewJourneyEvidence(id: turn.teachingEventID, sessionID: point.sessionID, cardID: card.id,
             sceneID: card.sceneID, promptType: card.promptType, checkedPromptID: nil, kind: .reteachingExposure,
-            support: .rescued, wasSuccessful: false, response: nil, recordedAt: now)
+            support: .rescued, wasSuccessful: false, response: nil, recordedAt: now,
+            responseContext: point.sharedFamilyResponse == true ? .sharedFamilyRecognition : nil)
         if !point.evidence.contains(where: { $0.id == event.id }) {
             point.evidence.append(event)
             next.pendingEvidence.append(event)
@@ -280,11 +301,15 @@ enum ReviewJourneyEngine {
             promptType: kind == .selfReported ? card.promptType : (card.checkPrompts.first { $0.id == turn.checkedPromptID }?.promptType ?? card.promptType),
             checkedPromptID: kind == .selfReported ? nil : turn.checkedPromptID,
             kind: kind, support: support,
-            wasSuccessful: correct, response: response, recordedAt: now)
+            wasSuccessful: correct, response: response, recordedAt: now,
+            priorIndependentWitness: kind == .laterIndependentRecall ? archive.independentWitnessesByCardID[card.id] : nil,
+            responseContext: point.sharedFamilyResponse == true ? .sharedFamilyRecognition : nil,
+            selectedChoiceID: point.sharedFamilyResponse == true && kind != .selfReported ? point.selectedChoiceID : nil)
         point.evidence.append(event)
         point.phase = .result
         // Only an interrupted, unchecked prompt needs the child's input; never retain it in results/history.
         point.typedAnswer = ""
+        point.selectedChoiceID = nil
         next.pendingEvidence.append(event)
         let effectiveResponse: LearningReviewResponse = turn.isTaughtRevisit && response == .knewIt ? .neededClue : response
         // Optional practice before the due time must not imitate another spaced revisit.
@@ -295,7 +320,7 @@ enum ReviewJourneyEngine {
                 promptHistory: history, now: now, calendar: calendar).schedule
             next.lastScheduledSessionByCardID[card.id] = point.sessionID
         }
-        if correct && support == .independent {
+        if correct && support == .independent && point.sharedFamilyResponse != true {
             // Keep a same-session first witness so repetition cannot move its clock forward.
             if next.independentWitnessesByCardID[card.id]?.sessionID != point.sessionID {
                 next.independentWitnessesByCardID[card.id] = ReviewJourneyRecallWitness(sessionID: point.sessionID,
@@ -310,6 +335,8 @@ enum ReviewJourneyEngine {
         point.phase = point.currentTurn == nil ? .complete : .prompt
         point.typedAnswer = ""
         point.helped = false
+        point.selectedChoiceID = nil
+        point.helpWasRequested = false
     }
 
     private static func checkPrompt(for card: ReviewJourneyCard, avoiding promptID: String?) -> ReviewJourneyCheckPrompt? {

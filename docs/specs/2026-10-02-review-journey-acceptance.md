@@ -6,16 +6,16 @@ Date: 2026-10-02. Baseline: `dabaca93539ec574ad65fd1d21838e7da5fda048`. Integrat
 
 - `GreatsOfBharatha/Features/LearnQuiz/FlashcardReviewView.swift`: due-card queue, optional practice, checked answer before reveal, honest self-report, authored reteaching, one rescued revisit at the queue end, completion/continue/finish actions, optional read-aloud, scrollable Dynamic Type layout and save retry.
 - `GreatsOfBharatha/Shared/Models/ReviewJourneyModels.swift`: Codable checkpoint/archive/evidence, card schedules using the existing SpacedReviewScheduler, authored prompt rotation, per-card independent witnesses, bounded reteach and a durable-before-callback outbox driver.
-- `GreatsOfBharathaTests/ReviewJourneyTests.swift`: 30 synthetic XCTest cases with injected dates and UTC calendar.
+- `GreatsOfBharathaTests/ReviewJourneyTests.swift`: 34 synthetic XCTest cases with injected dates and UTC calendar.
 - This acceptance document.
 
-No edits to Map, SampleContent, ContentModels, AppModel, shared store, app roots/navigation, project or release files. No optional TV review screen was added. Shared Foundation models can support a TV adapter; coordinator owns remaining TV routing/review UI and remote/caption validation. Existing rich six-chapter TV journey remains unchanged by this slice. Existing PR #210 matching work was not duplicated.
+No edits to Map, SampleContent, ContentModels, AppModel, shared store, app roots/navigation, project or release files. A second commit supplies the optional remote review screen and adapter described in [TV review acceptance](2026-10-02-tv-review-journey-acceptance.md); coordinator owns its routing, project generation and integrated validation. Existing rich six-chapter TV journey remains unchanged by this slice. Existing PR #210 matching work was not duplicated.
 
 ## Behavior and evidence
 
-Only learned scene cards enter the queue. Existing per-card schedules are retained; previously unscheduled cards inherit their canonical scene's due date once while keeping their own authored cadence. Due cards sort by due date then card ID. Future cards require explicit optional practice, which cannot lengthen the interval when the card is not due. Initial queue is capped at 32 cards; one taught revisit per card caps the full queue at 64 turns. Pending evidence is capped at 128 events, with a save/retry pause instead of evicting events.
+Only learned scene cards enter the queue. Existing per-card schedules are retained; previously unscheduled cards inherit their canonical scene's due date once while keeping their own authored cadence. Due cards sort by due date then card ID. Future cards require explicit optional practice, which cannot lengthen the interval when the card is not due. Initial queue is capped at 32 cards; one taught revisit per card caps the full queue at 64 turns. Pending evidence is capped at 128 events. Any pending event blocks dependent UI actions and a new session, preserving the old validation checkpoint until replay succeeds. The confirmed archive is still published when a callback returns false; Retry uses its original stable event IDs.
 
-`I knew it`, `Needed a clue` and `Teach me again` are self-reports and scheduling inputs. They never create a checked independent witness. Checking a typed answer before reveal records a fresh checked answer, an incorrect attempt or a helped check. A later independent recall requires an earlier checked witness for this SAME card, another session, at least 24 hours, a changed authored check prompt, and no current help. An immediate taught revisit is rescued practice even if the typed answer matches. Same-session repeats and early optional practice cannot imitate spaced recall.
+`I knew it`, `Needed a clue` and `Teach me again` are self-reports and scheduling inputs. They never create a checked independent witness. Checking a typed answer before reveal records a fresh checked answer, an incorrect attempt or a helped check. A later independent recall requires an earlier checked witness for this SAME card, another session, at least 24 hours, a changed authored check prompt, and no current help. Its optional `priorIndependentWitness` is captured before updating the current witness, so a durable pending event proves the claim after callback/relaunch. `hasValidLaterIndependentWitness` rejects same-session, under-24-hour, unchanged-prompt and shared-family claims. An immediate taught revisit is rescued practice even if the typed answer matches. Same-session repeats and early optional practice cannot imitate spaced recall.
 
 Check prompts reuse existing authored alternate card fronts with the same answer or a canonical chapter challenge whose accepted answers include the card's answer. Duplicate wording is excluded. No new historical facts or generated dialogue are introduced. Cards without an authored alternate support self-report and teaching, not invented assessments. Prompt IDs and the actual checked prompt type remain in the evidence. Exact normalized authored wording/aliases are used; the UI explains that another wording may need help rather than claiming a child's knowledge was measured broadly.
 
@@ -37,7 +37,7 @@ The coordinator confirmed `activityState(ReviewJourneyArchive.self, for: .review
 
 Persist the review archive at the snapshot root, separate from LessonResumePoint/TVActivityCheckpoint. Never overwrite the original chapter checkpoint, session, story/place/recall/keepsake progress or preferred chapter activity when reviewing. Retain per-card schedules and witnesses instead of silently combining them into scene-level review history.
 
-`save` must return true only for a durable save. `record` validates the event against the durably saved archive and known authored cards/prompts, and returns true for a durably saved OR already-saved stable event ID. Failure leaves the outbox intact. Save-before-callback and replay-after-acknowledgement-failure are covered by tests. An unknown callback must not award learning. Preserve cardID, checkedPromptID, session, support and timestamp provenance.
+`save` must return true only for a durable save. `record` validates the event against the durably saved archive and known authored cards/prompts, and returns true for a durably saved OR already-saved stable event ID. Failure leaves the outbox intact. Save-before-callback, callback-false/relaunch/new-session blocking and replay-after-acknowledgement-failure are covered by tests. An unknown callback must not award learning. Preserve cardID, checkedPromptID, priorIndependentWitness, responseContext, selectedChoiceID, session, support and timestamp provenance. The optional additions decode older archives without migration; older later-recall claims with no prior proof must not earn independent review.
 
 | Kind | Shared learning interpretation |
 | --- | --- |
@@ -50,16 +50,19 @@ Persist the review archive at the snapshot root, separate from LessonResumePoint
 
 Scene schedule aggregation must not reset or advance each card's archive schedule. Domain `wasSuccessful` is false for self-reports even when the learner selects I knew it.
 
+For TV evidence, `responseContext == .sharedFamilyRecognition` qualifies every interpretation above. A fresh checked choice without a clue has `.independent` support only in the sense that no clue was opened. It never creates an individual's witness or later independent recall. Parent summaries must say the family checked a choice without/with a clue. A self-report has no selected-choice proof and remains separate from checked recognition.
+
 ## Validation performed
 
-30/30 XCTest cases passed on 2026-10-02 in an isolated temporary SwiftPM harness. The harness compiled unmodified copies of real `ContentModels`, `HeroArcModels`, `LearningEngines` (including SpacedReviewScheduler), `MasteryState`, `TVActivityCheckpoint`, `AppleMapsPlaceHandoff`, and this new model; no scheduler stubs or historical test data were used. Cases cover due ordering/unlearned/future/empty queues, stable card schedules, four-hour revisits, immediate reteach, one requeue, wrong/blank/revealed answers, helped checks, changed prompt provenance, 1/3/7/14-day cadence, early optional practice, clock rollback, same-session repetition, round-trip resume, typed-input clearing, event replay, save/ack failures and queue/outbox bounds.
+34/34 review XCTest cases passed on 2026-10-02 in an isolated temporary SwiftPM harness, plus 13/13 synthetic TV adapter cases. The harness compiled unmodified copies of real `ContentModels`, `HeroArcModels`, `LearningEngines` (including SpacedReviewScheduler), `MasteryState`, `TVActivityCheckpoint`, `AppleMapsPlaceHandoff`, and this new model; no scheduler stubs or historical test data were used. Cases cover due ordering/unlearned/future/empty queues, stable card schedules, four-hour revisits, immediate reteach, one requeue, wrong/blank/revealed answers, helped checks, changed prompt provenance, 1/3/7/14-day cadence, early optional practice, clock rollback, same-session repetition, round-trip resume, typed-input clearing, event replay, save/ack failures and queue/outbox bounds. Follow-up cases prove retained prior witnesses, invalid later-claim rejection, backward-compatible optional fields and callback-false/relaunch blocking.
 
-Strict SwiftLint for the three owned Swift files passed with no source violations; the existing configuration emits its deprecated rule-name notice. Swift frontend syntax parsing and git diff whitespace check passed. Initial checks needed per-command Xcode selection and writable module/cache paths; no global toolchain setting was changed.
+Strict SwiftLint for the five owned Swift files passed with no source violations; the existing configuration emits its deprecated rule-name notice. Swift frontend syntax parsing and git diff whitespace check passed. Checks needed per-command Xcode selection and writable module/cache paths; no global toolchain setting was changed.
 
 Supporting local evidence:
 
 - `/tmp/gob-enrichment-20261002/review-model-tests.log`
 - `/tmp/gob-enrichment-20261002/review-lint.log`
+- Follow-up logs: `/tmp/gob-enrichment-20261002/review-tv-model-tests.log`, `/tmp/gob-enrichment-20261002/review-tv-lint.log`
 - Temporary harness: `/tmp/gob-enrichment-20261002/review-model-validation`
 - Dedicated build/module/cache paths: `/tmp/gob-enrichment-20261002/review-model-derived`, `review-module-cache`, `review-model-cache`, `review-model-config`.
 
@@ -76,6 +79,6 @@ Coordinator alone regenerates the project and takes the heavy build/simulator sl
 5. Confirm the original iOS chapter and TV story/discovery/place/puzzle/keepsake checkpoints are unchanged. Continue my chapter dismisses review to its caller; coordinator owns any additional root continuation route.
 6. Validate self-report, fresh checked, helped, exposure and later independent recall remain distinct in Album/Parent summaries. Advance an injected clock to four hours and then another day; same-session or unchanged-prompt work never becomes later recall.
 7. Verify small phone/iPad, landscape, largest Dynamic Type, VoiceOver, keyboard dismissal, narration disabled/interrupted, calm/Reduce Motion and offline completion. This view adds no decorative motion.
-8. TV review, if required for this release, needs a remote-first screen with captions/read-aloud and no required typing/phone; it is not supplied or verified by this worker.
+8. Integrate `TVReviewJourneyView(hooks:now:)` and run the focused TV production-content test plus remote/caption/focus/relaunch acceptance in the linked TV document. Pure adapter checks and syntax parsing do not establish TV app compilation or visual acceptance.
 
 No merge or TestFlight operation was performed by this worker.
