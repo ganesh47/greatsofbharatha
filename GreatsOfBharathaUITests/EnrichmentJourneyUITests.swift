@@ -14,23 +14,79 @@ final class EnrichmentJourneyUITests: XCTestCase {
         app.launch()
         app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
     }
+    private func reveal(_ element: XCUIElement, in scroll: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+        for attempt in 0...64 {
+            let measuredFrame = element.exists ? element.frame : nil
+            let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
+            let frames = scrollFrames(in: scroll)
+            let viewport = frames.viewport
+            if let targetFrame, viewport.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)), element.isHittable {
+                return
+            }
+            guard attempt < 64, !viewport.isNull else { break }
+            let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
+            let distance = frames.dragDistance(to: targetFrame)
+            let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
+            let endY = viewport.midY + (towardEnd ? -distance / 2 : distance / 2)
+            let start = scroll.coordinate(withNormalizedOffset: CGVector(
+                dx: (viewport.midX - frames.scroll.minX) / frames.scroll.width,
+                dy: (startY - frames.scroll.minY) / frames.scroll.height))
+            let end = scroll.coordinate(withNormalizedOffset: CGVector(
+                dx: (viewport.midX - frames.scroll.minX) / frames.scroll.width,
+                dy: (endY - frames.scroll.minY) / frames.scroll.height))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.1)
+        }
+        captureInteractionFailure(element, in: scroll)
+        XCTFail("Could not reach \(element)", file: file, line: line)
+    }
+
+    private func scrollFrames(in scroll: XCUIElement) -> EnrichmentScrollFrames {
+        func frame(_ element: XCUIElement) -> CGRect? { element.exists ? element.frame : nil }
+        return EnrichmentScrollFrames(
+            window: app.windows.firstMatch.frame,
+            scroll: frame(scroll) ?? .null,
+            navigationBar: frame(app.navigationBars.firstMatch),
+            tabBar: frame(app.tabBars.firstMatch),
+            keyboard: frame(app.keyboards.firstMatch))
+    }
+
+    private func captureInteractionFailure(_ element: XCUIElement, in scroll: XCUIElement, expectedValue: String? = nil) {
+        let frames = scrollFrames(in: scroll)
+        let windows = app.windows.allElementsBoundByIndex.enumerated().map { index, window in
+            "window[\(index)] frame=\(window.frame)"
+        }.joined(separator: "\n")
+        let target = element.exists
+            ? "target id=\(element.identifier) frame=\(element.frame) enabled=\(element.isEnabled) hittable=\(element.isHittable) value=\(String(describing: element.value))"
+            : "target absent: \(element)"
+        let scrollState = scroll.exists
+            ? "scroll id=\(scroll.identifier) frame=\(scroll.frame) hittable=\(scroll.isHittable)"
+            : "scroll absent: \(scroll)"
+        let attachment = XCTAttachment(string: """
+            deviceOrientation=\(XCUIDevice.shared.orientation.rawValue)
+            \(windows)
+            \(frames.description)
+            \(scrollState)
+            \(target)
+            expectedValue=\(expectedValue ?? "not applicable")
+
+            \(app.debugDescription)
+            """)
+        attachment.name = "discovery-interaction-live-AX-and-frames"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        capture("discovery-interaction-screenshot")
+    }
+
     private func tap(_ id: String, scroll: String = "") {
         let button = app.buttons[id].firstMatch
-        XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
-        for _ in 0..<16 {
-            if button.exists && button.isHittable { break }
-            if scroll.isEmpty { app.swipeUp() } else { app.scrollViews[scroll].firstMatch.swipeUp() }
+        guard button.waitForExistence(timeout: 10) else {
+            captureInteractionFailure(button, in: app.scrollViews.firstMatch)
+            XCTFail("Missing " + id)
+            return
         }
-        for _ in 0..<16 {
-            if button.exists && button.isHittable { break }
-            if scroll.isEmpty { app.swipeDown() } else { app.scrollViews[scroll].firstMatch.swipeDown() }
-        }
-        if !button.isHittable {
-            capture("unreachable-" + id)
-            let detail = XCTAttachment(string: "Window: \(app.windows.firstMatch.frame)\nTarget: \(button.frame)\n" + app.debugDescription)
-            detail.name = "unreachable-" + id + "-hierarchy"
-            detail.lifetime = .keepAlways
-            add(detail)
+        if !app.tabBars.buttons[id].exists && id != "review-dismiss-keyboard" {
+            let container = scroll.isEmpty ? app.scrollViews.firstMatch : app.scrollViews[scroll].firstMatch
+            reveal(button, in: container)
         }
         XCTAssertTrue(button.isHittable, "Unreachable " + id)
         XCTAssertTrue(button.isEnabled, "Disabled " + id)
@@ -114,5 +170,47 @@ final class EnrichmentJourneyUITests: XCTestCase {
         tap("review-teaching-continue", scroll: "review-journey-scroll")
         tap("review-finish-for-now", scroll: "review-journey-scroll")
         XCTAssertTrue(app.buttons["home-primary-lesson"].waitForExistence(timeout: 10))
+    }
+}
+
+private struct EnrichmentScrollFrames {
+    let window: CGRect
+    let scroll: CGRect
+    let navigationBar: CGRect?
+    let tabBar: CGRect?
+    let keyboard: CGRect?
+
+    var viewport: CGRect {
+        let intersection = window.intersection(scroll)
+        guard !intersection.isNull else { return .null }
+        var minY = intersection.minY
+        var maxY = intersection.maxY
+        if let navigationBar, navigationBar.intersects(intersection) {
+            minY = max(minY, navigationBar.maxY)
+        }
+        for obstruction in [tabBar, keyboard].compactMap({ $0 }) where obstruction.intersects(intersection) {
+            maxY = min(maxY, obstruction.minY)
+        }
+        guard intersection.width > 16, maxY - minY > 16 else { return .null }
+        return CGRect(x: intersection.minX, y: minY, width: intersection.width, height: maxY - minY).insetBy(dx: 8, dy: 8)
+    }
+
+    func dragDistance(to targetFrame: CGRect?) -> CGFloat {
+        let visible = viewport
+        if let targetFrame {
+            let gap = abs(targetFrame.midY - visible.midY)
+            if gap > visible.height { return min(gap, visible.height * 0.7) }
+        }
+        return min(76, visible.height * 0.4)
+    }
+
+    var description: String {
+        """
+        window=\(window) scroll=\(scroll)
+        navigationBar=\(String(describing: navigationBar))
+        tabBar=\(String(describing: tabBar))
+        keyboard=\(String(describing: keyboard))
+        usableViewport=\(viewport)
+        """
     }
 }
