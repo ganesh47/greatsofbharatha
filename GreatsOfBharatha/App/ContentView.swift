@@ -9,7 +9,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             // ── Tab 1: Story ──────────────────────────────────
-            NavigationStack {
+            LearnNavigationStack {
                 if FeatureFlags.historyLearnQuizResetEnabled {
                     LearnQuizHomeView()
                 } else {

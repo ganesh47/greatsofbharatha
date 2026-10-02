@@ -85,7 +85,7 @@ final class LearningEnginesTests: XCTestCase {
 
         XCTAssertEqual(state.completedPairIDs.count, 0)
         XCTAssertEqual(state.mismatchCount, 1)
-        XCTAssertNil(state.selectedTileID)
+        XCTAssertEqual(state.selectedTileID, "place-shivneri")
 
         guard case let .mismatched(clue)? = state.lastOutcome else {
             return XCTFail("Expected mismatch outcome")
@@ -101,6 +101,91 @@ final class LearningEnginesTests: XCTestCase {
         XCTAssertNil(state.selectedTileID)
         XCTAssertEqual(state.completedPairIDs, ["shivneri-birth-fort"])
         XCTAssertEqual(state.lastOutcome, .ignored)
+    }
+
+    func testMatchEngineSamePanelChoiceReplacesSourceWithoutAttemptingAnswer() {
+        for (first, replacement) in [("place-shivneri", "place-rajgad"), ("hook-birth-fort", "hook-early-capital")] {
+            var state = ChronicleMatchEngine.select(tileID: first, state: ChronicleMatchState(), pairs: matchPairs)
+            state = ChronicleMatchEngine.select(tileID: replacement, state: state, pairs: matchPairs)
+
+            XCTAssertEqual(state.selectedTileID, replacement)
+            XCTAssertEqual(state.mismatchCount, 0)
+            XCTAssertTrue(state.completedPairIDs.isEmpty)
+            guard case let .selected(tile)? = state.lastOutcome else { return XCTFail("Expected replacement selection") }
+            XCTAssertEqual(tile.id, replacement)
+        }
+    }
+
+    func testMatchEngineSelectingSourceAgainDeselectsEitherPanelWithoutHelp() {
+        for tileID in ["place-shivneri", "hook-birth-fort"] {
+            var state = ChronicleMatchEngine.select(tileID: tileID, state: ChronicleMatchState(), pairs: matchPairs)
+            state = ChronicleMatchEngine.select(tileID: tileID, state: state, pairs: matchPairs)
+
+            XCTAssertNil(state.selectedTileID)
+            XCTAssertEqual(state.mismatchCount, 0)
+            XCTAssertTrue(state.completedPairIDs.isEmpty)
+            XCTAssertEqual(state.lastOutcome, .ignored)
+        }
+    }
+
+    func testMatchEngineRightFirstMistakeRetainsSourceAndTeachesItsPair() {
+        var state = ChronicleMatchEngine.select(tileID: "hook-birth-fort", state: ChronicleMatchState(), pairs: matchPairs)
+        state = ChronicleMatchEngine.select(tileID: "place-rajgad", state: state, pairs: matchPairs)
+
+        XCTAssertEqual(state.selectedTileID, "hook-birth-fort")
+        XCTAssertEqual(state.mismatchCount, 1)
+        XCTAssertTrue(state.completedPairIDs.isEmpty)
+        XCTAssertEqual(state.lastOutcome, .mismatched(clue: "Shivneri is remembered as the Birth Fort."))
+
+        state = ChronicleMatchEngine.select(tileID: "place-shivneri", state: state, pairs: matchPairs)
+        XCTAssertEqual(state.completedPairIDs, ["shivneri-birth-fort"])
+        XCTAssertNil(state.selectedTileID)
+        XCTAssertEqual(state.mismatchCount, 1, "Using the teaching clue must retain the assistance history")
+        guard case .matched? = state.lastOutcome else { return XCTFail("Expected immediate success") }
+    }
+
+    func testMatchEngineIgnoresUnavailableCardsWithoutLosingAvailableSource() {
+        let original = ChronicleMatchState(selectedTileID: "hook-early-capital", completedPairIDs: ["shivneri-birth-fort"])
+        for tileID in ["missing-card", "place-shivneri", "hook-birth-fort"] {
+            let state = ChronicleMatchEngine.select(tileID: tileID, state: original, pairs: matchPairs)
+            XCTAssertEqual(state.selectedTileID, original.selectedTileID)
+            XCTAssertEqual(state.completedPairIDs, original.completedPairIDs)
+            XCTAssertEqual(state.mismatchCount, 0)
+            XCTAssertEqual(state.lastOutcome, .ignored)
+        }
+    }
+
+    func testMatchEngineReplacesMissingOrCompletedSavedSourceWithAvailableCard() {
+        for sourceID in ["missing-card", "place-shivneri", "hook-birth-fort"] {
+            let original = ChronicleMatchState(selectedTileID: sourceID, completedPairIDs: ["shivneri-birth-fort"])
+            let state = ChronicleMatchEngine.select(tileID: "hook-early-capital", state: original, pairs: matchPairs)
+            XCTAssertEqual(state.selectedTileID, "hook-early-capital")
+            XCTAssertEqual(state.completedPairIDs, original.completedPairIDs)
+            XCTAssertEqual(state.mismatchCount, 0)
+            guard case .selected? = state.lastOutcome else { return XCTFail("Expected a fresh source selection") }
+        }
+    }
+
+    func testMatchEngineCompletedPairCannotAwardAgainAfterRepeatedSelection() throws {
+        var state = ChronicleMatchEngine.select(tileID: "place-shivneri", state: ChronicleMatchState(), pairs: matchPairs)
+        state = ChronicleMatchEngine.select(tileID: "hook-birth-fort", state: state, pairs: matchPairs)
+        state = try JSONDecoder().decode(ChronicleMatchState.self, from: JSONEncoder().encode(state))
+        for tileID in ["hook-birth-fort", "place-shivneri", "hook-birth-fort"] {
+            state = ChronicleMatchEngine.select(tileID: tileID, state: state, pairs: matchPairs)
+            XCTAssertEqual(state.completedPairIDs, ["shivneri-birth-fort"])
+            XCTAssertNil(state.selectedTileID)
+            XCTAssertEqual(state.mismatchCount, 0)
+            XCTAssertEqual(state.lastOutcome, .ignored)
+        }
+    }
+
+    func testMatchEngineUnknownSavedPairDoesNotMakeAnIncompleteSetComplete() {
+        var state = ChronicleMatchState(completedPairIDs: ["retired-pair"])
+        state = ChronicleMatchEngine.select(tileID: "place-shivneri", state: state, pairs: matchPairs)
+        state = ChronicleMatchEngine.select(tileID: "hook-birth-fort", state: state, pairs: matchPairs)
+
+        guard case let .matched(_, _, completedSet)? = state.lastOutcome else { return XCTFail("Expected matched outcome") }
+        XCTAssertFalse(completedSet, "Only all current canonical pairs constitute completion")
     }
 
     func testReviewSchedulerSchedulesNoHintSuccessForTomorrowAndRotatesPrompt() {
