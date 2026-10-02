@@ -31,6 +31,11 @@ struct LessonPersistenceDiagnostics: Equatable {
     var isWithinBudget: Bool { limitBytes.map { appOwnedDefaultsBytes <= $0 } ?? true }
 }
 
+enum LessonActivityStateKey: String, Codable {
+    case timeline = "ios.timeline"
+    case review = "learning.review"
+}
+
 final class ShivajiLessonStore: ObservableObject {
     @Published private(set) var masteryByScene: [String: MasteryState] = [:]
     @Published private(set) var masteryRecordsBySubject: [String: MasteryRecord] = [:]
@@ -38,6 +43,7 @@ final class ShivajiLessonStore: ObservableObject {
 
     @Published private(set) var resumePointsByScene: [String: LessonResumePoint] = [:]
     @Published private(set) var persistenceDiagnostics = LessonPersistenceDiagnostics()
+    @Published private(set) var activityStateData: [String: Data] = [:]
 
     private let content: AppContent
     private let defaults: UserDefaults
@@ -64,6 +70,7 @@ final class ShivajiLessonStore: ObservableObject {
                 reviewSchedulesBySubject = snapshot.schedules
                 resumePointsByScene = snapshot.resumePoints
                 recentEventIDs = snapshot.recentEventIDs
+                activityStateData = snapshot.activityStateData
             } else {
                 if persistencePolicy.maximumDefaultsBytes != nil {
                     // A bounded, healthy recovery retains earned learning facts even if the main write is damaged.
@@ -74,6 +81,7 @@ final class ShivajiLessonStore: ObservableObject {
                         reviewSchedulesBySubject = snapshot.schedules
                         resumePointsByScene = snapshot.resumePoints
                         recentEventIDs = snapshot.recentEventIDs
+                        activityStateData = snapshot.activityStateData
                     } else {
                         pendingRecoveryData = Data(data.prefix(persistencePolicy.recoveryLimitBytes))
                     }
@@ -287,6 +295,29 @@ final class ShivajiLessonStore: ObservableObject {
 
     func resumePoint(for sceneID: String) -> LessonResumePoint? { resumePointsByScene[sceneID] }
 
+    func activityState<State: Decodable>(_ type: State.Type, for key: LessonActivityStateKey) -> State? {
+        guard let data = activityStateData[key.rawValue] else { return nil }
+        return try? JSONDecoder().decode(type, from: data)
+    }
+
+    /// Optional activities share the same isolated storage, outside chapter checkpoints.
+    /// Confirm a durable write before advancing a UI or acknowledging its outbox.
+    @discardableResult
+    func saveActivityState<State: Encodable>(_ state: State, for key: LessonActivityStateKey) -> Bool {
+        guard let data = try? JSONEncoder().encode(state), data.count <= 64 * 1024 else { return false }
+        let previous = activityStateData[key.rawValue]
+        activityStateData[key.rawValue] = data
+        persist()
+        guard let snapshotData = defaults.data(forKey: snapshotStorageKey),
+              Self.decodeSnapshot(snapshotData)?.activityStateData[key.rawValue] == data else {
+            activityStateData[key.rawValue] = previous
+            return false
+        }
+        return true
+    }
+
+    func hasRecordedLearningEvent(_ eventID: UUID) -> Bool { hasRecorded(eventID: eventID) }
+
     var latestResumePoint: LessonResumePoint? {
         resumePointsByScene.values.max { $0.updatedAt == $1.updatedAt ? $0.sceneID < $1.sceneID : $0.updatedAt < $1.updatedAt }
     }
@@ -313,6 +344,7 @@ final class ShivajiLessonStore: ObservableObject {
     }
 
     func resetScene(_ sceneID: String) {
+        activityStateData = [:]
         masteryRecordsBySubject.removeValue(forKey: sceneID)
         resumePointsByScene.removeValue(forKey: sceneID)
         reviewSchedulesBySubject.removeValue(forKey: sceneID)
@@ -581,6 +613,7 @@ final class ShivajiLessonStore: ObservableObject {
 #if DEBUG
         guard defaults !== UserDefaults.standard else { return }
         resumePointsByScene = [:]
+        activityStateData = [:]
         switch profile {
         case .pristine:
             masteryRecordsBySubject = [:]
@@ -759,7 +792,8 @@ final class ShivajiLessonStore: ObservableObject {
         defaults.set(masteryByScene.mapValues { $0.rawValue }, forKey: legacyMasteryStorageKey)
         let encoder = JSONEncoder()
         let snapshot = LessonStoreSnapshot(schemaVersion: 1, records: masteryRecordsBySubject,
-                                           schedules: reviewSchedulesBySubject, resumePoints: resumePointsByScene)
+                                           schedules: reviewSchedulesBySubject, resumePoints: resumePointsByScene,
+                                           activityStateData: activityStateData)
         if let data = try? encoder.encode(snapshot) { defaults.set(data, forKey: snapshotStorageKey) }
         if let recordsData = try? encoder.encode(masteryRecordsBySubject) {
             defaults.set(recordsData, forKey: recordsStorageKey)
@@ -810,7 +844,8 @@ extension ShivajiLessonStore {
         }
         var points = resumePointsByScene.mapValues { boundedResumePoint($0, collectionLimit: 32) }
         var snapshot = LessonStoreSnapshot(schemaVersion: 2, records: records,
-            schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs)
+            schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs,
+            activityStateData: activityStateData)
         guard var data = try? encoder.encode(snapshot) else { return }
 
         // Count the resulting full defaults domain before writing, including parent settings and recovery.
@@ -833,7 +868,8 @@ extension ShivajiLessonStore {
             }
             points = points.mapValues { boundedResumePoint($0, collectionLimit: 16) }
             snapshot = LessonStoreSnapshot(schemaVersion: 2, records: records,
-                schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs)
+                schedules: reviewSchedulesBySubject, resumePoints: points, recentEventIDs: recentEventIDs,
+                activityStateData: activityStateData)
             guard let smallerData = try? encoder.encode(snapshot) else { return }
             data = smallerData
             prospective[snapshotStorageKey] = data
@@ -951,7 +987,8 @@ extension ShivajiLessonStore {
             records[id] = record
         }
         let recovery = LessonStoreSnapshot(schemaVersion: 2, records: records, schedules: snapshot.schedules,
-            resumePoints: snapshot.resumePoints, recentEventIDs: Array(snapshot.recentEventIDs.suffix(32)))
+            resumePoints: snapshot.resumePoints, recentEventIDs: Array(snapshot.recentEventIDs.suffix(32)),
+            activityStateData: snapshot.activityStateData)
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .binary
         guard let raw = try? encoder.encode(recovery) else { return nil }
@@ -1033,18 +1070,20 @@ private struct LessonStoreSnapshot: Codable {
     let schedules: [String: ReviewSchedule]
     let resumePoints: [String: LessonResumePoint]
     var recentEventIDs: [UUID] = []
+    var activityStateData: [String: Data] = [:]
 
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, records, schedules, resumePoints, recentEventIDs
+        case schemaVersion, records, schedules, resumePoints, recentEventIDs, activityStateData
     }
 
     init(schemaVersion: Int, records: [String: MasteryRecord], schedules: [String: ReviewSchedule],
-         resumePoints: [String: LessonResumePoint], recentEventIDs: [UUID] = []) {
+         resumePoints: [String: LessonResumePoint], recentEventIDs: [UUID] = [], activityStateData: [String: Data] = [:]) {
         self.schemaVersion = schemaVersion
         self.records = records
         self.schedules = schedules
         self.resumePoints = resumePoints
         self.recentEventIDs = recentEventIDs
+        self.activityStateData = activityStateData
     }
 
     init(from decoder: Decoder) throws {
@@ -1054,5 +1093,7 @@ private struct LessonStoreSnapshot: Codable {
         schedules = try values.decode([String: ReviewSchedule].self, forKey: .schedules)
         resumePoints = try values.decodeIfPresent([String: LessonResumePoint].self, forKey: .resumePoints) ?? [:]
         recentEventIDs = try values.decodeIfPresent([UUID].self, forKey: .recentEventIDs) ?? []
+        activityStateData = (try? values.decodeIfPresent([String: Data].self, forKey: .activityStateData)) ?? [:]
+        activityStateData = activityStateData.filter { LessonActivityStateKey(rawValue: $0.key) != nil && $0.value.count <= 64 * 1024 }
     }
 }

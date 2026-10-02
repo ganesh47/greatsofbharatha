@@ -87,6 +87,7 @@
 		C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */; };
 		C5789DB855B5A6DA3C343951 /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
 		C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */; };
+		C608764AB1F3CB9C31AF2CDF /* EnrichmentPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */; };
 		C80CEBDFA785D870B0899FE6 /* TVSequenceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */; };
 		C9BF86F3D453F1D1D9F219E2 /* SampleContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BEDED465CA437D09ADDCD5 /* SampleContent.swift */; };
 		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
@@ -201,6 +202,7 @@
 		AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVPersistenceTests.swift; sourceTree = "<group>"; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
 		AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleQuizView.swift; sourceTree = "<group>"; };
+		ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnrichmentPersistenceTests.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
 		AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_BOOTSTRAP.md; sourceTree = "<group>"; };
 		B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesHubView.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 			isa = PBXGroup;
 			children = (
 				EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */,
+				ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */,
 				85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */,
 				2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */,
 				83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */,
@@ -923,6 +926,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6BB2EC69ED8AADF802F5639 /* AuthoredLearningContentTests.swift in Sources */,
+				C608764AB1F3CB9C31AF2CDF /* EnrichmentPersistenceTests.swift in Sources */,
 				E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */,
 				1D46FB6ECD9C7608AF1C984E /* LearningEnginesTests.swift in Sources */,
 				57D6DDF7802C564855FA5A9B /* StateReliabilityTests.swift in Sources */,
