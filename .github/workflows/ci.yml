@@ -96,7 +96,7 @@ jobs:
           exit 1
 
       - name: Run app unit and UI tests
-        timeout-minutes: 20
+        timeout-minutes: 30
         run: |
           xcodebuild test-without-building \
             -project GreatsOfBharatha.xcodeproj \

@@ -20,7 +20,7 @@ final class EnrichmentJourneyUITests: XCTestCase {
             let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
             let frames = scrollFrames(in: scroll)
             let viewport = frames.viewport
-            if let targetFrame, viewport.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)), element.isHittable {
+            if let targetFrame, frames.isVisible(targetFrame, isButton: element.elementType == .button), element.isHittable {
                 return
             }
             guard attempt < 64, !viewport.isNull else { break }
@@ -191,6 +191,16 @@ private struct EnrichmentScrollFrames {
         }
         guard intersection.width > 16, maxY - minY > 16 else { return .null }
         return CGRect(x: intersection.minX, y: minY, width: intersection.width, height: maxY - minY).insetBy(dx: 8, dy: 8)
+    }
+
+    func isVisible(_ targetFrame: CGRect, isButton: Bool) -> Bool {
+        let visible = viewport
+        guard !visible.isNull, !targetFrame.isNull, !targetFrame.isEmpty,
+              visible.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)) else { return false }
+        if isButton, targetFrame.height <= visible.height {
+            return targetFrame.minY >= visible.minY && targetFrame.maxY <= visible.maxY
+        }
+        return true
     }
 
     func dragDistance(to targetFrame: CGRect?) -> CGFloat {
