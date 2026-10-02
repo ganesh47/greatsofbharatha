@@ -28,7 +28,6 @@ struct LearnQuizHomeView: View {
                     Button { navigation.openScene(next.id) } label: {
                         Text("Continue: \(next.title)").frame(minHeight: GBTouch.button)
                     }.buttonStyle(.gbPrimary(.story)).accessibilityIdentifier("pilot-home-continue")
-                        .accessibilityValue(navigation.syntheticDiagnosticValue)
                 }
                 ForEach(scenes) { scene in
                     if let canonical = appModel.content.scenes.first(where: { $0.id == scene.id }),
@@ -51,10 +50,12 @@ struct LearnQuizHomeView: View {
                 }.buttonStyle(.gbPrimary(.chronicle))
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }.accessibilityIdentifier("pilot-home-scroll").background(GBColor.Background.app).navigationTitle("Learn & Play")
-        .onAppear { navigation.recordHomeAppearance() }
+        .onAppear { navigation.trace("home.appear", sceneID: next?.id) }
         .navigationDestination(for: String.self) { sceneID in
             if let scene = scenes.first(where: { $0.id == sceneID }) {
                 SceneLearnView(scene: scene).id(sceneID)
+                    .onAppear { navigation.trace("destination.appear", sceneID: sceneID) }
+                    .onDisappear { navigation.trace("destination.disappear", sceneID: sceneID) }
             }
         }
     }
