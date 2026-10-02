@@ -70,6 +70,12 @@ Retain screenshots from the test result bundle and inspect each chapter's reveal
 
 With networking unavailable, verify that bundled teaching, all discoveries, place clues, and reflection remain usable; read-aloud may depend on the installed system voice, while readable text and continuation remain available. This source has no network request or remote content dependency. Preserve the existing rich six chapter TV journey and matching acceptance while integrating this iOS hook.
 
+### Landscape test reachability correction
+
+The coordinator's `ios-final-targeted.xcresult` run passed 149 unit cases and both matching cases, but the large-text discovery case failed before its initial hill discovery tap. In the fresh recording `BE26201E-4F41-43F6-9BDB-F98908BE3ED0.mp4`, the hill button passes through the visible landscape viewport around 66 seconds; the helper continues scrolling and finishes back at the story top. During every discovery iteration the activity log reads the window and two target frames, then swipes; it never reaches the subsequent native hittability read. This supports the added window-center predicate rejecting the rotated target. The exported binary UI snapshots contain only an application stub with empty children, so they do not establish the actual button frame or label overflow.
+
+The discovery helper now accepts XCTest's native `exists` and `isHittable` result, retains bounded scrolling and the native element tap, and attaches a screenshot, live accessibility hierarchy, device orientation, and window/scroll/target frames if it still cannot reach a target. No app layout or authored content changed. Worker Swift 6 source checking, scoped lint, and whitespace checking pass; coordinator simulator rerun is required before claiming the landscape case passes. Evidence: `/tmp/gob-enrichment-20261002/ios-final-targeted.log`, `/tmp/gob-enrichment-20261002/evidence/ios-final-targeted/manifest.json`, and extracted fresh frames in `/tmp/gob-enrichment-20261002/evidence/discovery-layout-worker`.
+
 ## Owned file list
 
 - `GreatsOfBharatha/Features/Lesson/SceneLessonView.swift`

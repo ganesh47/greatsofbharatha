@@ -23,14 +23,40 @@ final class ChapterDiscoveryUITests: XCTestCase {
 
     private func reveal(_ element: XCUIElement, in scroll: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
         for _ in 0..<20 {
-            if element.exists && app.windows.firstMatch.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) && element.isHittable { return }
+            if element.exists && element.isHittable { return }
             scroll.swipeUp()
         }
         for _ in 0..<20 {
-            if element.exists && app.windows.firstMatch.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) && element.isHittable { return }
+            if element.exists && element.isHittable { return }
             scroll.swipeDown()
         }
-        XCTAssertTrue(element.isHittable, "Could not reach \(element.identifier)", file: file, line: line)
+        if element.exists && element.isHittable { return }
+        captureReachabilityFailure(element, in: scroll)
+        XCTFail("Could not reach \(element)", file: file, line: line)
+    }
+
+    private func captureReachabilityFailure(_ element: XCUIElement, in scroll: XCUIElement) {
+        let windows = app.windows.allElementsBoundByIndex.enumerated().map { index, window in
+            "window[\(index)] frame=\(window.frame)"
+        }.joined(separator: "\n")
+        let target = element.exists
+            ? "target id=\(element.identifier) frame=\(element.frame) enabled=\(element.isEnabled) hittable=\(element.isHittable)"
+            : "target absent: \(element)"
+        let scrollState = scroll.exists
+            ? "scroll id=\(scroll.identifier) frame=\(scroll.frame) hittable=\(scroll.isHittable)"
+            : "scroll absent: \(scroll)"
+        let attachment = XCTAttachment(string: """
+            deviceOrientation=\(XCUIDevice.shared.orientation.rawValue)
+            \(windows)
+            \(scrollState)
+            \(target)
+
+            \(app.debugDescription)
+            """)
+        attachment.name = "discovery-unreachable-live-AX-and-frames"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        capture("discovery-unreachable-screenshot")
     }
 
     private func tap(_ identifier: String, scrollID: String = "scene-lesson-scroll", file: StaticString = #filePath, line: UInt = #line) {
