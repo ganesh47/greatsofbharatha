@@ -341,6 +341,7 @@ struct LessonResumePoint: Codable, Equatable {
     var matchEventID: UUID = UUID()
     var preferredActivity: LearningActivityKind? = nil
     var discoveredDetailIDs: Set<String> = []
+    var selectedDiscoveryDetailID: String?
     var solvedPlaceIDs: Set<String> = []
     var helpedPlaceIDs: Set<String> = []
     var tvCheckpoint: TVActivityCheckpoint? = nil
@@ -349,7 +350,7 @@ struct LessonResumePoint: Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case sceneID, phase, sessionID, storyCardIndex, revealedHintLevel, recognitionRescueUnlocked
         case recallCompleted, completedMatchPairIDs, selectedMatchTileID, matchMismatchCount, recallEventID, matchEventID, preferredActivity
-        case discoveredDetailIDs, solvedPlaceIDs, helpedPlaceIDs, tvCheckpoint, updatedAt
+        case discoveredDetailIDs, selectedDiscoveryDetailID, solvedPlaceIDs, helpedPlaceIDs, tvCheckpoint, updatedAt
     }
 
     // Optional checkpoint fields keep existing callers and older saved lessons compatible.
@@ -359,7 +360,8 @@ struct LessonResumePoint: Codable, Equatable {
          completedMatchPairIDs: Set<String> = [], selectedMatchTileID: String? = nil,
          matchMismatchCount: Int = 0, recallEventID: UUID = UUID(),
          matchEventID: UUID = UUID(), preferredActivity: LearningActivityKind? = nil,
-         discoveredDetailIDs: Set<String> = [], solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [],
+         discoveredDetailIDs: Set<String> = [], selectedDiscoveryDetailID: String? = nil,
+         solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [],
          tvCheckpoint: TVActivityCheckpoint? = nil, updatedAt: Date = Date()) {
         self.sceneID = sceneID
         self.phase = phase
@@ -375,6 +377,7 @@ struct LessonResumePoint: Codable, Equatable {
         self.matchEventID = matchEventID
         self.preferredActivity = preferredActivity
         self.discoveredDetailIDs = discoveredDetailIDs
+        self.selectedDiscoveryDetailID = selectedDiscoveryDetailID
         self.solvedPlaceIDs = solvedPlaceIDs
         self.helpedPlaceIDs = helpedPlaceIDs
         self.tvCheckpoint = tvCheckpoint
@@ -397,6 +400,7 @@ struct LessonResumePoint: Codable, Equatable {
         matchEventID = try values.decodeIfPresent(UUID.self, forKey: .matchEventID) ?? UUID()
         preferredActivity = try values.decodeIfPresent(LearningActivityKind.self, forKey: .preferredActivity)
         discoveredDetailIDs = try values.decodeIfPresent(Set<String>.self, forKey: .discoveredDetailIDs) ?? []
+        selectedDiscoveryDetailID = try values.decodeIfPresent(String.self, forKey: .selectedDiscoveryDetailID)
         solvedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .solvedPlaceIDs) ?? []
         helpedPlaceIDs = try values.decodeIfPresent(Set<String>.self, forKey: .helpedPlaceIDs) ?? []
         tvCheckpoint = try values.decodeIfPresent(TVActivityCheckpoint.self, forKey: .tvCheckpoint)
