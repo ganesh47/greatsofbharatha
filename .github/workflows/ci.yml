@@ -95,7 +95,8 @@ jobs:
           xcrun simctl list devices | grep -F "$SIM_ID" >&2
           exit 1
 
-      - name: Run app unit and UI tests
+      # Temporary PR210 diagnostic: the combined PR212 and main workflow retain the complete suite.
+      - name: Run the two navigation diagnostic cases
         timeout-minutes: 20
         run: |
           xcodebuild test-without-building \
@@ -103,6 +104,8 @@ jobs:
             -scheme GreatsOfBharatha \
             -destination "$SIM_DESTINATION" \
             -resultBundlePath TestResults.xcresult \
+            -only-testing:GreatsOfBharathaUITests/LearningJourneyUITests/testLargeTextMatchingUsesStackedPanelsAndReachableCompletion \
+            -only-testing:GreatsOfBharathaUITests/LearningJourneyUITests/testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Upload app test result bundle
