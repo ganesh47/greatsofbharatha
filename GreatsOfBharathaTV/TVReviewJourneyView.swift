@@ -178,6 +178,8 @@ struct TVReviewJourneyView: View {
                         Button("Finish for now") { dismiss() }.buttonStyle(TVCardButtonStyle())
                             .focused($focusedAction, equals: "finish").accessibilityIdentifier("tv-review-finish")
                     }
+                    // Extend the upper-right Finish target across the header for upward remote navigation.
+                    .focusSection()
                     if let point, point.currentTurn != nil {
                         Text("Card \(point.cursor + 1) of \(point.queue.count) · due cards first")
                             .font(.system(size: 25)).foregroundStyle(TVTheme.gold)
