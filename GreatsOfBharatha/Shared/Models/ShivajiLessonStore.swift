@@ -311,6 +311,10 @@ final class ShivajiLessonStore: ObservableObject {
     /// Unsupported or damaged optional bytes stay opaque until an explicit migration/reset.
     func activityStateIsAvailable(for key: LessonActivityStateKey) -> Bool {
         guard let data = activityStateData[key.rawValue] else { return true }
+        return Self.isSupportedActivityData(data, for: key)
+    }
+
+    private static func isSupportedActivityData(_ data: Data, for key: LessonActivityStateKey) -> Bool {
         switch key {
         case .timeline:
             return (try? JSONDecoder().decode(TimelineActivityCheckpoint.self, from: data))?.schemaVersion == 1
@@ -325,7 +329,8 @@ final class ShivajiLessonStore: ObservableObject {
     func saveActivityState<State: Encodable>(_ state: State, for key: LessonActivityStateKey,
                                            retainingEventIDs: Set<UUID>? = nil) -> Bool {
         guard activityStateIsAvailable(for: key),
-              let data = try? JSONEncoder().encode(state), data.count <= 64 * 1024 else { return false }
+              let data = try? JSONEncoder().encode(state), data.count <= 64 * 1024,
+              Self.isSupportedActivityData(data, for: key) else { return false }
         let previous = activityStateData[key.rawValue]
         let previousReceipts = optionalEventIDs[key.rawValue]
         activityStateData[key.rawValue] = data

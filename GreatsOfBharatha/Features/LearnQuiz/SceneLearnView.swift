@@ -41,6 +41,7 @@ struct SceneLearnView: View {
                             Label("Cards", systemImage: "rectangle.on.rectangle.angled")
                         }
                         .buttonStyle(.gbSecondary)
+                        .accessibilityIdentifier("pilot-scene-review")
                     }
 
                     NavigationLink {

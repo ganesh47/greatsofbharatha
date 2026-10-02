@@ -46,4 +46,5 @@ enum TVRoute: Hashable {
     case map
     case timeline
     case parent
+    case review
 }

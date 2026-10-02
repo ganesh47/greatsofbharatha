@@ -81,3 +81,5 @@ With networking unavailable, verify that bundled teaching, all discoveries, plac
 - `docs/specs/2026-10-02-ios-chapter-discovery-acceptance.md` (new)
 
 No existing shared schema/store, authored sample content, map, root/navigation, project, matching, TV production, CI, or release file was changed by this slice. The original dirty checkout remains untouched.
+
+Refs #212: [combined enrichment validation](https://github.com/ganesh47/greatsofbharatha/pull/212).

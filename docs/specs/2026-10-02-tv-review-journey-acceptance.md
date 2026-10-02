@@ -52,3 +52,5 @@ Before merge/release the coordinator must:
 6. Complete offline/no-save retry and duplicate-event acceptance with the real store. Verify normal/capture/test defaults isolation and aggregate TV storage budget.
 
 No worker merge, project generation, full app build, simulator slot or TestFlight operation was performed.
+
+Refs #212: [combined enrichment validation](https://github.com/ganesh47/greatsofbharatha/pull/212).

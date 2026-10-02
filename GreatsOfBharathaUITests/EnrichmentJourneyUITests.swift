@@ -18,11 +18,11 @@ final class EnrichmentJourneyUITests: XCTestCase {
         let button = app.buttons[id].firstMatch
         XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
         for _ in 0..<16 {
-            if button.isHittable { break }
+            if app.windows.firstMatch.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) && button.isHittable { break }
             if scroll.isEmpty { app.swipeUp() } else { app.scrollViews[scroll].firstMatch.swipeUp() }
         }
         for _ in 0..<16 {
-            if button.isHittable { break }
+            if app.windows.firstMatch.frame.contains(CGPoint(x: button.frame.midX, y: button.frame.midY)) && button.isHittable { break }
             if scroll.isEmpty { app.swipeDown() } else { app.scrollViews[scroll].firstMatch.swipeDown() }
         }
         XCTAssertTrue(button.isHittable, "Unreachable " + id)
@@ -34,6 +34,25 @@ final class EnrichmentJourneyUITests: XCTestCase {
         item.name = name
         item.lifetime = .keepAlways
         add(item)
+    }
+    func testSuspendedReviewAnswerSurvivesEntryThroughAnotherChapter() {
+        launch(chapters: 1)
+        app.terminate()
+        app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "1"
+        app.launch()
+        tap("pilot-home-review", scroll: "pilot-home-scroll")
+        if app.buttons["review-practice"].waitForExistence(timeout: 3) { tap("review-practice", scroll: "review-journey-scroll") }
+        let answer = app.descendants(matching: .any)["review-answer"].firstMatch
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        answer.tap()
+        answer.typeText("interrupted answer")
+        tap("review-finish-for-now", scroll: "review-journey-scroll")
+        tap("pilot-home-continue", scroll: "pilot-home-scroll")
+        tap("pilot-scene-review", scroll: "pilot-scene-scroll")
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        XCTAssertEqual(answer.value as? String, "interrupted answer")
+        XCTAssertFalse(app.staticTexts["review-result-title"].exists)
+        capture("review-resumed-through-another-chapter")
     }
     func testTimelineThreeRoundsPreserveSelectionAndLockedSlotsAcrossRelaunch() {
         launch(chapters: 6)

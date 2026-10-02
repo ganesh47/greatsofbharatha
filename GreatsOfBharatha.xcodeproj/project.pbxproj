@@ -67,6 +67,7 @@
 		687C2E4C5B248DD80185B33D /* ChronicleMatchPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE994240CECB7FC4B10C2EF6 /* ChronicleMatchPresentation.swift */; };
 		6A650D8CF52C58D584770078 /* TVComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699DDA97DF2F33CFE8B7DA76 /* TVComponents.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
+		7034CEE7949BFA11A45C1E43 /* TVReviewJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC1AC392178099E1B15DE6 /* TVReviewJourneyTests.swift */; };
 		70CCD036225C02C755621005 /* TimelineLearningEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1FFF799B84277476EBF2F9 /* TimelineLearningEntry.swift */; };
 		78BB85FE1A35F817B44338F7 /* GreatsOfBharathaTVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA193B1EF751F11A686FDC39 /* GreatsOfBharathaTVApp.swift */; };
 		78DCC1581692F7A6E37F3518 /* ChronicleMatchPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE994240CECB7FC4B10C2EF6 /* ChronicleMatchPresentation.swift */; };
@@ -120,6 +121,7 @@
 		DFF054B30CF43AE8CA85391B /* GBMotion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B510B04B44F609399601600C /* GBMotion.swift */; };
 		E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */; };
 		E349019EB5DCB1F8BDA9E0E0 /* GBQuestProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */; };
+		E58FA5CF2E91D0EE50FC79EC /* TVReviewJourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE5C83C4A1DEC6EFC3B23043 /* TVReviewJourneyView.swift */; };
 		E67261A4C086F8CFBDE1A660 /* TVSequenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF6643A2D48D15FB2F1C5E0 /* TVSequenceEngine.swift */; };
 		EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */; };
 		EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */; };
@@ -238,6 +240,7 @@
 		B520CBF72AA749D0C22EDCEF /* GreatsOfBharathaTVUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTVUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroArcModels.swift; sourceTree = "<group>"; };
 		B95A3461983729AB80A4C91E /* ChapterDiscoveryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDiscoveryContent.swift; sourceTree = "<group>"; };
+		B9CC1AC392178099E1B15DE6 /* TVReviewJourneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVReviewJourneyTests.swift; sourceTree = "<group>"; };
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
 		BB1FFF799B84277476EBF2F9 /* TimelineLearningEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLearningEntry.swift; sourceTree = "<group>"; };
 		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
@@ -258,6 +261,7 @@
 		DA193B1EF751F11A686FDC39 /* GreatsOfBharathaTVApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTVApp.swift; sourceTree = "<group>"; };
 		DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSceneCard.swift; sourceTree = "<group>"; };
 		DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
+		DE5C83C4A1DEC6EFC3B23043 /* TVReviewJourneyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVReviewJourneyView.swift; sourceTree = "<group>"; };
 		E6FD76D3718D3AC479FF0985 /* CaptureRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureRootView.swift; sourceTree = "<group>"; };
 		E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizHomeView.swift; sourceTree = "<group>"; };
 		ECA6359587E0E7854DBE121E /* LearnNavigationStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnNavigationStack.swift; sourceTree = "<group>"; };
@@ -627,6 +631,7 @@
 		DC92F5A6C8B8512A4FC6DF20 /* GreatsOfBharathaTV */ = {
 			isa = PBXGroup;
 			children = (
+				DE5C83C4A1DEC6EFC3B23043 /* TVReviewJourneyView.swift */,
 				A69DDF435B5C8BFBB494C4CE /* App */,
 				5ED7EC4620D2FA511F98A847 /* Components */,
 				7B55EDDB17124323F63BCC67 /* Features */,
@@ -664,6 +669,7 @@
 				469DC0D11E3C2A5B68023BB1 /* ChapterDiscoveryParityTests.swift */,
 				680E9F1487C7F8F0E5DE4CB8 /* TVLearningContentTests.swift */,
 				AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */,
+				B9CC1AC392178099E1B15DE6 /* TVReviewJourneyTests.swift */,
 				30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */,
 			);
 			path = GreatsOfBharathaTVTests;
@@ -974,6 +980,7 @@
 				30D96AF7E83557296E9D22FF /* TVLessonView.swift in Sources */,
 				79A28535D1132800BEEF532B /* TVParentView.swift in Sources */,
 				631096F752445615BB2CC649 /* TVPuzzleViews.swift in Sources */,
+				E58FA5CF2E91D0EE50FC79EC /* TVReviewJourneyView.swift in Sources */,
 				E67261A4C086F8CFBDE1A660 /* TVSequenceEngine.swift in Sources */,
 				3A905BC422B1B43464599D8B /* TVTimelineView.swift in Sources */,
 				C53714C819CBEB6010EDAC93 /* TimelineActivityModels.swift in Sources */,
@@ -1003,6 +1010,7 @@
 				1399DA71C38F44E3FD5FD047 /* ChapterDiscoveryParityTests.swift in Sources */,
 				097E5AF75A809358B29E9576 /* TVLearningContentTests.swift in Sources */,
 				FD182DF8E175A3A43E305934 /* TVPersistenceTests.swift in Sources */,
+				7034CEE7949BFA11A45C1E43 /* TVReviewJourneyTests.swift in Sources */,
 				C80CEBDFA785D870B0899FE6 /* TVSequenceEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

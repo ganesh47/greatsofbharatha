@@ -43,7 +43,7 @@ struct LearnQuizHomeView: View {
                     }.buttonStyle(.gbPrimary(.place))
                     NavigationLink { LearningReviewEntry() } label: {
                         Label("Review my story cards", systemImage: "rectangle.on.rectangle")
-                    }.buttonStyle(.gbSecondary)
+                    }.buttonStyle(.gbSecondary).accessibilityIdentifier("pilot-home-review")
                 }
                 NavigationLink { ChronicleBookView(scenes: scenes) } label: {
                     Label("Open my Chronicle", systemImage: "book.closed.fill")

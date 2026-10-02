@@ -23,11 +23,11 @@ final class ChapterDiscoveryUITests: XCTestCase {
 
     private func reveal(_ element: XCUIElement, in scroll: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
         for _ in 0..<20 {
-            if element.exists && element.isHittable { return }
+            if element.exists && app.windows.firstMatch.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) && element.isHittable { return }
             scroll.swipeUp()
         }
         for _ in 0..<20 {
-            if element.exists && element.isHittable { return }
+            if element.exists && app.windows.firstMatch.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) && element.isHittable { return }
             scroll.swipeDown()
         }
         XCTAssertTrue(element.isHittable, "Could not reach \(element.identifier)", file: file, line: line)

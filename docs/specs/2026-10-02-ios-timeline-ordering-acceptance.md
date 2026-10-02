@@ -83,3 +83,5 @@ The coordinator must generate the project and run these tests in the real iOS te
 | Offline and regressions | With networking disabled, recap and checks remain usable. Verify the default six-chapter iOS/TV paths, PR210 matching and TV focus/Back/resume independently. |
 
 Human VoiceOver listening, real offline disconnection and child/parent usability checks remain human validation. No child recordings, exports or recruitment are part of this work.
+
+Refs #212: [combined enrichment validation](https://github.com/ganesh47/greatsofbharatha/pull/212).

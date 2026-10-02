@@ -51,7 +51,7 @@ enum LearningActivityAdapters {
             guard let response = event.response else { return false }
             store.recordReviewResponse(subjectID: event.sceneID, response: response, promptType: event.promptType,
                 eventID: event.id, sessionID: event.sessionID, at: event.recordedAt,
-                cardID: event.cardID, participation: .typedResponse)
+                cardID: event.cardID, participation: participation(event))
         case .reteachingExposure:
             store.recordStoryExposure(for: event.sceneID, detail: "Retaught " + detail,
                 eventID: event.id, sessionID: event.sessionID, at: event.recordedAt)
@@ -60,12 +60,17 @@ enum LearningActivityAdapters {
                 activity: event.kind == .laterIndependentRecall ? .review : .recall,
                 wasSuccessful: event.wasSuccessful, support: event.support, promptType: event.promptType,
                 detail: detail, eventID: event.id, sessionID: event.sessionID, at: event.recordedAt,
-                cardID: event.cardID, checkedPromptID: event.checkedPromptID, reviewKind: event.kind, participation: .typedResponse)
+                cardID: event.cardID, checkedPromptID: event.checkedPromptID, reviewKind: event.kind, participation: participation(event))
         }
         return store.confirmOptionalLearningEvent(event.id, for: .review)
     }
 
     private static func validReview(_ event: ReviewJourneyEvidence, card: LearnQuizReviewCard) -> Bool {
+#if os(tvOS)
+        guard event.responseContext == .sharedFamilyRecognition else { return false }
+#else
+        guard event.responseContext == nil, event.selectedChoiceID == nil else { return false }
+#endif
         switch event.kind {
         case .selfReported:
             return event.support == .selfReported && !event.wasSuccessful && event.response != nil && event.checkedPromptID == nil
@@ -78,11 +83,37 @@ enum LearningActivityAdapters {
         case .incorrectChecked:
             return !event.wasSuccessful && event.support != .selfReported && knownPrompt(event, card: card)
         case .laterIndependentRecall:
-            return false // Requires the follow-up's persisted prior-card witness before enabling.
+            return event.hasValidLaterIndependentWitness && knownPrompt(event, card: card) && knownPriorPrompt(event, card: card)
+        }
+    }
+
+    private static func participation(_ event: ReviewJourneyEvidence) -> LearningParticipation {
+        event.responseContext == .sharedFamilyRecognition ? .sharedFamilyRecognition : .typedResponse
+    }
+
+    private static func knownPriorPrompt(_ event: ReviewJourneyEvidence, card: LearnQuizReviewCard) -> Bool {
+        guard let id = event.priorIndependentWitness?.promptID else { return false }
+        if LearnQuizPilotData.reviewCards.contains(where: {
+            $0.id == id && $0.sceneID == card.sceneID
+                && ChronicleQuizEngine.normalizedAnswer($0.back) == ChronicleQuizEngine.normalizedAnswer(card.back)
+        }) { return true }
+        guard let challenge = LearnQuizPilotData.scenes.first(where: { $0.id == card.sceneID })?.quiz.challenge else { return false }
+        return challenge.id == id && challenge.correctAnswers.contains {
+            ChronicleQuizEngine.normalizedAnswer($0) == ChronicleQuizEngine.normalizedAnswer(card.back)
         }
     }
 
     private static func knownPrompt(_ event: ReviewJourneyEvidence, card: LearnQuizReviewCard) -> Bool {
+#if os(tvOS)
+        guard event.responseContext == .sharedFamilyRecognition,
+              let tvCard = TVReviewJourneyContent.cards.first(where: { $0.id == card.id }),
+              let prompt = tvCard.review.checkPrompts.first(where: { $0.id == event.checkedPromptID }),
+              prompt.promptType == event.promptType,
+              let choice = tvCard.choices.first(where: { $0.id == event.selectedChoiceID }),
+              TVReviewJourneyAdapter.validChoices(tvCard.choices, for: prompt) else { return false }
+        return choice.isCorrect == event.wasSuccessful
+#else
+        guard event.responseContext == nil, event.selectedChoiceID == nil else { return false }
         guard let id = event.checkedPromptID else { return false }
         if let alternate = LearnQuizPilotData.reviewCards.first(where: { $0.id == id && $0.sceneID == card.sceneID }) {
             return alternate.promptType == event.promptType
@@ -93,5 +124,6 @@ enum LearningActivityAdapters {
         return challenge.id == id && challenge.promptType == event.promptType && challenge.correctAnswers.contains {
             ChronicleQuizEngine.normalizedAnswer($0) == ChronicleQuizEngine.normalizedAnswer(card.back)
         }
+#endif
     }
 }

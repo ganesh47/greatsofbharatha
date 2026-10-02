@@ -82,3 +82,5 @@ Coordinator alone regenerates the project and takes the heavy build/simulator sl
 8. Integrate `TVReviewJourneyView(hooks:now:)` and run the focused TV production-content test plus remote/caption/focus/relaunch acceptance in the linked TV document. Pure adapter checks and syntax parsing do not establish TV app compilation or visual acceptance.
 
 No merge or TestFlight operation was performed by this worker.
+
+Refs #212: [combined enrichment validation](https://github.com/ganesh47/greatsofbharatha/pull/212).
