@@ -1,0 +1,18 @@
+{
+  "info": {
+    "author": "com.ganesh47.greatsofbharatha",
+    "version": 1
+  },
+  "images": [
+    {
+      "idiom": "tv",
+      "filename": "Background@1x.png",
+      "scale": "1x"
+    },
+    {
+      "idiom": "tv",
+      "filename": "Background@2x.png",
+      "scale": "2x"
+    }
+  ]
+}

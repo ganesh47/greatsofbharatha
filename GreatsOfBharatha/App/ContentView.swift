@@ -3,6 +3,8 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab: DebugTabRoute = .learn
     @State private var showsParentView = false
+    @State private var showsParentGate = false
+    @State private var parentGatePassed = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -31,7 +33,7 @@ struct ContentView: View {
                         // Discreet parent-access button — no label visible to children
                         ToolbarItem(placement: .topBarTrailing) {
                             Button {
-                                showsParentView = true
+                                showsParentGate = true
                             } label: {
                                 Image(systemName: "gearshape")
                                     .font(.system(size: 16))
@@ -45,6 +47,14 @@ struct ContentView: View {
             .tag(DebugTabRoute.chronicle)
         }
         .tint(GBColor.Story.primary)
+        .sheet(isPresented: $showsParentGate, onDismiss: {
+            if parentGatePassed {
+                parentGatePassed = false
+                showsParentView = true
+            }
+        }) {
+            ParentGateView { parentGatePassed = true }
+        }
         .sheet(isPresented: $showsParentView) {
             NavigationStack { ParentProgressView() }
         }

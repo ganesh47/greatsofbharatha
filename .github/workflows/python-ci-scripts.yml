@@ -3,22 +3,8 @@ name: Python CI Scripts
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "ci_scripts/**"
-      - "pyproject.toml"
-      - ".github/workflows/python-ci-scripts.yml"
-      - ".github/workflows/testflight-feedback-sync.yml"
-      - ".github/workflows/testflight-crash-feedback-sync.yml"
-      - ".github/workflows/poll-testflight-build.yml"
   push:
     branches: [main]
-    paths:
-      - "ci_scripts/**"
-      - "pyproject.toml"
-      - ".github/workflows/python-ci-scripts.yml"
-      - ".github/workflows/testflight-feedback-sync.yml"
-      - ".github/workflows/testflight-crash-feedback-sync.yml"
-      - ".github/workflows/poll-testflight-build.yml"
   schedule:
     - cron: "18 9 * * 1"
   workflow_dispatch:
@@ -41,6 +27,9 @@ jobs:
 
       - name: Lint CI scripts
         run: ruff check ci_scripts
+
+      - name: Test release verification and version stamping
+        run: python3 -m unittest discover -s ci_scripts -p 'test_*.py'
 
       - name: Audit Python CI dependencies
         run: pip-audit -r ci_scripts/requirements-ci.txt

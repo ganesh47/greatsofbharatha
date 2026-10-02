@@ -2,8 +2,22 @@ import XCTest
 @testable import Greats_Of_Bharatha
 
 final class GreatsOfBharathaTests: XCTestCase {
+    private var appModelSuites: [String] = []
+
+    private func isolatedAppDefaults() -> UserDefaults {
+        let suite = "GreatsOfBharatha.AppModelTests." + UUID().uuidString
+        appModelSuites.append(suite)
+        return UserDefaults(suiteName: suite)!
+    }
+
+    override func tearDown() {
+        for suite in appModelSuites { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+        appModelSuites = []
+        super.tearDown()
+    }
+
     func testSampleContentHasCanonicalSixSceneArc() {
-        let model = AppModel()
+        let model = AppModel(defaults: isolatedAppDefaults())
         XCTAssertEqual(model.content.scenes.map(\.id), [
             "scene-1-shivneri",
             "scene-2-torna-rajgad",
@@ -99,9 +113,9 @@ final class GreatsOfBharathaTests: XCTestCase {
         let scenes = LearnQuizPilotData.scenes
         let pilot = SampleContent.shivajiLearnQuizResetPilot
 
-        XCTAssertEqual(scenes.map(\.id), pilot.scenes.map(\.id))
+        XCTAssertEqual(scenes.map(\.id), SampleContent.shivajiVerticalSlice.scenes.map(\.id))
         XCTAssertEqual(scenes.first?.quiz.challenge.correctAnswers, pilot.scenes.first?.quizItems.first?.acceptedAnswers)
-        XCTAssertEqual(scenes.flatMap(\.matchPairs).count, pilot.scenes.flatMap(\.matchPairs).count)
+        XCTAssertEqual(scenes.flatMap(\.matchPairs).count, pilot.scenes.flatMap(\.matchPairs).filter { $0.kind == .placeToHook }.count)
 
         var matchState = ChronicleMatchState()
         let firstPair = scenes.flatMap(\.matchPairs)[0]
@@ -274,10 +288,10 @@ final class GreatsOfBharathaTests: XCTestCase {
             detail: "Test recall success"
         )
 
-        XCTAssertEqual(store.mastery(for: "scene-1-shivneri"), .remembered)
+        XCTAssertEqual(store.mastery(for: "scene-1-shivneri"), .understood)
         let record = store.masteryRecord(for: "scene-1-shivneri")
         XCTAssertEqual(record?.successfulReviewCount, 1)
-        XCTAssertEqual(record?.evidenceLog.last?.type, .reviewSuccess)
+        XCTAssertEqual(record?.evidenceLog.last?.type, .recallSuccess)
 
         let dueReviews = store.dueReviews(referenceDate: .distantFuture)
         let schedule = dueReviews.first { $0.subjectID == "scene-1-shivneri" }
@@ -295,7 +309,7 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertEqual(store.unlockedTimelineCount, 0)
         XCTAssertEqual(store.timelineHeadline, "Unlock the first moment in order")
         XCTAssertEqual(store.dueReviewCount, 0)
-        XCTAssertEqual(store.upcomingReviews(limit: 2).count, 2)
+        XCTAssertEqual(store.upcomingReviews(limit: 2).count, 0)
 
         store.markScene("scene-1-shivneri", mastery: .understood)
         XCTAssertEqual(store.unlockedTimelineCount, 1)
@@ -310,6 +324,9 @@ final class GreatsOfBharathaTests: XCTestCase {
             detail: "Strengthen first scene"
         )
 
+        XCTAssertEqual(store.masteredTimelineCount, 0)
+        store.recordLearningOutcome(subjectID: "timeline-born-at-shivneri", subjectType: .timeline,
+                                    activity: .timelinePlacement, wasSuccessful: true)
         XCTAssertEqual(store.masteredTimelineCount, 1)
         XCTAssertEqual(store.timelineHeadline, "Your timeline confidence is growing")
     }
@@ -335,11 +352,11 @@ final class GreatsOfBharathaTests: XCTestCase {
         )
 
         XCTAssertEqual(store.masteredPlaceCount, 1)
-        XCTAssertTrue(store.parentProgressHeadline.contains("Meaning is starting to stick") || store.parentProgressHeadline.contains("Story, place, and review"))
+        XCTAssertEqual(store.parentProgressHeadline, "A keepsake was earned through a recall activity")
     }
 
     func testAppModelExposesParentSettingsHooks() {
-        let model = AppModel()
+        let model = AppModel(defaults: isolatedAppDefaults())
         XCTAssertTrue(model.parentSettings.assistModeEnabled)
         XCTAssertTrue(model.parentSettings.narrationEnabled)
         XCTAssertTrue(model.parentSettings.calmTransitionsEnabled)
@@ -354,7 +371,7 @@ final class GreatsOfBharathaTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
         let narratorURL = repoRoot
-            .appendingPathComponent("GreatsOfBharatha/DesignSystem/Components/GBFlashCard.swift")
+            .appendingPathComponent("GreatsOfBharatha/Shared/Audio/GBNarrator.swift")
         let source = try String(contentsOf: narratorURL, encoding: .utf8)
 
         XCTAssertTrue(source.contains("AVSpeechSynthesizer()"))
@@ -423,22 +440,16 @@ final class GreatsOfBharathaTests: XCTestCase {
         XCTAssertLessThanOrEqual(abs(viewport.centerLongitude - focusLongitude), viewport.longitudeDelta)
     }
 
-    func testDefaultLessonRecallIsChoiceBasedNotTextInput() throws {
-        let testFile = URL(fileURLWithPath: #filePath)
-        let repoRoot = testFile
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let sceneLessonURL = repoRoot
-            .appendingPathComponent("GreatsOfBharatha/Features/Lesson/SceneLessonView.swift")
-        let source = try String(contentsOf: sceneLessonURL, encoding: .utf8)
-
-        XCTAssertTrue(source.contains("Check my choice"))
-        XCTAssertTrue(source.contains("Pick one choice before you collect your Chronicle reward."))
-        XCTAssertTrue(source.contains("recall-choice-\\(choice.id)"))
-        XCTAssertTrue(source.contains("accessibilityValue"))
-        XCTAssertFalse(source.contains("TextField("))
-        XCTAssertFalse(source.contains("TextEditor("))
-        XCTAssertFalse(source.contains("SecureField("))
+    func testDefaultLessonRecallAcceptsOnlyTheAuthoredChoiceIdentity() throws {
+        for scene in SampleContent.shivajiVerticalSlice.scenes {
+            let plan = SampleContent.learningPlan(for: scene)
+            let correct = try XCTUnwrap(plan.correctChoice)
+            XCTAssertTrue(plan.isCorrect(choiceID: correct.id))
+            XCTAssertFalse(plan.isCorrect(choiceID: "unrecognized-choice"))
+            for distractor in plan.choices where !distractor.isCorrect {
+                XCTAssertFalse(plan.isCorrect(choiceID: distractor.id))
+            }
+        }
     }
 
 }

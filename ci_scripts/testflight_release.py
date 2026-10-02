@@ -15,6 +15,8 @@ from urllib.parse import quote, urlparse
 
 import jwt
 import requests
+from release_gates import GateError
+from release_gates import check_github_gates as check_release_gates
 
 ASC_ORIGIN = "https://api.appstoreconnect.apple.com"
 VERSION_RE = re.compile(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\Z")
@@ -42,26 +44,37 @@ class AppleAPI:
         for attempt in range(4):
             now = int(time.time())
             token = jwt.encode(
-                {"iss": os.environ["APP_STORE_CONNECT_ISSUER_ID"], "iat": now,
-                 "exp": now + 600, "aud": "appstoreconnect-v1"},
-                os.environ["APP_STORE_CONNECT_PRIVATE_KEY"], algorithm="ES256",
+                {
+                    "iss": os.environ["APP_STORE_CONNECT_ISSUER_ID"],
+                    "iat": now,
+                    "exp": now + 600,
+                    "aud": "appstoreconnect-v1",
+                },
+                os.environ["APP_STORE_CONNECT_PRIVATE_KEY"],
+                algorithm="ES256",
                 headers={"kid": os.environ["APP_STORE_CONNECT_KEY_ID"], "typ": "JWT"},
             )
             try:
                 response = self.session.request(
-                    method, url, params=params, json=body, timeout=45,
+                    method,
+                    url,
+                    params=params,
+                    json=body,
+                    timeout=45,
                     headers={"Authorization": f"Bearer {token}"},
                 )
             except requests.RequestException as exc:
                 # POST must never be blindly retried: its outcome can be unknown.
                 if method != "GET":
-                    raise ReleaseError("Apple mutation outcome unknown; inspect preflight/run history before retrying") from exc
+                    raise ReleaseError(
+                        "Apple mutation outcome unknown; inspect preflight/run history before retrying"
+                    ) from exc
                 if attempt == 3:
                     raise ReleaseError("Apple API network retries exhausted") from exc
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
                 continue
             if response.status_code in {429, 500, 502, 503, 504} and method == "GET" and attempt < 3:
-                time.sleep(min(int(response.headers.get("Retry-After", 2 ** attempt)), 60))
+                time.sleep(min(int(response.headers.get("Retry-After", 2**attempt)), 60))
                 continue
             if not response.ok:
                 try:
@@ -95,11 +108,14 @@ def relation(resource, name):
 
 def summarize_run(run):
     attrs = run.get("attributes", {})
-    return {"id": run["id"], "number": attrs.get("number"),
-            "executionProgress": attrs.get("executionProgress"),
-            "completionStatus": attrs.get("completionStatus"),
-            "sourceSha": attrs.get("sourceCommit", {}).get("commitSha"),
-            "createdDate": attrs.get("createdDate")}
+    return {
+        "id": run["id"],
+        "number": attrs.get("number"),
+        "executionProgress": attrs.get("executionProgress"),
+        "completionStatus": attrs.get("completionStatus"),
+        "sourceSha": (attrs.get("sourceCommit") or {}).get("commitSha"),
+        "createdDate": attrs.get("createdDate"),
+    }
 
 
 def discover(api, app_id):
@@ -108,49 +124,87 @@ def discover(api, app_id):
         raise ReleaseError("Configured App Store Connect app has the wrong bundle identifier")
     groups, _ = api.collection(f"/v1/apps/{app_id}/betaGroups", {"limit": 200})
     products, _ = api.collection("/v1/ciProducts", {"filter[app]": app_id, "limit": 200})
-    report = {"app": {"id": app_id, "bundleId": app["attributes"]["bundleId"]},
-              "groups": [{"id": g["id"], "name": g.get("attributes", {}).get("name"),
-                          "internal": g.get("attributes", {}).get("isInternalGroup"),
-                          "hasAccessToAllBuilds": g.get("attributes", {}).get("hasAccessToAllBuilds")}
-                         for g in groups], "products": []}
+    report = {
+        "app": {"id": app_id, "bundleId": app["attributes"]["bundleId"]},
+        "groups": [
+            {
+                "id": g["id"],
+                "name": g.get("attributes", {}).get("name"),
+                "internal": g.get("attributes", {}).get("isInternalGroup"),
+                "hasAccessToAllBuilds": g.get("attributes", {}).get("hasAccessToAllBuilds"),
+            }
+            for g in groups
+        ],
+        "products": [],
+    }
     for product in products:
-        workflows, workflow_includes = api.collection(f"/v1/ciProducts/{product['id']}/workflows",
-                                                     {"limit": 200, "include": "repository,xcodeVersion,macOsVersion"})
+        workflows, workflow_includes = api.collection(
+            f"/v1/ciProducts/{product['id']}/workflows",
+            {"limit": 200, "include": "repository,xcodeVersion,macOsVersion"},
+        )
         summaries = []
         for workflow in workflows:
             attrs = workflow.get("attributes", {})
             repository = api.get(f"/v1/ciWorkflows/{workflow['id']}/repository")["data"]
             repo_attrs = repository.get("attributes", {})
             refs, _ = api.collection(f"/v1/scmRepositories/{repository['id']}/gitReferences", {"limit": 200})
-            runs = api.get(f"/v1/ciWorkflows/{workflow['id']}/buildRuns", {"limit": 5, "sort": "-number"}).get("data", [])
+            runs = api.get(f"/v1/ciWorkflows/{workflow['id']}/buildRuns", {"limit": 5, "sort": "-number"}).get(
+                "data", []
+            )
             # Do not expose other applications, author identities, or commit messages.
-            summaries.append({"id": workflow["id"], "name": attrs.get("name"),
-                              "enabled": attrs.get("isEnabled"), "locked": attrs.get("isLockedForEditing"),
-                              "container": attrs.get("containerFilePath"), "actions": attrs.get("actions", []),
-                              "repository": {"id": repository["id"], "owner": repo_attrs.get("ownerName"),
-                                             "name": repo_attrs.get("repositoryName")},
-                              "toolchain": {name: workflow_includes.get((rel["type"], rel["id"]), {}).get("attributes", {})
-                                            for name in ["xcodeVersion", "macOsVersion"]
-                                            if (rel := relation(workflow, name))},
-                              "startConditions": {name: attrs.get(name) for name in
-                                                  ["manualTagStartCondition", "tagStartCondition", "branchStartCondition"]},
-                              "gitTags": [{"id": r["id"], "name": r.get("attributes", {}).get("name")}
-                                          for r in refs if r.get("attributes", {}).get("kind") == "TAG"
-                                          and not r.get("attributes", {}).get("isDeleted")][-10:],
-                              "recentRuns": [summarize_run(r) for r in runs[:5]]})
-        report["products"].append({"id": product["id"], "name": product.get("attributes", {}).get("name"),
-                                   "workflows": summaries})
-    build_document = api.get("/v1/builds", {"filter[app]": app_id, "limit": 5,
-                                          "sort": "-uploadedDate", "include": "preReleaseVersion"})
+            summaries.append(
+                {
+                    "id": workflow["id"],
+                    "name": attrs.get("name"),
+                    "enabled": attrs.get("isEnabled"),
+                    "locked": attrs.get("isLockedForEditing"),
+                    "container": attrs.get("containerFilePath"),
+                    "actions": attrs.get("actions", []),
+                    "repository": {
+                        "id": repository["id"],
+                        "owner": repo_attrs.get("ownerName"),
+                        "name": repo_attrs.get("repositoryName"),
+                    },
+                    "toolchain": {
+                        name: {
+                            field: workflow_includes.get((rel["type"], rel["id"]), {}).get("attributes", {}).get(field)
+                            for field in ["name", "version"]
+                        }
+                        for name in ["xcodeVersion", "macOsVersion"]
+                        if (rel := relation(workflow, name))
+                    },
+                    "startConditions": {
+                        name: attrs.get(name)
+                        for name in ["manualTagStartCondition", "tagStartCondition", "branchStartCondition"]
+                    },
+                    "gitTags": [
+                        {"id": r["id"], "name": r.get("attributes", {}).get("name")}
+                        for r in refs
+                        if r.get("attributes", {}).get("kind") == "TAG" and not r.get("attributes", {}).get("isDeleted")
+                    ][-10:],
+                    "recentRuns": [summarize_run(r) for r in runs[:5]],
+                }
+            )
+        report["products"].append(
+            {"id": product["id"], "name": product.get("attributes", {}).get("name"), "workflows": summaries}
+        )
+    build_document = api.get(
+        "/v1/builds", {"filter[app]": app_id, "limit": 5, "sort": "-uploadedDate", "include": "preReleaseVersion"}
+    )
     builds = build_document.get("data", [])
     included = {(r["type"], r["id"]): r for r in build_document.get("included", [])}
     report["recentBuilds"] = []
     for build in builds[:5]:
         rel = relation(build, "preReleaseVersion") or {}
         version = included.get(("preReleaseVersions", rel.get("id")), {}).get("attributes", {}).get("version")
-        report["recentBuilds"].append({"id": build["id"], "marketingVersion": version,
-                                      "buildNumber": build.get("attributes", {}).get("version"),
-                                      "processingState": build.get("attributes", {}).get("processingState")})
+        report["recentBuilds"].append(
+            {
+                "id": build["id"],
+                "marketingVersion": version,
+                "buildNumber": build.get("attributes", {}).get("version"),
+                "processingState": build.get("attributes", {}).get("processingState"),
+            }
+        )
     return report
 
 
@@ -164,9 +218,11 @@ def validate_inputs(version, sha, tag):
 
 
 def github_get(path):
-    response = requests.get("https://api.github.com" + path, timeout=30,
-                            headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"],
-                                     "Accept": "application/vnd.github+json"})
+    response = requests.get(
+        "https://api.github.com" + path,
+        timeout=30,
+        headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Accept": "application/vnd.github+json"},
+    )
     if not response.ok:
         raise ReleaseError(f"GitHub verification failed: HTTP {response.status_code}")
     return response.json()
@@ -184,24 +240,10 @@ def check_tag_sha(tag, sha):
 
 
 def check_github_gates(sha):
-    repo = os.environ["GITHUB_REPOSITORY"]
-    required = {"CI", "Python CI Scripts", "Workflow Lint", "Workflow Security", "XcodeGen Drift", "SwiftLint", "Secret Scan"}
-    runs = []
-    for page in range(1, 11):
-        batch = github_get(f"/repos/{repo}/actions/runs?head_sha={sha}&per_page=100&page={page}")["workflow_runs"]
-        runs.extend(batch)
-        if len(batch) < 100:
-            break
-    latest = {}
-    # Prefer main push runs when present; otherwise exact SHA PR run.
-    for run in sorted(runs, key=lambda r: r["id"]):
-        if run.get("event") in {"push", "pull_request"} and run.get("name") in required:
-            latest[run["name"]] = run
-    missing = required - latest.keys()
-    failing = [name for name, run in latest.items() if run.get("conclusion") != "success"]
-    if missing or failing:
-        raise ReleaseError(f"Exact-SHA CI gate not green; missing={sorted(missing)}, non-success={sorted(failing)}")
-    return {name: run["html_url"] for name, run in sorted(latest.items())}
+    try:
+        return check_release_gates(sha, get=github_get)
+    except GateError as exc:
+        raise ReleaseError(str(exc)) from exc
 
 
 def selected_workflow(api, report, workflow_id):
@@ -224,12 +266,29 @@ def configure_archive(api, workflow):
         raise ReleaseError("Xcode Cloud workflow is locked; cannot repair archive configuration")
     actions = list(attrs.get("actions", []))
     if not any(a.get("actionType") == "ARCHIVE" and a.get("platform") == "IOS" for a in actions):
-        actions.append({"name": "Archive iOS for TestFlight", "actionType": "ARCHIVE", "platform": "IOS",
-                        "scheme": "GreatsOfBharatha", "destination": "ANY_IOS_DEVICE", "isRequiredToPass": True,
-                        "buildDistributionAudience": "INTERNAL_ONLY"})
-    patch = {"data": {"type": "ciWorkflows", "id": workflow["id"],
-                      "attributes": {"actions": actions, "isEnabled": True, "clean": True,
-                                     "manualTagStartCondition": {"source": {"isAllMatch": True}}}}}
+        actions.append(
+            {
+                "name": "Archive iOS for TestFlight",
+                "actionType": "ARCHIVE",
+                "platform": "IOS",
+                "scheme": "GreatsOfBharatha",
+                "destination": "ANY_IOS_DEVICE",
+                "isRequiredToPass": True,
+                "buildDistributionAudience": "INTERNAL_ONLY",
+            }
+        )
+    patch = {
+        "data": {
+            "type": "ciWorkflows",
+            "id": workflow["id"],
+            "attributes": {
+                "actions": actions,
+                "isEnabled": True,
+                "clean": True,
+                "manualTagStartCondition": {"source": {"isAllMatch": True}},
+            },
+        }
+    }
     return api.request("PATCH", f"/v1/ciWorkflows/{workflow['id']}", body=patch)["data"]
 
 
@@ -240,43 +299,69 @@ def workflow_repository(api, workflow):
     else:
         repository = api.get(f"/v1/ciWorkflows/{workflow['id']}/repository")["data"]
     attrs = repository.get("attributes", {})
-    if (attrs.get("ownerName", "").lower() + "/" + attrs.get("repositoryName", "").lower()
-            != os.environ["GITHUB_REPOSITORY"].lower()):
+    if (
+        attrs.get("ownerName", "").lower() + "/" + attrs.get("repositoryName", "").lower()
+        != os.environ["GITHUB_REPOSITORY"].lower()
+    ):
         raise ReleaseError("Xcode Cloud workflow repository does not match this GitHub repository")
     return repository
 
 
 def find_tag(api, repository_id, tag):
     refs, _ = api.collection(f"/v1/scmRepositories/{repository_id}/gitReferences", {"limit": 200})
-    matches = [r for r in refs if r.get("attributes", {}).get("canonicalName") == "refs/tags/" + tag
-               and not r.get("attributes", {}).get("isDeleted")]
+    matches = [
+        r
+        for r in refs
+        if r.get("attributes", {}).get("canonicalName") == "refs/tags/" + tag
+        and not r.get("attributes", {}).get("isDeleted")
+    ]
     if len(matches) != 1:
         raise Pending("Release tag has not appeared in Xcode Cloud yet")
     return matches[0]
 
 
-def find_or_start_run(api, workflow_id, ref_id, sha):
-    runs, _ = api.collection(f"/v1/ciWorkflows/{workflow_id}/buildRuns", {"limit": 200, "sort": "-number",
-                                                                       "include": "sourceBranchOrTag"})
+def tag_starts_automatically(workflow, tag):
+    source = (workflow.get("attributes", {}).get("tagStartCondition") or {}).get("source") or {}
+    return source.get("isAllMatch") is True or any(
+        tag.startswith(p["pattern"]) if p.get("isPrefix") else tag == p["pattern"] for p in source.get("patterns", [])
+    )
+
+
+def find_or_start_run(api, workflow_id, ref_id, sha, allow_start=True):
+    runs, _ = api.collection(
+        f"/v1/ciWorkflows/{workflow_id}/buildRuns", {"limit": 200, "sort": "-number", "include": "sourceBranchOrTag"}
+    )
     matches = [r for r in runs if (relation(r, "sourceBranchOrTag") or {}).get("id") == ref_id]
     if matches:
         run = matches[0]
-        source = run.get("attributes", {}).get("sourceCommit", {}).get("commitSha")
+        source = (run.get("attributes", {}).get("sourceCommit") or {}).get("commitSha")
         if source and source != sha:
             raise ReleaseError("Existing Cloud run for this tag has a different source SHA")
         if run.get("attributes", {}).get("completionStatus") not in {None, "SUCCEEDED"}:
             raise ReleaseError("Existing run for this release tag failed; use a new version/tag for retry")
         return run
-    return api.request("POST", "/v1/ciBuildRuns", body={"data": {"type": "ciBuildRuns",
-                       "attributes": {"clean": True}, "relationships": {
-                           "workflow": {"data": {"type": "ciWorkflows", "id": workflow_id}},
-                           "sourceBranchOrTag": {"data": {"type": "scmGitReferences", "id": ref_id}}}}})["data"]
+    if not allow_start:
+        raise Pending("Waiting for the workflow automatic tag trigger; will not create a competing run")
+    return api.request(
+        "POST",
+        "/v1/ciBuildRuns",
+        body={
+            "data": {
+                "type": "ciBuildRuns",
+                "attributes": {"clean": True},
+                "relationships": {
+                    "workflow": {"data": {"type": "ciWorkflows", "id": workflow_id}},
+                    "sourceBranchOrTag": {"data": {"type": "scmGitReferences", "id": ref_id}},
+                },
+            }
+        },
+    )["data"]
 
 
 def observe_cloud(api, run_id, sha, ref_id):
-    run = api.get(f"/v1/ciBuildRuns/{run_id}", {"include": "sourceBranchOrTag"})["data"]
+    run = api.get(f"/v1/ciBuildRuns/{run_id}", {"include": "sourceBranchOrTag,workflow"})["data"]
     attrs = run.get("attributes", {})
-    source = attrs.get("sourceCommit", {}).get("commitSha")
+    source = (attrs.get("sourceCommit") or {}).get("commitSha")
     if source and source != sha:
         raise ReleaseError("Cloud run source commit differs from the tested SHA")
     if (relation(run, "sourceBranchOrTag") or {}).get("id") != ref_id:
@@ -285,17 +370,28 @@ def observe_cloud(api, run_id, sha, ref_id):
         raise ReleaseError("Xcode Cloud build ended: " + str(attrs["completionStatus"]))
     if attrs.get("executionProgress") != "COMPLETE" or attrs.get("completionStatus") != "SUCCEEDED":
         raise Pending("Cloud run is still building")
+    if source != sha:
+        raise ReleaseError("Completed Cloud run must report the exact tested source commit SHA")
     return run
 
 
 def exact_build(api, app_id, version, build_number):
-    builds, included = api.collection("/v1/builds", {"filter[app]": app_id,
-        "filter[version]": str(build_number), "include": "preReleaseVersion,buildBetaDetail", "limit": 200})
+    builds, included = api.collection(
+        "/v1/builds",
+        {
+            "filter[app]": app_id,
+            "filter[version]": str(build_number),
+            "include": "preReleaseVersion,buildBetaDetail",
+            "limit": 200,
+        },
+    )
     matches = []
     for build in builds:
         rel = relation(build, "preReleaseVersion") or {}
         prerelease = included.get(("preReleaseVersions", rel.get("id")), {})
-        if prerelease.get("attributes", {}).get("version") == version and str(build["attributes"]["version"]) == str(build_number):
+        if prerelease.get("attributes", {}).get("version") == version and str(build["attributes"]["version"]) == str(
+            build_number
+        ):
             matches.append(build)
     if not matches:
         raise Pending("Exact marketing version/build number has not appeared in App Store Connect")
@@ -367,30 +463,49 @@ def main():
     if args.operation == "configure":
         selected_group(report, args.group_id)
         workflow = configure_archive(api, workflow)
-        write_report({"configuredWorkflow": workflow["id"], "actions": workflow["attributes"]["actions"],
-                      "note": "Archive uploads through Xcode Cloud; publishing explicitly attaches the resulting build to the existing internal group."}, args.report)
+        write_report(
+            {
+                "configuredWorkflow": workflow["id"],
+                "actions": workflow["attributes"]["actions"],
+                "note": "Archive uploads through Xcode Cloud; publishing explicitly attaches the resulting build to the existing internal group.",
+            },
+            args.report,
+        )
         return 0
     validate_inputs(args.version, args.sha, args.tag)
     check_tag_sha(args.tag, args.sha)
     gates = check_github_gates(args.sha)
     group = selected_group(report, args.group_id)
     attrs = workflow.get("attributes", {})
-    if not attrs.get("isEnabled") or not any(a.get("actionType") == "ARCHIVE" and a.get("platform") == "IOS"
-                                            for a in attrs.get("actions", [])):
+    if not attrs.get("isEnabled") or not any(
+        a.get("actionType") == "ARCHIVE" and a.get("platform") == "IOS" for a in attrs.get("actions", [])
+    ):
         raise ReleaseError("Selected workflow must be enabled and archive iOS; run configure if needed")
     ref = wait_for(lambda: find_tag(api, repository["id"], args.tag), timeout=300)
     if args.operation == "publish":
-        run = find_or_start_run(api, workflow["id"], ref["id"], args.sha)
+        automatic = tag_starts_automatically(workflow, args.tag)
+        run = wait_for(
+            lambda: find_or_start_run(api, workflow["id"], ref["id"], args.sha, allow_start=not automatic), timeout=600
+        )
         run_id = run["id"]
-        write_report({"cloudRun": summarize_run(run), "tag": args.tag, "sourceSha": args.sha,
-                      "requestedVersion": args.version, "group": group, "ciGates": gates}, args.report)
+        write_report(
+            {
+                "cloudRun": summarize_run(run),
+                "tag": args.tag,
+                "sourceSha": args.sha,
+                "requestedVersion": args.version,
+                "group": group,
+                "ciGates": gates,
+            },
+            args.report,
+        )
     else:
         if not args.cloud_run_id or not re.fullmatch(r"[1-9]\d*", args.build_number):
             raise ReleaseError("Verify requires explicit Cloud run ID and numeric build number")
         run_id = args.cloud_run_id
     run = wait_for(lambda: observe_cloud(api, run_id, args.sha, ref["id"]))
     run_workflow = relation(run, "workflow")
-    if run_workflow and run_workflow.get("id") != workflow["id"]:
+    if not run_workflow or run_workflow.get("id") != workflow["id"]:
         raise ReleaseError("Cloud run belongs to another workflow")
     build_number = str(run["attributes"]["number"])
     if args.build_number and args.build_number != build_number:
@@ -403,16 +518,32 @@ def main():
     if not group_contains_build(api, group["id"], build["id"]):
         if args.operation != "publish":
             raise ReleaseError("Exact build is not assigned to the intended internal group")
-        api.request("POST", f"/v1/betaGroups/{group['id']}/relationships/builds",
-                    body={"data": [{"type": "builds", "id": build["id"]}]})
+        api.request(
+            "POST",
+            f"/v1/betaGroups/{group['id']}/relationships/builds",
+            body={"data": [{"type": "builds", "id": build["id"]}]},
+        )
     if not group_contains_build(api, group["id"], build["id"]):
         raise ReleaseError("Group assignment did not verify")
     build, state = exact_build(api, app_id, args.version, build_number)
-    write_report({"result": "AVAILABLE_TO_INTERNAL_TESTERS", "sourceSha": args.sha, "tag": args.tag,
-                  "marketingVersion": args.version, "buildNumber": build_number, "appId": app_id,
-                  "ascBuildId": build["id"], "cloudRunId": run_id, "workflowId": workflow["id"],
-                  "internalBuildState": state, "group": group, "ciGates": gates,
-                  "deviceInstallSmokeTest": "Requires a real device; API availability does not prove installation."}, args.report)
+    write_report(
+        {
+            "result": "AVAILABLE_TO_INTERNAL_TESTERS",
+            "sourceSha": args.sha,
+            "tag": args.tag,
+            "marketingVersion": args.version,
+            "buildNumber": build_number,
+            "appId": app_id,
+            "ascBuildId": build["id"],
+            "cloudRunId": run_id,
+            "workflowId": workflow["id"],
+            "internalBuildState": state,
+            "group": group,
+            "ciGates": gates,
+            "deviceInstallSmokeTest": "Requires a real device; API availability does not prove installation.",
+        },
+        args.report,
+    )
     return 0
 
 

@@ -7,8 +7,12 @@ struct AppleMapsPlaceHandoff {
     let coordinate: CLLocationCoordinate2D?
 
     var isAvailable: Bool {
+#if os(tvOS)
+        return false
+#else
         guard let coordinate else { return false }
         return CLLocationCoordinate2DIsValid(coordinate)
+#endif
     }
 
     var url: URL? {
@@ -34,11 +38,15 @@ struct AppleMapsPlaceHandoff {
     @MainActor
     @discardableResult
     func openInAppleMaps() -> Bool {
+#if os(iOS)
         guard let item = makeMapItem() else { return false }
         item.openInMaps(launchOptions: [
             MKLaunchOptionsMapCenterKey: NSValue(mkCoordinate: item.placemark.coordinate),
             MKLaunchOptionsMapSpanKey: NSValue(mkCoordinateSpan: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08))
         ])
         return true
+#else
+        return false
+#endif
     }
 }

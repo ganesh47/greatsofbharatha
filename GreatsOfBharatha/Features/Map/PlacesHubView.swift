@@ -13,8 +13,10 @@ struct PlacesHubView: View {
         readyPlaces.first
     }
 
-    private var masteredCount: Int {
-        places.filter { appModel.lessonStore.progress(for: $0) == .masteredLightly }.count
+    private var clueActivityCount: Int {
+        places.filter { place in
+            appModel.lessonStore.masteryRecord(for: place.id)?.evidenceLog.contains { $0.type == .recallSuccess } == true
+        }.count
     }
 
     var body: some View {
@@ -26,7 +28,7 @@ struct PlacesHubView: View {
                     GBSurface(style: .elevated) {
                         HStack(spacing: GBSpacing.small) {
                             PlaceSummaryPill(title: "Ready now", value: "\(readyPlaces.count)", emphasis: .place)
-                            PlaceSummaryPill(title: "Visited", value: "\(masteredCount)", emphasis: .chronicle)
+                            PlaceSummaryPill(title: "Clue activities", value: "\(clueActivityCount)", emphasis: .chronicle)
                             PlaceSummaryPill(title: "Core forts", value: "\(places.filter(\.isCoreReleasePlace).count)", emphasis: .neutral)
                         }
                     }
@@ -191,7 +193,12 @@ struct PlaceDetailView: View {
     let place: Place
     let progress: PlaceProgress
 
+    @EnvironmentObject private var appModel: AppModel
     @State private var showsMapExplorer = false
+    @State private var showsParentGate = false
+    @State private var solvedPlaceIDs: Set<String> = []
+    @State private var helpedPlaceIDs: Set<String> = []
+    @State private var sessionID = UUID()
 
     private var allCorePlaces: [Place] {
         SampleContent.shivajiVerticalSlice.corePlaces
@@ -215,7 +222,15 @@ struct PlaceDetailView: View {
                     // Simplified header: fort icon + name + why it matters
                     simplifiedHeader
 
-                    // Real Apple Maps view replacing the abstract schematic board.
+                    OfflineFortChallenge(target: place,
+                        candidates: ([place] + appModel.content.corePlaces.filter { $0.id != place.id }.prefix(2)).sorted { $0.name < $1.name },
+                        solvedPlaceIDs: $solvedPlaceIDs, helpedPlaceIDs: $helpedPlaceIDs) { support in
+                            appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
+                                activity: .recall, wasSuccessful: true, support: support, mastery: .understood,
+                                promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue", sessionID: sessionID)
+                        }.padding(.horizontal, context.containerPadding)
+
+                    // Optional online map for exploration.
                     if place.coordinate != nil {
                         GBFortMapView(place: place)
                             .frame(height: 250)
@@ -241,7 +256,7 @@ struct PlaceDetailView: View {
                         if place.canOpenInAppleMaps {
                             VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
                                 Button {
-                                    place.appleMapsHandoff.openInAppleMaps()
+                                    showsParentGate = true
                                 } label: {
                                     Label("Grown-up map option", systemImage: "arrow.up.right.square")
                                         .frame(maxWidth: .infinity)
@@ -268,9 +283,31 @@ struct PlaceDetailView: View {
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+        .onAppear {
+            if let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id,
+               let point = appModel.lessonStore.resumePoint(for: sceneID) {
+                solvedPlaceIDs = point.solvedPlaceIDs
+                helpedPlaceIDs = point.helpedPlaceIDs
+                sessionID = point.sessionID
+            }
+        }
+        .onChange(of: helpedPlaceIDs) { _, _ in savePlaceCheckpoint() }
+        .onChange(of: solvedPlaceIDs) { _, _ in savePlaceCheckpoint() }
+        .sheet(isPresented: $showsParentGate) {
+            ParentGateView { place.appleMapsHandoff.openInAppleMaps() }
+        }
         .sheet(isPresented: $showsMapExplorer) {
             PlaceMapExplorerSheet(place: place, nearbyPlaces: allCorePlaces)
         }
+    }
+
+    private func savePlaceCheckpoint() {
+        guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
+        var point = appModel.lessonStore.resumePoint(for: sceneID) ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
+        point.solvedPlaceIDs.formUnion(solvedPlaceIDs)
+        point.helpedPlaceIDs.formUnion(helpedPlaceIDs)
+        point.updatedAt = Date()
+        appModel.lessonStore.saveResumePoint(point)
     }
 
     private var simplifiedHeader: some View {
@@ -285,12 +322,10 @@ struct PlaceDetailView: View {
                     Text(place.name)
                         .font(GBFont.display(size: 24, weight: .bold))
                         .foregroundStyle(.white)
-                        .lineLimit(2)
-                    Text(place.primaryEvent)
+                        Text(place.primaryEvent)
                         .font(GBFont.story(size: 15, italic: true))
                         .foregroundStyle(.white.opacity(0.88))
-                        .lineLimit(2)
-                }
+                    }
 
                 Spacer()
 
@@ -336,6 +371,8 @@ struct PlaceDetailView: View {
 
 private struct PlaceMapExplorerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @EnvironmentObject private var appModel: AppModel
 
     let place: Place
     let nearbyPlaces: [Place]
@@ -359,6 +396,7 @@ private struct PlaceMapExplorerSheet: View {
 
     var body: some View {
         NavigationStack {
+            ScrollView {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 GBSurface(style: .accented(.place)) {
                     VStack(alignment: .leading, spacing: GBSpacing.small) {
@@ -368,7 +406,7 @@ private struct PlaceMapExplorerSheet: View {
                         Text(place.name)
                             .font(.system(.title, design: .rounded, weight: .bold))
                             .foregroundStyle(GBColor.Content.inverse)
-                        Text("See where this fort sits in the wider area, then return to the fort board to pin it from memory.")
+                        Text("Explore the wider area. The offline fort board lets you find a place from its story clue.")
                             .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
                     }
                 }
@@ -380,10 +418,10 @@ private struct PlaceMapExplorerSheet: View {
                         if let coordinate = candidate.coordinate {
                             Annotation(annotationTitle(for: candidate), coordinate: coordinate) {
                                 Button {
-                                    withAnimation(GBMotion.bounce) {
+                                    withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.bounce) {
                                         mapQuizState = MapQuizEngine.reveal(placeID: candidate.id, in: mapQuizState)
                                     }
-                                    GBHaptic.pinCorrect()
+
                                 } label: {
                                     mapPin(for: candidate)
                                 }
@@ -410,6 +448,7 @@ private struct PlaceMapExplorerSheet: View {
                 }
             }
             .padding()
+            }
             .background(GBColor.Background.app)
             .navigationTitle("Map explorer")
 #if os(iOS)
@@ -443,7 +482,7 @@ private struct PlaceMapExplorerSheet: View {
         GBSurface(style: .elevated) {
             VStack(alignment: .leading, spacing: GBSpacing.small) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Map quiz")
+                    Text("Explore map clues")
                         .font(.headline)
                     Spacer()
                     Text("\(mapQuizState.revealedPlaceIDs.count)/\(mapQuizPrompts.count)")
@@ -459,7 +498,7 @@ private struct PlaceMapExplorerSheet: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: GBSpacing.xSmall) {
                             Button {
-                                withAnimation(GBMotion.spring) {
+                                withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.spring) {
                                     mapQuizState = MapQuizEngine.clearHighlights(from: mapQuizState)
                                 }
                             } label: {
@@ -469,7 +508,7 @@ private struct PlaceMapExplorerSheet: View {
 
                             ForEach(highlightGroups) { group in
                                 Button {
-                                    withAnimation(GBMotion.spring) {
+                                    withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.spring) {
                                         mapQuizState = MapQuizEngine.apply(group: group, to: mapQuizState)
                                     }
                                 } label: {

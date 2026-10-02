@@ -1,877 +1,249 @@
 import SwiftUI
 
-// ─────────────────────────────────────────────────────────────
-// SceneLessonView.swift — kid-friendly 4-phase lesson flow.
-// Phase 1: GBFlashCardDeck (story cards, swipeable)
-// Phase 2: Place reveal with real Apple Maps (GBFortMapView)
-// Phase 3: MCQ recall (no text input, no shame on wrong answer)
-// Phase 4: GBRewardReveal (chronicle keepsake ceremony)
-// ─────────────────────────────────────────────────────────────
-
 struct SceneLessonView: View {
     @EnvironmentObject private var appModel: AppModel
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let scene: StoryScene
+    @State private var point: LessonResumePoint?
+    @State private var selectedChoiceID: String?
+    @State private var feedback: String?
+    @State private var correct = false
+    @State private var usedHelp = false
+    @State private var completed = false
+    @State private var detailText: String?
+    @State private var shuffledChoices: [AuthoredLessonChoice] = []
+    @State private var completionEventID = UUID()
 
-    private enum LessonPhase: CaseIterable, Equatable {
-        case storyCards, placeReveal, recall, reward
-    }
-
-    @State private var currentPhase: LessonPhase = .storyCards
-    @State private var recallState = LessonRecallState()
-    @State private var storyExposureRecorded = false
-    @State private var cachedMCQChoices: [LessonChoice] = []
-    @StateObject private var narrator = GBNarrator()
-
-    // MARK: - Derived data
-
-    private var reward: ChronicleReward? {
-        appModel.content.rewards.first(where: { $0.id == scene.rewardID })
-    }
-
-    private var recallChallenge: RecallChallenge {
+    private var plan: SceneLearningPlan { SampleContent.learningPlan(for: scene) }
+    private var phase: LessonResumePhase { point?.phase ?? .story }
+    private var calm: Bool { reduceMotion || appModel.parentSettings.calmTransitionsEnabled }
+    private var challenge: RecallChallenge? {
         appModel.content.activeHeroArc.scene(withID: scene.id)?.primaryRecallChallenge
-            ?? RecallChallenge(
-                id: scene.id + "-recall",
-                promptType: .openPrompt,
-                prompt: scene.recallPrompt.question,
-                correctAnswers: [scene.recallPrompt.answer],
-                hintLadder: [RecallHint(level: 1, title: "Clue", body: scene.recallPrompt.supportText)],
-                feedback: RecallFeedback(
-                    success: "Yes! \(scene.recallPrompt.supportText)",
-                    recovery: "Almost. \(scene.recallPrompt.supportText)"
-                ),
-                masteryContribution: .understood
-            )
     }
-
-    private var primaryPlace: Place? {
-        scene.mapAnchors.compactMap { id in
-            appModel.content.places.first(where: { $0.id == id })
-        }.first
+    private var places: [Place] {
+        scene.mapAnchors.compactMap { id in appModel.content.places.first(where: { $0.id == id }) }
     }
-
-    private var storyGlossaryTerms: [GBGlossaryTerm] {
-        let sourceText = [
-            scene.title,
-            scene.childSafeSummary,
-            scene.keyFact,
-            scene.narrativeObjective,
-            scene.recallPrompt.supportText,
-            primaryPlace?.primaryEvent ?? "",
-            primaryPlace?.memoryHook ?? "",
-            "fort",
-        ].joined(separator: " ")
-        return GBGlossaryTerm.matching(sourceText)
+    private var nextScene: StoryScene? {
+        guard let index = appModel.content.scenes.firstIndex(where: { $0.id == scene.id }),
+              appModel.content.scenes.indices.contains(index + 1) else { return nil }
+        return appModel.content.scenes[index + 1]
     }
-
-    private var rewardGlossaryTerms: [GBGlossaryTerm] {
-        GBGlossaryTerm.uniqued(GBGlossaryTerm.matching(reward?.meaning ?? "") + [.chronicle])
-    }
-
-    // MCQ choices: generated once on appear, shuffled for variety
-    private func makeMCQChoices() -> [LessonChoice] {
-        var titles = recallChallenge.correctAnswers
-        for anchor in scene.mapAnchors
-        where !titles.contains(where: {
-            LessonRecallEngine.normalized($0) == LessonRecallEngine.normalized(anchor)
-        }) {
-            titles.append(anchor)
-        }
-        return Array(titles.prefix(4).enumerated()).map { index, title in
-            LessonChoice(
-                id: "\(scene.id)-choice-\(index)",
-                title: title,
-                detail: LessonRecallEngine.answerMatches(title, challenge: recallChallenge)
-                    ? "The answer to keep"
-                    : "A place from this scene"
-            )
-        }.shuffled()
-    }
-
-    // Story cards → GBFlashCardData
-    private var flashCards: [GBFlashCardData] {
-        [
-            GBFlashCardData(
-                id: scene.id + "-hook",
-                iconName: GBIcon.story,
-                title: scene.timelineMarker,
-                storyBeat: scene.childSafeSummary,
-                emphasis: .story
-            ),
-            GBFlashCardData(
-                id: scene.id + "-meaning",
-                iconName: GBIcon.reward,
-                title: scene.keyFact,
-                storyBeat: scene.narrativeObjective,
-                emphasis: .story
-            ),
-            GBFlashCardData(
-                id: scene.id + "-anchor",
-                iconName: GBIcon.place,
-                title: scene.recallPrompt.answer,
-                storyBeat: scene.recallPrompt.supportText,
-                emphasis: .story
-            )
-        ]
-    }
-
-    // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .top) {
-            GBColor.Background.app.ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                // Phase dots
-                phaseDotRow
-                    .padding(.top, GBSpacing.small)
-                    .padding(.bottom, GBSpacing.xSmall)
-
-                // Phase content
-                Group {
-                    switch currentPhase {
-                    case .storyCards:
-                        storyCardView
-                    case .placeReveal:
-                        placeRevealView
-                    case .recall:
-                        recallView
-                    case .reward:
-                        rewardView
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Text(phaseTitle).font(.headline).accessibilityIdentifier("scene-phase-progress")
+                switch phase {
+                case .story: story
+                case .place: placeStep
+                case .recall: recall
+                case .reward: reward
                 }
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal:   .move(edge: .leading).combined(with: .opacity)
-                ))
-                .animation(GBMotion.standard, value: currentPhase)
             }
+            .padding(GBSpacing.medium)
+            .frame(maxWidth: 700)
+            .frame(maxWidth: .infinity)
         }
+        .id(phase.rawValue)
+        .background(GBColor.Background.app)
         .navigationTitle(scene.title)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
-        .onAppear(perform: recordStoryExposureIfNeeded)
-        .onDisappear { narrator.stop() }
+        .onAppear(perform: restore)
     }
 
-    // MARK: - Phase indicator
+    private var phaseTitle: String {
+        switch phase {
+        case .story: "Step 1 of 4: Discover the story"
+        case .place: "Step 2 of 4: Fort detective"
+        case .recall: "Step 3 of 4: Try your memory"
+        case .reward: "Step 4 of 4: Your keepsake"
+        }
+    }
 
-    private var phaseDotRow: some View {
-        HStack(spacing: 10) {
-            ForEach(Array(LessonPhase.allCases.enumerated()), id: \.offset) { _, phase in
-                dotView(phase)
+    private var story: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            LessonSceneArt(plan: plan)
+            Text(scene.title).gbTitle()
+            Text(scene.childSafeSummary).gbStory()
+            Text(plan.teachingText).gbStory().accessibilityIdentifier("lesson-key-fact")
+            GBGlossaryTray(terms: GBGlossaryTerm.matching(scene.childSafeSummary + " " + plan.teachingText))
+            if scene.number == 1 {
+                Text("Look closely. Choose a detail to discover its clue.").gbBody()
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 110))]) {
+                    discovery("hill", title: "Hill", symbol: "mountain.2.fill",
+                        text: "Shivneri is a hill fort near Junnar. Remember it as Shivaji Maharaj's Birth Fort.")
+                    discovery("gate", title: "Fort gate", symbol: "door.left.hand.open",
+                        text: "A fort is a protected place. Shivneri is the fort where Shivaji Maharaj's story begins.")
+                    discovery("book", title: "Storybook", symbol: "book.fill",
+                        text: "Jijabai guided young Shivaji with courage, care, and responsibility. Shivneri reminds us of these beginnings.")
+                }
+                if let detailText {
+                    Text(detailText).gbStory()
+                    LearningNarrationControls(id: scene.id + "-discovery", text: detailText)
+                }
             }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityIdentifier("scene-phase-progress")
-        .accessibilityLabel("Lesson progress")
-        .accessibilityValue(phaseAccessibilityLabel)
-        .accessibilityHint("Shows which part of the lesson is active: story, place clues, quiz, or treasure.")
-    }
-
-    private func dotView(_ phase: LessonPhase) -> some View {
-        let phaseIndex = LessonPhase.allCases.firstIndex(of: phase) ?? 0
-        let currentIndex = LessonPhase.allCases.firstIndex(of: currentPhase) ?? 0
-        let isDone    = phaseIndex < currentIndex
-        let isCurrent = phase == currentPhase
-
-        return Circle()
-            .fill(isDone ? GBColor.Place.primary : isCurrent ? GBColor.Story.primary : GBColor.Content.tertiary)
-            .frame(width: isCurrent ? 10 : 8, height: isCurrent ? 10 : 8)
-            .animation(GBMotion.quick, value: currentPhase)
-    }
-
-    private var phaseAccessibilityLabel: String {
-        switch currentPhase {
-        case .storyCards:  return "Step 1 of 4: Story cards"
-        case .placeReveal: return "Step 2 of 4: Place clues"
-        case .recall:      return "Step 3 of 4: Quick quiz"
-        case .reward:      return "Step 4 of 4: Your treasure"
-        }
-    }
-
-    // MARK: - Phase 1: One big story card
-
-    private var storyCardView: some View {
-        let narration = storyNarration
-
-        return ScrollView {
-            VStack(alignment: .leading, spacing: GBSpacing.medium) {
-                Image("Chapter1ShivneriStory")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 260)
-                    .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
-                    .overlay(alignment: .topLeading) {
-                        Label("Listen first", systemImage: "sparkles")
-                            .font(GBFont.ui(size: 13, weight: .heavy))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, GBSpacing.small)
-                            .padding(.vertical, GBSpacing.xxSmall)
-                            .background(.black.opacity(0.28), in: Capsule())
-                            .padding(GBSpacing.small)
-                    }
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: GBSpacing.small) {
-                    Text("Chapter \(scene.number)")
-                        .font(GBFont.ui(size: 13, weight: .heavy))
-                        .textCase(.uppercase)
-                        .tracking(1.2)
-                        .foregroundStyle(GBColor.Story.primary)
-
-                    Text(scene.title)
-                        .font(GBFont.display(size: 28, weight: .bold))
-                        .foregroundStyle(GBColor.Content.primary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(scene.childSafeSummary)
-                        .font(GBFont.story(size: 20))
-                        .foregroundStyle(GBColor.Content.secondary)
-                        .lineSpacing(5)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    GBGlossaryTray(terms: storyGlossaryTerms)
-                }
-
-                narrationControls(text: narration, id: "\(scene.id)-story")
-
-                Button {
-                    narrator.stop()
-                    GBHaptic.stepAdvance()
-                    advanceTo(.placeReveal)
-                } label: {
-                    Label("Move to place clues", systemImage: "map.fill")
-                        .frame(maxWidth: .infinity, minHeight: GBTouch.button)
-                }
+            LearningNarrationControls(id: scene.id + "-story", text: scene.childSafeSummary + " " + plan.teachingText)
+            Button("Move to place clues") { advance(.place) }
                 .buttonStyle(.gbPrimary(.story))
                 .accessibilityIdentifier("story-move-to-place-clues-button")
-                .accessibilityLabel("Move to place clues")
-                .accessibilityHint("Moves forward to the place clues and fort map for this chapter.")
-            }
-            .padding(GBSpacing.medium)
-            .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
-                    .stroke(GBColor.Story.light, lineWidth: 2)
-            )
-            .padding(.horizontal, GBSpacing.medium)
-            .padding(.top, GBSpacing.small)
-        }
-        .accessibilityElement(children: .contain)
-    }
-
-    private var storyNarration: String {
-        "Chapter \(scene.number). \(scene.title). \(scene.childSafeSummary) Next, tap Move to place clues."
-    }
-
-    private func narrationControls(text: String, id: String) -> some View {
-        VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-            HStack(spacing: GBSpacing.xSmall) {
-                narrationButton(title: "Listen", icon: "speaker.wave.2.fill") {
-                    narrator.speak(id: id, text: text)
-                }
-                narrationButton(title: "Repeat", icon: "arrow.clockwise") {
-                    narrator.repeatLast()
-                }
-                narrationButton(title: "Stop", icon: "stop.fill") {
-                    narrator.stop()
-                }
-            }
-            .accessibilityElement(children: .contain)
-
-            if let statusMessage = narrator.statusMessage {
-                Text(statusMessage)
-                    .font(GBFont.ui(size: 13, weight: .semibold))
-                    .foregroundStyle(GBColor.Content.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityLabel(statusMessage)
-            }
         }
     }
 
-    private func narrationButton(title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: icon)
-                .font(GBFont.ui(size: 14, weight: .bold))
-                .frame(maxWidth: .infinity, minHeight: 44)
+    private func discovery(_ id: String, title: String, symbol: String, text: String) -> some View {
+        Button {
+            detailText = text
+            mutatePoint { $0.discoveredDetailIDs.insert(id) }
+        } label: {
+            Label(title, systemImage: symbol).frame(maxWidth: .infinity, minHeight: GBTouch.button)
         }
         .buttonStyle(.bordered)
-        .tint(GBColor.Story.primary)
-        .accessibilityHint(title == "Stop" ? "Stops read aloud." : "Reads this story card aloud.")
+        .accessibilityIdentifier("story-discovery-" + id)
+        .accessibilityValue(point?.discoveredDetailIDs.contains(id) == true ? "Discovered" : "Ready to discover")
     }
 
-    // MARK: - Phase 2: Place reveal
-
-    private var placeRevealView: some View {
-        VStack(spacing: GBSpacing.medium) {
-            Text("Place clues")
-                .font(GBFont.display(size: 24, weight: .bold))
-                .foregroundStyle(GBColor.Content.primary)
-                .padding(.horizontal, GBSpacing.medium)
-                .accessibilityAddTraits(.isHeader)
-
-            if let place = primaryPlace {
-                GBFortMapView(place: place)
-                    .frame(height: 260)
-                    .padding(.horizontal, GBSpacing.medium)
-                    .accessibilityIdentifier("place-clues-map")
-
-                HStack(spacing: GBSpacing.small) {
-                    Image(systemName: GBIcon.place)
-                        .font(.system(size: 28))
-                        .foregroundStyle(GBColor.Place.primary)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: GBSpacing.xxxSmall) {
-                        Text(place.name)
-                            .font(GBFont.display(size: 20, weight: .bold))
-                            .foregroundStyle(GBColor.Content.primary)
-                        Text(place.primaryEvent)
-                            .font(GBFont.story(size: 15, italic: true))
-                            .foregroundStyle(GBColor.Content.secondary)
-                    }
-                }
-                .padding(.horizontal, GBSpacing.medium)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Place clue: \(place.name). \(place.primaryEvent)")
-
-                narrationControls(
-                    text: "This is \(place.name). \(place.primaryEvent). When you are ready, tap Got it.",
-                    id: "\(scene.id)-place"
-                )
-                .padding(.horizontal, GBSpacing.medium)
-            } else {
-                // No place data — skip straight to recall
-                Text("Tap continue to test your memory.")
-                    .font(GBFont.story(size: 17))
-                    .foregroundStyle(GBColor.Content.secondary)
-                    .padding()
-            }
-
-            Spacer()
-
-            Button("Got it!") {
-                GBHaptic.stepAdvance()
-                advanceTo(.recall)
-            }
-            .buttonStyle(.gbPrimary(.place))
-            .padding(.horizontal, GBSpacing.medium)
-            .padding(.bottom, GBSpacing.medium)
-            .accessibilityIdentifier("place-clues-got-it-button")
-            .accessibilityLabel("Got it, start quick quiz")
-            .accessibilityHint("Moves from place clues to the recall question.")
-        }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(placeRevealAccessibilityLabel)
-        .accessibilityHint("Review the fort map and place clue, then continue to the quick quiz.")
-    }
-
-    private var placeRevealAccessibilityLabel: String {
-        if let place = primaryPlace {
-            return "Place clues for \(scene.title): \(place.name)."
-        }
-        return "Place clues for \(scene.title)."
-    }
-
-    // MARK: - Phase 3: MCQ recall
-
-    private var recallView: some View {
-        SimpleRecallView(
-            challenge: recallChallenge,
-            choices: cachedMCQChoices,
-            recallState: recallState,
-            onChoiceSelected: { choiceID in
-                selectRecallChoice(choiceID: choiceID)
-            },
-            onCheckChoice: {
-                checkSelectedRecallChoice()
-            },
-            onAdvance: {
-                withAnimation(GBMotion.ceremony) { currentPhase = .reward }
-            }
-        )
-    }
-
-    // MARK: - Phase 4: Reward
-
-    private var rewardView: some View {
-        ScrollView {
-            VStack(spacing: GBSpacing.medium) {
-                if let reward {
-                    GBRewardReveal(
-                        title: reward.title,
-                        subtitle: scene.timelineMarker,
-                        iconName: GBIcon.chronicle,
-                        quote: reward.meaning,
-                        mastery: .understood,
-                        onDismiss: nil
-                    )
-
-                    GBGlossaryTray(terms: rewardGlossaryTerms)
-                        .padding(.horizontal, GBSpacing.medium)
-
-                    NavigationLink {
-                        ChronicleView(rewards: appModel.content.rewards, highlightRewardID: reward.id)
-                    } label: {
-                        Label("See in my Album", systemImage: GBIcon.chronicle)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.gbPrimary(.chronicle))
-                    .padding(.horizontal, GBSpacing.medium)
-                    .accessibilityLabel("See this keepsake in my album")
-                    .accessibilityHint("Opens the Royal Chronicle and highlights the keepsake you earned.")
-                } else {
-                    Text("Adventure complete!")
-                        .font(GBFont.display(size: 22, weight: .bold))
-                        .padding()
-                }
-            }
-        }
-    }
-
-    // MARK: - Recall logic
-
-    private func selectRecallChoice(choiceID: String) {
-        guard !recallState.hasAnsweredCorrectly else { return }
-        recallState.selectedChoiceID = choiceID
-        recallState.feedbackText = nil
-    }
-
-    private func checkSelectedRecallChoice() {
-        guard let choiceID = recallState.selectedChoiceID,
-              let choice = cachedMCQChoices.first(where: { $0.id == choiceID }) else { return }
-
-        let evaluation = LessonRecallEngine.submit(
-            state: recallState,
-            challenge: recallChallenge,
-            typedAnswer: "",
-            selectedChoiceTitle: choice.title,
-            successMastery: recallChallenge.masteryContribution
-        )
-
-        recallState.feedbackText = evaluation.feedbackText
-        recallState.revealedHintLevel = evaluation.revealedHintLevel
-        recallState.recognitionRescueUnlocked = evaluation.recognitionRescueUnlocked
-        recallState.hasAnsweredCorrectly = evaluation.wasSuccessful
-
-        appModel.lessonStore.recordRecallOutcome(
-            subjectID: scene.id,
-            promptType: recallChallenge.promptType,
-            wasSuccessful: evaluation.wasSuccessful,
-            mastery: evaluation.masteryAwarded,
-            detail: evaluation.wasSuccessful ? "Recall succeeded (MCQ)" : "Recall attempt (MCQ)"
-        )
-
-        if evaluation.wasSuccessful {
-            LessonFeedback.fire(.success)
-        }
-    }
-
-    private func advanceTo(_ phase: LessonPhase) {
-        withAnimation(GBMotion.standard) { currentPhase = phase }
-    }
-
-    private func recordStoryExposureIfNeeded() {
-        guard !storyExposureRecorded else { return }
-        storyExposureRecorded = true
-        cachedMCQChoices = makeMCQChoices()
-        appModel.lessonStore.recordStoryExposure(for: scene.id, detail: "Scene \(scene.number) opened")
-    }
-}
-
-// ── MCQ recall view ───────────────────────────────────────────
-private struct SimpleRecallView: View {
-    let challenge: RecallChallenge
-    let choices: [LessonChoice]
-    let recallState: LessonRecallState
-    var onChoiceSelected: ((String) -> Void)?
-    var onCheckChoice: (() -> Void)?
-    var onAdvance: (() -> Void)?
-
-    var body: some View {
+    private var placeStep: some View {
         VStack(alignment: .leading, spacing: GBSpacing.medium) {
-            // Question
-            GBSurface(style: .elevated) {
-                Text(challenge.prompt)
-                    .font(GBFont.story(size: 21))
-                    .foregroundStyle(GBColor.Content.primary)
-                    .lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
+            Text("These places belong to our story.").gbTitle()
+            ForEach(places) { place in
+                Text("\(place.name): \(place.primaryEvent)").gbStory()
+                OfflineFortChallenge(target: place, candidates: candidates(for: place),
+                    solvedPlaceIDs: Binding(get: { point?.solvedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.solvedPlaceIDs = ids } }),
+                    helpedPlaceIDs: Binding(get: { point?.helpedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.helpedPlaceIDs = ids } })) { support in
+                        appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
+                            activity: .recall, wasSuccessful: true, support: support, mastery: .understood,
+                            promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue on the offline board",
+                            sessionID: point?.sessionID)
+                    }
             }
-            .padding(.horizontal, GBSpacing.medium)
-            .padding(.top, GBSpacing.small)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Quick quiz question: \(challenge.prompt)")
+            Button("Got it! Try my memory") { advance(.recall) }
+                .buttonStyle(.gbPrimary(.place))
+                .disabled(!places.allSatisfy { point?.solvedPlaceIDs.contains($0.id) == true })
+                .accessibilityIdentifier("place-clues-got-it-button")
+        }
+    }
 
-            Text("Pick one choice before you collect your Chronicle reward.")
-                .font(GBFont.ui(size: 15, weight: .semibold))
-                .foregroundStyle(GBColor.Content.secondary)
-                .padding(.horizontal, GBSpacing.medium)
-                .accessibilityIdentifier("recall-choice-helper")
+    private func candidates(for target: Place) -> [Place] {
+        let others = appModel.content.corePlaces.filter { $0.id != target.id }.prefix(2)
+        return ([target] + others).sorted { $0.name < $1.name }
+    }
 
-            // Choice buttons
-            VStack(spacing: GBSpacing.small) {
-                ForEach(choices) { choice in
-                    choiceButton(choice)
+    private var recall: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            Text(challenge?.prompt ?? scene.recallPrompt.question).gbTitle()
+            LearningNarrationControls(id: scene.id + "-question", text: challenge?.prompt ?? scene.recallPrompt.question)
+            ForEach(shuffledChoices) { choice in
+                Button { guard !correct else { return }; selectedChoiceID = choice.id; feedback = nil } label: {
+                    HStack {
+                        Text(choice.title).gbHeadline()
+                        Spacer()
+                        Image(systemName: selectedChoiceID == choice.id ? "checkmark.circle.fill" : "circle")
+                    }.frame(minHeight: GBTouch.button)
                 }
+                .buttonStyle(.bordered)
+                .disabled(correct)
+                .accessibilityIdentifier("recall-choice-" + choice.id)
+                .accessibilityValue(selectedChoiceID == choice.id ? "Selected" : "Not selected")
             }
-            .padding(.horizontal, GBSpacing.medium)
-
-            // Warm feedback (wrong answer — no shame)
-            if let feedback = recallState.feedbackText,
-               !feedback.isEmpty,
-               !recallState.hasAnsweredCorrectly {
-                HStack(alignment: .top, spacing: GBSpacing.xSmall) {
-                    Image(systemName: "lightbulb.fill")
-                        .foregroundStyle(GBColor.Story.primary)
-                    Text(feedback)
-                        .font(GBFont.ui(size: 14, weight: .semibold))
-                        .foregroundStyle(GBColor.Story.primary)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(GBSpacing.small)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: GBRadius.compact, style: .continuous)
-                        .fill(GBColor.Story.bg)
-                )
-                .padding(.horizontal, GBSpacing.medium)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            if !correct {
+                Button("Check my choice", action: check)
+                    .buttonStyle(.gbPrimary(.story))
+                    .disabled(selectedChoiceID == nil)
+                    .accessibilityIdentifier("recall-check-button")
+                Button("Help me remember") {
+                    usedHelp = true
+                    mutatePoint { $0.revealedHintLevel = max(1, $0.revealedHintLevel) }
+                    feedback = plan.teachingText
+                }.buttonStyle(.bordered).frame(minHeight: GBTouch.button)
             }
+            if let feedback {
+                Text(feedback).gbStory().accessibilityIdentifier("recall-feedback")
+                LearningNarrationControls(id: scene.id + "-feedback", text: feedback)
+            }
+            if correct {
+                Button("Collect my keepsake") { advance(.reward) }
+                    .buttonStyle(.gbPrimary(.chronicle))
+                    .accessibilityIdentifier("recall-reward-button")
+            }
+        }
+    }
 
-            Spacer()
-
-            // Explicit choice CTA makes this unmistakably multiple choice.
-            if recallState.hasAnsweredCorrectly {
-                Button("Open my treasure!") {
-                    GBHaptic.chronicleReveal()
-                    onAdvance?()
-                }
-                .buttonStyle(.gbPrimary(.chronicle))
-                .padding(.horizontal, GBSpacing.medium)
-                .padding(.bottom, GBSpacing.medium)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .accessibilityLabel("Open my treasure")
-                .accessibilityHint("Moves to the Chronicle reward reveal.")
-            } else {
-                Button("Check my choice") {
-                    GBHaptic.stepAdvance()
-                    onCheckChoice?()
-                }
+    private var reward: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            if let item = appModel.content.rewards.first(where: { $0.id == scene.rewardID }) {
+                GBRewardReveal(title: item.title, subtitle: scene.timelineMarker, iconName: "book.closed.fill",
+                    quote: item.meaning, mastery: .understood, onDismiss: nil)
+                LearningNarrationControls(id: scene.id + "-reward", text: "Your keepsake: " + item.title + ". " + item.meaning)
+                NavigationLink {
+                    ChronicleView(rewards: appModel.content.rewards, highlightRewardID: item.id)
+                } label: { Label("See in my Album", systemImage: "book.closed.fill") }
+                .buttonStyle(.gbPrimary(.chronicle)).accessibilityIdentifier("reward-album-button")
+            }
+            Button("All done") {
+                completed = true
+                appModel.lessonStore.clearResumePoint(for: scene.id)
+                dismiss()
+            }.buttonStyle(.bordered).accessibilityIdentifier("reward-done-button")
+            if let nextScene {
+                NavigationLink {
+                    SceneLessonView(scene: nextScene)
+                } label: { Text("Next adventure: \(nextScene.title)") }
                 .buttonStyle(.gbPrimary(.story))
-                .disabled(recallState.selectedChoiceID == nil)
-                .padding(.horizontal, GBSpacing.medium)
-                .padding(.bottom, GBSpacing.medium)
-                .accessibilityIdentifier("recall-check-choice-button")
-                .accessibilityLabel("Check my choice")
-                .accessibilityHint(recallState.selectedChoiceID == nil ? "Choose an answer first." : "Checks the selected answer.")
+                .accessibilityIdentifier("reward-next-button")
+                .simultaneousGesture(TapGesture().onEnded {
+                    appModel.lessonStore.clearResumePoint(for: scene.id)
+                })
             }
         }
-        .animation(GBMotion.quick, value: recallState.hasAnsweredCorrectly)
     }
 
-    private func choiceButton(_ choice: LessonChoice) -> some View {
-        let isSelected = recallState.selectedChoiceID == choice.id
-        let isCorrect  = LessonRecallEngine.answerMatches(choice.title, challenge: challenge)
-        let hasChecked = recallState.feedbackText != nil || recallState.hasAnsweredCorrectly
-        let showRight  = isCorrect && recallState.hasAnsweredCorrectly
-        let showWrong  = hasChecked && isSelected && !isCorrect
-
-        return Button {
-            guard !recallState.hasAnsweredCorrectly else { return }
-            LessonFeedback.fire(.selection)
-            onChoiceSelected?(choice.id)
-        } label: {
-            HStack(spacing: GBSpacing.small) {
-                ZStack {
-                    Circle()
-                        .fill(iconBackground(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: iconName(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(showRight || showWrong || isSelected ? .white : GBColor.Content.tertiary)
-                }
-
-                Text(choice.title)
-                    .font(GBFont.ui(size: 17, weight: .bold))
-                    .foregroundStyle(labelColor(showRight: showRight, showWrong: showWrong))
-
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, minHeight: GBTouch.button)
-            .padding(.horizontal, GBSpacing.small)
-            .background(
-                RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                    .fill(cardBackground(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: GBRadius.card, style: .continuous)
-                            .stroke(borderColor(isSelected: isSelected, showRight: showRight, showWrong: showWrong), lineWidth: isSelected ? 3 : 2)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        .disabled(recallState.hasAnsweredCorrectly)
-        .accessibilityIdentifier("recall-choice-\(choice.id)")
-        .accessibilityLabel("Recall choice: \(choice.title)")
-        .accessibilityValue(accessibilityValue(isSelected: isSelected, showRight: showRight, showWrong: showWrong))
-        .accessibilityHint(recallState.hasAnsweredCorrectly ? "Choice checked" : "Double tap to select this choice, then use Check my choice.")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .animation(GBMotion.quick, value: isSelected)
-    }
-
-    // ── Styling helpers ───────────────────────────────────────
-
-    private func iconName(isSelected: Bool, showRight: Bool, showWrong: Bool) -> String {
-        if showRight { return "checkmark" }
-        if showWrong { return "xmark" }
-        return isSelected ? "checkmark.circle.fill" : "circle"
-    }
-
-    private func iconBackground(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
-        if showRight { return GBColor.Place.primary }
-        if showWrong { return GBColor.State.danger }
-        if isSelected { return GBColor.Story.primary }
-        return GBColor.Background.panel
-    }
-
-    private func labelColor(showRight: Bool, showWrong: Bool) -> Color {
-        if showRight { return GBColor.Place.primary }
-        if showWrong { return GBColor.State.danger }
-        return GBColor.Content.primary
-    }
-
-    private func cardBackground(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
-        if showRight { return GBColor.Place.bg }
-        if showWrong { return Color(red: 0.99, green: 0.91, blue: 0.91) }
-        if isSelected { return GBColor.Story.bg }
-        return GBColor.Background.surface
-    }
-
-    private func borderColor(isSelected: Bool, showRight: Bool, showWrong: Bool) -> Color {
-        if showRight { return GBColor.Place.primary }
-        if showWrong { return GBColor.State.danger }
-        if isSelected { return GBColor.Story.primary }
-        return GBColor.Background.panel
-    }
-
-    private func accessibilityValue(isSelected: Bool, showRight: Bool, showWrong: Bool) -> String {
-        if showRight { return "selected, correct choice checked" }
-        if showWrong { return "selected, try another choice" }
-        return isSelected ? "selected" : "not selected"
-    }
-}
-
-
-// ── Kid glossary helpers ─────────────────────────────────────
-
-struct GBGlossaryTerm: Identifiable, Hashable {
-    let id: String
-    let title: String
-    let shortMeaning: String
-    let detail: String
-    let example: String
-    let systemImage: String
-    let searchTokens: [String]
-
-    static let swarajya = GBGlossaryTerm(
-        id: "swarajya",
-        title: "Swarajya",
-        shortMeaning: "Self-rule",
-        detail: "Swarajya means self-rule: people caring for their own land with duty and dignity.",
-        example: "In this story, Swarajya is the big idea Shivaji Maharaj worked toward.",
-        systemImage: "flag.fill",
-        searchTokens: ["swarajya", "self-rule", "self rule"]
-    )
-
-    static let capital = GBGlossaryTerm(
-        id: "capital",
-        title: "Capital",
-        shortMeaning: "Main home base",
-        detail: "A capital is an important home base where leaders plan, make decisions, and care for the kingdom.",
-        example: "Rajgad became an early capital, so it was a key place for planning.",
-        systemImage: "building.columns.fill",
-        searchTokens: ["capital"]
-    )
-
-    static let coronation = GBGlossaryTerm(
-        id: "coronation",
-        title: "Coronation",
-        shortMeaning: "Crowning ceremony",
-        detail: "A coronation is a crowning ceremony. It shows that a leader is taking on a big duty.",
-        example: "At Raigad, the coronation marked Shivaji Maharaj as Chhatrapati.",
-        systemImage: "crown.fill",
-        searchTokens: ["coronation", "crowned", "crowning"]
-    )
-
-    static let terrain = GBGlossaryTerm(
-        id: "terrain",
-        title: "Terrain",
-        shortMeaning: "Land shape",
-        detail: "Terrain means the shape of the land, like hills, forests, valleys, rocks, and paths.",
-        example: "At Pratapgad, the steep hill terrain mattered for planning.",
-        systemImage: "mountain.2.fill",
-        searchTokens: ["terrain", "hill terrain", "land shape"]
-    )
-
-    static let chronicle = GBGlossaryTerm(
-        id: "chronicle",
-        title: "Chronicle",
-        shortMeaning: "Story record",
-        detail: "A chronicle is a record of important events. In this app, it is your story album of what you learned.",
-        example: "A Chronicle card helps you remember a place, event, or big idea.",
-        systemImage: "book.closed.fill",
-        searchTokens: ["chronicle"]
-    )
-
-    static let fort = GBGlossaryTerm(
-        id: "fort",
-        title: "Fort",
-        shortMeaning: "Strong safe place",
-        detail: "A fort is a strong place with walls, gates, and lookout points that can help protect people.",
-        example: "Many parts of Shivaji Maharaj's story are tied to hill forts.",
-        systemImage: "shield.lefthalf.filled",
-        searchTokens: ["fort", "forts"]
-    )
-
-    static let all: [GBGlossaryTerm] = [.swarajya, .capital, .coronation, .terrain, .chronicle, .fort]
-
-    static func matching(_ text: String) -> [GBGlossaryTerm] {
-        let haystack = text.lowercased()
-        let matches = all.filter { term in
-            term.searchTokens.contains { haystack.contains($0.lowercased()) }
-        }
-        return uniqued(matches)
-    }
-
-    static func uniqued(_ terms: [GBGlossaryTerm]) -> [GBGlossaryTerm] {
-        var seen: Set<String> = []
-        return terms.filter { term in
-            guard !seen.contains(term.id) else { return false }
-            seen.insert(term.id)
-            return true
+    private func check() {
+        guard !correct, let selectedChoiceID else { return }
+        correct = plan.isCorrect(choiceID: selectedChoiceID)
+        let support: LearningSupport = usedHelp || (point?.revealedHintLevel ?? 0) > 0 ? .hinted : .independent
+        let wasPreviouslyComplete = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {
+            $0.type == .recallSuccess || $0.type == .reviewSuccess
+        } == true
+        appModel.lessonStore.recordLearningOutcome(subjectID: scene.id,
+            activity: wasPreviouslyComplete ? .review : .recall, wasSuccessful: correct,
+            support: support, mastery: wasPreviouslyComplete ? .remembered : .understood,
+            promptType: challenge?.promptType ?? .openPrompt, detail: "Authored recognition choice",
+            eventID: correct ? completionEventID : UUID(), sessionID: point?.sessionID)
+        if correct {
+            mutatePoint { $0.recallCompleted = true }
+            feedback = challenge?.feedback.success ?? scene.recallPrompt.supportText
+            LessonFeedback.fire(.success)
+        } else {
+            usedHelp = true
+            mutatePoint { $0.revealedHintLevel += 1 }
+            feedback = "Let's look again. " + plan.teachingText
         }
     }
-}
 
-struct GBGlossaryTray: View {
-    let terms: [GBGlossaryTerm]
-    var title: String = "Words to know"
-
-    private var visibleTerms: [GBGlossaryTerm] { GBGlossaryTerm.uniqued(terms) }
-
-    var body: some View {
-        if !visibleTerms.isEmpty {
-            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                Text(title)
-                    .font(GBFont.ui(size: 12, weight: .heavy))
-                    .textCase(.uppercase)
-                    .tracking(1.1)
-                    .foregroundStyle(GBColor.Content.tertiary)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: GBSpacing.xxSmall) {
-                        ForEach(visibleTerms) { term in
-                            GBGlossaryChip(term: term)
-                        }
-                    }
-                    .padding(.vertical, GBSpacing.xxxSmall)
-                }
-            }
-            .accessibilityElement(children: .contain)
-        }
+    private func restore() {
+        guard point == nil else { return }
+        point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id)
+        completionEventID = point?.recallEventID ?? UUID()
+        usedHelp = (point?.revealedHintLevel ?? 0) > 0
+        shuffledChoices = plan.choices.shuffled()
+        // Persist success checkpoint before reward so interruption cannot require a second award.
+        correct = point?.recallCompleted == true || phase == .reward
+        appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .storyExposure,
+            wasSuccessful: true, mastery: .witnessed, detail: "Story opened", sessionID: point?.sessionID)
+        if let point { appModel.lessonStore.saveResumePoint(point) }
     }
-}
 
-struct GBGlossaryChip: View {
-    let term: GBGlossaryTerm
-
-    @State private var isShowingDefinition = false
-
-    var body: some View {
-        Button {
-            isShowingDefinition = true
-        } label: {
-            HStack(spacing: GBSpacing.xxxSmall) {
-                Image(systemName: term.systemImage)
-                Text(term.title)
-                    .font(GBFont.ui(size: 13, weight: .bold))
-                Text(term.shortMeaning)
-                    .font(GBFont.ui(size: 12, weight: .semibold))
-                    .foregroundStyle(GBColor.Content.secondary)
-            }
-            .lineLimit(1)
-            .padding(.horizontal, GBSpacing.xSmall)
-            .padding(.vertical, GBSpacing.xxSmall)
-            .background(GBColor.Background.elevated, in: Capsule())
-            .overlay(Capsule().stroke(GBColor.Border.panel, lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(GBColor.Content.primary)
-        .accessibilityLabel("Word help: \(term.title)")
-        .accessibilityHint("Shows a short meaning for \(term.title).")
-        .sheet(isPresented: $isShowingDefinition) {
-            GBGlossarySheet(term: term)
-        }
+    private func mutatePoint(_ change: (inout LessonResumePoint) -> Void) {
+        var next = point ?? LessonResumePoint(sceneID: scene.id)
+        change(&next)
+        next.updatedAt = Date()
+        point = next
+        appModel.lessonStore.saveResumePoint(next)
     }
-}
 
-private struct GBGlossarySheet: View {
-    @Environment(\.dismiss) private var dismiss
-
-    let term: GBGlossaryTerm
-
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: GBSpacing.medium) {
-                Image(systemName: term.systemImage)
-                    .font(.system(size: 42, weight: .semibold))
-                    .foregroundStyle(GBColor.Chronicle.gold)
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                    Text(term.title)
-                        .font(GBFont.display(size: 30, weight: .bold))
-                        .foregroundStyle(GBColor.Content.primary)
-                    Text(term.shortMeaning)
-                        .font(GBFont.story(size: 20))
-                        .foregroundStyle(GBColor.Chronicle.royal)
-                }
-
-                Text(term.detail)
-                    .font(GBFont.story(size: 18))
-                    .foregroundStyle(GBColor.Content.primary)
-                    .lineSpacing(4)
-
-                GBSurface(style: .elevated) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Text("In this story")
-                            .font(GBFont.ui(size: 13, weight: .heavy))
-                            .textCase(.uppercase)
-                            .tracking(1.1)
-                            .foregroundStyle(GBColor.Content.tertiary)
-                        Text(term.example)
-                            .font(GBFont.ui(size: 16, weight: .semibold))
-                            .foregroundStyle(GBColor.Content.primary)
-                    }
-                }
-
-                Spacer()
-            }
-            .padding(GBSpacing.medium)
-            .background(GBColor.Background.app)
-            .navigationTitle("Word help")
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-#endif
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
+    private func advance(_ next: LessonResumePhase) {
+        withAnimation(calm ? nil : GBMotion.standard) { mutatePoint { $0.phase = next } }
     }
 }

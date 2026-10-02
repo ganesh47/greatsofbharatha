@@ -1,0 +1,367 @@
+import SwiftUI
+
+struct LearningNarrationControls: View {
+    @EnvironmentObject private var appModel: AppModel
+    @ObservedObject private var narrator = GBNarrator.shared
+    let id: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+            if appModel.parentSettings.narrationEnabled {
+                HStack {
+                    Button { narrator.speak(id: id, text: text) } label: {
+                        Label("Listen", systemImage: "speaker.wave.2.fill")
+                    }
+                    .accessibilityIdentifier("listen-" + id)
+                    Button { narrator.stop() } label: {
+                        Label("Stop", systemImage: "stop.fill")
+                    }
+                    .disabled(narrator.activeCardID == nil)
+                }
+                .buttonStyle(.bordered)
+                .frame(minHeight: GBTouch.button)
+                if let message = narrator.statusMessage { Text(message).font(.caption) }
+            } else {
+                Text("Read-aloud is off in parent settings.").font(.caption)
+            }
+        }
+        .onChange(of: appModel.parentSettings.narrationEnabled) { _, enabled in
+            if !enabled { narrator.stop() }
+        }
+        .onChange(of: text) { _, _ in narrator.stop() }
+        .onDisappear { narrator.stop() }
+    }
+}
+
+struct LessonSceneArt: View {
+    let plan: SceneLearningPlan
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+        Group {
+            if let asset = plan.imageAsset {
+                Image(asset).resizable().scaledToFit()
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: GBRadius.hero).fill(GBColor.gradient(for: .story))
+                    Image(systemName: plan.artSymbol).font(.system(size: 84)).foregroundStyle(.white)
+                }.frame(height: 180)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero))
+        .accessibilityHidden(true)
+        Text("Story illustration").font(.caption).foregroundStyle(GBColor.Content.secondary)
+        }
+    }
+}
+
+/// Clue recognition uses bundled text and native graphics, and works offline.
+struct OfflineFortChallenge: View {
+    @EnvironmentObject private var appModel: AppModel
+    let target: Place
+    let candidates: [Place]
+    @Binding var solvedPlaceIDs: Set<String>
+    @Binding var helpedPlaceIDs: Set<String>
+    var onSuccess: (LearningSupport) -> Void
+    @State private var feedback: String?
+    private var usedHint: Bool { helpedPlaceIDs.contains(target.id) }
+
+    private var solved: Bool { solvedPlaceIDs.contains(target.id) }
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            Text("Fort detective").gbTitle()
+            Text("Find the place for this clue: \(target.memoryHook).")
+                .gbStory().accessibilityIdentifier("fort-detective-clue")
+            if appModel.parentSettings.assistModeEnabled {
+                Text(target.regionLabel).gbBody()
+            }
+            LearningNarrationControls(id: "fort-clue-" + target.id,
+                text: "Find the place for this clue: \(target.memoryHook). Choose a fort on the board.")
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: GBSpacing.small) {
+                ForEach(candidates) { place in
+                    Button {
+                        if place.id == target.id {
+                            solvedPlaceIDs.insert(target.id)
+                            feedback = "Found it! \(target.name). \(target.primaryEvent)"
+                            onSuccess(usedHint || appModel.parentSettings.assistModeEnabled ? .hinted : .independent)
+                            LessonFeedback.fire(.success)
+                        } else {
+                            helpedPlaceIDs.insert(target.id)
+                            feedback = "Let's look again. \(target.regionLabel). Need a clue?"
+                        }
+                    } label: {
+                        VStack(spacing: GBSpacing.xSmall) {
+                            Image(systemName: "building.2.crop.circle.fill").font(.largeTitle)
+                            Text(place.name).gbHeadline()
+                            Text(place.regionLabel).font(.caption).fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                        .padding(GBSpacing.small)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(GBColor.Place.primary)
+                    .disabled(solved)
+                    .accessibilityIdentifier("fort-choice-" + place.id)
+                }
+            }
+            if let feedback {
+                Text(feedback).gbBody().accessibilityIdentifier("fort-feedback")
+            }
+            if !solved {
+                Button("Help me find it") {
+                    helpedPlaceIDs.insert(target.id)
+                    feedback = "Look for \(target.name): \(target.memoryHook)."
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("fort-clue-help")
+            }
+        }
+        .padding(GBSpacing.medium)
+        .background(GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
+        .onAppear {
+            if appModel.parentSettings.assistModeEnabled { helpedPlaceIDs.insert(target.id) }
+        }
+    }
+}
+
+struct ParentGateView: View {
+    @Environment(\.dismiss) private var dismiss
+    var onContinue: () -> Void
+    @State private var answer = ""
+    @State private var first = Int.random(in: 12...19)
+    @State private var second = Int.random(in: 12...19)
+    @State private var feedback = ""
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("For a grown-up") {
+                    Text("Please ask a grown-up to continue. What is \(first) + \(second)?")
+                        .accessibilityIdentifier("parent-gate-question")
+                    TextField("Answer", text: $answer)
+                        .accessibilityIdentifier("parent-gate-answer")
+                    if !feedback.isEmpty { Text(feedback) }
+                    Button("Continue") {
+                        if Int(answer.trimmingCharacters(in: .whitespacesAndNewlines)) == first + second {
+                            dismiss()
+                            onContinue()
+                        } else {
+                            feedback = "Ask your grown-up to try again."
+                        }
+                    }.accessibilityIdentifier("parent-gate-confirm")
+                }
+            }
+            .navigationTitle("Grown-up check")
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+        }
+    }
+}
+
+struct GBGlossaryTerm: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let shortMeaning: String
+    let detail: String
+    let example: String
+    let systemImage: String
+    let searchTokens: [String]
+
+    static let swarajya = GBGlossaryTerm(
+        id: "swarajya",
+        title: "Swarajya",
+        shortMeaning: "Self-rule",
+        detail: "Swarajya means self-rule: people caring for their own land with duty and dignity.",
+        example: "In this story, Swarajya is the big idea Shivaji Maharaj worked toward.",
+        systemImage: "flag.fill",
+        searchTokens: ["swarajya", "self-rule", "self rule"]
+    )
+
+    static let capital = GBGlossaryTerm(
+        id: "capital",
+        title: "Capital",
+        shortMeaning: "Main home base",
+        detail: "A capital is an important home base where leaders plan, make decisions, and care for the kingdom.",
+        example: "Rajgad became an early capital, so it was a key place for planning.",
+        systemImage: "building.columns.fill",
+        searchTokens: ["capital"]
+    )
+
+    static let coronation = GBGlossaryTerm(
+        id: "coronation",
+        title: "Coronation",
+        shortMeaning: "Crowning ceremony",
+        detail: "A coronation is a crowning ceremony. It shows that a leader is taking on a big duty.",
+        example: "At Raigad, the coronation marked Shivaji Maharaj as Chhatrapati.",
+        systemImage: "crown.fill",
+        searchTokens: ["coronation", "crowned", "crowning"]
+    )
+
+    static let terrain = GBGlossaryTerm(
+        id: "terrain",
+        title: "Terrain",
+        shortMeaning: "Land shape",
+        detail: "Terrain means the shape of the land, like hills, forests, valleys, rocks, and paths.",
+        example: "At Pratapgad, the steep hill terrain mattered for planning.",
+        systemImage: "mountain.2.fill",
+        searchTokens: ["terrain", "hill terrain", "land shape"]
+    )
+
+    static let chronicle = GBGlossaryTerm(
+        id: "chronicle",
+        title: "Chronicle",
+        shortMeaning: "Story record",
+        detail: "A chronicle is a record of important events. In this app, it is your story album of what you learned.",
+        example: "A Chronicle card helps you remember a place, event, or big idea.",
+        systemImage: "book.closed.fill",
+        searchTokens: ["chronicle"]
+    )
+
+    static let fort = GBGlossaryTerm(
+        id: "fort",
+        title: "Fort",
+        shortMeaning: "Strong safe place",
+        detail: "A fort is a strong place with walls, gates, and lookout points that can help protect people.",
+        example: "Many parts of Shivaji Maharaj's story are tied to hill forts.",
+        systemImage: "shield.lefthalf.filled",
+        searchTokens: ["fort", "forts"]
+    )
+
+    static let all: [GBGlossaryTerm] = [.swarajya, .capital, .coronation, .terrain, .chronicle, .fort]
+
+    static func matching(_ text: String) -> [GBGlossaryTerm] {
+        let haystack = text.lowercased()
+        let matches = all.filter { term in
+            term.searchTokens.contains { haystack.contains($0.lowercased()) }
+        }
+        return uniqued(matches)
+    }
+
+    static func uniqued(_ terms: [GBGlossaryTerm]) -> [GBGlossaryTerm] {
+        var seen: Set<String> = []
+        return terms.filter { term in
+            guard !seen.contains(term.id) else { return false }
+            seen.insert(term.id)
+            return true
+        }
+    }
+}
+
+struct GBGlossaryTray: View {
+    let terms: [GBGlossaryTerm]
+    var title: String = "Words to know"
+
+    private var visibleTerms: [GBGlossaryTerm] { GBGlossaryTerm.uniqued(terms) }
+
+    var body: some View {
+        if !visibleTerms.isEmpty {
+            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                Text(title)
+                    .font(GBFont.ui(size: 12, weight: .heavy))
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+                    .foregroundStyle(GBColor.Content.tertiary)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: GBSpacing.xxSmall) {
+                        ForEach(visibleTerms) { term in
+                            GBGlossaryChip(term: term)
+                        }
+                    }
+                    .padding(.vertical, GBSpacing.xxxSmall)
+                }
+            }
+            .accessibilityElement(children: .contain)
+        }
+    }
+}
+
+struct GBGlossaryChip: View {
+    let term: GBGlossaryTerm
+
+    @State private var isShowingDefinition = false
+
+    var body: some View {
+        Button {
+            isShowingDefinition = true
+        } label: {
+            HStack(spacing: GBSpacing.xxxSmall) {
+                Image(systemName: term.systemImage)
+                Text(term.title)
+                    .font(GBFont.ui(size: 13, weight: .bold))
+                Text(term.shortMeaning)
+                    .font(GBFont.ui(size: 12, weight: .semibold))
+                    .foregroundStyle(GBColor.Content.secondary)
+            }
+            .padding(.horizontal, GBSpacing.xSmall)
+            .padding(.vertical, GBSpacing.xxSmall)
+            .background(GBColor.Background.elevated, in: Capsule())
+            .overlay(Capsule().stroke(GBColor.Border.panel, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(GBColor.Content.primary)
+        .accessibilityLabel("Word help: \(term.title)")
+        .accessibilityHint("Shows a short meaning for \(term.title).")
+        .sheet(isPresented: $isShowingDefinition) {
+            GBGlossarySheet(term: term)
+        }
+    }
+}
+
+private struct GBGlossarySheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let term: GBGlossaryTerm
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Image(systemName: term.systemImage)
+                    .font(.system(size: 42, weight: .semibold))
+                    .foregroundStyle(GBColor.Chronicle.gold)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                    Text(term.title)
+                        .font(GBFont.display(size: 30, weight: .bold))
+                        .foregroundStyle(GBColor.Content.primary)
+                    Text(term.shortMeaning)
+                        .font(GBFont.story(size: 20))
+                        .foregroundStyle(GBColor.Chronicle.royal)
+                }
+
+                Text(term.detail)
+                    .font(GBFont.story(size: 18))
+                    .foregroundStyle(GBColor.Content.primary)
+                    .lineSpacing(4)
+
+                GBSurface(style: .elevated) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text("In this story")
+                            .font(GBFont.ui(size: 13, weight: .heavy))
+                            .textCase(.uppercase)
+                            .tracking(1.1)
+                            .foregroundStyle(GBColor.Content.tertiary)
+                        Text(term.example)
+                            .font(GBFont.ui(size: 16, weight: .semibold))
+                            .foregroundStyle(GBColor.Content.primary)
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(GBSpacing.medium)
+            }
+            .background(GBColor.Background.app)
+            .navigationTitle("Word help")
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}

@@ -1,0 +1,246 @@
+[
+  {
+    "file": "album-after-relaunch-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888097.873,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "earned-album-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888090.459,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "final-chapter-keepsake-placed-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888022.159,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "final-next-adventure-fort-board-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888025.357,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "gentle-retry-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887817.553,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "home-1080p.png",
+    "test": "TVLearningJourneyUITests/testFocusNeedsSelectAndParentPreferencesPersist()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888178.086,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "keepsake-ready-1080p.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888173.751,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "keepsake-ready-4k.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-4k-ordering-final.xcresult",
+    "timestamp": 1790888352.152,
+    "device": "GoB-TV-4K-Review",
+    "deviceID": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "resolution": [
+      3840,
+      2160
+    ]
+  },
+  {
+    "file": "matching-chapter-1-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887832.985,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "matching-chapter-2-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887867.817,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "matching-chapter-3-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887901.402,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "matching-chapter-5-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887978.504,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "narration-paused-1080p.png",
+    "test": "TVLearningJourneyUITests/testRemotePlayPauseControlsNarration()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888221.767,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "ordering-chapter-4-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887947.81,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "ordering-chapter-6-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888016.014,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "ordering-regression-complete-1080p.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888170.154,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "ordering-regression-complete-4k.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-4k-ordering-final.xcresult",
+    "timestamp": 1790888348.41,
+    "device": "GoB-TV-4K-Review",
+    "deviceID": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "resolution": [
+      3840,
+      2160
+    ]
+  },
+  {
+    "file": "parent-settings-off-1080p.png",
+    "test": "TVLearningJourneyUITests/testFocusNeedsSelectAndParentPreferencesPersist()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888188.257,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "partial-order-restored-focus-1080p.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888162.06,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "partial-order-restored-focus-4k.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-4k-ordering-final.xcresult",
+    "timestamp": 1790888339.716,
+    "device": "GoB-TV-4K-Review",
+    "deviceID": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "resolution": [
+      3840,
+      2160
+    ]
+  },
+  {
+    "file": "resumed-recall-1080p.png",
+    "test": "TVLearningJourneyUITests/testBackClearsChoiceAndRelaunchResumesRecallWithoutAward()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888121.966,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "selected-order-before-focus-check-4k.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-4k-ordering-final.xcresult",
+    "timestamp": 1790888344.444,
+    "device": "GoB-TV-4K-Review",
+    "deviceID": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "resolution": [
+      3840,
+      2160
+    ],
+    "diagnostic": true,
+    "note": "Captured before focus settlement; use selected-order-restored-focus-4k.png for accepted focus/contrast evidence."
+  },
+  {
+    "file": "selected-order-restored-focus-1080p.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888167.637,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "selected-order-restored-focus-4k.png",
+    "test": "TVLearningJourneyUITests/testChapterFourOrderingRemainsReachableAfterWrongChoiceAndTwoPlacements()",
+    "resultBundle": "/tmp/gob-tvos-4k-ordering-final.xcresult",
+    "timestamp": 1790888345.809,
+    "device": "GoB-TV-4K-Review",
+    "deviceID": "EA851759-6362-4F9F-B9A1-623BCEED0F5D",
+    "resolution": [
+      3840,
+      2160
+    ]
+  },
+  {
+    "file": "seven-event-timeline-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790888085.961,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-1-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887801.949,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-2-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887843.932,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-3-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887877.022,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-4-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887910.762,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-5-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887957.055,
+    "device": "GoB-TV-Acceptance"
+  },
+  {
+    "file": "story-chapter-6-1080p.png",
+    "test": "TVLearningJourneyUITests/testAllSixChaptersRetryMatchOrderKeepAndRelaunch()",
+    "resultBundle": "/tmp/gob-tvos-tests-validation-final-17.xcresult",
+    "timestamp": 1790887987.764,
+    "device": "GoB-TV-Acceptance"
+  }
+]
