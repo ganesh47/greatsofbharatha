@@ -38,10 +38,10 @@ struct ChronicleQuizView: View {
                     Text(result.feedback).gbStory().accessibilityIdentifier("pilot-quiz-feedback")
                     LearningNarrationControls(id: scene.id + "-pilot-feedback", text: result.feedback)
                     if result.isCorrect {
-                        NavigationLink { ChronicleMatchView(scenes: [scene], sessionID: activeSessionID ?? sessionID) } label: {
+                        NavigationLink(value: LearnRoute.matching(sceneIDs: [scene.id], sessionID: activeSessionID ?? sessionID)) {
                             Text("Play a matching game")
                         }.buttonStyle(.gbPrimary(.place))
-                        NavigationLink { ChronicleBookView(scenes: LearnQuizPilotData.scenes) } label: {
+                        NavigationLink(value: LearnRoute.chronicle) {
                             Text("See my Chronicle")
                         }.buttonStyle(.gbPrimary(.chronicle))
                     }

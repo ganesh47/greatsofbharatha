@@ -3,22 +3,25 @@ import SwiftUI
 import UIKit
 #endif
 
+enum LearnRoute: Hashable {
+    case scene(String)
+    case quiz(sceneID: String, sessionID: UUID)
+    case matching(sceneIDs: [String], sessionID: UUID)
+    case review
+    case chronicle
+}
+
 @MainActor
 final class LearnNavigationCoordinator: ObservableObject {
     @Published var path = NavigationPath() {
         didSet { trace("path.didSet", priorCount: oldValue.count) }
     }
-    private let resetStack: () -> Void
 #if DEBUG
     private let diagnosticID = UUID()
-    private let navigationID: UUID
+    private let navigationID = UUID()
 #endif
 
-    init(navigationID: UUID, resetStack: @escaping () -> Void) {
-        self.resetStack = resetStack
-#if DEBUG
-        self.navigationID = navigationID
-#endif
+    init() {
         trace("coordinator.init")
     }
 
@@ -27,16 +30,20 @@ final class LearnNavigationCoordinator: ObservableObject {
         GBNarrator.shared.stop()
         path = NavigationPath()
         trace("returnHome.pathCleared")
-        // Legacy destination and Boolean links also belong to this stack.
-        // Recreating it dismisses those routes as well as value-based routes.
-        resetStack()
-        trace("returnHome.resetReturned")
     }
 
     func openScene(_ sceneID: String) {
         trace("continue.beforeAppend", sceneID: sceneID)
-        path.append(sceneID)
+        path.append(LearnRoute.scene(sceneID))
         trace("continue.afterAppend", sceneID: sceneID)
+    }
+
+    func openQuiz(sceneID: String, sessionID: UUID) {
+        path.append(LearnRoute.quiz(sceneID: sceneID, sessionID: sessionID))
+    }
+
+    func openMatching(sceneIDs: [String], sessionID: UUID = UUID()) {
+        path.append(LearnRoute.matching(sceneIDs: sceneIDs, sessionID: sessionID))
     }
 
     func trace(_ event: String, sceneID: String? = nil, priorCount: Int? = nil) {
@@ -48,22 +55,31 @@ final class LearnNavigationCoordinator: ObservableObject {
 }
 
 struct LearnNavigationStack<Content: View>: View {
-    @State private var stackIdentity = UUID()
+    @EnvironmentObject private var appModel: AppModel
+    @StateObject private var navigation = LearnNavigationCoordinator()
     private let content: () -> Content
+    private let registerPilotRoutes: Bool
 
-    init(@ViewBuilder content: @escaping () -> Content) {
+    init(registerPilotRoutes: Bool = true, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
+        self.registerPilotRoutes = registerPilotRoutes
     }
 
     var body: some View {
-        LearnNavigationSession(content: content, navigationID: stackIdentity, resetStack: {
-            let next = UUID()
-#if DEBUG
-            SyntheticNavigationTrace.record("reset.request", navigationID: stackIdentity, nextNavigationID: next)
-#endif
-            stackIdentity = next
-        })
-        .id(stackIdentity)
+        NavigationStack(path: $navigation.path) {
+            if registerPilotRoutes {
+                content()
+                    .navigationDestination(for: LearnRoute.self) { route in
+                        destination(route)
+                    }
+            } else {
+                content()
+            }
+        }
+        .environmentObject(navigation)
+        .onAppear { navigation.trace("session.appear") }
+        .onDisappear { navigation.trace("session.disappear") }
+        .onChange(of: navigation.path.count) { _, _ in navigation.trace("session.pathCountChanged") }
 #if DEBUG
         .overlay(alignment: .topLeading) {
             if SyntheticNavigationTrace.enabled {
@@ -72,31 +88,27 @@ struct LearnNavigationStack<Content: View>: View {
         }
 #endif
     }
-}
 
-/// A reset replaces the native stack and its path owner together. Retaining the
-/// old path owner across native-stack recreation leaves two stack lifetimes
-/// temporarily attached to one binding on older supported SwiftUI runtimes.
-private struct LearnNavigationSession<Content: View>: View {
-    @StateObject private var navigation: LearnNavigationCoordinator
-    private let content: () -> Content
-
-    init(content: @escaping () -> Content, navigationID: UUID, resetStack: @escaping () -> Void) {
-        self.content = content
-        _navigation = StateObject(wrappedValue: LearnNavigationCoordinator(navigationID: navigationID, resetStack: resetStack))
-    }
-
-    var body: some View {
-        NavigationStack(path: $navigation.path) {
-            content()
-                .navigationDestination(for: String.self) { sceneID in
-                    sceneDestination(sceneID)
-                }
+    @ViewBuilder
+    private func destination(_ route: LearnRoute) -> some View {
+        switch route {
+        case .scene(let sceneID):
+            sceneDestination(sceneID)
+        case .quiz(let sceneID, let sessionID):
+            if let scene = LearnQuizPilotData.scenes.first(where: { $0.id == sceneID }) {
+                ChronicleQuizView(scene: scene, sessionID: sessionID)
+            }
+        case .matching(let sceneIDs, let sessionID):
+            ChronicleMatchView(scenes: sceneIDs.compactMap { sceneID in
+                LearnQuizPilotData.scenes.first(where: { $0.id == sceneID })
+            }, sessionID: sessionID)
+        case .review:
+            FlashcardReviewView(cards: LearnQuizPilotData.scenes.filter {
+                appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false
+            }.flatMap(\.reviewCards))
+        case .chronicle:
+            ChronicleBookView(scenes: LearnQuizPilotData.scenes)
         }
-            .environmentObject(navigation)
-            .onAppear { navigation.trace("session.appear") }
-            .onDisappear { navigation.trace("session.disappear") }
-            .onChange(of: navigation.path.count) { _, _ in navigation.trace("session.pathCountChanged") }
     }
 
     @ViewBuilder

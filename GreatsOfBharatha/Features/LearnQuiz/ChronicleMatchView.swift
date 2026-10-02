@@ -6,11 +6,13 @@ import UIKit
 struct ChronicleMatchView: View {
     @EnvironmentObject private var appModel: AppModel
     @EnvironmentObject private var navigation: LearnNavigationCoordinator
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var minimumPanelWidth: CGFloat = 160
     let scenes: [LearnQuizPilotScene]
     var sessionID = UUID()
+    var usesLegacyPresentation = false
     @State private var completedSceneIDs: Set<String> = []
     @State private var restored = false
     @State private var matchState = ChronicleMatchState()
@@ -242,7 +244,10 @@ struct ChronicleMatchView: View {
     }
 
     private var doneBar: some View {
-        Button("Done") { navigation.returnHome() }
+        Button("Done") {
+            if usesLegacyPresentation { dismiss() }
+            navigation.returnHome()
+        }
             .buttonStyle(.gbPrimary(.place))
             .accessibilityIdentifier("matching-done")
             .padding(.horizontal, GBSpacing.small)

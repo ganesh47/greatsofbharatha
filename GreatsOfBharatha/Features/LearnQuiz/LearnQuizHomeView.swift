@@ -32,20 +32,20 @@ struct LearnQuizHomeView: View {
                 ForEach(scenes) { scene in
                     if let canonical = appModel.content.scenes.first(where: { $0.id == scene.id }),
                        appModel.lessonStore.isSceneUnlocked(canonical) {
-                        NavigationLink(value: scene.id) { LearnQuizSceneRow(scene: scene) }
+                        NavigationLink(value: LearnRoute.scene(scene.id)) { LearnQuizSceneRow(scene: scene) }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("pilot-home-scene-" + scene.id)
                     } else { Text("\(scene.title) — ready after the previous adventure").gbBody() }
                 }
                 if !learned.isEmpty {
-                    NavigationLink { ChronicleMatchView(scenes: learned) } label: {
+                    Button { navigation.openMatching(sceneIDs: learned.map(\.id)) } label: {
                         Label("Match the places you learned", systemImage: "square.grid.2x2.fill")
                     }.buttonStyle(.gbPrimary(.place))
-                    NavigationLink { FlashcardReviewView(cards: reviewCards) } label: {
+                    NavigationLink(value: LearnRoute.review) {
                         Label("Review my story cards", systemImage: "rectangle.on.rectangle")
                     }.buttonStyle(.gbSecondary)
                 }
-                NavigationLink { ChronicleBookView(scenes: scenes) } label: {
+                NavigationLink(value: LearnRoute.chronicle) {
                     Label("Open my Chronicle", systemImage: "book.closed.fill")
                 }.buttonStyle(.gbPrimary(.chronicle))
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
