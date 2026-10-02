@@ -76,6 +76,8 @@ The coordinator's `ios-final-targeted.xcresult` run passed 149 unit cases and bo
 
 The discovery helper now accepts XCTest's native `exists` and `isHittable` result, retains bounded scrolling and the native element tap, and attaches a screenshot, live accessibility hierarchy, device orientation, and window/scroll/target frames if it still cannot reach a target. No app layout or authored content changed. Worker Swift 6 source checking, scoped lint, and whitespace checking pass; coordinator simulator rerun is required before claiming the landscape case passes. Evidence: `/tmp/gob-enrichment-20261002/ios-final-targeted.log`, `/tmp/gob-enrichment-20261002/evidence/ios-final-targeted/manifest.json`, and extracted fresh frames in `/tmp/gob-enrichment-20261002/evidence/discovery-layout-worker`.
 
+A separate CI run at integration head `450aec1` failed before rotation: the narration switch was tapped at 19.03 seconds and its value was read immediately at 19.51 seconds, still enabled. That log does not establish whether the switch missed the interaction or updated later. The preference helper now waits up to five seconds for the requested value after one native switch tap. It fails with retained live accessibility, geometry, current/expected values, and screenshot evidence if the preference remains unchanged or cannot be reached. It neither writes preferences directly nor repeats a toggle blindly. This is a test postcondition correction; runtime success still requires the coordinator rerun. Evidence: `/tmp/gob-enrichment-20261002/integration-450-ios-ci.log`; pure checks: `/tmp/gob-enrichment-20261002/discovery-layout-validation`.
+
 ## Owned file list
 
 - `GreatsOfBharatha/Features/Lesson/SceneLessonView.swift`

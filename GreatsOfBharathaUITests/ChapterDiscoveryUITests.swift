@@ -31,16 +31,16 @@ final class ChapterDiscoveryUITests: XCTestCase {
             scroll.swipeDown()
         }
         if element.exists && element.isHittable { return }
-        captureReachabilityFailure(element, in: scroll)
+        captureInteractionFailure(element, in: scroll)
         XCTFail("Could not reach \(element)", file: file, line: line)
     }
 
-    private func captureReachabilityFailure(_ element: XCUIElement, in scroll: XCUIElement) {
+    private func captureInteractionFailure(_ element: XCUIElement, in scroll: XCUIElement, expectedValue: String? = nil) {
         let windows = app.windows.allElementsBoundByIndex.enumerated().map { index, window in
             "window[\(index)] frame=\(window.frame)"
         }.joined(separator: "\n")
         let target = element.exists
-            ? "target id=\(element.identifier) frame=\(element.frame) enabled=\(element.isEnabled) hittable=\(element.isHittable)"
+            ? "target id=\(element.identifier) frame=\(element.frame) enabled=\(element.isEnabled) hittable=\(element.isHittable) value=\(String(describing: element.value))"
             : "target absent: \(element)"
         let scrollState = scroll.exists
             ? "scroll id=\(scroll.identifier) frame=\(scroll.frame) hittable=\(scroll.isHittable)"
@@ -50,13 +50,14 @@ final class ChapterDiscoveryUITests: XCTestCase {
             \(windows)
             \(scrollState)
             \(target)
+            expectedValue=\(expectedValue ?? "not applicable")
 
             \(app.debugDescription)
             """)
-        attachment.name = "discovery-unreachable-live-AX-and-frames"
+        attachment.name = "discovery-interaction-live-AX-and-frames"
         attachment.lifetime = .keepAlways
         add(attachment)
-        capture("discovery-unreachable-screenshot")
+        capture("discovery-interaction-screenshot")
     }
 
     private func tap(_ identifier: String, scrollID: String = "scene-lesson-scroll", file: StaticString = #filePath, line: UInt = #line) {
@@ -91,15 +92,34 @@ final class ChapterDiscoveryUITests: XCTestCase {
         answer.typeText(String(numbers.reduce(0, +)) + "\n")
         app.buttons["parent-gate-confirm"].tap()
         for (identifier, enabled) in [("parent-narration-toggle", narrationEnabled), ("parent-calm-toggle", calmEnabled)] {
-            let toggle = app.switches[identifier]
-            XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+            let toggle = app.switches[identifier].firstMatch
+            let expectedValue = enabled ? "1" : "0"
+            guard toggle.waitForExistence(timeout: 10) else {
+                captureInteractionFailure(toggle, in: app.scrollViews.firstMatch, expectedValue: expectedValue)
+                XCTFail("Missing parent preference \(identifier)")
+                return
+            }
             for _ in 0..<20 {
                 if toggle.isHittable { break }
                 app.swipeUp()
             }
-            XCTAssertTrue(toggle.isHittable)
-            if (toggle.value as? String == "1") != enabled { toggle.tap() }
-            XCTAssertEqual(toggle.value as? String, enabled ? "1" : "0")
+            guard toggle.isHittable else {
+                captureInteractionFailure(toggle, in: app.scrollViews.firstMatch, expectedValue: expectedValue)
+                XCTFail("Unreachable parent preference \(identifier)")
+                return
+            }
+            if toggle.value as? String != expectedValue {
+                toggle.tap()
+                let changed = XCTNSPredicateExpectation(predicate: NSPredicate { object, _ in
+                    (object as? XCUIElement)?.value as? String == expectedValue
+                }, object: toggle)
+                guard XCTWaiter.wait(for: [changed], timeout: 5) == .completed else {
+                    captureInteractionFailure(toggle, in: app.scrollViews.firstMatch, expectedValue: expectedValue)
+                    XCTFail("Parent preference \(identifier) did not become \(expectedValue); actual \(String(describing: toggle.value))")
+                    return
+                }
+            }
+            XCTAssertEqual(toggle.value as? String, expectedValue)
         }
         app.buttons["Done"].tap()
         app.buttons["Story"].firstMatch.tap()
