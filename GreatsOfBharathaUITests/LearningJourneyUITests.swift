@@ -13,6 +13,19 @@ final class LearningJourneyUITests: XCTestCase {
         app.launchEnvironment["GOB_NAV_TRACE"] = "1"
     }
 
+    override func tearDown() async throws {
+        if let app {
+            let probe = app.descendants(matching: .any)["gob-nav-trace"].firstMatch
+            let text = probe.exists ? (probe.value as? String ?? "trace-value-missing") : "trace-probe-missing\n" + app.debugDescription
+            let attachment = XCTAttachment(string: text)
+            attachment.name = "synthetic-navigation-trace"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            print("GOB_NAV_TRACE\n" + text)
+        }
+        try await super.tearDown()
+    }
+
     private func launch(largeText: Bool = false, pilot: Bool = false) {
         configureApplication()
         if pilot { app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "1" }
@@ -25,11 +38,7 @@ final class LearningJourneyUITests: XCTestCase {
         let element = app.buttons[identifier].firstMatch
         XCTAssertTrue(element.waitForExistence(timeout: 10), "Missing \(identifier)", file: file, line: line)
         XCTAssertTrue(element.isEnabled, "Disabled \(identifier)", file: file, line: line)
-        if identifier == "pilot-home-continue" { print("GOB_NAV TAP before " + String(describing: element.value)) }
         element.tap()
-        if identifier == "pilot-home-continue" {
-            print("GOB_NAV TAP after " + (element.exists ? String(describing: element.value) : "home-not-present"))
-        }
     }
 
     private func openParentSettings() {
