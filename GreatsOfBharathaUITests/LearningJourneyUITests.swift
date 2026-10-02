@@ -11,9 +11,12 @@ final class LearningJourneyUITests: XCTestCase {
         app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.\(UUID().uuidString)"
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
         app.launchEnvironment["GOB_NAV_TRACE"] = "1"
+        addTeardownBlock { @MainActor [weak self] () async throws -> Void in
+            self?.captureNavigationTrace()
+        }
     }
 
-    override func tearDown() async throws {
+    private func captureNavigationTrace() {
         if let app {
             let probe = app.descendants(matching: .any)["gob-nav-trace"].firstMatch
             let text = probe.exists ? (probe.value as? String ?? "trace-value-missing") : "trace-probe-missing\n" + app.debugDescription
@@ -23,7 +26,6 @@ final class LearningJourneyUITests: XCTestCase {
             add(attachment)
             print("GOB_NAV_TRACE\n" + text)
         }
-        try await super.tearDown()
     }
 
     private func launch(largeText: Bool = false, pilot: Bool = false) {
