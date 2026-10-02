@@ -23,19 +23,19 @@ The coordinator accepted this API in `/tmp/gob-enrichment-20261002/COORDINATION.
 
 ```swift
 TimelineHubView(
-    checkpoint: store.iosTimelineCheckpoint,
-    onCheckpointChange: { store.saveIOSTimelineCheckpoint($0) },
+    checkpoint: store.activityState(TimelineActivityCheckpoint.self, for: .timeline),
+    onCheckpointChange: { store.saveActivityState($0, for: .timeline) },
     onPlacementChecked: { store.recordIOSTimelinePlacement($0) }
 )
 ```
 
-Store method names in the example are illustrative. The view names and types are final. The default initializer remains compatible with the existing isolated capture route, but production entry must supply both hooks for durable progress and learning evidence.
+The generic checkpoint store API was provided by the coordinator in integration commit `7233e0a`; the placement adapter name in the example is illustrative. `onCheckpointChange` and `onPlacementChecked` both return Bool. The view names and types are final. The default initializer remains compatible with the existing isolated capture route, but production entry must supply both hooks for durable progress and learning evidence.
 
-`TimelineActivityCheckpoint` is Codable. Store it as optional `iosTimelineCheckpoint` at the snapshot root, outside chapter resume state. Decode absent older-snapshot data as nil. The view restores against known canonical rounds, removes unknown IDs, wrong/reordered slots, missing or mismatched checks, self-reported checks, duplicate receipt IDs and stale-session receipts. It does not advance past earlier unchecked rounds. Opening completion is retained when all six chapters later become eligible.
+`TimelineActivityCheckpoint` is Codable. The coordinator stores its encoded data under `.timeline` in snapshot-root `activityStateData`, outside chapter resume state; `activityState(_:for:)` returns nil for absent older-snapshot data. The worker does not edit storage. The view restores against known canonical rounds, removes unknown IDs, wrong/reordered slots, missing or mismatched checks, self-reported checks, duplicate receipt IDs and stale-session receipts. It does not advance past earlier unchecked rounds. Opening completion is retained when all six chapters later become eligible.
 
-`TimelinePlacementCheck` carries `eventID: UUID`, `sessionID: UUID`, `roundID: String`, `eventSubjectID: String`, `slotIndex: Int` and `support: LearningSupport`. Each receipt belongs to one correct, explicit slot submission and one canonical timeline subject. Save the checkpoint before recording evidence. The callback returns true for accepted **or already-recorded** receipts; false leaves a pending receipt for retry after restoration using the same ID. Acknowledge and save after recording. Distinct subjects and overlapping rounds use distinct receipt IDs; the same receipt is never awarded twice.
+`TimelinePlacementCheck` carries `eventID: UUID`, `sessionID: UUID`, `roundID: String`, `eventSubjectID: String`, `slotIndex: Int` and `support: LearningSupport`. Each receipt belongs to one correct, explicit slot submission and one canonical timeline subject. Save the checkpoint before recording evidence and deliver no receipts if that durable save returns false. `TimelineActivityEngine.synchronize` enforces this ordering. The callback returns true for accepted **or already-recorded** receipts; false leaves a pending receipt for retry after restoration using the same ID. Acknowledge and save after recording. Failed intent/acknowledgement saves show `timeline-save-status` and `timeline-save-retry`; failed evidence acknowledgements stay pending. Recorded completion and the next-round CTA require acknowledged receipts and a successful save. If acknowledgement saving fails, the previous durable checkpoint retains pending receipts with identical IDs for crash retry. Distinct subjects and overlapping rounds use distinct receipt IDs; the same receipt is never awarded twice.
 
-The store adapter must verify `check.isValid(round:sessionID:)` against the canonical matching round, plus the saved round's matching `checksByCardID` and slot. Record only:
+The store adapter must read the **durably saved** checkpoint and verify `check.isValid(round:sessionID:)` against the canonical matching round, plus the saved round's matching `checksByCardID` and slot. Record only:
 
 ```swift
 recordLearningOutcome(
@@ -56,8 +56,8 @@ Eligibility matches TV: first three canonical chapters need checked recall/revie
 
 ## Validation completed for this slice
 
-- 21/21 `TimelineActivityTests` pass in an isolated macOS Swift 6 package. The package copies the actual canonical content, existing store, models and Timeline test source, plus the unchanged `GBEmphasis` enum extracted from its token file. Test storage uses a random synthetic UserDefaults suite with cleanup. No app's real storage is loaded or seeded.
-- Coverage includes seven-event/dates parity, overlap boundaries, checked-learning eligibility, exposure/self-report exclusion, no checks from teaching/selection/hints, gentle retry, preserved correct slots/selection/help, correct-card locking, invalid inputs, partial relaunch, pending receipt identity, duplicate subject IDs, malformed checkpoints, sequential round progression, opening-to-full transition and version recovery.
+- 26/26 `TimelineActivityTests` pass in an isolated macOS Swift 6 package. The package copies the actual canonical content, existing store, models and Timeline test source, plus the unchanged `GBEmphasis` enum extracted from its token file. Test storage uses a random synthetic UserDefaults suite with cleanup. No app's real storage is loaded or seeded.
+- Coverage includes seven-event/dates parity, overlap boundaries, checked-learning eligibility, exposure/self-report exclusion, no checks from teaching/selection/hints, gentle retry, preserved correct slots/selection/help, correct-card locking, invalid inputs, partial relaunch, pending receipt identity, duplicate subject IDs, malformed checkpoints, sequential round progression, opening-to-full transition and version recovery. Five additional fault-injection checks verify no evidence on failed intent save, save-before-check ordering, acknowledgement-save failure/crash retry, pending evidence status and completion only after acknowledgement.
 - A real existing-store crash/retry test records a helped timeline placement, reconstructs the store, retries the same receipt and confirms one evidence entry, `.timelinePlacementSuccess` / `.timelinePlacement` / `.hinted`, `.understood` state and no `.reviewSuccess`.
 - New UI and domain typecheck with Swift 6 against iOS Simulator SDK 27 and the coordinator's pinned baseline app module. This is compile evidence, not rendered/simulator interaction evidence.
 - Swift parser, scoped SwiftLint with `--no-cache` and `git diff --check` pass. Only the existing renamed lint-rule configuration warning remains.
@@ -76,6 +76,7 @@ The coordinator must generate the project and run these tests in the real iOS te
 | Gentle retry/help | Choose a wrong slot after one correct card. Correct slot and selected card remain. `timeline-feedback` teaches the authored clue. `timeline-hint` fills no slot; subsequent correct placement retains `.hinted`. No wrong-answer haptic. |
 | Partial relaunch | Save one correct card, reveal a clue and select another card. Terminate/relaunch using the same dedicated suite without reset. Slots, selected card, support and session/event IDs match. |
 | Crash window | Terminate after receipt save/record but before acknowledgement. On relaunch, adapter acknowledges the already-recorded same UUID. Evidence and success counters do not increase twice. |
+| Save failure | Inject false from checkpoint callback. `timeline-save-status` and `timeline-save-retry` appear; no evidence callback runs. Retry with successful storage delivers the same IDs. Inject failed evidence or acknowledgement save; completion remains unavailable until successful retry. |
 | Full story | Complete opening, middle and return rounds. Pratapgad and Agra anchor the overlaps; Purandar stays before Agra; recovery stays after return and before Raigad. `timeline-success` reports checked order, retaining helped status. Looking back emits no award. |
 | Durable migration | Decode older snapshots with no iOS Timeline field; chapter and TV checkpoints remain unchanged. Preserve optional Timeline checkpoint through AppModel/store recreation and reset under coordinator policy. |
 | Accessibility/layout | Verify iPhone/iPad, landscape and large Dynamic Type. Card and slot targets are at least 80 pt, primary actions at least 56 pt. VoiceOver labels distinguish available/selected/checked cards and name ordered slots. No horizontal drag or color-only correctness cue is required. |

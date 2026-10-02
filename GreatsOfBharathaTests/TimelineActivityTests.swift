@@ -245,6 +245,79 @@ final class TimelineActivityTests: XCTestCase {
         XCTAssertFalse(TimelineActivityEngine.isComplete(round: first, checkpoint: restored))
     }
 
+    func testFailedDurableSaveDoesNotDeliverOrAcknowledgeEvidence() throws {
+        var checkpoint = started()
+        let check = try XCTUnwrap(place(0, round: first, checkpoint: &checkpoint))
+        var checkCalls = 0
+        let result = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { _ in false }, onCheck: { _ in checkCalls += 1; return true })
+        XCTAssertEqual(result, .saveFailed)
+        XCTAssertEqual(checkCalls, 0)
+        XCTAssertEqual(TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: checkpoint), [check])
+        XCTAssertFalse(TimelineActivityEngine.isRecorded(round: first, checkpoint: checkpoint))
+    }
+
+    func testSuccessfulDurableIntentPrecedesEvidenceAndAcknowledgementSave() throws {
+        var checkpoint = started()
+        let check = try XCTUnwrap(place(0, round: first, checkpoint: &checkpoint))
+        var durable: TimelineActivityCheckpoint?
+        var operations: [String] = []
+        let result = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { point in durable = point; operations.append("save"); return true },
+            onCheck: { receipt in
+                operations.append("check")
+                XCTAssertEqual(durable?.rounds[self.first.id]?.checksByCardID[receipt.eventSubjectID], receipt)
+                return true
+            })
+        XCTAssertEqual(result, .saved)
+        XCTAssertEqual(operations, ["save", "check", "save"])
+        XCTAssertTrue(durable?.rounds[first.id]?.acknowledgedEventIDs.contains(check.eventID) == true)
+        XCTAssertTrue(TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: checkpoint).isEmpty)
+    }
+
+    func testUnacknowledgedCorrectOrderCannotClaimRecordedCompletion() {
+        var checkpoint = started()
+        for index in first.cards.indices { _ = place(index, round: first, checkpoint: &checkpoint) }
+        let result = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { _ in true }, onCheck: { _ in false })
+        XCTAssertEqual(result, .checksPending)
+        XCTAssertTrue(TimelineActivityEngine.isComplete(round: first, checkpoint: checkpoint))
+        XCTAssertFalse(TimelineActivityEngine.isRecorded(round: first, checkpoint: checkpoint))
+        XCTAssertEqual(TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: checkpoint).count, 3)
+    }
+
+    func testFailedAcknowledgementSaveRetainsDurablePendingIdentityForCrashRetry() throws {
+        var checkpoint = started()
+        let check = try XCTUnwrap(place(0, round: first, checkpoint: &checkpoint))
+        var durable: TimelineActivityCheckpoint?
+        var saves = 0
+        let result = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { point in
+                saves += 1
+                guard saves == 1 else { return false }
+                durable = point
+                return true
+            }, onCheck: { _ in true })
+        XCTAssertEqual(result, .saveFailed)
+        var relaunched = TimelineActivityEngine.restored(try roundTrip(XCTUnwrap(durable)), allRounds: rounds, availableRounds: rounds)
+        XCTAssertEqual(TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: relaunched), [check])
+        var retriedIDs: [UUID] = []
+        let retry = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &relaunched,
+            onSave: { _ in true }, onCheck: { retriedIDs.append($0.eventID); return true })
+        XCTAssertEqual(retry, .saved)
+        XCTAssertEqual(retriedIDs, [check.eventID])
+    }
+
+    func testOnlyAcknowledgedCheckedOrderIsRecordedComplete() {
+        var checkpoint = started()
+        for index in first.cards.indices { _ = place(index, round: first, checkpoint: &checkpoint) }
+        XCTAssertFalse(TimelineActivityEngine.isRecorded(round: first, checkpoint: checkpoint))
+        let result = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { _ in true }, onCheck: { _ in true })
+        XCTAssertEqual(result, .saved)
+        XCTAssertTrue(TimelineActivityEngine.isRecorded(round: first, checkpoint: checkpoint))
+    }
+
     func testStoreDeduplicatesPendingPlacementAfterCrashWithoutChangingEvidenceKind() throws {
         let suite = "GreatsOfBharatha.TimelineActivityTests." + UUID().uuidString
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

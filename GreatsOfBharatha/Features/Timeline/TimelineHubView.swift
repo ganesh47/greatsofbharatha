@@ -8,13 +8,14 @@ struct TimelineHubView: View {
     @State private var checkpoint: TimelineActivityCheckpoint
     @State private var loaded = false
     @State private var showingRecap = false
+    @State private var saveStatus: TimelineActivitySaveStatus = .saved
 
     private let initialCheckpoint: TimelineActivityCheckpoint?
-    private let onCheckpointChange: ((TimelineActivityCheckpoint) -> Void)?
+    private let onCheckpointChange: ((TimelineActivityCheckpoint) -> Bool)?
     private let onPlacementChecked: ((TimelinePlacementCheck) -> Bool)?
 
     init(checkpoint: TimelineActivityCheckpoint? = nil,
-         onCheckpointChange: ((TimelineActivityCheckpoint) -> Void)? = nil,
+         onCheckpointChange: ((TimelineActivityCheckpoint) -> Bool)? = nil,
          onPlacementChecked: ((TimelinePlacementCheck) -> Bool)? = nil) {
         initialCheckpoint = checkpoint
         _checkpoint = State(initialValue: checkpoint ?? TimelineActivityCheckpoint())
@@ -46,11 +47,11 @@ struct TimelineHubView: View {
     }
 
     private var completedRoundCount: Int {
-        rounds.filter { TimelineActivityEngine.isComplete(round: $0, checkpoint: checkpoint) }.count
+        rounds.filter { TimelineActivityEngine.isRecorded(round: $0, checkpoint: checkpoint) }.count
     }
 
     private var allAvailableComplete: Bool {
-        !rounds.isEmpty && completedRoundCount == rounds.count
+        !rounds.isEmpty && completedRoundCount == rounds.count && saveStatus == .saved
     }
 
     var body: some View {
@@ -58,6 +59,7 @@ struct TimelineHubView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
                     heading
+                    if saveStatus != .saved { saveRetry }
                     if let round = currentRound {
                         if showingRecap || !progress.teachingSeen {
                             recap(round: round)
@@ -95,7 +97,7 @@ struct TimelineHubView: View {
                 Text("Remember what came first, what came next, and how the little parts connect.")
                     .gbBody().foregroundStyle(GBColor.Content.secondary)
                 if !rounds.isEmpty {
-                    Text("\(completedRoundCount) of \(rounds.count) parts checked")
+                    Text(saveStatus == .saveFailed ? "Your order is waiting to save" : "\(completedRoundCount) of \(rounds.count) parts checked")
                         .gbCaption().accessibilityIdentifier("timeline-round-progress")
                     ProgressView(value: Double(completedRoundCount), total: Double(rounds.count))
                         .tint(GBColor.Place.primary)
@@ -174,14 +176,15 @@ struct TimelineHubView: View {
                     .background(GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
                     .accessibilityIdentifier("timeline-feedback")
             }
-            if TimelineActivityEngine.isComplete(round: round, checkpoint: checkpoint) {
+            if TimelineActivityEngine.isRecorded(round: round, checkpoint: checkpoint), saveStatus == .saved,
+               rounds.last?.id != round.id {
                 Button("Next part of the story") {
                     TimelineActivityEngine.advance(rounds: rounds, checkpoint: &checkpoint)
                     saveAndDeliverChecks()
                 }
                 .buttonStyle(.gbPrimary)
                 .accessibilityIdentifier("timeline-next")
-            } else {
+            } else if !TimelineActivityEngine.isComplete(round: round, checkpoint: checkpoint) {
                 Button("Give me a clue") {
                     TimelineActivityEngine.hint(round: round, checkpoint: &checkpoint)
                     save()
@@ -302,17 +305,26 @@ struct TimelineHubView: View {
     }
 
     private func save() {
-        guard loaded, !rounds.isEmpty else { return }
-        onCheckpointChange?(checkpoint)
+        saveAndDeliverChecks()
     }
 
     private func saveAndDeliverChecks() {
-        save()
-        guard loaded, let onPlacementChecked else { return }
-        // Save-before-check closes the crash window; a retry always uses the same eventID.
-        for check in TimelineActivityEngine.pendingChecks(rounds: rounds, checkpoint: checkpoint) where onPlacementChecked(check) {
-            TimelineActivityEngine.acknowledge(check, checkpoint: &checkpoint)
+        guard loaded, !rounds.isEmpty else { return }
+        saveStatus = TimelineActivityEngine.synchronize(rounds: rounds, checkpoint: &checkpoint,
+            onSave: { onCheckpointChange?($0) ?? false }, onCheck: { onPlacementChecked?($0) ?? false })
+    }
+
+    private var saveRetry: some View {
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                Text(saveStatus == .saveFailed
+                     ? "Your cards are still here. We couldn't save this step yet. Try saving again before you leave."
+                     : "Your cards are saved. The check is waiting to be recorded. Try again.")
+                    .gbBody().accessibilityIdentifier("timeline-save-status")
+                Button("Try saving again", action: saveAndDeliverChecks)
+                    .buttonStyle(.gbPrimary)
+                    .accessibilityIdentifier("timeline-save-retry")
+            }
         }
-        save()
     }
 }

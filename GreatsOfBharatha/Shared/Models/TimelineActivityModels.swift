@@ -112,6 +112,10 @@ struct TimelineActivityCheckpoint: Codable, Equatable {
     var rounds: [String: TimelineRoundProgress] = [:]
 }
 
+enum TimelineActivitySaveStatus: Equatable {
+    case saved, saveFailed, checksPending
+}
+
 enum TimelineActivityEngine {
     static func restored(_ checkpoint: TimelineActivityCheckpoint?, allRounds: [TimelineActivityRound],
                          availableRounds: [TimelineActivityRound]) -> TimelineActivityCheckpoint {
@@ -236,6 +240,25 @@ enum TimelineActivityEngine {
         guard var progress = checkpoint.rounds[check.roundID], progress.checksByCardID[check.eventSubjectID] == check else { return }
         progress.acknowledgedEventIDs.insert(check.eventID)
         checkpoint.rounds[check.roundID] = progress
+    }
+
+    static func isRecorded(round: TimelineActivityRound, checkpoint: TimelineActivityCheckpoint) -> Bool {
+        guard isComplete(round: round, checkpoint: checkpoint), let progress = checkpoint.rounds[round.id] else { return false }
+        return progress.checksByCardID.values.allSatisfy { progress.acknowledgedEventIDs.contains($0.eventID) }
+    }
+
+    /// Durable intent must exist before any evidence write. Failed receipts stay pending;
+    /// acknowledged receipts are saved too, and a crash retry keeps the same event ID.
+    static func synchronize(rounds: [TimelineActivityRound], checkpoint: inout TimelineActivityCheckpoint,
+                            onSave: (TimelineActivityCheckpoint) -> Bool,
+                            onCheck: (TimelinePlacementCheck) -> Bool) -> TimelineActivitySaveStatus {
+        guard onSave(checkpoint) else { return .saveFailed }
+        var checksPending = false
+        for check in pendingChecks(rounds: rounds, checkpoint: checkpoint) {
+            if onCheck(check) { acknowledge(check, checkpoint: &checkpoint) } else { checksPending = true }
+        }
+        guard onSave(checkpoint) else { return .saveFailed }
+        return checksPending ? .checksPending : .saved
     }
 
     static func advance(rounds: [TimelineActivityRound], checkpoint: inout TimelineActivityCheckpoint) {
