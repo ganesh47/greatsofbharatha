@@ -22,6 +22,15 @@ ASC_ORIGIN = "https://api.appstoreconnect.apple.com"
 VERSION_RE = re.compile(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\Z")
 SHA_RE = re.compile(r"[0-9a-f]{40}\Z")
 READY_STATES = {"READY_FOR_BETA_TESTING", "IN_BETA_TESTING"}
+PLATFORMS = {
+    "IOS": {"scheme": "GreatsOfBharatha", "prerelease": "IOS", "destination": "ANY_IOS_DEVICE", "label": "iOS"},
+    "TVOS": {
+        "scheme": "GreatsOfBharathaTV",
+        "prerelease": "TV_OS",
+        "destination": "ANY_TVOS_DEVICE",
+        "label": "tvOS",
+    },
+}
 
 
 class ReleaseError(RuntimeError):
@@ -30,6 +39,33 @@ class ReleaseError(RuntimeError):
 
 class Pending(RuntimeError):
     """A build may become available on a subsequent observation."""
+
+
+def platform_config(platform):
+    if platform not in PLATFORMS:
+        raise ReleaseError("Release platform must be IOS or TVOS")
+    return PLATFORMS[platform]
+
+
+def has_archive(workflow, platform):
+    config = platform_config(platform)
+    return any(
+        action.get("actionType") == "ARCHIVE"
+        and action.get("platform") == platform
+        and action.get("scheme") == config["scheme"]
+        and action.get("destination") in {None, config["destination"]}
+        and action.get("buildDistributionAudience") == "INTERNAL_ONLY"
+        and action.get("isRequiredToPass") is True
+        for action in workflow.get("attributes", {}).get("actions", [])
+    )
+
+
+def validate_release_workflow(workflow, platform):
+    attrs = workflow.get("attributes", {})
+    if not attrs.get("isEnabled") or not has_archive(workflow, platform):
+        raise ReleaseError("Selected workflow must be enabled and archive the requested platform/scheme; run configure")
+    if platform == "TVOS" and any(action.get("platform") != "TVOS" for action in attrs.get("actions", [])):
+        raise ReleaseError("Apple TV publication requires a TV-only workflow; existing iOS actions must remain separate")
 
 
 class AppleAPI:
@@ -196,11 +232,13 @@ def discover(api, app_id):
     report["recentBuilds"] = []
     for build in builds[:5]:
         rel = relation(build, "preReleaseVersion") or {}
-        version = included.get(("preReleaseVersions", rel.get("id")), {}).get("attributes", {}).get("version")
+        prerelease = included.get(("preReleaseVersions", rel.get("id")), {}).get("attributes", {})
+        version = prerelease.get("version")
         report["recentBuilds"].append(
             {
                 "id": build["id"],
                 "marketingVersion": version,
+                "platform": prerelease.get("platform"),
                 "buildNumber": build.get("attributes", {}).get("version"),
                 "processingState": build.get("attributes", {}).get("processingState"),
             }
@@ -208,13 +246,15 @@ def discover(api, app_id):
     return report
 
 
-def validate_inputs(version, sha, tag):
+def validate_inputs(version, sha, tag, platform="IOS"):
+    platform_config(platform)
     if not VERSION_RE.fullmatch(version):
         raise ReleaseError("Marketing version must be three numeric components, for example 0.2.0")
     if not SHA_RE.fullmatch(sha):
         raise ReleaseError("An exact full lowercase source SHA is required")
-    if tag != "v" + version:
-        raise ReleaseError("Release tag must match v plus the requested marketing version")
+    prefix = "tvos-v" if platform == "TVOS" else "v"
+    if tag != prefix + version:
+        raise ReleaseError("Release tag must match the platform prefix plus the requested marketing version")
 
 
 def github_get(path):
@@ -239,9 +279,10 @@ def check_tag_sha(tag, sha):
         raise ReleaseError("Release tag does not resolve to the exact tested source SHA")
 
 
-def check_github_gates(sha):
+def check_github_gates(sha, platform="IOS"):
+    platform_config(platform)
     try:
-        return check_release_gates(sha, get=github_get)
+        return check_release_gates(sha, get=github_get, platform=platform)
     except GateError as exc:
         raise ReleaseError(str(exc)) from exc
 
@@ -250,7 +291,7 @@ def selected_workflow(api, report, workflow_id):
     valid_ids = {w["id"] for p in report["products"] for w in p["workflows"]}
     if workflow_id not in valid_ids:
         raise ReleaseError("Select an existing workflow belonging to this app from preflight")
-    return api.get(f"/v1/ciWorkflows/{workflow_id}", {"include": "repository,product"})["data"]
+    return api.get(f"/v1/ciWorkflows/{workflow_id}", {"include": "repository,product,xcodeVersion,macOsVersion"})["data"]
 
 
 def selected_group(report, group_id):
@@ -260,19 +301,20 @@ def selected_group(report, group_id):
     return groups[0]
 
 
-def configure_archive(api, workflow):
+def configure_archive(api, workflow, platform="IOS"):
+    config = platform_config(platform)
     attrs = workflow.get("attributes", {})
     if attrs.get("isLockedForEditing"):
         raise ReleaseError("Xcode Cloud workflow is locked; cannot repair archive configuration")
     actions = list(attrs.get("actions", []))
-    if not any(a.get("actionType") == "ARCHIVE" and a.get("platform") == "IOS" for a in actions):
+    if not has_archive(workflow, platform):
         actions.append(
             {
-                "name": "Archive iOS for TestFlight",
+                "name": "Archive " + config["label"] + " for TestFlight",
                 "actionType": "ARCHIVE",
-                "platform": "IOS",
-                "scheme": "GreatsOfBharatha",
-                "destination": "ANY_IOS_DEVICE",
+                "platform": platform,
+                "scheme": config["scheme"],
+                "destination": config["destination"],
                 "isRequiredToPass": True,
                 "buildDistributionAudience": "INTERNAL_ONLY",
             }
@@ -285,11 +327,72 @@ def configure_archive(api, workflow):
                 "actions": actions,
                 "isEnabled": True,
                 "clean": True,
-                "manualTagStartCondition": {"source": {"isAllMatch": True}},
+                "manualTagStartCondition": {
+                    "source": {
+                        "isAllMatch": platform == "IOS",
+                        "patterns": [] if platform == "IOS" else [{"pattern": "tvos-v", "isPrefix": True}],
+                    }
+                },
             },
         }
     }
     return api.request("PATCH", f"/v1/ciWorkflows/{workflow['id']}", body=patch)["data"]
+
+
+def ensure_tv_workflow(api, report, seed):
+    """Create/reuse a TV-only workflow without modifying the existing iOS lane."""
+    name = "Apple TV TestFlight"
+    matches = [w for p in report["products"] for w in p["workflows"] if w.get("name") == name]
+    if len(matches) > 1:
+        matches = [w for w in matches if w["id"] == seed["id"]]
+        if len(matches) != 1:
+            raise ReleaseError("Multiple Apple TV TestFlight workflows exist; select the intended workflow explicitly")
+    if matches:
+        workflow = selected_workflow(api, report, matches[0]["id"])
+        if any(a.get("platform") != "TVOS" for a in workflow.get("attributes", {}).get("actions", [])):
+            raise ReleaseError("Existing Apple TV TestFlight workflow contains another platform")
+        return configure_archive(api, workflow, "TVOS")
+    relationships = {}
+    for key, resource_type in {
+        "product": "ciProducts",
+        "repository": "scmRepositories",
+        "xcodeVersion": "ciXcodeVersions",
+        "macOsVersion": "ciMacOsVersions",
+    }.items():
+        data = relation(seed, key)
+        if not data or data.get("type") != resource_type or not data.get("id"):
+            raise ReleaseError("Seed workflow is missing its " + key + " identity")
+        relationships[key] = {"data": {"type": resource_type, "id": data["id"]}}
+    container = seed.get("attributes", {}).get("containerFilePath")
+    if container != "GreatsOfBharatha.xcodeproj":
+        raise ReleaseError("Seed workflow uses an unexpected Xcode project")
+    action = {
+        "name": "Archive tvOS for TestFlight",
+        "actionType": "ARCHIVE",
+        "platform": "TVOS",
+        "scheme": "GreatsOfBharathaTV",
+        "destination": "ANY_TVOS_DEVICE",
+        "isRequiredToPass": True,
+        "buildDistributionAudience": "INTERNAL_ONLY",
+    }
+    body = {
+        "data": {
+            "type": "ciWorkflows",
+            "attributes": {
+                "name": name,
+                "description": "Archive the tested Apple TV learning adventure for the existing internal TestFlight group.",
+                "actions": [action],
+                "clean": True,
+                "containerFilePath": container,
+                "isEnabled": True,
+                "manualTagStartCondition": {
+                    "source": {"isAllMatch": False, "patterns": [{"pattern": "tvos-v", "isPrefix": True}]}
+                },
+            },
+            "relationships": relationships,
+        }
+    }
+    return api.request("POST", "/v1/ciWorkflows", body=body)["data"]
 
 
 def workflow_repository(api, workflow):
@@ -375,7 +478,8 @@ def observe_cloud(api, run_id, sha, ref_id):
     return run
 
 
-def exact_build(api, app_id, version, build_number):
+def exact_build(api, app_id, version, build_number, platform="IOS"):
+    config = platform_config(platform)
     builds, included = api.collection(
         "/v1/builds",
         {
@@ -389,12 +493,15 @@ def exact_build(api, app_id, version, build_number):
     for build in builds:
         rel = relation(build, "preReleaseVersion") or {}
         prerelease = included.get(("preReleaseVersions", rel.get("id")), {})
-        if prerelease.get("attributes", {}).get("version") == version and str(build["attributes"]["version"]) == str(
-            build_number
+        attrs = prerelease.get("attributes", {})
+        if (
+            attrs.get("version") == version
+            and attrs.get("platform") == config["prerelease"]
+            and str(build["attributes"]["version"]) == str(build_number)
         ):
             matches.append(build)
     if not matches:
-        raise Pending("Exact marketing version/build number has not appeared in App Store Connect")
+        raise Pending("Exact platform/marketing version/build number has not appeared in App Store Connect")
     if len(matches) != 1:
         raise ReleaseError("Exact version/build number lookup is ambiguous")
     build = matches[0]
@@ -445,6 +552,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--operation", choices=["preflight", "configure", "publish", "verify"], default="preflight")
     parser.add_argument("--version", default=os.environ.get("TARGET_VERSION", ""))
+    parser.add_argument("--platform", choices=list(PLATFORMS), default=os.environ.get("TARGET_PLATFORM", "IOS"))
     parser.add_argument("--build-number", default="")
     parser.add_argument("--sha", default="")
     parser.add_argument("--tag", default="")
@@ -462,25 +570,26 @@ def main():
     repository = workflow_repository(api, workflow)
     if args.operation == "configure":
         selected_group(report, args.group_id)
-        workflow = configure_archive(api, workflow)
+        workflow = (
+            ensure_tv_workflow(api, report, workflow)
+            if args.platform == "TVOS"
+            else configure_archive(api, workflow, args.platform)
+        )
         write_report(
             {
                 "configuredWorkflow": workflow["id"],
+                "platform": args.platform,
                 "actions": workflow["attributes"]["actions"],
-                "note": "Archive uploads through Xcode Cloud; publishing explicitly attaches the resulting build to the existing internal group.",
+                "note": "Archive uploads through Xcode Cloud; TV uses an isolated workflow and tvos-v tags. Publishing verifies assignment to the existing internal group.",
             },
             args.report,
         )
         return 0
-    validate_inputs(args.version, args.sha, args.tag)
+    validate_inputs(args.version, args.sha, args.tag, args.platform)
     check_tag_sha(args.tag, args.sha)
-    gates = check_github_gates(args.sha)
+    gates = check_github_gates(args.sha, args.platform)
     group = selected_group(report, args.group_id)
-    attrs = workflow.get("attributes", {})
-    if not attrs.get("isEnabled") or not any(
-        a.get("actionType") == "ARCHIVE" and a.get("platform") == "IOS" for a in attrs.get("actions", [])
-    ):
-        raise ReleaseError("Selected workflow must be enabled and archive iOS; run configure if needed")
+    validate_release_workflow(workflow, args.platform)
     ref = wait_for(lambda: find_tag(api, repository["id"], args.tag), timeout=300)
     if args.operation == "publish":
         automatic = tag_starts_automatically(workflow, args.tag)
@@ -494,6 +603,7 @@ def main():
                 "tag": args.tag,
                 "sourceSha": args.sha,
                 "requestedVersion": args.version,
+                "platform": args.platform,
                 "group": group,
                 "ciGates": gates,
             },
@@ -510,7 +620,7 @@ def main():
     build_number = str(run["attributes"]["number"])
     if args.build_number and args.build_number != build_number:
         raise ReleaseError("Requested build number differs from Xcode Cloud run number")
-    build, state = wait_for(lambda: exact_build(api, app_id, args.version, build_number))
+    build, state = wait_for(lambda: exact_build(api, app_id, args.version, build_number, args.platform))
     linked, _ = api.collection(f"/v1/ciBuildRuns/{run_id}/builds", {"limit": 200})
     if not any(b["id"] == build["id"] for b in linked):
         raise ReleaseError("Exact App Store Connect build is not linked to this Cloud run")
@@ -525,13 +635,14 @@ def main():
         )
     if not group_contains_build(api, group["id"], build["id"]):
         raise ReleaseError("Group assignment did not verify")
-    build, state = exact_build(api, app_id, args.version, build_number)
+    build, state = exact_build(api, app_id, args.version, build_number, args.platform)
     write_report(
         {
             "result": "AVAILABLE_TO_INTERNAL_TESTERS",
             "sourceSha": args.sha,
             "tag": args.tag,
             "marketingVersion": args.version,
+            "platform": args.platform,
             "buildNumber": build_number,
             "appId": app_id,
             "ascBuildId": build["id"],

@@ -8,3 +8,6 @@ DerivedData/
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 product-os.md
+
+__pycache__/
+*.pyc

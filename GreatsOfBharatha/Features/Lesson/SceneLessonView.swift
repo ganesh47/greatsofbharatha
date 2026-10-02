@@ -4,6 +4,7 @@ struct SceneLessonView: View {
     @EnvironmentObject private var appModel: AppModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let scene: StoryScene
     @State private var point: LessonResumePoint?
     @State private var selectedChoiceID: String?
@@ -31,9 +32,10 @@ struct SceneLessonView: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: GBSpacing.medium) {
-                Text(phaseTitle).font(.headline).accessibilityIdentifier("scene-phase-progress")
+                Text(phaseTitle).font(.headline).accessibilityIdentifier("scene-phase-progress").id("scene-top")
                 switch phase {
                 case .story: story
                 case .place: placeStep
@@ -45,8 +47,10 @@ struct SceneLessonView: View {
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
-        .id(phase.rawValue)
+        .accessibilityIdentifier("scene-lesson-scroll")
         .background(GBColor.Background.app)
+        .onChange(of: phase) { _, _ in proxy.scrollTo("scene-top", anchor: .top) }
+        }
         .navigationTitle(scene.title)
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -72,13 +76,10 @@ struct SceneLessonView: View {
             GBGlossaryTray(terms: GBGlossaryTerm.matching(scene.childSafeSummary + " " + plan.teachingText))
             if scene.number == 1 {
                 Text("Look closely. Choose a detail to discover its clue.").gbBody()
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 110))]) {
-                    discovery("hill", title: "Hill", symbol: "mountain.2.fill",
-                        text: "Shivneri is a hill fort near Junnar. Remember it as Shivaji Maharaj's Birth Fort.")
-                    discovery("gate", title: "Fort gate", symbol: "door.left.hand.open",
-                        text: "A fort is a protected place. Shivneri is the fort where Shivaji Maharaj's story begins.")
-                    discovery("book", title: "Storybook", symbol: "book.fill",
-                        text: "Jijabai guided young Shivaji with courage, care, and responsibility. Shivneri reminds us of these beginnings.")
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: GBSpacing.small) { discoveryButtons }
+                } else {
+                    HStack(alignment: .top, spacing: GBSpacing.small) { discoveryButtons }
                 }
                 if let detailText {
                     Text(detailText).gbStory()
@@ -90,6 +91,15 @@ struct SceneLessonView: View {
                 .buttonStyle(.gbPrimary(.story))
                 .accessibilityIdentifier("story-move-to-place-clues-button")
         }
+    }
+
+    @ViewBuilder private var discoveryButtons: some View {
+        discovery("hill", title: "Hill", symbol: "mountain.2.fill",
+            text: "Shivneri is a hill fort near Junnar. Remember it as Shivaji Maharaj's Birth Fort.")
+        discovery("gate", title: "Fort gate", symbol: "door.left.hand.open",
+            text: "A fort is a protected place. Shivneri is the fort where Shivaji Maharaj's story begins.")
+        discovery("book", title: "Storybook", symbol: "book.fill",
+            text: "Jijabai guided young Shivaji with courage, care, and responsibility. Shivneri reminds us of these beginnings.")
     }
 
     private func discovery(_ id: String, title: String, symbol: String, text: String) -> some View {
@@ -229,7 +239,12 @@ struct SceneLessonView: View {
         usedHelp = (point?.revealedHintLevel ?? 0) > 0
         shuffledChoices = plan.choices.shuffled()
         // Persist success checkpoint before reward so interruption cannot require a second award.
-        correct = point?.recallCompleted == true || phase == .reward
+        let durableSuccess = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {
+            $0.eventID == point?.recallEventID && ($0.type == .recallSuccess || $0.type == .reviewSuccess)
+        } == true
+        correct = point?.recallCompleted == true || durableSuccess
+        if correct && point?.recallCompleted != true { mutatePoint { $0.recallCompleted = true } }
+        if phase == .reward && !correct { mutatePoint { $0.phase = .story } }
         appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .storyExposure,
             wasSuccessful: true, mastery: .witnessed, detail: "Story opened", sessionID: point?.sessionID)
         if let point { appModel.lessonStore.saveResumePoint(point) }
@@ -244,6 +259,6 @@ struct SceneLessonView: View {
     }
 
     private func advance(_ next: LessonResumePhase) {
-        withAnimation(calm ? nil : GBMotion.standard) { mutatePoint { $0.phase = next } }
+        withAnimation(calm ? nil : GBMotion.standard) { mutatePoint { $0.phase = next; $0.preferredActivity = next == .recall ? .recall : nil } }
     }
 }

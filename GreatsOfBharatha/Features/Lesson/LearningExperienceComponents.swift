@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LearningNarrationControls: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var appModel: AppModel
     @ObservedObject private var narrator = GBNarrator.shared
     let id: String
@@ -9,18 +10,13 @@ struct LearningNarrationControls: View {
     var body: some View {
         VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
             if appModel.parentSettings.narrationEnabled {
-                HStack {
-                    Button { narrator.speak(id: id, text: text) } label: {
-                        Label("Listen", systemImage: "speaker.wave.2.fill")
-                    }
-                    .accessibilityIdentifier("listen-" + id)
-                    Button { narrator.stop() } label: {
-                        Label("Stop", systemImage: "stop.fill")
-                    }
-                    .disabled(narrator.activeCardID == nil)
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.bordered)
+                } else {
+                    HStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
-                .frame(minHeight: GBTouch.button)
                 if let message = narrator.statusMessage { Text(message).font(.caption) }
             } else {
                 Text("Read-aloud is off in parent settings.").font(.caption)
@@ -32,6 +28,23 @@ struct LearningNarrationControls: View {
         .onChange(of: text) { _, _ in narrator.stop() }
         .onDisappear { narrator.stop() }
     }
+
+    @ViewBuilder private var narrationButtons: some View {
+        Button { narrator.speak(id: id, text: text) } label: {
+            Label("Listen", systemImage: "speaker.wave.2.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .accessibilityIdentifier("listen-" + id)
+        Button { narrator.stop() } label: {
+            Label("Stop", systemImage: "stop.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .disabled(narrator.activeCardID == nil)
+        .accessibilityIdentifier("stop-" + id)
+    }
+
 }
 
 struct LessonSceneArt: View {
@@ -57,6 +70,7 @@ struct LessonSceneArt: View {
 
 /// Clue recognition uses bundled text and native graphics, and works offline.
 struct OfflineFortChallenge: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @EnvironmentObject private var appModel: AppModel
     let target: Place
     let candidates: [Place]
@@ -77,31 +91,20 @@ struct OfflineFortChallenge: View {
             }
             LearningNarrationControls(id: "fort-clue-" + target.id,
                 text: "Find the place for this clue: \(target.memoryHook). Choose a fort on the board.")
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: GBSpacing.small) {
-                ForEach(candidates) { place in
-                    Button {
-                        if place.id == target.id {
-                            solvedPlaceIDs.insert(target.id)
-                            feedback = "Found it! \(target.name). \(target.primaryEvent)"
-                            onSuccess(usedHint || appModel.parentSettings.assistModeEnabled ? .hinted : .independent)
-                            LessonFeedback.fire(.success)
-                        } else {
-                            helpedPlaceIDs.insert(target.id)
-                            feedback = "Let's look again. \(target.regionLabel). Need a clue?"
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(spacing: GBSpacing.small) {
+                    ForEach(candidates) { place in candidateButton(place) }
+                }
+            } else {
+                Grid(alignment: .leading, horizontalSpacing: GBSpacing.small, verticalSpacing: GBSpacing.small) {
+                    ForEach(0..<((candidates.count + 1) / 2), id: \.self) { row in
+                        GridRow {
+                            candidateButton(candidates[row * 2])
+                            if candidates.indices.contains(row * 2 + 1) {
+                                candidateButton(candidates[row * 2 + 1])
+                            }
                         }
-                    } label: {
-                        VStack(spacing: GBSpacing.xSmall) {
-                            Image(systemName: "building.2.crop.circle.fill").font(.largeTitle)
-                            Text(place.name).gbHeadline()
-                            Text(place.regionLabel).font(.caption).fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 100)
-                        .padding(GBSpacing.small)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(GBColor.Place.primary)
-                    .disabled(solved)
-                    .accessibilityIdentifier("fort-choice-" + place.id)
                 }
             }
             if let feedback {
@@ -122,12 +125,40 @@ struct OfflineFortChallenge: View {
             if appModel.parentSettings.assistModeEnabled { helpedPlaceIDs.insert(target.id) }
         }
     }
+
+    private func candidateButton(_ place: Place) -> some View {
+        Button {
+            if place.id == target.id {
+                solvedPlaceIDs.insert(target.id)
+                feedback = "Found it! \(target.name). \(target.primaryEvent)"
+                onSuccess(usedHint || appModel.parentSettings.assistModeEnabled ? .hinted : .independent)
+                LessonFeedback.fire(.success)
+            } else {
+                helpedPlaceIDs.insert(target.id)
+                feedback = "Let's look again. \(target.regionLabel). Need a clue?"
+            }
+        } label: {
+            VStack(spacing: GBSpacing.xSmall) {
+                Image(systemName: "building.2.crop.circle.fill").font(.largeTitle)
+                Text(place.name).gbHeadline()
+                Text(place.regionLabel).font(.caption).fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, minHeight: 100)
+            .padding(GBSpacing.small)
+        }
+        .buttonStyle(.bordered)
+        .tint(GBColor.Place.primary)
+        .disabled(solved)
+        .accessibilityIdentifier("fort-choice-" + place.id)
+    }
+
 }
 
 struct ParentGateView: View {
     @Environment(\.dismiss) private var dismiss
     var onContinue: () -> Void
     @State private var answer = ""
+    @FocusState private var answerFocused: Bool
     @State private var first = Int.random(in: 12...19)
     @State private var second = Int.random(in: 12...19)
     @State private var feedback = ""
@@ -138,6 +169,9 @@ struct ParentGateView: View {
                     Text("Please ask a grown-up to continue. What is \(first) + \(second)?")
                         .accessibilityIdentifier("parent-gate-question")
                     TextField("Answer", text: $answer)
+                        .focused($answerFocused)
+                        .submitLabel(.done)
+                        .onSubmit { answerFocused = false }
                         .accessibilityIdentifier("parent-gate-answer")
                     if !feedback.isEmpty { Text(feedback) }
                     Button("Continue") {

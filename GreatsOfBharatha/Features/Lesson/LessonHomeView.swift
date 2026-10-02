@@ -4,7 +4,7 @@ struct LessonHomeView: View {
     @EnvironmentObject private var appModel: AppModel
 
     private var recommended: StoryScene? {
-        if let resume = appModel.lessonStore.latestResumePoint, resume.phase != .reward,
+        if let resume = appModel.lessonStore.latestResumePoint, resume.phase != .reward, resume.preferredActivity != .match,
            let scene = appModel.content.scenes.first(where: { $0.id == resume.sceneID }) { return scene }
         return appModel.content.scenes.first(where: { $0.id == appModel.lessonStore.nextSceneID })
             ?? appModel.content.scenes.first
@@ -18,7 +18,7 @@ struct LessonHomeView: View {
                         LessonSceneArt(plan: SampleContent.learningPlan(for: scene))
                         Text(scene.title).gbDisplay()
                         Text(scene.childSafeSummary).gbStory()
-                        NavigationLink { SceneLessonView(scene: scene) } label: {
+                        NavigationLink(value: scene.id) {
                             Label(primaryTitle(scene), systemImage: "play.fill")
                                 .frame(maxWidth: .infinity, minHeight: GBTouch.primary)
                         }
@@ -32,7 +32,7 @@ struct LessonHomeView: View {
                 Text("Your adventures").gbTitle()
                 ForEach(appModel.content.scenes) { scene in
                     if appModel.lessonStore.isSceneUnlocked(scene) {
-                        NavigationLink { SceneLessonView(scene: scene) } label: { sceneRow(scene, locked: false) }
+                        NavigationLink(value: scene.id) { sceneRow(scene, locked: false) }
                             .buttonStyle(.plain)
                     } else { sceneRow(scene, locked: true) }
                 }
@@ -55,8 +55,14 @@ struct LessonHomeView: View {
             .padding(GBSpacing.medium)
             .frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("home-story-scroll")
         .background(GBColor.Background.app)
         .navigationTitle("Story Time")
+        .navigationDestination(for: String.self) { sceneID in
+            if let scene = appModel.content.scenes.first(where: { $0.id == sceneID }) {
+                SceneLessonView(scene: scene).id(sceneID)
+            }
+        }
     }
 
     private func primaryTitle(_ scene: StoryScene) -> String {

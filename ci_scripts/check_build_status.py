@@ -15,8 +15,9 @@ def main():
     number = os.environ.get("TARGET_BUILD_NUMBER", "")
     if not VERSION_RE.fullmatch(version) or not re.fullmatch(r"[1-9]\d*", number):
         raise ReleaseError("Numeric TARGET_VERSION and exact TARGET_BUILD_NUMBER are required")
-    build, state = exact_build(AppleAPI(), os.environ["APP_STORE_CONNECT_APP_ID"], version, number)
-    print(f"Exact build {build['id']}: {version} ({number}), {state}; group assignment not checked")
+    platform = os.environ.get("TARGET_PLATFORM", "IOS")
+    build, state = exact_build(AppleAPI(), os.environ["APP_STORE_CONNECT_APP_ID"], version, number, platform)
+    print(f"Exact {platform} build {build['id']}: {version} ({number}), {state}; group assignment not checked")
     return 0
 
 

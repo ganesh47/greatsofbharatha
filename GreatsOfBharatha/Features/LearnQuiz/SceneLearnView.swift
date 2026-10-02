@@ -4,6 +4,7 @@ struct SceneLearnView: View {
     @EnvironmentObject private var appModel: AppModel
     @State private var sessionID = UUID()
     @State private var showsQuiz = false
+    @State private var showsMatch = false
     @State private var recordedExposure = false
     let scene: LearnQuizPilotScene
 
@@ -68,14 +69,17 @@ struct SceneLearnView: View {
             }
             .background(GBColor.Background.app)
         }
+        .accessibilityIdentifier("pilot-scene-scroll")
         .navigationDestination(isPresented: $showsQuiz) { ChronicleQuizView(scene: scene, sessionID: sessionID) }
+        .navigationDestination(isPresented: $showsMatch) { ChronicleMatchView(scenes: [scene], sessionID: sessionID) }
         .onAppear {
             guard !recordedExposure else { return }
             recordedExposure = true
             let point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, sessionID: sessionID)
             sessionID = point.sessionID
             appModel.lessonStore.saveResumePoint(point)
-            if point.phase == .recall || point.phase == .reward { showsQuiz = true }
+            if point.preferredActivity == .match { showsMatch = true }
+            else if point.phase == .recall || point.phase == .reward { showsQuiz = true }
             appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .storyExposure,
                 wasSuccessful: true, mastery: .witnessed, detail: "Read authored pilot story", sessionID: sessionID)
         }
@@ -87,6 +91,7 @@ struct SceneLearnView: View {
     private func saveQuizCheckpoint() {
         var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, sessionID: sessionID)
         point.phase = point.recallCompleted ? .reward : .recall
+        point.preferredActivity = .recall
         point.updatedAt = Date()
         appModel.lessonStore.saveResumePoint(point)
     }

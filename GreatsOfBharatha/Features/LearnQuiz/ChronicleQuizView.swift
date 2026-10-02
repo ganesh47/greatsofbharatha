@@ -48,6 +48,7 @@ struct ChronicleQuizView: View {
                 }
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("pilot-quiz-scroll")
         .navigationTitle("Try your memory")
         .onAppear {
             guard !taught else { return }
@@ -57,7 +58,10 @@ struct ChronicleQuizView: View {
             completionID = point.recallEventID
             quizState.revealedHintCount = point.revealedHintLevel
             quizState.recognitionRescueUnlocked = point.recognitionRescueUnlocked
-            if point.recallCompleted {
+            let durableSuccess = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {
+                $0.eventID == point.recallEventID && ($0.type == .recallSuccess || $0.type == .reviewSuccess)
+            } == true
+            if point.recallCompleted || durableSuccess {
                 result = ChronicleQuizResult(kind: point.recognitionRescueUnlocked ? .rescuedRecognition : (point.revealedHintLevel > 0 ? .correctWithHint : .correctWithoutHint),
                     isCorrect: true, masteryAwarded: .understood, feedback: scene.quiz.challenge.feedback.success, nextState: quizState)
             } else if quizState.revealedHintCount == 0 && appModel.parentSettings.assistModeEnabled {
@@ -92,6 +96,7 @@ struct ChronicleQuizView: View {
     private func saveCheckpoint() {
         var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, sessionID: activeSessionID ?? sessionID)
         point.phase = result?.isCorrect == true ? .reward : .recall
+        point.preferredActivity = .recall
         point.revealedHintLevel = quizState.revealedHintCount
         point.recognitionRescueUnlocked = quizState.recognitionRescueUnlocked
         point.recallCompleted = result?.isCorrect == true

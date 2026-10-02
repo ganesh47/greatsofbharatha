@@ -2,6 +2,8 @@
 
 Date: 2 October 2026. Audience: children aged 6–10, with one shared local family journey and a shared Siri Remote. All six Shivaji Maharaj chapters are included. This document distinguishes automated evidence from device and family observations.
 
+Refs #208: [iOS beta baseline integrated before the tvOS release](https://github.com/ganesh47/greatsofbharatha/pull/208).
+
 ## Delivery gates
 
 - Build the `GreatsOfBharathaTV` scheme for tvOS Simulator in Debug and for a generic Apple TV device in Release. Verify the TV icon and static Top Shelf assets compile. Preserve the iOS scheme and run its existing learning/state and journey regression tests.
@@ -20,11 +22,11 @@ An unperformed check remains pending. Local `.xcresult` paths below contain test
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| tvOS unit tests | Passed: 27/27 | tvOS 27.0, 1080p simulator; `/tmp/gob-tvos-tests-validation-final-17.xcresult`, `/tmp/gob-tvos-validation-final-17.log`; 7 content, 7 sequence, 13 persistence tests |
-| tvOS remote UI tests | Passed: 6/6 | Same final-17 result bundle: pristine six-chapter journey, retry/help, matching/ordering, keepsakes, final fort-board link, useful Home continuation, partial timeline and selected-card recovery, album relaunch, Back, locked timeline, persisted preferences and Play/Pause. `xcresulttool` confirms 33 passed, zero failed or skipped across both targets |
+| tvOS unit tests | Passed: 27/27 after main integration | tvOS 27.0, 1080p simulator; `/tmp/gob-tvos-pr-integrated.xcresult`, `/tmp/gob-tvos-pr-integrated.log`; 7 content, 7 sequence, 13 persistence tests. The earlier final-17 run also passed 27/27 |
+| tvOS remote UI tests | Passed: 6/6 after main integration | Same integrated result bundle: pristine six-chapter journey, retry/help, matching/ordering, keepsakes, final fort-board link, useful Home continuation, partial timeline and selected-card recovery, album relaunch, Back, locked timeline, persisted preferences and Play/Pause. All-six journey 304.365 seconds; UI suite 431.172 seconds. Combined unit/UI result: 33 passed, zero failed. Earlier final-17 screenshots retain their original provenance and remain representative of the unchanged TV UI |
 | 1080p and 4K visual inspection | 1080p reviewed; 4K Home and chapter-four regression reviewed | 26 curated final-17 1080p screenshots, five 3840×2160 chapter-four regression attachments and the separate `home-4k.png` in `docs/research/evidence/2026-10-02-tvos/`. Native focused puzzle text has dark ink on a light fill; story, keepsake and timeline controls remain visible. The entire six-chapter journey was performed at 1080p; a full 4K six-chapter journey remains unperformed |
 | Release device archive | Passed, unsigned | `build/tvos/GreatsOfBharathaTV.xcarchive`; `/tmp/gob-tvos-release-final-source.log`. Device signing/provisioning and installation remain unverified |
-| iOS regression tests | 51 unit tests passed; existing UI suite failed | `/tmp/gob-tvos-ios-units-candidate.xcresult`. The isolated baseline and current UI runs each failed 4/4 tests (large/landscape home activation, parent gate and retry/reward); unstable cases differed in their final failure point. This is not a green iOS UI gate |
+| iOS regression tests | Passed: 58/58 after main integration | `/tmp/gob-tvos-ios-integrated.xcresult`, `/tmp/gob-tvos-ios-integrated.log`: 53 unit and 5 UI tests. Earlier isolated baseline/current runs passed 51 unit tests but failed their four UI tests (large/landscape home activation, parent gate and retry/reward); integration of the newer iOS beta baseline resolved those failures. The earlier result remains historical evidence, not the current gate |
 | Lint and whitespace | Passed | Full-project SwiftLint exits 0 (`/tmp/gob-tvos-lint-final-source.log`); scoped TV test lint exits 0 with only the repository's renamed-rule configuration notice (`/tmp/gob-tvos-validation-lint-final.log`). `actionlint .github/workflows/tvos.yml` and `git diff --check` pass |
 | Real Siri Remote / Apple TV | Pending | Physical device not available during setup |
 | Physical narration and VoiceOver | Pending | Requires actual Apple TV |
@@ -85,6 +87,6 @@ The following anonymous record slots are blank; no family sessions have been per
 
 Simulator tests verify behavior and focus routes; they do not certify physical remote feel, TV readability, audio routing, device memory/performance or durable restoration after application deletion. Local progress is a single family journey; there is no account, cross-device sync or guaranteed cloud backup.
 
-This delivery prepares source, build/archive evidence and a beta acceptance record. It does not dispatch Xcode Cloud, create release tags, upload to App Store Connect/TestFlight or invite testers. Existing iOS release scripts cannot establish that a matching tvOS build was delivered without explicit platform verification.
+The initial acceptance delivery prepared source, an unsigned archive and local test evidence. The user subsequently authorized commit, pull request, merge and tvOS TestFlight deployment. Release verification now requires the exact merged source SHA, all existing main CI gates plus the dedicated tvOS gate, a TV-only Xcode Cloud workflow, the `tvos-v` release tag, and an App Store Connect prerelease build whose platform is explicitly `TV_OS`. A matching iOS version/build number cannot establish TV delivery. TestFlight delivery remains pending until the release report verifies the signed Cloud run, exact TV build and existing internal group membership; no testers are invited by this acceptance work.
 
 Primary references: [Apple remote behavior](https://developer.apple.com/design/human-interface-guidelines/remotes), [focus and selection](https://developer.apple.com/design/human-interface-guidelines/focus-and-selection/), [tvOS defaults limits](https://developer.apple.com/documentation/foundation/userdefaults/sizelimitexceedednotification), [release-device testing](https://developer.apple.com/documentation/xcode/testing-a-release-build), [app asset catalogs](https://developer.apple.com/documentation/xcode/configuring-your-app-icon), and [accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility).

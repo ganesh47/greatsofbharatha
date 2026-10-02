@@ -96,6 +96,47 @@ final class StateReliabilityTests: XCTestCase {
         XCTAssertEqual(relaunched.masteryRecord(for: sceneID)?.evidenceLog.count, 1)
     }
 
+    func testInterruptedCompletionReusesCheckpointEventRatherThanAwardingAgain() throws {
+        let store = ShivajiLessonStore(defaults: defaults)
+        let point = LessonResumePoint(sceneID: sceneID, phase: .recall, updatedAt: now)
+        store.saveResumePoint(point)
+        store.recordLearningOutcome(subjectID: sceneID, activity: .recall, wasSuccessful: true,
+                                    eventID: point.recallEventID, sessionID: point.sessionID, at: now)
+        // Simulate termination after evidence was saved but before recallCompleted was set.
+        let relaunched = ShivajiLessonStore(defaults: defaults)
+        let restoredPoint = try XCTUnwrap(relaunched.resumePoint(for: sceneID))
+        XCTAssertFalse(restoredPoint.recallCompleted)
+        XCTAssertFalse(relaunched.recordLearningOutcome(subjectID: sceneID, activity: .review,
+            wasSuccessful: true, eventID: restoredPoint.recallEventID, sessionID: restoredPoint.sessionID,
+            at: now.addingTimeInterval(10)))
+        XCTAssertEqual(relaunched.masteryRecord(for: sceneID)?.successfulReviewCount, 1)
+        XCTAssertEqual(relaunched.mastery(for: sceneID), .understood)
+    }
+
+    func testSharedResumeRetainsMatchingIntentAndTVCheckpointAcrossBothStoragePolicies() throws {
+        for policy in [LessonPersistencePolicy.standard, .compactTV] {
+            defaults.removePersistentDomain(forName: suiteName)
+            let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            let sessionID = UUID()
+            let matchID = UUID()
+            var checkpoint = TVActivityCheckpoint(stage: .puzzle)
+            checkpoint.matchedPairIDs = ["match-shivneri-birth-fort"]
+            checkpoint.selectedTileID = "tv-match-jijabai-guidance-left"
+            let point = LessonResumePoint(sceneID: sceneID, phase: .recall, sessionID: sessionID,
+                completedMatchPairIDs: checkpoint.matchedPairIDs, matchEventID: matchID,
+                preferredActivity: .match, tvCheckpoint: checkpoint, updatedAt: now)
+            store.saveResumePoint(point)
+            XCTAssertTrue(store.recordLearningOutcome(subjectID: sceneID, activity: .match,
+                wasSuccessful: true, eventID: matchID, sessionID: sessionID, at: now))
+
+            let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            XCTAssertEqual(restored.resumePoint(for: sceneID), point)
+            XCTAssertFalse(restored.recordLearningOutcome(subjectID: sceneID, activity: .match,
+                wasSuccessful: true, eventID: matchID, sessionID: sessionID, at: now.addingTimeInterval(10)))
+            XCTAssertEqual(restored.masteryRecord(for: sceneID)?.successfulReviewCount, 1)
+        }
+    }
+
     func testFirstRecallCannotClaimRepeatedMemoryAndSameSessionReviewDoesNotEnrich() throws {
         let store = ShivajiLessonStore(defaults: defaults)
         let sessionID = UUID()

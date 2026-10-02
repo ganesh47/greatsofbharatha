@@ -37,6 +37,7 @@ struct ChronicleMatchView: View {
             }
             .background(GBColor.Background.app)
         }
+        .accessibilityIdentifier("matching-scroll")
         .onAppear {
             guard !restored else { return }
             restored = true
@@ -44,11 +45,12 @@ struct ChronicleMatchView: View {
                 if let point = appModel.lessonStore.resumePoint(for: scene.id) {
                     matchState.completedPairIDs.formUnion(point.completedMatchPairIDs)
                     matchState.mismatchCount = max(matchState.mismatchCount, point.matchMismatchCount)
-                    if scene.matchPairs.allSatisfy({ point.completedMatchPairIDs.contains($0.id) }) {
+                    if appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains(where: { $0.eventID == point.matchEventID && $0.type == .matchSuccess }) == true {
                         completedSceneIDs.insert(scene.id)
                     }
                 }
             }
+            recordCompletedScenes()
         }
         .navigationTitle("Chronicle Match")
 #if os(iOS)
@@ -160,7 +162,8 @@ struct ChronicleMatchView: View {
 
     private func saveMatchCheckpoint() {
         for scene in scenes {
-            var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, phase: .reward, sessionID: sessionID)
+            var point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id, phase: .story, sessionID: sessionID)
+            point.preferredActivity = .match
             point.completedMatchPairIDs = Set(scene.matchPairs.map(\.id)).intersection(matchState.completedPairIDs)
             point.matchMismatchCount = matchState.mismatchCount
             point.updatedAt = Date()
@@ -175,7 +178,10 @@ struct ChronicleMatchView: View {
             completedSceneIDs.insert(scene.id)
             appModel.lessonStore.recordLearningOutcome(subjectID: scene.id, activity: .match,
                 wasSuccessful: true, support: matchState.mismatchCount == 0 ? .independent : .hinted,
-                mastery: .observedClosely, promptType: .eventToPlaceMatch, detail: "Completed authored matching set", sessionID: appModel.lessonStore.resumePoint(for: scene.id)?.sessionID ?? sessionID)
+                mastery: .observedClosely, promptType: .eventToPlaceMatch,
+                detail: "Completed authored matching set",
+                eventID: appModel.lessonStore.resumePoint(for: scene.id)?.matchEventID ?? UUID(),
+                sessionID: appModel.lessonStore.resumePoint(for: scene.id)?.sessionID ?? sessionID)
             LessonFeedback.fire(.success)
         }
     }

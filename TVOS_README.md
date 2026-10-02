@@ -84,8 +84,22 @@ archive ZIP, preserved XCTest result bundles, logs, test summaries, and
 `beta-candidate.json` with hashes and baseline provenance. The source ZIP includes
 the generated Xcode project, resources, tests, CI, and research evidence.
 
-The final 1080p run passed 27 TV unit tests and six remote UI tests. The targeted
-4K ordering/relaunch run also passed. The iOS unit suite passed 51 tests; all four
-existing iOS UI cases also fail on the preserved baseline, so iOS UI regression
-acceptance remains unresolved. Detailed scope and pending physical/family work
-are recorded in the acceptance document above.
+The original 1080p candidate passed 27 TV unit tests and six remote UI tests. The
+targeted 4K ordering/relaunch run also passed. Integration with the newer iOS beta
+preserves its fixes: the updated iOS suite passes 53 unit and five UI tests.
+Detailed scope and pending physical/family work are recorded in the acceptance
+document above.
+
+## TestFlight release
+
+The release orchestrator accepts `target_platform: TVOS`, requires the exact
+merged commit's successful main CI and TV test workflow, and verifies both the
+Apple TV scheme and the build's `TV_OS` prerelease platform. An iOS build cannot
+satisfy the TV publication check.
+
+Use the dedicated **Apple TV TestFlight** Xcode Cloud workflow and tags such as
+`tvos-v0.2.1`. Configuration creates or reuses this workflow from the existing
+app/repository/toolchain and preserves the iOS workflow. TV tags do not match the
+iOS workflow's `v` prefix. Cloud stamps the numeric version and run number before
+building. Publication checks the exact commit, tag, Cloud run, Apple platform,
+marketing version, build number, internal testing state, and existing beta group.

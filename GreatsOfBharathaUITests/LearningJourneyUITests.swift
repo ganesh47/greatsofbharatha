@@ -4,36 +4,26 @@ import XCTest
 final class LearningJourneyUITests: XCTestCase {
     private var app: XCUIApplication!
 
-    override func setUpWithError() throws {
+    private func configureApplication() {
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
         app = XCUIApplication()
         app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.\(UUID().uuidString)"
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
     }
 
-    private func launch(largeText: Bool = false) {
-        if largeText {
-            app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
-        }
+    private func launch(largeText: Bool = false, pilot: Bool = false) {
+        configureApplication()
+        if pilot { app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "1" }
+        app.launchArguments = ["-UIPreferredContentSizeCategoryName", largeText ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryL"]
         app.launch()
         app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
     }
 
     private func tap(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
         let element = app.buttons[identifier].firstMatch
-        _ = element.waitForExistence(timeout: 2)
-        for _ in 0..<24 {
-            if element.exists && element.isHittable { break }
-            let scroll = app.scrollViews.firstMatch
-            if element.exists && !element.frame.isEmpty && element.frame.minY < scroll.frame.midY {
-                scroll.swipeDown()
-            } else {
-                scroll.swipeUp()
-            }
-        }
-        if !element.exists || !element.isHittable { capture("unreachable-" + identifier) }
-        XCTAssertTrue(element.exists, "Missing \(identifier)", file: file, line: line)
-        XCTAssertTrue(element.isHittable, "Cannot reach \(identifier)", file: file, line: line)
+        XCTAssertTrue(element.waitForExistence(timeout: 10), "Missing \(identifier)", file: file, line: line)
+        XCTAssertTrue(element.isEnabled, "Disabled \(identifier)", file: file, line: line)
         element.tap()
     }
 
@@ -46,7 +36,7 @@ final class LearningJourneyUITests: XCTestCase {
         guard numbers.count == 2 else { return }
         let answer = app.textFields["parent-gate-answer"]
         answer.tap()
-        answer.typeText(String(numbers.reduce(0, +)))
+        answer.typeText(String(numbers.reduce(0, +)) + "\n")
         tap("parent-gate-confirm")
     }
 
@@ -91,7 +81,7 @@ final class LearningJourneyUITests: XCTestCase {
 
     func testNarrationPreferenceSurvivesRelaunch() {
         launch()
-        app.tabBars.buttons["Album"].tap()
+        app.buttons["Album"].firstMatch.tap()
         openParentSettings()
         let narration = app.switches["parent-narration-toggle"]
         XCTAssertTrue(narration.waitForExistence(timeout: 10))
@@ -105,27 +95,63 @@ final class LearningJourneyUITests: XCTestCase {
         capture("08-functional-parent-settings")
         app.terminate()
         app.launch()
-        app.tabBars.buttons["Album"].tap()
+        app.buttons["Album"].firstMatch.tap()
         openParentSettings()
         XCTAssertTrue(narration.waitForExistence(timeout: 10))
         XCTAssertEqual(narration.value as? String, "0")
+        tap("Done")
+        app.buttons["Story"].firstMatch.tap()
+        tap("home-primary-lesson")
+        XCTAssertFalse(app.buttons["listen-scene-1-shivneri-story"].exists)
+        XCTAssertTrue(app.staticTexts["Read-aloud is off in parent settings."].firstMatch.exists)
+    }
+
+    func testConnectedQuizAndMatchingSurviveRelaunch() {
+        launch(pilot: true)
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-shivneri")
+        tap("Play a matching game")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        tap("match-tile-match-shivneri-birth-fort-right")
+        XCTAssertTrue(app.staticTexts["All pairs matched. Your Chronicle remembers this activity."].exists)
+        capture("10-connected-matching")
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Torna"))
     }
 
     func testLandscapeJourneyCanReachQuiz() {
+        launch()
+        tap("home-primary-lesson")
         XCUIDevice.shared.orientation = .landscapeLeft
+        let orientation = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            self.app.windows.firstMatch.frame.width > self.app.windows.firstMatch.frame.height
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [orientation], timeout: 10), .completed)
         defer { XCUIDevice.shared.orientation = .portrait }
-        testLargeTextJourneyCanReachQuiz()
+        completeRecognition()
+        capture("11-landscape-quiz")
     }
 
     func testLargeTextJourneyCanReachQuiz() {
         launch(largeText: true)
         tap("home-primary-lesson")
+        completeRecognition()
+        tap("listen-scene-1-shivneri-question")
+        XCTAssertTrue(app.buttons["stop-scene-1-shivneri-question"].isEnabled)
+        tap("stop-scene-1-shivneri-question")
+        XCTAssertFalse(app.buttons["stop-scene-1-shivneri-question"].isEnabled)
+        capture("09-large-text-quiz")
+    }
+
+    private func completeRecognition() {
         tap("story-move-to-place-clues-button")
         tap("fort-choice-place-shivneri")
         tap("place-clues-got-it-button")
         tap("recall-choice-scene-1-shivneri-shivneri")
         tap("recall-check-button")
         XCTAssertTrue(app.buttons["recall-reward-button"].waitForExistence(timeout: 10))
-        capture("09-large-text-quiz")
     }
 }
