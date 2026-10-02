@@ -2,6 +2,23 @@ import XCTest
 @testable import Greats_Of_Bharatha
 
 final class EnrichmentPersistenceTests: XCTestCase {
+    func testOptionalReceiptPreventsDuplicateAfterCompactHistoryRotates() throws {
+        let suite = "gob.enrichment.receipts." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let eventID = UUID()
+        XCTAssertTrue(store.recordStoryExposure(for: "scene-1-shivneri", eventID: eventID))
+        XCTAssertTrue(store.confirmOptionalLearningEvent(eventID, for: .review))
+        for _ in 0..<270 { store.recordStoryExposure(for: "scene-1-shivneri") }
+        let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let count = restored.masteryRecord(for: "scene-1-shivneri")?.exposureCount
+        XCTAssertTrue(restored.hasRecordedLearningEvent(eventID))
+        XCTAssertFalse(restored.recordStoryExposure(for: "scene-1-shivneri", eventID: eventID))
+        XCTAssertEqual(restored.masteryRecord(for: "scene-1-shivneri")?.exposureCount, count)
+        XCTAssertTrue(restored.persistenceDiagnostics.isWithinBudget)
+    }
+
     private struct ActivityFixture: Codable, Equatable {
         let selectedID: String
         let completionIDs: [UUID]
