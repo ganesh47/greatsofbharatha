@@ -10,6 +10,7 @@ final class LearningJourneyUITests: XCTestCase {
         app = XCUIApplication()
         app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.\(UUID().uuidString)"
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
+        app.launchEnvironment["GOB_NAV_TRACE"] = "1"
     }
 
     private func launch(largeText: Bool = false, pilot: Bool = false) {
@@ -24,7 +25,11 @@ final class LearningJourneyUITests: XCTestCase {
         let element = app.buttons[identifier].firstMatch
         XCTAssertTrue(element.waitForExistence(timeout: 10), "Missing \(identifier)", file: file, line: line)
         XCTAssertTrue(element.isEnabled, "Disabled \(identifier)", file: file, line: line)
+        if identifier == "pilot-home-continue" { print("GOB_NAV TAP before " + String(describing: element.value)) }
         element.tap()
+        if identifier == "pilot-home-continue" {
+            print("GOB_NAV TAP after " + (element.exists ? String(describing: element.value) : "home-not-present"))
+        }
     }
 
     private func openParentSettings() {
