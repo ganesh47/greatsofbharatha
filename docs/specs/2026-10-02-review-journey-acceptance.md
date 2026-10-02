@@ -23,6 +23,8 @@ The existing scheduler supplies four-hour clue revisits, immediate teach-again/r
 
 Typed input is retained only to resume an interrupted unchecked prompt. It is cleared immediately after checking or self-report and never copied into evidence or exported.
 
+The iOS keyboard includes Done (`review-dismiss-keyboard`), which only clears answer focus. It preserves the typed answer, queue and evidence and does not check or reveal anything. Interactive scroll dismissal also lets the learner put the keyboard away before reaching Finish for now. The coordinator's native UI evidence at `/tmp/gob-enrichment-20261002/evidence/ios-native-hit-fixes/6EBD4F8F-89C9-498F-8BFC-2965A841E634.txt` placed Finish below the visible keyboard; dismissal provides a reachable route without submitting an answer. This scoped source change passes lint/syntax/whitespace checks; integrated UI acceptance must confirm Done hides the keyboard, leaves the answer unchanged, shows no result and allows Finish.
+
 ## Coordinator integration contract
 
 `FlashcardReviewView(cards:hooks:now:)` accepts `ReviewJourneyHooks` with MainActor closures:

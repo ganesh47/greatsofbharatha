@@ -74,12 +74,22 @@ struct FlashcardReviewView: View {
                 .padding(context.containerPadding)
                 .frame(maxWidth: .infinity)
             }
+#if os(iOS)
+            .scrollDismissesKeyboard(.interactively)
+#endif
             .background(GBColor.Background.app)
             .accessibilityIdentifier("review-journey-scroll")
         }
         .navigationTitle("Story Card Review")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { answerFocused = false }
+                    .accessibilityIdentifier("review-dismiss-keyboard")
+            }
+        }
 #endif
         .onAppear { load() }
     }
