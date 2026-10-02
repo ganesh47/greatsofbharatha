@@ -79,12 +79,9 @@ final class EnrichmentJourneyUITests: XCTestCase {
 
     private func tap(_ id: String, scroll: String = "") {
         let button = app.buttons[id].firstMatch
-        guard button.waitForExistence(timeout: 10) else {
-            captureInteractionFailure(button, in: app.scrollViews.firstMatch)
-            XCTFail("Missing " + id)
-            return
-        }
-        if !app.tabBars.buttons[id].exists && id != "review-dismiss-keyboard" {
+        if app.tabBars.buttons[id].exists || id == "review-dismiss-keyboard" {
+            XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
+        } else {
             let container = scroll.isEmpty ? app.scrollViews.firstMatch : app.scrollViews[scroll].firstMatch
             reveal(button, in: container)
         }
