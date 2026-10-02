@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LearnQuizHomeView: View {
     @EnvironmentObject private var appModel: AppModel
+    @EnvironmentObject private var navigation: LearnNavigationCoordinator
     private let scenes = LearnQuizPilotData.scenes
     private var learned: [LearnQuizPilotScene] {
         scenes.filter { appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false }
@@ -24,7 +25,7 @@ struct LearnQuizHomeView: View {
                 Text("Learn, remember, build your Chronicle").gbDisplay()
                 Text("\(learned.count) of \(scenes.count) opening adventures completed").gbBody()
                 if let next {
-                    NavigationLink(value: next.id) {
+                    Button { navigation.path.append(next.id) } label: {
                         Text("Continue: \(next.title)").frame(minHeight: GBTouch.button)
                     }.buttonStyle(.gbPrimary(.story)).accessibilityIdentifier("pilot-home-continue")
                 }
@@ -40,7 +41,7 @@ struct LearnQuizHomeView: View {
                     NavigationLink { ChronicleMatchView(scenes: learned) } label: {
                         Label("Match the places you learned", systemImage: "square.grid.2x2.fill")
                     }.buttonStyle(.gbPrimary(.place))
-                    NavigationLink { FlashcardReviewView(cards: reviewCards, hooks: LearningActivityAdapters.reviewHooks(store: appModel.lessonStore)) } label: {
+                    NavigationLink { LearningReviewEntry() } label: {
                         Label("Review my story cards", systemImage: "rectangle.on.rectangle")
                     }.buttonStyle(.gbSecondary)
                 }

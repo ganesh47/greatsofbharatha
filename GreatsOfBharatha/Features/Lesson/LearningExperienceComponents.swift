@@ -63,7 +63,6 @@ struct ChapterDiscoverySection: View {
                 .background(GBColor.Background.app, in: RoundedRectangle(cornerRadius: GBRadius.card))
             }
         }
-        .accessibilityIdentifier("chapter-discoveries-" + content.id)
     }
 }
 

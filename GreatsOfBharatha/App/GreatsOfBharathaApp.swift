@@ -25,15 +25,19 @@ struct GreatsOfBharathaApp: SwiftUI.App {
     }
 
     var body: some SwiftUI.Scene {
-        WindowGroup {
-            Group {
-                if let captureRoute {
-                    CaptureRootView(route: captureRoute)
-                } else {
-                    ContentView()
-                }
-            }
-            .environmentObject(appModel)
+        let root = AppEntryContent(captureRoute: captureRoute, appModel: appModel)
+        return WindowGroup { @Sendable in root }
+    }
+}
+
+private struct AppEntryContent: View {
+    let captureRoute: DebugNavigationRoute?
+    let appModel: AppModel
+    var body: some View {
+        Group {
+            if let captureRoute { CaptureRootView(route: captureRoute) }
+            else { ContentView() }
         }
+        .environmentObject(appModel)
     }
 }

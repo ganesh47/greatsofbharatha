@@ -44,7 +44,7 @@ struct LessonHomeView: View {
                     NavigationLink { ChronicleMatchView(scenes: learned) } label: {
                         Label("Match places", systemImage: "square.grid.2x2.fill")
                     }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-match-places")
-                    NavigationLink { FlashcardReviewView(cards: learned.flatMap(\.reviewCards), hooks: LearningActivityAdapters.reviewHooks(store: appModel.lessonStore)) } label: {
+                    NavigationLink { LearningReviewEntry() } label: {
                         Label("Review story cards", systemImage: "rectangle.on.rectangle")
                     }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-review-cards")
                     NavigationLink { ChronicleBookView(scenes: LearnQuizPilotData.scenes) } label: {

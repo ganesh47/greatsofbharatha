@@ -36,7 +36,7 @@ struct SceneLearnView: View {
                         .buttonStyle(.gbSecondary)
 
                         NavigationLink {
-                            FlashcardReviewView(cards: scene.reviewCards, hooks: LearningActivityAdapters.reviewHooks(store: appModel.lessonStore))
+                            LearningReviewEntry()
                         } label: {
                             Label("Cards", systemImage: "rectangle.on.rectangle.angled")
                         }

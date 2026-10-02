@@ -308,12 +308,24 @@ final class ShivajiLessonStore: ObservableObject {
         return try? JSONDecoder().decode(type, from: data)
     }
 
+    /// Unsupported or damaged optional bytes stay opaque until an explicit migration/reset.
+    func activityStateIsAvailable(for key: LessonActivityStateKey) -> Bool {
+        guard let data = activityStateData[key.rawValue] else { return true }
+        switch key {
+        case .timeline:
+            return (try? JSONDecoder().decode(TimelineActivityCheckpoint.self, from: data))?.schemaVersion == 1
+        case .review:
+            return (try? JSONDecoder().decode(ReviewJourneyArchive.self, from: data))?.schemaVersion == 1
+        }
+    }
+
     /// Optional activities share the same isolated storage, outside chapter checkpoints.
     /// Confirm a durable write before advancing a UI or acknowledging its outbox.
     @discardableResult
     func saveActivityState<State: Encodable>(_ state: State, for key: LessonActivityStateKey,
                                            retainingEventIDs: Set<UUID>? = nil) -> Bool {
-        guard let data = try? JSONEncoder().encode(state), data.count <= 64 * 1024 else { return false }
+        guard activityStateIsAvailable(for: key),
+              let data = try? JSONEncoder().encode(state), data.count <= 64 * 1024 else { return false }
         let previous = activityStateData[key.rawValue]
         let previousReceipts = optionalEventIDs[key.rawValue]
         activityStateData[key.rawValue] = data
@@ -1014,9 +1026,10 @@ extension ShivajiLessonStore {
         var records = snapshot.records
         for (id, var record) in records {
             record.evidenceLog = compactEvidence(record.evidenceLog, recentLimit: 0).map { item in
-                MasteryEvidence(type: item.type, recordedAt: item.recordedAt, detail: "", activity: item.activity,
+                MasteryEvidence(type: item.type, recordedAt: item.recordedAt, detail: "", eventID: item.eventID, activity: item.activity,
                     support: item.support, sessionID: item.sessionID, promptType: item.promptType,
-                    reviewResponse: item.reviewResponse)
+                    reviewResponse: item.reviewResponse, cardID: item.cardID, checkedPromptID: item.checkedPromptID,
+                    reviewKind: item.reviewKind, participation: item.participation)
             }
             records[id] = record
         }
@@ -1131,7 +1144,7 @@ private struct LessonStoreSnapshot: Codable {
         resumePoints = try values.decodeIfPresent([String: LessonResumePoint].self, forKey: .resumePoints) ?? [:]
         recentEventIDs = try values.decodeIfPresent([UUID].self, forKey: .recentEventIDs) ?? []
         activityStateData = (try? values.decodeIfPresent([String: Data].self, forKey: .activityStateData)) ?? [:]
-        activityStateData = activityStateData.filter { LessonActivityStateKey(rawValue: $0.key) != nil && $0.value.count <= 64 * 1024 }
+        // Preserve future and damaged optional payloads; new writes still have the bounded cap.
         optionalEventIDs = (try? values.decodeIfPresent([String: Set<UUID>].self, forKey: .optionalEventIDs)) ?? [:]
         optionalEventIDs = optionalEventIDs.filter { LessonActivityStateKey(rawValue: $0.key) != nil && $0.value.count <= 1024 }
     }

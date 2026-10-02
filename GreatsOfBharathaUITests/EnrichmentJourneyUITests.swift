@@ -21,6 +21,10 @@ final class EnrichmentJourneyUITests: XCTestCase {
             if button.isHittable { break }
             if scroll.isEmpty { app.swipeUp() } else { app.scrollViews[scroll].firstMatch.swipeUp() }
         }
+        for _ in 0..<16 {
+            if button.isHittable { break }
+            if scroll.isEmpty { app.swipeDown() } else { app.scrollViews[scroll].firstMatch.swipeDown() }
+        }
         XCTAssertTrue(button.isHittable, "Unreachable " + id)
         XCTAssertTrue(button.isEnabled, "Disabled " + id)
         button.tap()

@@ -100,7 +100,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
                 app.terminate()
                 app.launch()
                 tap("home-primary-lesson", scrollID: "home-story-scroll")
-                XCTAssertTrue(app.staticTexts["chapter-discovery-text-" + chapterID + "-discovery-3"].waitForExistence(timeout: 10))
+                reveal(app.staticTexts["chapter-discovery-text-" + chapterID + "-discovery-3"], in: app.scrollViews["scene-lesson-scroll"].firstMatch)
                 XCTAssertFalse(app.buttons["recall-reward-button"].exists)
                 capture("discovery-chapter-2-selected-detail-relaunch")
             }
@@ -143,7 +143,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
         app.launch()
         tap("home-primary-lesson", scrollID: "home-story-scroll")
         let savedDetail = app.staticTexts["chapter-discovery-text-scene-1-shivneri-discovery-1"]
-        XCTAssertTrue(savedDetail.waitForExistence(timeout: 10))
+        reveal(savedDetail, in: app.scrollViews["scene-lesson-scroll"].firstMatch)
         XCTAssertFalse(app.staticTexts["chapter-discovery-text-scene-1-shivneri-discovery-2"].exists)
         XCTAssertFalse(app.buttons["recall-reward-button"].exists)
         tap("story-move-to-place-clues-button")
