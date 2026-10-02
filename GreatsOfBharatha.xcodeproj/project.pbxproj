@@ -84,6 +84,8 @@
 		92F81826A882FD6382167F6F /* ReviewJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F168DE80D7141BF33343B5 /* ReviewJourneyTests.swift */; };
 		96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DD7C78E273FA67916C2743 /* GBHeroCard.swift */; };
 		98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40039999B2C8D4999FB8C254 /* LessonFeedback.swift */; };
+		9A6BD1848688EFCDCE606BFF /* TVReviewJourneyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 317635890A8CAFFC9ACD6461 /* TVReviewJourneyUITests.swift */; };
+		9C79B881C8E8104AB78722AF /* TVReviewPersistenceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2265D85B1363B3976E7DD94 /* TVReviewPersistenceIntegrationTests.swift */; };
 		9D2E0932A8752AF38EC5E91A /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
 		9EC61F32F07C8BAC3074A14A /* TVAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4223F54E8960D89C0580D50 /* TVAssets.xcassets */; };
 		A6FDD95326F16B0BFD391AAB /* GBIntelligenceHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C552711CAEFFD3AB955E26E7 /* GBIntelligenceHint.swift */; };
@@ -182,6 +184,7 @@
 		2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEnginesTests.swift; sourceTree = "<group>"; };
 		30766CF8C2332F9E648E275A /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
 		30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVSequenceEngineTests.swift; sourceTree = "<group>"; };
+		317635890A8CAFFC9ACD6461 /* TVReviewJourneyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVReviewJourneyUITests.swift; sourceTree = "<group>"; };
 		32F168DE80D7141BF33343B5 /* ReviewJourneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewJourneyTests.swift; sourceTree = "<group>"; };
 		35DD7C78E273FA67916C2743 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
 		381568F1292032EC4D5CCBFC /* TVParentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVParentView.swift; sourceTree = "<group>"; };
@@ -227,6 +230,7 @@
 		9187A2C90E32546ED97DEDAF /* GreatsOfBharathaTV.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GreatsOfBharathaTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		96600FFDF84328236B5EFACF /* GBColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBColor.swift; sourceTree = "<group>"; };
 		9E8CD321D41FBDC3FDC05FF7 /* MatchingAdventureComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchingAdventureComponents.swift; sourceTree = "<group>"; };
+		A2265D85B1363B3976E7DD94 /* TVReviewPersistenceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVReviewPersistenceIntegrationTests.swift; sourceTree = "<group>"; };
 		AAAB7F46ABBA5FCDA7A016BB /* SceneLearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLearnView.swift; sourceTree = "<group>"; };
 		AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVPersistenceTests.swift; sourceTree = "<group>"; };
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
@@ -498,6 +502,7 @@
 			isa = PBXGroup;
 			children = (
 				D333225A3A0E7BF5CE29D210 /* TVLearningJourneyUITests.swift */,
+				317635890A8CAFFC9ACD6461 /* TVReviewJourneyUITests.swift */,
 			);
 			path = GreatsOfBharathaTVUITests;
 			sourceTree = "<group>";
@@ -670,6 +675,7 @@
 				680E9F1487C7F8F0E5DE4CB8 /* TVLearningContentTests.swift */,
 				AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */,
 				B9CC1AC392178099E1B15DE6 /* TVReviewJourneyTests.swift */,
+				A2265D85B1363B3976E7DD94 /* TVReviewPersistenceIntegrationTests.swift */,
 				30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */,
 			);
 			path = GreatsOfBharathaTVTests;
@@ -1011,6 +1017,7 @@
 				097E5AF75A809358B29E9576 /* TVLearningContentTests.swift in Sources */,
 				FD182DF8E175A3A43E305934 /* TVPersistenceTests.swift in Sources */,
 				7034CEE7949BFA11A45C1E43 /* TVReviewJourneyTests.swift in Sources */,
+				9C79B881C8E8104AB78722AF /* TVReviewPersistenceIntegrationTests.swift in Sources */,
 				C80CEBDFA785D870B0899FE6 /* TVSequenceEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1030,6 +1037,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				149F4AAF846A07481DF1FFD8 /* TVLearningJourneyUITests.swift in Sources */,
+				9A6BD1848688EFCDCE606BFF /* TVReviewJourneyUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1129,7 +1137,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "Greats Of Bharatha";
@@ -1321,7 +1329,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
