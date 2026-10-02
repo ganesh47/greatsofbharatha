@@ -80,6 +80,10 @@ A separate CI run at integration head `450aec1` failed before rotation: the narr
 
 The native-hit rerun reached the hill tap but failed to find its detail after relaunch. The landscape case now positively reveals and asserts the selected detail before termination, in addition to checking that narration controls are absent. This separates first-tap activation from later restoration; a logged tap alone is not proof that a detail opened. The fresh rerun's missing-detail failure requires its live hierarchy before assigning the cause to Home navigation, selection, or persistence. Evidence: `/tmp/gob-enrichment-20261002/ios-native-hit-fixes.log`.
 
+The fresh rerun's live hierarchy `D325BB52-5730-467F-BEC4-76C5819541C6.txt` confirms entry into Shivneri after relaunch, with all three discoveries still ready to discover. The first hill tap's actual synthesized event `09CCF2DE-41B5-4AC7-B1D7-D239AFBF5AAC` sends both touch-down and touch-up at `(249, 8)` in an `844 × 390` window. Recording frames at 43.9 and 44.335 seconds show the hill already above the navigation bar. Native hittability therefore accepted a covered target; the absent restored detail cannot yet be attributed to persistence.
+
+The helper now captures the target frame once per iteration and requires its center inside the scroll/window intersection, excluding current navigation, tab, and keyboard frames with an eight-point inset. It uses frame-directed native drags of at most 76 points, with a slow drag and a hold before release, bounded to 64 drags. The native button tap and positive initial-detail check remain. Failure attachments include all obstruction frames, usable viewport, live accessibility, target state, and screenshot. Worker source/lint/geometry checks pass; a coordinator runtime rerun remains necessary. No app layout or navigation change is justified by this evidence.
+
 ## Owned file list
 
 - `GreatsOfBharatha/Features/Lesson/SceneLessonView.swift`

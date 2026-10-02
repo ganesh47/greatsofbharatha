@@ -22,20 +22,43 @@ final class ChapterDiscoveryUITests: XCTestCase {
     }
 
     private func reveal(_ element: XCUIElement, in scroll: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        for _ in 0..<20 {
-            if element.exists && element.isHittable { return }
-            scroll.swipeUp()
+        for attempt in 0...64 {
+            let measuredFrame = element.exists ? element.frame : nil
+            let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
+            let frames = scrollFrames(in: scroll)
+            let viewport = frames.viewport
+            if let targetFrame, viewport.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)), element.isHittable {
+                return
+            }
+            guard attempt < 64, !viewport.isNull else { break }
+            let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
+            let distance = min(76, viewport.height * 0.4)
+            let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
+            let endY = viewport.midY + (towardEnd ? -distance / 2 : distance / 2)
+            let start = scroll.coordinate(withNormalizedOffset: CGVector(
+                dx: (viewport.midX - frames.scroll.minX) / frames.scroll.width,
+                dy: (startY - frames.scroll.minY) / frames.scroll.height))
+            let end = scroll.coordinate(withNormalizedOffset: CGVector(
+                dx: (viewport.midX - frames.scroll.minX) / frames.scroll.width,
+                dy: (endY - frames.scroll.minY) / frames.scroll.height))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.1)
         }
-        for _ in 0..<20 {
-            if element.exists && element.isHittable { return }
-            scroll.swipeDown()
-        }
-        if element.exists && element.isHittable { return }
         captureInteractionFailure(element, in: scroll)
         XCTFail("Could not reach \(element)", file: file, line: line)
     }
 
+    private func scrollFrames(in scroll: XCUIElement) -> DiscoveryScrollFrames {
+        func frame(_ element: XCUIElement) -> CGRect? { element.exists ? element.frame : nil }
+        return DiscoveryScrollFrames(
+            window: app.windows.firstMatch.frame,
+            scroll: frame(scroll) ?? .null,
+            navigationBar: frame(app.navigationBars.firstMatch),
+            tabBar: frame(app.tabBars.firstMatch),
+            keyboard: frame(app.keyboards.firstMatch))
+    }
+
     private func captureInteractionFailure(_ element: XCUIElement, in scroll: XCUIElement, expectedValue: String? = nil) {
+        let frames = scrollFrames(in: scroll)
         let windows = app.windows.allElementsBoundByIndex.enumerated().map { index, window in
             "window[\(index)] frame=\(window.frame)"
         }.joined(separator: "\n")
@@ -48,6 +71,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
         let attachment = XCTAttachment(string: """
             deviceOrientation=\(XCUIDevice.shared.orientation.rawValue)
             \(windows)
+            \(frames.description)
             \(scrollState)
             \(target)
             expectedValue=\(expectedValue ?? "not applicable")
@@ -198,5 +222,38 @@ final class ChapterDiscoveryUITests: XCTestCase {
         tap("story-move-to-place-clues-button")
         XCTAssertTrue(app.staticTexts["fort-detective-clue"].firstMatch.waitForExistence(timeout: 10))
         capture("discovery-resumed-exposure-can-continue")
+    }
+}
+
+private struct DiscoveryScrollFrames {
+    let window: CGRect
+    let scroll: CGRect
+    let navigationBar: CGRect?
+    let tabBar: CGRect?
+    let keyboard: CGRect?
+
+    var viewport: CGRect {
+        let intersection = window.intersection(scroll)
+        guard !intersection.isNull else { return .null }
+        var minY = intersection.minY
+        var maxY = intersection.maxY
+        if let navigationBar, navigationBar.intersects(intersection) {
+            minY = max(minY, navigationBar.maxY)
+        }
+        for obstruction in [tabBar, keyboard].compactMap({ $0 }) where obstruction.intersects(intersection) {
+            maxY = min(maxY, obstruction.minY)
+        }
+        guard intersection.width > 16, maxY - minY > 16 else { return .null }
+        return CGRect(x: intersection.minX, y: minY, width: intersection.width, height: maxY - minY).insetBy(dx: 8, dy: 8)
+    }
+
+    var description: String {
+        """
+        window=\(window) scroll=\(scroll)
+        navigationBar=\(String(describing: navigationBar))
+        tabBar=\(String(describing: tabBar))
+        keyboard=\(String(describing: keyboard))
+        usableViewport=\(viewport)
+        """
     }
 }
