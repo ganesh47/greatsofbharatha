@@ -32,7 +32,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
             }
             guard attempt < 64, !viewport.isNull else { break }
             let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
-            let distance = min(76, viewport.height * 0.4)
+            let distance = frames.dragDistance(to: targetFrame)
             let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
             let endY = viewport.midY + (towardEnd ? -distance / 2 : distance / 2)
             let start = scroll.coordinate(withNormalizedOffset: CGVector(
@@ -245,6 +245,15 @@ private struct DiscoveryScrollFrames {
         }
         guard intersection.width > 16, maxY - minY > 16 else { return .null }
         return CGRect(x: intersection.minX, y: minY, width: intersection.width, height: maxY - minY).insetBy(dx: 8, dy: 8)
+    }
+
+    func dragDistance(to targetFrame: CGRect?) -> CGFloat {
+        let visible = viewport
+        if let targetFrame {
+            let gap = abs(targetFrame.midY - visible.midY)
+            if gap > visible.height { return min(gap, visible.height * 0.7) }
+        }
+        return min(76, visible.height * 0.4)
     }
 
     var description: String {
