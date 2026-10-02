@@ -162,6 +162,7 @@ final class LearningJourneyUITests: XCTestCase {
 
     func testStoryMatchingDonePreservesStoryRoutes() {
         configureApplication()
+        app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.enrichment." + UUID().uuidString
         app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = "1"
         app.launch()
         app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
