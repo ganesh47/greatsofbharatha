@@ -27,7 +27,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
             let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
             let frames = scrollFrames(in: scroll)
             let viewport = frames.viewport
-            if let targetFrame, viewport.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)), element.isHittable {
+            if let targetFrame, frames.isVisible(targetFrame, isButton: element.elementType == .button), element.isHittable {
                 return
             }
             guard attempt < 64, !viewport.isNull else { break }
@@ -89,6 +89,15 @@ final class ChapterDiscoveryUITests: XCTestCase {
         reveal(button, in: app.scrollViews[scrollID].firstMatch, file: file, line: line)
         XCTAssertTrue(button.isEnabled, file: file, line: line)
         button.tap()
+    }
+
+    private func assertRevealedText(_ identifier: String, file: StaticString = #filePath, line: UInt = #line) {
+        let text = app.staticTexts[identifier].firstMatch
+        let scroll = app.scrollViews["scene-lesson-scroll"].firstMatch
+        reveal(text, in: scroll, file: file, line: line)
+        let appeared = text.exists
+        if !appeared { captureInteractionFailure(text, in: scroll) }
+        XCTAssertTrue(appeared, "Missing revealed story text \(identifier)", file: file, line: line)
     }
 
     private func discoveryButtonID(chapterIndex: Int, detailNumber: Int) -> String {
@@ -161,10 +170,10 @@ final class ChapterDiscoveryUITests: XCTestCase {
             XCTAssertFalse(app.buttons["recall-check-button"].exists)
             for number in 1...3 {
                 tap(discoveryButtonID(chapterIndex: index, detailNumber: number))
-                XCTAssertTrue(app.staticTexts["chapter-discovery-text-" + chapterID + "-discovery-\(number)"].exists)
+                assertRevealedText("chapter-discovery-text-" + chapterID + "-discovery-\(number)")
             }
             tap("chapter-family-reflection-" + chapterID)
-            XCTAssertTrue(app.staticTexts["chapter-family-prompt-" + chapterID].exists)
+            assertRevealedText("chapter-family-prompt-" + chapterID)
             capture("discovery-chapter-\(index + 1)-family-transfer")
             if index == 1 {
                 app.terminate()
@@ -245,6 +254,17 @@ private struct DiscoveryScrollFrames {
         }
         guard intersection.width > 16, maxY - minY > 16 else { return .null }
         return CGRect(x: intersection.minX, y: minY, width: intersection.width, height: maxY - minY).insetBy(dx: 8, dy: 8)
+    }
+
+    func isVisible(_ targetFrame: CGRect, isButton: Bool) -> Bool {
+        let visible = viewport
+        guard !visible.isNull, !targetFrame.isNull, !targetFrame.isEmpty,
+              visible.contains(CGPoint(x: targetFrame.midX, y: targetFrame.midY)) else { return false }
+        // Native hittability can accept a button clipped by the home indicator.
+        if isButton, targetFrame.height <= visible.height {
+            return targetFrame.minY >= visible.minY && targetFrame.maxY <= visible.maxY
+        }
+        return true
     }
 
     func dragDistance(to targetFrame: CGRect?) -> CGFloat {
