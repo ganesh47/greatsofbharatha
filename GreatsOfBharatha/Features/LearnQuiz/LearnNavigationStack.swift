@@ -50,13 +50,15 @@ final class LearnNavigationCoordinator: ObservableObject {
 struct LearnNavigationStack<Content: View>: View {
     @State private var stackIdentity = UUID()
     private let content: () -> Content
+    private let registerPilotRoutes: Bool
 
-    init(@ViewBuilder content: @escaping () -> Content) {
+    init(registerPilotRoutes: Bool = true, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
+        self.registerPilotRoutes = registerPilotRoutes
     }
 
     var body: some View {
-        LearnNavigationSession(content: content, navigationID: stackIdentity, resetStack: {
+        LearnNavigationSession(content: content, registerPilotRoutes: registerPilotRoutes, navigationID: stackIdentity, resetStack: {
             let next = UUID()
 #if DEBUG
             SyntheticNavigationTrace.record("reset.request", navigationID: stackIdentity, nextNavigationID: next)
@@ -79,18 +81,24 @@ struct LearnNavigationStack<Content: View>: View {
 private struct LearnNavigationSession<Content: View>: View {
     @StateObject private var navigation: LearnNavigationCoordinator
     private let content: () -> Content
+    private let registerPilotRoutes: Bool
 
-    init(content: @escaping () -> Content, navigationID: UUID, resetStack: @escaping () -> Void) {
+    init(content: @escaping () -> Content, registerPilotRoutes: Bool, navigationID: UUID, resetStack: @escaping () -> Void) {
         self.content = content
+        self.registerPilotRoutes = registerPilotRoutes
         _navigation = StateObject(wrappedValue: LearnNavigationCoordinator(navigationID: navigationID, resetStack: resetStack))
     }
 
     var body: some View {
         NavigationStack(path: $navigation.path) {
-            content()
-                .navigationDestination(for: String.self) { sceneID in
-                    sceneDestination(sceneID)
-                }
+            if registerPilotRoutes {
+                content()
+                    .navigationDestination(for: String.self) { sceneID in
+                        sceneDestination(sceneID)
+                    }
+            } else {
+                content()
+            }
         }
             .environmentObject(navigation)
             .onAppear { navigation.trace("session.appear") }
