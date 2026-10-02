@@ -86,10 +86,26 @@ private struct LearnNavigationSession<Content: View>: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigation.path) { content() }
+        NavigationStack(path: $navigation.path) {
+            content()
+                .navigationDestination(for: String.self) { sceneID in
+                    sceneDestination(sceneID)
+                }
+        }
             .environmentObject(navigation)
             .onAppear { navigation.trace("session.appear") }
             .onDisappear { navigation.trace("session.disappear") }
+            .onChange(of: navigation.path.count) { _, _ in navigation.trace("session.pathCountChanged") }
+    }
+
+    @ViewBuilder
+    private func sceneDestination(_ sceneID: String) -> some View {
+        let _ = navigation.trace("destination.resolve", sceneID: sceneID)
+        if let scene = LearnQuizPilotData.scenes.first(where: { $0.id == sceneID }) {
+            SceneLearnView(scene: scene).id(sceneID)
+                .onAppear { navigation.trace("destination.appear", sceneID: sceneID) }
+                .onDisappear { navigation.trace("destination.disappear", sceneID: sceneID) }
+        }
     }
 }
 

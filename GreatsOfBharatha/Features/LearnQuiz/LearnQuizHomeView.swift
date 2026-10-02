@@ -51,13 +51,6 @@ struct LearnQuizHomeView: View {
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }.accessibilityIdentifier("pilot-home-scroll").background(GBColor.Background.app).navigationTitle("Learn & Play")
         .onAppear { navigation.trace("home.appear", sceneID: next?.id) }
-        .navigationDestination(for: String.self) { sceneID in
-            if let scene = scenes.first(where: { $0.id == sceneID }) {
-                SceneLearnView(scene: scene).id(sceneID)
-                    .onAppear { navigation.trace("destination.appear", sceneID: sceneID) }
-                    .onDisappear { navigation.trace("destination.disappear", sceneID: sceneID) }
-            }
-        }
     }
 }
 
