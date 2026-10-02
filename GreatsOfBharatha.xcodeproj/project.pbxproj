@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00F7762E6675FFA1591CB270 /* GBLayoutContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1F22519D406A575588CE02 /* GBLayoutContext.swift */; };
 		06632999D4F33DD4F901020B /* MatchingAdventureComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E8CD321D41FBDC3FDC05FF7 /* MatchingAdventureComponents.swift */; };
+		06BBF21A77A7E3F1394FE6EE /* EnrichmentJourneyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CBA404DE80BA47DA95A3891 /* EnrichmentJourneyUITests.swift */; };
 		06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */; };
 		073C82A44999663DE9B72A3D /* MasteryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C5A02CDD2D6DA5162F535 /* MasteryState.swift */; };
 		07FB948684566346F8B09A98 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6043F267C6727A816F8CE8 /* GBSpacing.swift */; };
@@ -16,13 +17,16 @@
 		0C3412C4E22C4B63092DB4BE /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */; };
 		10E8875771E74B503FFAFEB7 /* GBIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0048FE06EF01F9520955BAAD /* GBIcon.swift */; };
 		11663934C153029C5486BF6E /* TVFortBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1CDA916F2CD5820F6084D4 /* TVFortBoardView.swift */; };
+		1399DA71C38F44E3FD5FD047 /* ChapterDiscoveryParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 469DC0D11E3C2A5B68023BB1 /* ChapterDiscoveryParityTests.swift */; };
 		149F4AAF846A07481DF1FFD8 /* TVLearningJourneyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D333225A3A0E7BF5CE29D210 /* TVLearningJourneyUITests.swift */; };
 		16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */; };
+		17408D001CC5FC12C66E2792 /* ChapterDiscoveryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544283356E503EE881B44B9A /* ChapterDiscoveryUITests.swift */; };
 		1D46FB6ECD9C7608AF1C984E /* LearningEnginesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */; };
 		211E19D2035927C41FB3C2E9 /* LearnQuizComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */; };
 		229E49C4CD4DEAEF962F1BA4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE540544C5E9622DB91B7EF8 /* ContentView.swift */; };
 		22C3E261CDC547E64D125909 /* LessonHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */; };
 		2773D1BDAECD3475B739AA9A /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
+		27949C76E881B3D85DE4EE94 /* TimelineActivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04109BD155608F39BEF80207 /* TimelineActivityTests.swift */; };
 		28F96E8FA507F0D5650F8C95 /* LearnQuizPilotData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */; };
 		2ABB675D9B13E6BC94627094 /* GBSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */; };
 		2C3071C2D645462138666E02 /* GBNarrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64103B4F5C9B50E89DDD6A2F /* GBNarrator.swift */; };
@@ -45,6 +49,7 @@
 		5222F1E15033526746FC9EBC /* FlashcardReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */; };
 		525E74E4F354B5198FDECB53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD5C939A7D069E35B849A5A8 /* Assets.xcassets */; };
 		528A1A5AE17DB696B772ED56 /* TVLearningContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BD363E33B428ED4C8F7B0F /* TVLearningContent.swift */; };
+		54AABABFA5718C80DF6AE0D9 /* ReviewJourneyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F054DB8EDA3E6CB10B159E1E /* ReviewJourneyModels.swift */; };
 		57A372CC37EE9EDD83A56710 /* GBTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA553A6C52FF405536FB4B58 /* GBTypography.swift */; };
 		57D6DDF7802C564855FA5A9B /* StateReliabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */; };
 		59DDE6A3CB3C27E2595A3085 /* GBSceneCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */; };
@@ -53,15 +58,20 @@
 		5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390AE8B48E7C52C376816E87 /* LearningEngines.swift */; };
 		5FD5724F4C1DC9D6B8DC214B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
 		608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8E42D945004543238A06E /* TimelineHubView.swift */; };
+		6265FEA1DFE423DBA58AEA73 /* ChapterLearningSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3030691C7F5EE270693FA /* ChapterLearningSummary.swift */; };
+		629997AE897FB377BF66A1C8 /* ChapterDiscoveryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95A3461983729AB80A4C91E /* ChapterDiscoveryContent.swift */; };
 		62B4D2A83CE490CC1716019F /* MasteryState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C5A02CDD2D6DA5162F535 /* MasteryState.swift */; };
 		62EF82978E25896FA52FEAA8 /* ChronicleQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */; };
 		631096F752445615BB2CC649 /* TVPuzzleViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4741F3F9BBFDFBB79C49ECF2 /* TVPuzzleViews.swift */; };
 		687C2E4C5B248DD80185B33D /* ChronicleMatchPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE994240CECB7FC4B10C2EF6 /* ChronicleMatchPresentation.swift */; };
 		6A650D8CF52C58D584770078 /* TVComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699DDA97DF2F33CFE8B7DA76 /* TVComponents.swift */; };
 		6DD86E4197280065B8F2187B /* ShivajiLessonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */; };
+		70CCD036225C02C755621005 /* TimelineLearningEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1FFF799B84277476EBF2F9 /* TimelineLearningEntry.swift */; };
 		78BB85FE1A35F817B44338F7 /* GreatsOfBharathaTVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA193B1EF751F11A686FDC39 /* GreatsOfBharathaTVApp.swift */; };
 		78DCC1581692F7A6E37F3518 /* ChronicleMatchPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE994240CECB7FC4B10C2EF6 /* ChronicleMatchPresentation.swift */; };
 		79A28535D1132800BEEF532B /* TVParentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 381568F1292032EC4D5CCBFC /* TVParentView.swift */; };
+		7FFC144D3A014C2DD662B4E0 /* LearningActivityAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D401E78D4889397308527018 /* LearningActivityAdapters.swift */; };
+		84240393AF6DE165E1CC6868 /* ChapterLearningSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB3030691C7F5EE270693FA /* ChapterLearningSummary.swift */; };
 		8639A42C77E94CB3E0ECF853 /* LearningExperienceComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FB2D3808653597C85662BD4 /* LearningExperienceComponents.swift */; };
 		86E2FF6E624F8374636950E5 /* README_BOOTSTRAP.md in Resources */ = {isa = PBXBuildFile; fileRef = AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */; };
 		88F9E6C20BBFA38264D4077B /* ChronicleMatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */; };
@@ -69,6 +79,7 @@
 		8B6F5ED2AC090236774D73A1 /* GBFlashCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8664679DB91BD8C821702F4F /* GBFlashCard.swift */; };
 		8B7734948D0D0BE63E8E43B9 /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96600FFDF84328236B5EFACF /* GBColor.swift */; };
 		8CA8DAE996AE53CC833B2998 /* ShivajiLessonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */; };
+		92F81826A882FD6382167F6F /* ReviewJourneyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F168DE80D7141BF33343B5 /* ReviewJourneyTests.swift */; };
 		96869AB017E4A3EBBE1DD23C /* GBHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DD7C78E273FA67916C2743 /* GBHeroCard.swift */; };
 		98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40039999B2C8D4999FB8C254 /* LessonFeedback.swift */; };
 		9D2E0932A8752AF38EC5E91A /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
@@ -82,19 +93,24 @@
 		ADBA27254FB49C8AC53B58C6 /* GBButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */; };
 		B2A0AA05D4BCEA902E91CD8B /* LearnNavigationStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6359587E0E7854DBE121E /* LearnNavigationStack.swift */; };
 		B2BA40CEB6D4E94F1608CA71 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D0166597E3756A21D8739 /* ContentModels.swift */; };
+		B79F69FE8F16B35E94464B50 /* TimelineActivityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0109C44ACD47FE6DFAA89933 /* TimelineActivityModels.swift */; };
 		B8D344B8DE9447BA85DF20D4 /* ChronicleBookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2A22615A77AECE2536BA1E9 /* ChronicleBookView.swift */; };
 		BBD3D1BD6F3669B95E964690 /* DebugNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */; };
 		C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */; };
+		C53714C819CBEB6010EDAC93 /* TimelineActivityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0109C44ACD47FE6DFAA89933 /* TimelineActivityModels.swift */; };
 		C5789DB855B5A6DA3C343951 /* GBRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874E1F2468B251B5784486DE /* GBRadius.swift */; };
 		C59E6685BB680CF41B71A059 /* GBChildSafeAIPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */; };
 		C608764AB1F3CB9C31AF2CDF /* EnrichmentPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */; };
+		C6F25DEBE60770A4318C5433 /* ChapterDiscoveryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95A3461983729AB80A4C91E /* ChapterDiscoveryContent.swift */; };
 		C80CEBDFA785D870B0899FE6 /* TVSequenceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */; };
 		C9BF86F3D453F1D1D9F219E2 /* SampleContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BEDED465CA437D09ADDCD5 /* SampleContent.swift */; };
+		CBE9EAFDF7C2A92F9C4F307D /* ChapterDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271B82FC4B24CC3CE092C3D6 /* ChapterDiscoveryTests.swift */; };
 		CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF974097779D0836FBDE59DD /* ParentProgressView.swift */; };
 		CE9E2F14877988A61A031337 /* GBChronicleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */; };
 		CF5BE7783A5885A44F0DF9D5 /* GBRecallPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E79CCE23974B1F749235073 /* GBRecallPrompt.swift */; };
 		D6BB2EC69ED8AADF802F5639 /* AuthoredLearningContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */; };
 		DA179384FDADDB751B69ED44 /* ALPHA_README.md in Resources */ = {isa = PBXBuildFile; fileRef = AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */; };
+		DADB95855386E509920A8FE4 /* LearningActivityAdapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = D401E78D4889397308527018 /* LearningActivityAdapters.swift */; };
 		DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */; };
 		DCBA0799A5719C91B371EB0F /* LearnQuizPilotData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */; };
 		DEE16A98AD6DCB0F0457E69C /* GBColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96600FFDF84328236B5EFACF /* GBColor.swift */; };
@@ -110,6 +126,7 @@
 		F170103A8542AF4BE75DC510 /* TVHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05975F11E0B3795479F45AF /* TVHomeView.swift */; };
 		F1F9A5CD7CAD2383A1587465 /* GBSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6043F267C6727A816F8CE8 /* GBSpacing.swift */; };
 		F71FFA5AC6385137A61EFFE9 /* GBFortMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E87053068FDF0CC0A7FAEC5 /* GBFortMapView.swift */; };
+		F9D78983D6064B0A15866CC2 /* ReviewJourneyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F054DB8EDA3E6CB10B159E1E /* ReviewJourneyModels.swift */; };
 		FCD8F647F2A784ED8BC29710 /* TVActivityCheckpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2272E7F572A88125FD32303 /* TVActivityCheckpoint.swift */; };
 		FD182DF8E175A3A43E305934 /* TVPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */; };
 /* End PBXBuildFile section */
@@ -147,10 +164,13 @@
 
 /* Begin PBXFileReference section */
 		0048FE06EF01F9520955BAAD /* GBIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBIcon.swift; sourceTree = "<group>"; };
+		0109C44ACD47FE6DFAA89933 /* TimelineActivityModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineActivityModels.swift; sourceTree = "<group>"; };
 		0244C418BCB073D7CD511F45 /* GBChronicleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChronicleCard.swift; sourceTree = "<group>"; };
+		04109BD155608F39BEF80207 /* TimelineActivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineActivityTests.swift; sourceTree = "<group>"; };
 		0C84A1BE87F4CAA5D6281AD6 /* SceneLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneLessonView.swift; sourceTree = "<group>"; };
 		1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMapsPlaceHandoff.swift; sourceTree = "<group>"; };
 		1D930EAD368CC7853B35494A /* DebugNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugNavigationRoute.swift; sourceTree = "<group>"; };
+		271B82FC4B24CC3CE092C3D6 /* ChapterDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDiscoveryTests.swift; sourceTree = "<group>"; };
 		2855D2317D822D5995E534DE /* GBChildSafeAIPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBChildSafeAIPlan.swift; sourceTree = "<group>"; };
 		2A7FCD376566BEDC5C726FF4 /* LearnQuizComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizComponents.swift; sourceTree = "<group>"; };
 		2D1EC3C023734A03876DE865 /* TVLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVLessonView.swift; sourceTree = "<group>"; };
@@ -158,6 +178,7 @@
 		2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningEnginesTests.swift; sourceTree = "<group>"; };
 		30766CF8C2332F9E648E275A /* GBSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSectionHeader.swift; sourceTree = "<group>"; };
 		30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVSequenceEngineTests.swift; sourceTree = "<group>"; };
+		32F168DE80D7141BF33343B5 /* ReviewJourneyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewJourneyTests.swift; sourceTree = "<group>"; };
 		35DD7C78E273FA67916C2743 /* GBHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBHeroCard.swift; sourceTree = "<group>"; };
 		381568F1292032EC4D5CCBFC /* TVParentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVParentView.swift; sourceTree = "<group>"; };
 		38AE753749107F40681898D3 /* GreatsOfBharathaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -165,13 +186,16 @@
 		3F908003C182E0D3D3047941 /* LearnQuizPilotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizPilotData.swift; sourceTree = "<group>"; };
 		40039999B2C8D4999FB8C254 /* LessonFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonFeedback.swift; sourceTree = "<group>"; };
 		461D3FA55DD322A2CBEE30DD /* GreatsOfBharathaTVTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTVTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		469DC0D11E3C2A5B68023BB1 /* ChapterDiscoveryParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDiscoveryParityTests.swift; sourceTree = "<group>"; };
 		4741F3F9BBFDFBB79C49ECF2 /* TVPuzzleViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVPuzzleViews.swift; sourceTree = "<group>"; };
 		49EFCDA681F7AB90C2EDC1C6 /* FlashcardReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardReviewView.swift; sourceTree = "<group>"; };
 		49F4F11C54E746DA30BEE94E /* TVTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVTimelineView.swift; sourceTree = "<group>"; };
 		4BF6643A2D48D15FB2F1C5E0 /* TVSequenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVSequenceEngine.swift; sourceTree = "<group>"; };
+		4CBA404DE80BA47DA95A3891 /* EnrichmentJourneyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnrichmentJourneyUITests.swift; sourceTree = "<group>"; };
 		4FB2D3808653597C85662BD4 /* LearningExperienceComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningExperienceComponents.swift; sourceTree = "<group>"; };
 		51BD363E33B428ED4C8F7B0F /* TVLearningContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVLearningContent.swift; sourceTree = "<group>"; };
 		525ED658DB563C6BC161FB63 /* LearningJourneyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningJourneyUITests.swift; sourceTree = "<group>"; };
+		544283356E503EE881B44B9A /* ChapterDiscoveryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDiscoveryUITests.swift; sourceTree = "<group>"; };
 		596CBD0FA93B029F56E14FDF /* GBBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBBadge.swift; sourceTree = "<group>"; };
 		5A6043F267C6727A816F8CE8 /* GBSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSpacing.swift; sourceTree = "<group>"; };
 		5B68FFD09AD399FAE5A7DA5F /* ChronicleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleView.swift; sourceTree = "<group>"; };
@@ -203,13 +227,16 @@
 		AB428856E6E0B33ECEAA8E36 /* LessonHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonHomeView.swift; sourceTree = "<group>"; };
 		AC6CE8B3071CC2D92499A35E /* ChronicleQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleQuizView.swift; sourceTree = "<group>"; };
 		ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnrichmentPersistenceTests.swift; sourceTree = "<group>"; };
+		ACB3030691C7F5EE270693FA /* ChapterLearningSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterLearningSummary.swift; sourceTree = "<group>"; };
 		AE4ACA8DD1F96BF699DB84C3 /* ALPHA_README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ALPHA_README.md; sourceTree = "<group>"; };
 		AF8E819340759100DB074CD4 /* README_BOOTSTRAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_BOOTSTRAP.md; sourceTree = "<group>"; };
 		B437E2FBF7D8A3260B1C1DCC /* PlacesHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesHubView.swift; sourceTree = "<group>"; };
 		B510B04B44F609399601600C /* GBMotion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBMotion.swift; sourceTree = "<group>"; };
 		B520CBF72AA749D0C22EDCEF /* GreatsOfBharathaTVUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = GreatsOfBharathaTVUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroArcModels.swift; sourceTree = "<group>"; };
+		B95A3461983729AB80A4C91E /* ChapterDiscoveryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDiscoveryContent.swift; sourceTree = "<group>"; };
 		BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShivajiLessonStore.swift; sourceTree = "<group>"; };
+		BB1FFF799B84277476EBF2F9 /* TimelineLearningEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineLearningEntry.swift; sourceTree = "<group>"; };
 		BD34478F7C8BC5F5EE50AD37 /* GBSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSurface.swift; sourceTree = "<group>"; };
 		C05975F11E0B3795479F45AF /* TVHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVHomeView.swift; sourceTree = "<group>"; };
 		C0C0CC899F030C472E7720F0 /* GBButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBButtonStyle.swift; sourceTree = "<group>"; };
@@ -223,6 +250,7 @@
 		CED5BF1DBC7EBB77DB2514A7 /* GreatsOfBharathaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaApp.swift; sourceTree = "<group>"; };
 		D2272E7F572A88125FD32303 /* TVActivityCheckpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVActivityCheckpoint.swift; sourceTree = "<group>"; };
 		D333225A3A0E7BF5CE29D210 /* TVLearningJourneyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVLearningJourneyUITests.swift; sourceTree = "<group>"; };
+		D401E78D4889397308527018 /* LearningActivityAdapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningActivityAdapters.swift; sourceTree = "<group>"; };
 		DA193B1EF751F11A686FDC39 /* GreatsOfBharathaTVApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatsOfBharathaTVApp.swift; sourceTree = "<group>"; };
 		DB52F4EF3B015973D3C6D088 /* GBSceneCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBSceneCard.swift; sourceTree = "<group>"; };
 		DDA3B33CD2FFC1A53263C40A /* StoryHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryHomeView.swift; sourceTree = "<group>"; };
@@ -230,6 +258,7 @@
 		E795D04E3E7952F19DB2D559 /* LearnQuizHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnQuizHomeView.swift; sourceTree = "<group>"; };
 		ECA6359587E0E7854DBE121E /* LearnNavigationStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnNavigationStack.swift; sourceTree = "<group>"; };
 		EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthoredLearningContentTests.swift; sourceTree = "<group>"; };
+		F054DB8EDA3E6CB10B159E1E /* ReviewJourneyModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewJourneyModels.swift; sourceTree = "<group>"; };
 		F4223F54E8960D89C0580D50 /* TVAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TVAssets.xcassets; sourceTree = "<group>"; };
 		F649333F6BBA2EEBE56A1E2E /* GBQuestProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GBQuestProgress.swift; sourceTree = "<group>"; };
 		F7731536CB354B63B77E73A4 /* ChronicleMatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronicleMatchView.swift; sourceTree = "<group>"; };
@@ -252,14 +281,19 @@
 			children = (
 				1B22271B3C207E5ECD2AD241 /* AppleMapsPlaceHandoff.swift */,
 				6413C33179A188AA0729938F /* AppModel.swift */,
+				B95A3461983729AB80A4C91E /* ChapterDiscoveryContent.swift */,
+				ACB3030691C7F5EE270693FA /* ChapterLearningSummary.swift */,
 				CE994240CECB7FC4B10C2EF6 /* ChronicleMatchPresentation.swift */,
 				842D0166597E3756A21D8739 /* ContentModels.swift */,
 				B69947B828E9DD4B794FBE0A /* HeroArcModels.swift */,
+				D401E78D4889397308527018 /* LearningActivityAdapters.swift */,
 				390AE8B48E7C52C376816E87 /* LearningEngines.swift */,
 				901C5A02CDD2D6DA5162F535 /* MasteryState.swift */,
+				F054DB8EDA3E6CB10B159E1E /* ReviewJourneyModels.swift */,
 				71BEDED465CA437D09ADDCD5 /* SampleContent.swift */,
 				C3010C8E169172E6B28BBA75 /* ShivajiLessonModels.swift */,
 				BAABCCD639D0C3267861E9A8 /* ShivajiLessonStore.swift */,
+				0109C44ACD47FE6DFAA89933 /* TimelineActivityModels.swift */,
 				D2272E7F572A88125FD32303 /* TVActivityCheckpoint.swift */,
 			);
 			path = Models;
@@ -277,10 +311,13 @@
 			isa = PBXGroup;
 			children = (
 				EE25008F950ED24AE44D9BF8 /* AuthoredLearningContentTests.swift */,
+				271B82FC4B24CC3CE092C3D6 /* ChapterDiscoveryTests.swift */,
 				ACB2663F231A1B6A06C04B07 /* EnrichmentPersistenceTests.swift */,
 				85B8DF1FEE4414FC115FD0F1 /* GreatsOfBharathaTests.swift */,
 				2E960C45C97D2EAE06A7FBBB /* LearningEnginesTests.swift */,
+				32F168DE80D7141BF33343B5 /* ReviewJourneyTests.swift */,
 				83A859563DF2F7BF23C36236 /* StateReliabilityTests.swift */,
+				04109BD155608F39BEF80207 /* TimelineActivityTests.swift */,
 			);
 			path = GreatsOfBharathaTests;
 			sourceTree = "<group>";
@@ -394,6 +431,7 @@
 			isa = PBXGroup;
 			children = (
 				70E8E42D945004543238A06E /* TimelineHubView.swift */,
+				BB1FFF799B84277476EBF2F9 /* TimelineLearningEntry.swift */,
 			);
 			path = Timeline;
 			sourceTree = "<group>";
@@ -519,6 +557,8 @@
 		B5CEEABF88DDC8EE09921A23 /* GreatsOfBharathaUITests */ = {
 			isa = PBXGroup;
 			children = (
+				544283356E503EE881B44B9A /* ChapterDiscoveryUITests.swift */,
+				4CBA404DE80BA47DA95A3891 /* EnrichmentJourneyUITests.swift */,
 				525ED658DB563C6BC161FB63 /* LearningJourneyUITests.swift */,
 			);
 			path = GreatsOfBharathaUITests;
@@ -615,6 +655,7 @@
 		EDE5D0C79CACE2F8D3B19CDA /* GreatsOfBharathaTVTests */ = {
 			isa = PBXGroup;
 			children = (
+				469DC0D11E3C2A5B68023BB1 /* ChapterDiscoveryParityTests.swift */,
 				680E9F1487C7F8F0E5DE4CB8 /* TVLearningContentTests.swift */,
 				AAB8CBB7FB6BA8123A46CB2D /* TVPersistenceTests.swift */,
 				30778C10FB7E1E397B3157F7 /* TVSequenceEngineTests.swift */,
@@ -824,6 +865,8 @@
 				EE2374F1DB13184A06C4BBCA /* AppModel.swift in Sources */,
 				C3C8E7616436D7F22238B09C /* AppleMapsPlaceHandoff.swift in Sources */,
 				ACB64A9DB10FCF88E3BFFC1F /* CaptureRootView.swift in Sources */,
+				C6F25DEBE60770A4318C5433 /* ChapterDiscoveryContent.swift in Sources */,
+				6265FEA1DFE423DBA58AEA73 /* ChapterLearningSummary.swift in Sources */,
 				B8D344B8DE9447BA85DF20D4 /* ChronicleBookView.swift in Sources */,
 				78DCC1581692F7A6E37F3518 /* ChronicleMatchPresentation.swift in Sources */,
 				88F9E6C20BBFA38264D4077B /* ChronicleMatchView.swift in Sources */,
@@ -863,6 +906,7 @@
 				211E19D2035927C41FB3C2E9 /* LearnQuizComponents.swift in Sources */,
 				DBA6A92348B871BDD6F726A1 /* LearnQuizHomeView.swift in Sources */,
 				28F96E8FA507F0D5650F8C95 /* LearnQuizPilotData.swift in Sources */,
+				DADB95855386E509920A8FE4 /* LearningActivityAdapters.swift in Sources */,
 				5D281628DB3CC42AD77F0D7A /* LearningEngines.swift in Sources */,
 				8639A42C77E94CB3E0ECF853 /* LearningExperienceComponents.swift in Sources */,
 				98B47696937C9BCD2D0E9235 /* LessonFeedback.swift in Sources */,
@@ -871,6 +915,7 @@
 				06632999D4F33DD4F901020B /* MatchingAdventureComponents.swift in Sources */,
 				CD55EED6E4B1DFC5B1F20BCD /* ParentProgressView.swift in Sources */,
 				EC86C80AAD4DC6283501CE97 /* PlacesHubView.swift in Sources */,
+				54AABABFA5718C80DF6AE0D9 /* ReviewJourneyModels.swift in Sources */,
 				32E281A86CD24DEF8DBD980E /* SampleContent.swift in Sources */,
 				5C9B9B95F0A16A53E02C8B38 /* SceneLearnView.swift in Sources */,
 				EC46491021CBEFACB6398346 /* SceneLessonView.swift in Sources */,
@@ -878,7 +923,9 @@
 				06EF311D881705EB5C28A94B /* ShivajiLessonStore.swift in Sources */,
 				16E40D4D9552B57A027D9FF5 /* StoryHomeView.swift in Sources */,
 				AD9CD225E5FFBD7233C5D608 /* TVActivityCheckpoint.swift in Sources */,
+				B79F69FE8F16B35E94464B50 /* TimelineActivityModels.swift in Sources */,
 				608CCC7416A6F35837C15A04 /* TimelineHubView.swift in Sources */,
+				70CCD036225C02C755621005 /* TimelineLearningEntry.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -888,6 +935,8 @@
 			files = (
 				EFF8858845CE82CFD36B460E /* AppModel.swift in Sources */,
 				4C7399655CA8A4191AB5DDDB /* AppleMapsPlaceHandoff.swift in Sources */,
+				629997AE897FB377BF66A1C8 /* ChapterDiscoveryContent.swift in Sources */,
+				84240393AF6DE165E1CC6868 /* ChapterLearningSummary.swift in Sources */,
 				687C2E4C5B248DD80185B33D /* ChronicleMatchPresentation.swift in Sources */,
 				9D2E0932A8752AF38EC5E91A /* ContentModels.swift in Sources */,
 				BBD3D1BD6F3669B95E964690 /* DebugNavigationRoute.swift in Sources */,
@@ -901,9 +950,11 @@
 				78BB85FE1A35F817B44338F7 /* GreatsOfBharathaTVApp.swift in Sources */,
 				3D7607963F481364E6E15EF4 /* HeroArcModels.swift in Sources */,
 				DCBA0799A5719C91B371EB0F /* LearnQuizPilotData.swift in Sources */,
+				7FFC144D3A014C2DD662B4E0 /* LearningActivityAdapters.swift in Sources */,
 				AA90D39D25AC95CD5E7A8E93 /* LearningEngines.swift in Sources */,
 				3E32BAD4BDC21ECBEF8441F3 /* LessonFeedback.swift in Sources */,
 				62B4D2A83CE490CC1716019F /* MasteryState.swift in Sources */,
+				F9D78983D6064B0A15866CC2 /* ReviewJourneyModels.swift in Sources */,
 				C9BF86F3D453F1D1D9F219E2 /* SampleContent.swift in Sources */,
 				5FD5724F4C1DC9D6B8DC214B /* ShivajiLessonModels.swift in Sources */,
 				8CA8DAE996AE53CC833B2998 /* ShivajiLessonStore.swift in Sources */,
@@ -918,6 +969,7 @@
 				631096F752445615BB2CC649 /* TVPuzzleViews.swift in Sources */,
 				E67261A4C086F8CFBDE1A660 /* TVSequenceEngine.swift in Sources */,
 				3A905BC422B1B43464599D8B /* TVTimelineView.swift in Sources */,
+				C53714C819CBEB6010EDAC93 /* TimelineActivityModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -926,10 +978,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D6BB2EC69ED8AADF802F5639 /* AuthoredLearningContentTests.swift in Sources */,
+				CBE9EAFDF7C2A92F9C4F307D /* ChapterDiscoveryTests.swift in Sources */,
 				C608764AB1F3CB9C31AF2CDF /* EnrichmentPersistenceTests.swift in Sources */,
 				E192EA45F4DF6C39007360F9 /* GreatsOfBharathaTests.swift in Sources */,
 				1D46FB6ECD9C7608AF1C984E /* LearningEnginesTests.swift in Sources */,
+				92F81826A882FD6382167F6F /* ReviewJourneyTests.swift in Sources */,
 				57D6DDF7802C564855FA5A9B /* StateReliabilityTests.swift in Sources */,
+				27949C76E881B3D85DE4EE94 /* TimelineActivityTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -937,6 +992,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1399DA71C38F44E3FD5FD047 /* ChapterDiscoveryParityTests.swift in Sources */,
 				097E5AF75A809358B29E9576 /* TVLearningContentTests.swift in Sources */,
 				FD182DF8E175A3A43E305934 /* TVPersistenceTests.swift in Sources */,
 				C80CEBDFA785D870B0899FE6 /* TVSequenceEngineTests.swift in Sources */,
@@ -947,6 +1003,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17408D001CC5FC12C66E2792 /* ChapterDiscoveryUITests.swift in Sources */,
+				06BBF21A77A7E3F1394FE6EE /* EnrichmentJourneyUITests.swift in Sources */,
 				4E4A0D584B0CECD001BDE1DC /* LearningJourneyUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -26,6 +26,10 @@ struct ContentView: View {
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(DebugTabRoute.places)
 
+            NavigationStack { TimelineLearningEntry() }
+                .tabItem { Label("Timeline", systemImage: "point.3.connected.trianglepath.dotted") }
+                .tag(DebugTabRoute.timeline)
+
             // ── Tab 3: Album (Chronicle + Parent gear) ────────
             NavigationStack {
                 ChronicleView(rewards: SampleContent.shivajiVerticalSlice.rewards)

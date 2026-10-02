@@ -195,7 +195,9 @@ final class ShivajiLessonStore: ObservableObject {
         detail: String = "",
         eventID: UUID = UUID(),
         sessionID: UUID? = nil,
-        at date: Date = Date()
+        at date: Date = Date(),
+        cardID: String? = nil, checkedPromptID: String? = nil,
+        reviewKind: ReviewJourneyEvidenceKind? = nil, participation: LearningParticipation? = nil
     ) -> Bool {
         guard isKnownSubject(subjectID, type: subjectType), !hasRecorded(eventID: eventID) else { return false }
         guard activity != .mapPlacement || subjectType == .location,
@@ -251,7 +253,8 @@ final class ShivajiLessonStore: ObservableObject {
         }
         record.evidenceLog.append(MasteryEvidence(type: evidenceType, recordedAt: date, detail: detail,
                                                   eventID: eventID, activity: activity, support: support,
-                                                  sessionID: sessionID, promptType: promptType))
+                                                  sessionID: sessionID, promptType: promptType, cardID: cardID,
+                                                  checkedPromptID: checkedPromptID, reviewKind: reviewKind, participation: participation))
         masteryRecordsBySubject[subjectID] = record
         rememberEventID(eventID)
         if activity != .storyExposure && activity != .albumPlacement {
@@ -275,13 +278,15 @@ final class ShivajiLessonStore: ObservableObject {
         promptType: RecallPromptType = .openPrompt,
         eventID: UUID = UUID(),
         sessionID: UUID? = nil,
-        at date: Date = Date()
+        at date: Date = Date(),
+        cardID: String? = nil, participation: LearningParticipation? = nil
     ) -> LearningReviewSchedulingResult? {
         guard isKnownSubject(subjectID, type: subjectType), !hasRecorded(eventID: eventID) else { return nil }
         var record = masteryRecordsBySubject[subjectID] ?? emptyRecord(subjectID, type: subjectType)
         record.evidenceLog.append(MasteryEvidence(type: .selfReportedReview, recordedAt: date,
             detail: "Self-reported review: \(response.rawValue)", eventID: eventID, activity: .review,
-            support: .selfReported, sessionID: sessionID, promptType: promptType, reviewResponse: response))
+            support: .selfReported, sessionID: sessionID, promptType: promptType, reviewResponse: response, cardID: cardID,
+            reviewKind: .selfReported, participation: participation))
         masteryRecordsBySubject[subjectID] = record
         rememberEventID(eventID)
         let result = scheduleReview(subjectID: subjectID, subjectType: subjectType, response: response, promptType: promptType,
@@ -956,7 +961,8 @@ extension ShivajiLessonStore {
             return MasteryEvidence(type: item.type, recordedAt: item.recordedAt,
                 detail: String(item.detail.prefix(persistencePolicy.evidenceDetailLimit)), eventID: item.eventID,
                 activity: item.activity, support: item.support, sessionID: item.sessionID,
-                promptType: item.promptType, reviewResponse: item.reviewResponse)
+                promptType: item.promptType, reviewResponse: item.reviewResponse, cardID: item.cardID,
+                checkedPromptID: item.checkedPromptID, reviewKind: item.reviewKind, participation: item.participation)
         }
     }
 

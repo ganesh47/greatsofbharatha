@@ -26,6 +26,18 @@ struct ParentProgressView: View {
                     Text("Uses quiet transitions and card changes. Device Reduce Motion also takes priority.").font(.caption)
                 }
                 Text("A conversation to try").gbTitle()
+                Text("Chapter activities").gbTitle()
+                ForEach(appModel.content.scenes) { scene in
+                    let summary = ChapterLearningSummary(record: appModel.lessonStore.masteryRecord(for: scene.id))
+                    VStack(alignment: .leading, spacing: GBSpacing.small) {
+                        Text(scene.title).gbHeadline()
+                        Text(summary.activityText).gbBody()
+                        Text(summary.nextStep).gbBody()
+                    }
+                    .padding(GBSpacing.medium)
+                    .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.card))
+                    .accessibilityIdentifier("parent-chapter-" + scene.id)
+                }
                 Text("Which fort did you discover? What helps you remember why it matters?").gbStory()
                 Text("Revisit ideas").gbTitle()
                 ForEach(appModel.lessonStore.dueReviews(), id: \.subjectID) { schedule in
@@ -35,7 +47,7 @@ struct ParentProgressView: View {
                             .buttonStyle(.bordered)
                     }
                 }
-                Text("Flashcard responses are self-reports used to plan revisits. Independent recall is recorded separately.").font(.caption)
+                Text("Revealed-card responses are self-reports. Typed checks and later card recall are recorded separately. Saved activities describe this device's journey and do not establish lasting recall on their own.").font(.caption)
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }
         .navigationTitle("Parent settings")

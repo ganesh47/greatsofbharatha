@@ -38,7 +38,8 @@ struct TVParentView: View {
                                     Image(systemName: recall == nil ? "book" : "checkmark.circle").foregroundStyle(TVTheme.gold)
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text(scene.title).font(.system(size: 28, weight: .semibold))
-                                        Text(summary(record: record, evidence: recall)).font(.system(size: 24))
+                                        Text(ChapterLearningSummary(record: record).activityText).font(.system(size: 24))
+                                        Text(ChapterLearningSummary(record: record).nextStep).font(.system(size: 24))
                                     }
                                 }
                             }
@@ -47,6 +48,8 @@ struct TVParentView: View {
                     }
                     Text("Try a conversation: Which fort do you remember, and why did it matter?")
                         .font(.system(size: 30, design: .serif))
+                    Text("Apple TV records shared family choices. A checked choice, even without a clue, does not establish an individual child's independent recall.")
+                        .font(.system(size: 26)).fixedSize(horizontal: false, vertical: true)
                 }.padding(12)
             }
         }

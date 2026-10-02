@@ -213,6 +213,10 @@ enum MasteryEvidenceType: String, Codable, CaseIterable, Equatable {
     case selfReportedReview
 }
 
+enum LearningParticipation: String, Codable {
+    case typedResponse, sharedFamilyRecognition
+}
+
 struct MasteryEvidence: Codable, Equatable {
     let type: MasteryEvidenceType
     let recordedAt: Date
@@ -223,6 +227,10 @@ struct MasteryEvidence: Codable, Equatable {
     var sessionID: UUID? = nil
     var promptType: RecallPromptType? = nil
     var reviewResponse: LearningReviewResponse? = nil
+    var cardID: String? = nil
+    var checkedPromptID: String? = nil
+    var reviewKind: ReviewJourneyEvidenceKind? = nil
+    var participation: LearningParticipation? = nil
 }
 
 struct MasteryRecord: Codable, Equatable {

@@ -22,13 +22,12 @@ final class ChapterDiscoveryUITests: XCTestCase {
     }
 
     private func reveal(_ element: XCUIElement, in scroll: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        XCTAssertTrue(element.waitForExistence(timeout: 10), file: file, line: line)
         for _ in 0..<20 {
-            if element.isHittable { return }
+            if element.exists && element.isHittable { return }
             scroll.swipeUp()
         }
         for _ in 0..<20 {
-            if element.isHittable { return }
+            if element.exists && element.isHittable { return }
             scroll.swipeDown()
         }
         XCTAssertTrue(element.isHittable, "Could not reach \(element.identifier)", file: file, line: line)
@@ -88,7 +87,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
                         ["place-purandar", "place-agra"], ["place-rajgad"], ["place-raigad"]]
         let answers = ["shivneri", "rajgad", "pratapgad", "purandar", "rebuilt", "raigad"]
         for (index, chapterID) in chapterIDs.enumerated() {
-            XCTAssertTrue(app.staticTexts["chapter-teaching-" + chapterID].waitForExistence(timeout: 10))
+            reveal(app.staticTexts["chapter-teaching-" + chapterID], in: app.scrollViews["scene-lesson-scroll"].firstMatch)
             XCTAssertFalse(app.buttons["recall-check-button"].exists)
             for number in 1...3 {
                 tap(discoveryButtonID(chapterIndex: index, detailNumber: number))
