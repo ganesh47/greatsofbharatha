@@ -141,6 +141,52 @@ final class LearningJourneyUITests: XCTestCase {
         XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Torna"))
     }
 
+    func testResumedMatchingBackReturnsToSceneWithoutPushingAgain() {
+        launch(pilot: true)
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-shivneri")
+        tap("Play a matching game")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        app.terminate()
+        app.launch()
+        tap("pilot-home-continue")
+        let selected = app.buttons["match-tile-match-shivneri-birth-fort-left"]
+        XCTAssertTrue(selected.waitForExistence(timeout: 10))
+        XCTAssertEqual(selected.value as? String, "Selected")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["pilot-quiz-me"].waitForExistence(timeout: 10))
+        XCTAssertFalse(selected.exists, "Back must remain on the scene instead of automatically resuming again")
+        capture("matching-resume-back-to-scene")
+    }
+
+    func testStoryMatchingDonePreservesStoryRoutes() {
+        configureApplication()
+        app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = "1"
+        app.launch()
+        app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
+        let matching = app.buttons["home-match-places"]
+        let scroll = app.scrollViews["home-story-scroll"]
+        for _ in 0..<8 {
+            if matching.exists && matching.isHittable { break }
+            scroll.swipeUp()
+        }
+        tap("home-match-places")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        tap("match-tile-match-shivneri-birth-fort-right")
+        tap("matching-done")
+        XCTAssertTrue(scroll.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["matching-done"].exists)
+        for _ in 0..<8 {
+            if app.buttons["home-primary-lesson"].isHittable { break }
+            scroll.swipeDown()
+        }
+        tap("home-primary-lesson")
+        XCTAssertTrue(app.buttons["story-move-to-place-clues-button"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["pilot-quiz-me"].exists)
+        capture("story-route-after-legacy-matching-done")
+    }
+
     func testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch() {
         launch(pilot: true)
         openSecondMatchingAdventure()
