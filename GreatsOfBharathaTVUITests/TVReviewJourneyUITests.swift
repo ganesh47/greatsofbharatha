@@ -226,7 +226,18 @@ final class TVReviewJourneyUITests: XCTestCase {
 
     func testTeachingAddsOneTailRevisitAndRepeatTeachingCanFinish() throws {
         launch()
+        // The seed has checked facts but no chapter checkpoint. Home prioritizes newly due review
+        // over unstarted chapters, so establish real chapter progress before asserting preservation.
+        XCTAssertTrue(app.buttons["tv-home-continue"].label.contains("Purandar"))
+        select("tv-home-continue")
+        XCTAssertTrue(app.buttons["tv-lesson-story-next"].waitForExistence(timeout: 10))
+        select("tv-lesson-story-next")
+        XCTAssertTrue(app.staticTexts["Remember this"].waitForExistence(timeout: 10))
+        remote.press(.menu)
+        XCTAssertTrue(app.buttons["tv-home-review"].waitForExistence(timeout: 10))
         let chapterContinuation = app.buttons["tv-home-continue"].label
+        XCTAssertTrue(chapterContinuation.hasPrefix("Continue: "))
+        XCTAssertTrue(chapterContinuation.contains("Purandar"))
         reachCheckedCard()
         let original = try queuePosition()
         select("tv-review-reveal")
@@ -264,6 +275,18 @@ final class TVReviewJourneyUITests: XCTestCase {
         select("tv-review-finish")
         XCTAssertTrue(app.buttons["tv-home-review"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.buttons["tv-home-continue"].label, chapterContinuation)
+        app.terminate()
+        launch()
+        XCTAssertEqual(app.buttons["tv-home-continue"].label, chapterContinuation,
+                       "The unfinished chapter must outrank due review after relaunch")
+        select("tv-home-continue")
+        XCTAssertTrue(app.staticTexts["Remember this"].waitForExistence(timeout: 10),
+                      "Review must preserve the saved second story beat, not restart the chapter")
+        XCTAssertTrue(app.staticTexts["Chapter 4 · Story"].exists)
+        XCTAssertTrue(app.buttons["tv-lesson-story-next"].exists)
+        capture("review-preserved-chapter-story-beat")
+        remote.press(.menu)
+        XCTAssertTrue(app.buttons["tv-home-review"].waitForExistence(timeout: 10))
     }
 
     private func finishOtherCardsBeforeTailRevisit(expectedCount: Int) throws {
