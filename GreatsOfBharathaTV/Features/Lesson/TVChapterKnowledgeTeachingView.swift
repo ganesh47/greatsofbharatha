@@ -13,6 +13,9 @@ struct TVChapterKnowledgeTeachingView: View {
     @State private var coverageID = ""
     @State private var sourcesExpanded = false
     @State private var started = false
+    #if DEBUG
+    @State private var frameDiagnostic = "No text sample"
+    #endif
     @FocusState private var focus: String?
     let chapter: TVChapter
     let definition: ChapterKnowledgeDefinition
@@ -72,6 +75,10 @@ struct TVChapterKnowledgeTeachingView: View {
                                     (beatIndex < definition.beats.count - 1 ? "Next part" : "Continue")) { continueReading() }
                                     .disabled(presentation.isBlocked || !pageWasPresented)
                                     .focused($focus, equals: "next").accessibilityIdentifier(nextIdentifier)
+                                    #if DEBUG
+                                    .accessibilityValue(ProcessInfo.processInfo.environment["GOB_UI_TEST_SUITE"]?.hasPrefix("gob.tv.ui.knowledge.") == true
+                                        ? "\(frameDiagnostic) current=\(page?.id ?? "") coverage=\(coverageID)/\(coverage.isComplete) blocked=\(presentation.isBlocked) active=\(scenePhase)" : "")
+                                    #endif
                                 if pageIndex > 0 || beatIndex > 0 {
                                     Button("Previous card", action: previous)
                                         .disabled(presentation.isBlocked).focused($focus, equals: "previous")
@@ -88,6 +95,9 @@ struct TVChapterKnowledgeTeachingView: View {
                 }
                 .accessibilityIdentifier("tv-knowledge-teaching-scroll")
                 .onPreferenceChange(TVKnowledgeTextFrameKey.self) { sample in
+                    #if DEBUG
+                    frameDiagnostic = "sample=\(sample.id) frame=\(sample.frame) viewport=\(viewport.frame(in: .global)) phase=\(scenePhase)"
+                    #endif
                     guard scenePhase == .active, sample.id == page?.id else { return }
                     if coverageID != sample.id { coverageID = sample.id; coverage = ChapterKnowledgeTextCoverage() }
                     coverage.observe(textFrame: sample.frame, viewport: viewport.frame(in: .global))

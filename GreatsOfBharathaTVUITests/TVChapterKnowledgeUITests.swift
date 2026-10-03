@@ -168,7 +168,15 @@ final class TVChapterKnowledgeUITests: XCTestCase {
             let next = app.buttons["tv-knowledge-teaching-next"]
             XCTAssertTrue(next.waitForExistence(timeout: 10))
             let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: next)
-            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 10), .completed, "The full caption must be visible before Next")
+            guard XCTWaiter.wait(for: [ready], timeout: 10) == .completed else {
+                let hierarchy = XCTAttachment(string: app.debugDescription)
+                hierarchy.name = "tv-knowledge-live-AX-caption-failure"
+                hierarchy.lifetime = .keepAlways
+                add(hierarchy)
+                capture("tv-knowledge-caption-failure")
+                XCTFail("The full caption must be visible before Next: " + String(describing: next.value))
+                return
+            }
             select("tv-knowledge-teaching-next")
         }
         XCTFail("Teaching did not reach practice within the bounded caption pages.\n" + app.debugDescription)

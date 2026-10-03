@@ -44,7 +44,7 @@ struct TVLessonView: View {
                 legacyContent.onExitCommand(perform: handleBack).onPlayPauseCommand(perform: playPause)
             }
         }
-        .sheet(item: $knowledgeRequest) { request in
+        .fullScreenCover(item: $knowledgeRequest, onDismiss: restoreFocus) { request in
             if let chapter {
                 TVChapterKnowledgeFlowView(chapter: chapter, sessionID: sessionID, entry: request.mode, onFinished: {
                     knowledgeRequest = nil
