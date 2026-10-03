@@ -16,6 +16,7 @@ struct ChapterStoryDiscoveryView: View {
                 selectedDetailID: content.restoredDiscovery(id: point?.selectedDiscoveryDetailID)?.id) { discovery in
                     ChapterDiscoveryInteraction.open(discovery, content: content, store: appModel.lessonStore)
                 }
+            AtlasPictureDiscoverySection(sceneID: content.id)
             ChapterFamilyReflection(content: content)
         }
         .onAppear {
@@ -168,12 +169,14 @@ struct OfflineFortChallenge: View {
     let target: Place
     let candidates: [Place]
     var authoredClue: ChapterPlaceClue?
+    @Binding var selectedPlaceID: String?
     @Binding var solvedPlaceIDs: Set<String>
     @Binding var helpedPlaceIDs: Set<String>
     var onSuccess: (LearningSupport) -> Void
     @State private var feedback: String?
-    private var usedHint: Bool { helpedPlaceIDs.contains(target.id) }
+    @FocusState private var focusedControl: String?
     private var clueText: String { authoredClue?.clue ?? "Find the place for this clue: \(target.memoryHook)." }
+    private var usedHint: Bool { helpedPlaceIDs.contains(target.id) }
 
     private var solved: Bool { solvedPlaceIDs.contains(target.id) }
     var body: some View {
@@ -185,24 +188,29 @@ struct OfflineFortChallenge: View {
                 Text(target.regionLabel).gbBody()
             }
             LearningNarrationControls(id: "fort-clue-" + target.id,
-                text: clueText + " Choose a place on the board.")
-            if dynamicTypeSize.isAccessibilitySize {
-                VStack(spacing: GBSpacing.small) {
-                    ForEach(candidates) { place in candidateButton(place) }
-                }
-            } else {
-                Grid(alignment: .leading, horizontalSpacing: GBSpacing.small, verticalSpacing: GBSpacing.small) {
-                    ForEach(0..<((candidates.count + 1) / 2), id: \.self) { row in
-                        GridRow {
-                            candidateButton(candidates[row * 2])
-                            if candidates.indices.contains(row * 2 + 1) {
-                                candidateButton(candidates[row * 2 + 1])
-                            }
-                        }
-                    }
-                }
+                text: clueText + " Choose a place picture, then check your choice.")
+            LearningAtlasView(
+                places: candidates,
+                presentation: .challenge,
+                foundPlaceID: solved ? target.id : nil,
+                initialPlace: nil,
+                selectedPlaceID: selectedPlaceID,
+                selectablePlaceIDs: Set(candidates.map(\.id)),
+                selectionEnabled: true,
+                identifierPrefix: "fort-choice-",
+                onSelect: select
+            )
+            if !solved {
+                Button("Check my choice", action: checkSelection)
+                    .buttonStyle(.gbPrimary(.place))
+                    .disabled(selectedPlaceID == nil)
+                    .focused($focusedControl, equals: "check")
+                    .accessibilityIdentifier("fort-check-button")
             }
-            if let feedback {
+            if solved {
+                Text("Found it! \(target.name). \(target.primaryEvent)")
+                    .gbBody().accessibilityIdentifier("fort-found-" + target.id)
+            } else if let feedback {
                 Text(feedback).gbBody().accessibilityIdentifier("fort-feedback")
             }
             if !solved {
@@ -210,7 +218,7 @@ struct OfflineFortChallenge: View {
                     helpedPlaceIDs.insert(target.id)
                     feedback = authoredClue?.hint ?? "Look for \(target.name): \(target.memoryHook)."
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.gbSecondary)
                 .accessibilityIdentifier("fort-clue-help")
             }
         }
@@ -220,33 +228,38 @@ struct OfflineFortChallenge: View {
         .accessibilityIdentifier("fort-challenge-" + target.id)
         .onAppear {
             if appModel.parentSettings.assistModeEnabled { helpedPlaceIDs.insert(target.id) }
+
         }
     }
 
-    private func candidateButton(_ place: Place) -> some View {
-        Button {
-            if place.id == target.id {
-                solvedPlaceIDs.insert(target.id)
-                feedback = "Found it! \(target.name). " + (authoredClue?.hint ?? target.primaryEvent)
-                onSuccess(usedHint || appModel.parentSettings.assistModeEnabled ? .hinted : .independent)
-                LessonFeedback.fire(.success)
-            } else {
-                helpedPlaceIDs.insert(target.id)
-                feedback = "Let's look again. \(target.regionLabel). Need a clue?"
-            }
-        } label: {
-            VStack(spacing: GBSpacing.xSmall) {
-                Image(systemName: "building.2.crop.circle.fill").font(.largeTitle)
-                Text(place.name).gbHeadline()
-                Text(place.regionLabel).font(.caption).fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, minHeight: 100)
-            .padding(GBSpacing.small)
+    private func select(_ place: Place) {
+        guard !solved else { return }
+        selectedPlaceID = place.id
+        feedback = nil
+#if os(tvOS)
+        focusedControl = "check"
+#endif
+    }
+
+    private func checkSelection() {
+        let outcome = LearningMapSelectionEngine.evaluate(
+            targetID: target.id, selectedID: selectedPlaceID,
+            candidateIDs: Set(candidates.map(\.id)), alreadySolved: solved,
+            usedHint: usedHint, assistModeEnabled: appModel.parentSettings.assistModeEnabled
+        )
+        switch outcome {
+        case .ignored:
+            return
+        case .retry:
+            helpedPlaceIDs.insert(target.id)
+            feedback = "Let's look again. \(target.regionLabel). Need a clue?"
+        case .success(let support):
+            onSuccess(support)
+            selectedPlaceID = nil
+            solvedPlaceIDs.insert(target.id)
+            feedback = "Found it! \(target.name). \(target.primaryEvent). \(LearningAtlasContent.relationship(for: target))"
+            LessonFeedback.fire(.success)
         }
-        .buttonStyle(.bordered)
-        .tint(GBColor.Place.primary)
-        .disabled(solved)
-        .accessibilityIdentifier("fort-choice-" + place.id)
     }
 
 }
@@ -494,5 +507,42 @@ private struct GBGlossarySheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+}
+
+/// Additional authored picture clues preserved from the atlas prototype.
+/// Opening one is exploration; it does not submit an answer or award learning evidence.
+struct AtlasPictureDiscoverySection: View {
+    @EnvironmentObject private var appModel: AppModel
+    let sceneID: String
+    private var details: [SceneDiscoveryDetail] {
+        guard let scene = appModel.content.scenes.first(where: { $0.id == sceneID }) else { return [] }
+        return SampleContent.learningPlan(for: scene).discoveryDetails
+    }
+    private var selectedID: String? { appModel.lessonStore.resumePoint(for: sceneID)?.selectedAtlasDiscoveryID }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.small) {
+            Text("More picture clues (optional)").gbTitle()
+            Text("Choose another way to explore this chapter, or continue when you’re ready.").gbBody()
+            ForEach(details) { detail in
+                Button {
+                    var point = appModel.lessonStore.resumePoint(for: sceneID) ?? LessonResumePoint(sceneID: sceneID)
+                    point.selectedAtlasDiscoveryID = detail.id
+                    point.updatedAt = Date()
+                    appModel.lessonStore.saveResumePoint(point)
+                } label: {
+                    Label(detail.title, systemImage: detail.symbol)
+                        .frame(maxWidth: .infinity, minHeight: GBTouch.button, alignment: .leading)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("atlas-discovery-" + sceneID + "-" + detail.id)
+                .accessibilityValue(selectedID == detail.id ? "Selected" : "Available")
+                if selectedID == detail.id {
+                    Text(detail.text).gbStory().accessibilityIdentifier("atlas-discovery-text-" + sceneID + "-" + detail.id)
+                    LearningNarrationControls(id: sceneID + "-atlas-" + detail.id, text: detail.text)
+                }
+            }
+        }
     }
 }

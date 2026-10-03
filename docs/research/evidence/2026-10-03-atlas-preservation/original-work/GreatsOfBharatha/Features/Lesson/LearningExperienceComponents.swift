@@ -1,0 +1,415 @@
+import SwiftUI
+
+struct LearningNarrationControls: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @EnvironmentObject private var appModel: AppModel
+    @ObservedObject private var narrator = GBNarrator.shared
+    let id: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xSmall) {
+            if appModel.parentSettings.narrationEnabled {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.gbSecondary)
+                } else {
+                    HStack(spacing: GBSpacing.xSmall) { narrationButtons }
+                        .buttonStyle(.gbSecondary)
+                }
+                if let message = narrator.statusMessage { Text(message).font(.caption) }
+            } else {
+                Text("Read-aloud is off in parent settings.").font(.caption)
+            }
+        }
+        .onChange(of: appModel.parentSettings.narrationEnabled) { _, enabled in
+            if !enabled { narrator.stop() }
+        }
+        .onChange(of: text) { _, _ in narrator.stop() }
+        .onDisappear { narrator.stop() }
+    }
+
+    @ViewBuilder private var narrationButtons: some View {
+        Button { narrator.speak(id: id, text: text) } label: {
+            Label("Listen", systemImage: "speaker.wave.2.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .accessibilityIdentifier("listen-" + id)
+        Button { narrator.stop() } label: {
+            Label("Stop", systemImage: "stop.fill")
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: .infinity, minHeight: GBTouch.button)
+        }
+        .disabled(narrator.activeCardID == nil)
+        .accessibilityIdentifier("stop-" + id)
+    }
+
+}
+
+struct LessonSceneArt: View {
+    let plan: SceneLearningPlan
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+        Group {
+            if let asset = plan.imageAsset {
+                Image(asset).resizable().scaledToFit()
+#if os(tvOS)
+                    .frame(maxHeight: 360)
+#endif
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: GBRadius.hero).fill(GBColor.gradient(for: .story))
+                    Image(systemName: plan.artSymbol).font(.system(size: 84)).foregroundStyle(.white)
+                }.frame(height: 180)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero))
+        .accessibilityHidden(true)
+        Text("Story illustration").font(.caption).foregroundStyle(GBColor.Content.secondary)
+        }
+    }
+}
+
+/// Clue recognition uses bundled text and native graphics, and works offline.
+struct OfflineFortChallenge: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @EnvironmentObject private var appModel: AppModel
+    let target: Place
+    let candidates: [Place]
+    @Binding var solvedPlaceIDs: Set<String>
+    @Binding var helpedPlaceIDs: Set<String>
+    var onSuccess: (LearningSupport) -> Void
+    @State private var feedback: String?
+    @State private var selectedPlaceID: String?
+    @FocusState private var focusedControl: String?
+    private var usedHint: Bool { helpedPlaceIDs.contains(target.id) }
+
+    private var solved: Bool { solvedPlaceIDs.contains(target.id) }
+    var body: some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            Text("Fort detective").gbTitle()
+            Text("Find the place for this clue: \(target.memoryHook).")
+                .gbStory().accessibilityIdentifier("fort-detective-clue")
+            if appModel.parentSettings.assistModeEnabled {
+                Text(target.regionLabel).gbBody()
+            }
+            LearningNarrationControls(id: "fort-clue-" + target.id,
+                text: "Find the place for this clue: \(target.memoryHook). Choose a place picture, then check your choice.")
+            LearningAtlasView(
+                places: candidates,
+                presentation: .challenge,
+                foundPlaceID: solved ? target.id : nil,
+                initialPlace: nil,
+                selectedPlaceID: selectedPlaceID,
+                selectablePlaceIDs: Set(candidates.map(\.id)),
+                selectionEnabled: true,
+                identifierPrefix: "fort-choice-",
+                onSelect: select
+            )
+            if !solved {
+                Button("Check my choice", action: checkSelection)
+                    .buttonStyle(.gbPrimary(.place))
+                    .disabled(selectedPlaceID == nil)
+                    .focused($focusedControl, equals: "check")
+                    .accessibilityIdentifier("fort-check-button")
+            }
+            if solved {
+                Text("Found it! \(target.name). \(target.primaryEvent)")
+                    .gbBody().accessibilityIdentifier("fort-found-" + target.id)
+            } else if let feedback {
+                Text(feedback).gbBody().accessibilityIdentifier("fort-feedback")
+            }
+            if !solved {
+                Button("Help me find it") {
+                    helpedPlaceIDs.insert(target.id)
+                    feedback = "Look for \(target.name): \(target.memoryHook)."
+                }
+                .buttonStyle(.gbSecondary)
+                .accessibilityIdentifier("fort-clue-help")
+            }
+        }
+        .padding(GBSpacing.medium)
+        .background(GBColor.Place.bg, in: RoundedRectangle(cornerRadius: GBRadius.card))
+        .onAppear {
+            if appModel.parentSettings.assistModeEnabled { helpedPlaceIDs.insert(target.id) }
+
+        }
+    }
+
+    private func select(_ place: Place) {
+        guard !solved else { return }
+        selectedPlaceID = place.id
+        feedback = nil
+#if os(tvOS)
+        focusedControl = "check"
+#endif
+    }
+
+    private func checkSelection() {
+        let outcome = LearningMapSelectionEngine.evaluate(
+            targetID: target.id, selectedID: selectedPlaceID,
+            candidateIDs: Set(candidates.map(\.id)), alreadySolved: solved,
+            usedHint: usedHint, assistModeEnabled: appModel.parentSettings.assistModeEnabled
+        )
+        switch outcome {
+        case .ignored:
+            return
+        case .retry:
+            helpedPlaceIDs.insert(target.id)
+            feedback = "Let's look again. \(target.regionLabel). Need a clue?"
+        case .success(let support):
+            solvedPlaceIDs.insert(target.id)
+            feedback = "Found it! \(target.name). \(target.primaryEvent). \(LearningAtlasContent.relationship(for: target))"
+            onSuccess(support)
+            LessonFeedback.fire(.success)
+        }
+    }
+
+}
+
+struct ParentGateView: View {
+    @Environment(\.dismiss) private var dismiss
+    var onContinue: () -> Void
+    @State private var answer = ""
+    @FocusState private var answerFocused: Bool
+    @State private var first = Int.random(in: 12...19)
+    @State private var second = Int.random(in: 12...19)
+    @State private var feedback = ""
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("For a grown-up") {
+                    Text("Please ask a grown-up to continue. What is \(first) + \(second)?")
+                        .accessibilityIdentifier("parent-gate-question")
+                    TextField("Answer", text: $answer)
+                        .focused($answerFocused)
+                        .submitLabel(.done)
+                        .onSubmit { answerFocused = false }
+                        .accessibilityIdentifier("parent-gate-answer")
+                    if !feedback.isEmpty { Text(feedback) }
+                    Button("Continue") {
+                        if Int(answer.trimmingCharacters(in: .whitespacesAndNewlines)) == first + second {
+                            dismiss()
+                            onContinue()
+                        } else {
+                            feedback = "Ask your grown-up to try again."
+                        }
+                    }.accessibilityIdentifier("parent-gate-confirm")
+                }
+            }
+            .navigationTitle("Grown-up check")
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+        }
+    }
+}
+
+struct GBGlossaryTerm: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let shortMeaning: String
+    let detail: String
+    let example: String
+    let systemImage: String
+    let searchTokens: [String]
+
+    static let swarajya = GBGlossaryTerm(
+        id: "swarajya",
+        title: "Swarajya",
+        shortMeaning: "Self-rule",
+        detail: "Swarajya means self-rule: people caring for their own land with duty and dignity.",
+        example: "In this story, Swarajya is the big idea Shivaji Maharaj worked toward.",
+        systemImage: "flag.fill",
+        searchTokens: ["swarajya", "self-rule", "self rule"]
+    )
+
+    static let capital = GBGlossaryTerm(
+        id: "capital",
+        title: "Capital",
+        shortMeaning: "Main home base",
+        detail: "A capital is an important home base where leaders plan, make decisions, and care for the kingdom.",
+        example: "Rajgad became an early capital, so it was a key place for planning.",
+        systemImage: "building.columns.fill",
+        searchTokens: ["capital"]
+    )
+
+    static let coronation = GBGlossaryTerm(
+        id: "coronation",
+        title: "Coronation",
+        shortMeaning: "Crowning ceremony",
+        detail: "A coronation is a crowning ceremony. It shows that a leader is taking on a big duty.",
+        example: "At Raigad, the coronation marked Shivaji Maharaj as Chhatrapati.",
+        systemImage: "crown.fill",
+        searchTokens: ["coronation", "crowned", "crowning"]
+    )
+
+    static let terrain = GBGlossaryTerm(
+        id: "terrain",
+        title: "Terrain",
+        shortMeaning: "Land shape",
+        detail: "Terrain means the shape of the land, like hills, forests, valleys, rocks, and paths.",
+        example: "At Pratapgad, the steep hill terrain mattered for planning.",
+        systemImage: "mountain.2.fill",
+        searchTokens: ["terrain", "hill terrain", "land shape"]
+    )
+
+    static let chronicle = GBGlossaryTerm(
+        id: "chronicle",
+        title: "Chronicle",
+        shortMeaning: "Story record",
+        detail: "A chronicle is a record of important events. In this app, it is your story album of what you learned.",
+        example: "A Chronicle card helps you remember a place, event, or big idea.",
+        systemImage: "book.closed.fill",
+        searchTokens: ["chronicle"]
+    )
+
+    static let fort = GBGlossaryTerm(
+        id: "fort",
+        title: "Fort",
+        shortMeaning: "Strong safe place",
+        detail: "A fort is a strong place with walls, gates, and lookout points that can help protect people.",
+        example: "Many parts of Shivaji Maharaj's story are tied to hill forts.",
+        systemImage: "shield.lefthalf.filled",
+        searchTokens: ["fort", "forts"]
+    )
+
+    static let all: [GBGlossaryTerm] = [.swarajya, .capital, .coronation, .terrain, .chronicle, .fort]
+
+    static func matching(_ text: String) -> [GBGlossaryTerm] {
+        let haystack = text.lowercased()
+        let matches = all.filter { term in
+            term.searchTokens.contains { haystack.contains($0.lowercased()) }
+        }
+        return uniqued(matches)
+    }
+
+    static func uniqued(_ terms: [GBGlossaryTerm]) -> [GBGlossaryTerm] {
+        var seen: Set<String> = []
+        return terms.filter { term in
+            guard !seen.contains(term.id) else { return false }
+            seen.insert(term.id)
+            return true
+        }
+    }
+}
+
+struct GBGlossaryTray: View {
+    let terms: [GBGlossaryTerm]
+    var title: String = "Words to know"
+
+    private var visibleTerms: [GBGlossaryTerm] { GBGlossaryTerm.uniqued(terms) }
+
+    var body: some View {
+        if !visibleTerms.isEmpty {
+            VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                Text(title)
+                    .font(GBFont.ui(size: 12, weight: .heavy))
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+                    .foregroundStyle(GBColor.Content.tertiary)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: GBSpacing.xxSmall) {
+                        ForEach(visibleTerms) { term in
+                            GBGlossaryChip(term: term)
+                        }
+                    }
+                    .padding(.vertical, GBSpacing.xxxSmall)
+                }
+            }
+            .accessibilityElement(children: .contain)
+        }
+    }
+}
+
+struct GBGlossaryChip: View {
+    let term: GBGlossaryTerm
+
+    @State private var isShowingDefinition = false
+
+    var body: some View {
+        Button {
+            isShowingDefinition = true
+        } label: {
+            HStack(spacing: GBSpacing.xxxSmall) {
+                Image(systemName: term.systemImage)
+                Text(term.title)
+                    .font(GBFont.ui(size: 13, weight: .bold))
+                Text(term.shortMeaning)
+                    .font(GBFont.ui(size: 12, weight: .semibold))
+                    .foregroundStyle(GBColor.Content.secondary)
+            }
+            .padding(.horizontal, GBSpacing.xSmall)
+            .padding(.vertical, GBSpacing.xxSmall)
+            .background(GBColor.Background.elevated, in: Capsule())
+            .overlay(Capsule().stroke(GBColor.Border.panel, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(GBColor.Content.primary)
+        .accessibilityLabel("Word help: \(term.title)")
+        .accessibilityHint("Shows a short meaning for \(term.title).")
+        .sheet(isPresented: $isShowingDefinition) {
+            GBGlossarySheet(term: term)
+        }
+    }
+}
+
+private struct GBGlossarySheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let term: GBGlossaryTerm
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+            VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                Image(systemName: term.systemImage)
+                    .font(.system(size: 42, weight: .semibold))
+                    .foregroundStyle(GBColor.Chronicle.gold)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                    Text(term.title)
+                        .font(GBFont.display(size: 30, weight: .bold))
+                        .foregroundStyle(GBColor.Content.primary)
+                    Text(term.shortMeaning)
+                        .font(GBFont.story(size: 20))
+                        .foregroundStyle(GBColor.Chronicle.royal)
+                }
+
+                Text(term.detail)
+                    .font(GBFont.story(size: 18))
+                    .foregroundStyle(GBColor.Content.primary)
+                    .lineSpacing(4)
+
+                GBSurface(style: .elevated) {
+                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
+                        Text("In this story")
+                            .font(GBFont.ui(size: 13, weight: .heavy))
+                            .textCase(.uppercase)
+                            .tracking(1.1)
+                            .foregroundStyle(GBColor.Content.tertiary)
+                        Text(term.example)
+                            .font(GBFont.ui(size: 16, weight: .semibold))
+                            .foregroundStyle(GBColor.Content.primary)
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(GBSpacing.medium)
+            }
+            .background(GBColor.Background.app)
+            .navigationTitle("Word help")
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}

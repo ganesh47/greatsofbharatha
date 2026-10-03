@@ -27,7 +27,7 @@ struct CaptureRootView: View {
                 Text("Missing capture scene: scene-2-torna-rajgad")
             }
         case .placesHub:
-            NavigationStack { PlacesHubView(places: appModel.content.corePlaces) }
+            NavigationStack { PlacesHubView(places: appModel.content.places) }
         case .placeShivneri:
             if let place = appModel.content.corePlaces.first(where: { $0.id == "place-shivneri" }) {
                 NavigationStack { PlaceDetailView(place: place, progress: appModel.lessonStore.progress(for: place)) }

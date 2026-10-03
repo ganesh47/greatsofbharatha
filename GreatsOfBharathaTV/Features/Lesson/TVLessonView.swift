@@ -167,16 +167,26 @@ struct TVLessonView: View {
                 TVFireflyGuide(message: "Here is a clue from our story. Choose the place it belongs to.")
                 Text(clue.clue).font(.system(size: 34, weight: .semibold))
                 TVNarrationControls(id: chapter.id + "-clue-" + clue.id, text: clue.clue)
-                HStack(spacing: 28) {
-                    ForEach(placeChoices(for: clue), id: \.id) { candidate in
-                        Button { choosePlace(candidate.id, clue: clue) } label: {
-                            Label(candidate.name, systemImage: candidate.id == "place-agra" ? "building.columns.fill" : "mountain.2.fill")
-                                .font(.system(size: 31, weight: .bold)).frame(maxWidth: .infinity, minHeight: 112)
-                        }
-                        .buttonStyle(TVCardButtonStyle()).focused($focus, equals: candidate.id)
-                        .accessibilityIdentifier("tv-fort-" + candidate.id)
+                LearningAtlasView(places: placeChoices(for: clue), presentation: .challenge,
+                    selectedPlaceID: checkpoint.selectedTileID,
+                    selectablePlaceIDs: Set(placeChoices(for: clue).map(\.id)),
+                    identifierPrefix: "tv-fort-") { place in
+                        guard placeChoices(for: clue).contains(where: { $0.id == place.id }) else { return }
+                        checkpoint.selectedTileID = place.id
+                        feedback = nil
+                        saveCheckpoint()
+                        focus = "fort-check"
                     }
+                    .id(clue.id)
+                Button("Check my choice") {
+                    guard let selected = checkpoint.selectedTileID,
+                          placeChoices(for: clue).contains(where: { $0.id == selected }) else { return }
+                    checkpoint.selectedTileID = nil
+                    choosePlace(selected, clue: clue)
                 }
+                .buttonStyle(TVCardButtonStyle()).focused($focus, equals: "fort-check")
+                .disabled(!placeChoices(for: clue).contains(where: { $0.id == checkpoint.selectedTileID }))
+                .accessibilityIdentifier("tv-fort-check")
                 if let feedback { Text(feedback).font(.system(size: 28)).accessibilityIdentifier("tv-fort-feedback") }
                 Button("Give me a clue") {
                     checkpoint.helpedActivityIDs.insert("place-" + clue.id)
@@ -345,13 +355,14 @@ struct TVLessonView: View {
     }
 
     private func placeChoices(for clue: TVPlaceClue) -> [Place] {
-        let distractors = ["place-rajgad", "place-shivneri", "place-raigad", "place-purandar", "place-agra"]
-            .filter { $0 != clue.id }.prefix(2)
-        return ([clue.id] + distractors).compactMap { id in appModel.content.places.first(where: { $0.id == id }) }.sorted { $0.name < $1.name }
+        guard let target = appModel.content.places.first(where: { $0.id == clue.id }) else { return [] }
+        return LearningAtlasContent.candidates(for: target, places: appModel.content.places)
     }
 
     private func choosePlace(_ id: String, clue: TVPlaceClue) {
         guard !checkpoint.solvedPlaceIDs.contains(clue.id) else { return }
+        guard placeChoices(for: clue).contains(where: { $0.id == id }) else { return }
+        checkpoint.selectedTileID = nil
         let key = "place-" + clue.id
         if id == clue.id {
             let support: LearningSupport = checkpoint.helpedActivityIDs.contains("place-rescued-" + clue.id) ? .rescued : (checkpoint.helpedActivityIDs.contains(key) ? .hinted : .independent)
@@ -534,6 +545,12 @@ struct TVLessonView: View {
         if appModel.parentSettings.assistModeEnabled && checkpoint.stage == .recall && checkpoint.hintLevels["recall", default: 0] == 0 {
             recallHelp(chapter)
         }
+        if checkpoint.stage == .place {
+            let clue = chapter.placeClues.first(where: { !checkpoint.solvedPlaceIDs.contains($0.id) })
+            if clue.map({ placeChoices(for: $0).contains(where: { $0.id == checkpoint.selectedTileID }) }) != true {
+                checkpoint.selectedTileID = nil
+            }
+        }
         saveCheckpoint()
         restoreFocus()
     }
@@ -588,7 +605,7 @@ struct TVLessonView: View {
         case .discover: focus = chapter.discoveries.first?.id
         case .place:
             if let clue = chapter.placeClues.first(where: { !checkpoint.solvedPlaceIDs.contains($0.id) }) {
-                focus = placeChoices(for: clue).first?.id
+                focus = checkpoint.selectedTileID != nil ? "fort-check" : nil
             } else { focus = "fort-continue" }
         case .recall: focus = checkpoint.completedActivityIDs.contains("recall") ? "recall-continue" : (checkpoint.selectedTileID == nil ? chapter.plan.choices.first?.id : "recall-check")
         case .puzzle: focus = checkpoint.completedActivityIDs.contains("puzzle") ? "puzzle-continue" : nil

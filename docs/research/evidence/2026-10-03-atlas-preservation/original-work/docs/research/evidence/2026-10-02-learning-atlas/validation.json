@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-02",
+  "activity": "Offline map-first picture selection on iOS and tvOS",
+  "storyPlaces": 7,
+  "referenceSettlements": 8,
+  "validation": {
+    "iosUnit": {
+      "passed": 61
+    },
+    "iphoneUI": {
+      "passed": 10,
+      "note": "Nine passed in full run; landscape journey passed after test visibility helper correction. App source unchanged for rerun.",
+      "fullResult": "/tmp/GoB-atlas-ios/Logs/Test/Test-GreatsOfBharatha-2026.10.02_16-25-12-+0530.xcresult",
+      "landscapeRecheck": "/tmp/GoB-atlas-ios/Logs/Test/Test-GreatsOfBharatha-2026.10.02_16-31-04-+0530.xcresult"
+    },
+    "ipadAtlasUI": {
+      "passed": 5,
+      "result": "/tmp/GoB-atlas-ios/Logs/Test/Test-GreatsOfBharatha-2026.10.02_16-20-31-+0530.xcresult"
+    },
+    "tvosMapUnit": {
+      "passed": 8
+    },
+    "tvosRemoteUI": {
+      "passed": 3,
+      "result": "/tmp/GoB-atlas-tv/Logs/Test/Test-GreatsOfBharathaTV-2026.10.02_16-22-08-+0530.xcresult"
+    }
+  },
+  "screenshots": [
+    "iphone-sahyadri.png",
+    "ipad-agra.png",
+    "ipad-close-up.png",
+    "tvos-sahyadri.png"
+  ],
+  "geography": "Regional marker projection uses uniform scale; pairwise distances tested within 1% of great-circle distances. Pictures and terrain are illustrative."
+}

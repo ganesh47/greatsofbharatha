@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LessonHomeView: View {
+    @FocusState private var focusedSceneID: String?
     @EnvironmentObject private var appModel: AppModel
 
     private var recommended: StoryScene? {
@@ -11,31 +12,35 @@ struct LessonHomeView: View {
     }
 
     var body: some View {
+        GBLayoutContextReader { context in
         ScrollView {
             VStack(alignment: .leading, spacing: GBSpacing.large) {
                 if let scene = recommended {
-                    VStack(alignment: .leading, spacing: GBSpacing.medium) {
-                        LessonSceneArt(plan: SampleContent.learningPlan(for: scene))
-                        Text(scene.title).gbDisplay()
-                        Text(scene.childSafeSummary).gbStory()
-                        NavigationLink(value: scene.id) {
-                            Label(primaryTitle(scene), systemImage: "play.fill")
-                                .frame(maxWidth: .infinity, minHeight: GBTouch.primary)
+                    if context.isTelevision {
+                        HStack(alignment: .center, spacing: context.sectionSpacing) {
+                            LessonSceneArt(plan: SampleContent.learningPlan(for: scene)).frame(maxWidth: .infinity)
+                            recommendedActions(scene).frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.gbPrimary(.story))
-                        .accessibilityIdentifier("home-primary-lesson")
-                        LearningNarrationControls(id: "home-" + scene.id, text: scene.title + ". " + scene.childSafeSummary)
+                    } else {
+                        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                            LessonSceneArt(plan: SampleContent.learningPlan(for: scene))
+                            recommendedActions(scene)
+                        }
                     }
                 }
                 Text("\(appModel.lessonStore.completedScenes) of \(appModel.lessonStore.totalScenes) chapters completed")
                     .gbBody().accessibilityIdentifier("home-chapter-progress")
                 Text("Your adventures").gbTitle()
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: context.isTelevision ? 400 : 260), spacing: context.cardSpacing)], spacing: context.cardSpacing) {
                 ForEach(appModel.content.scenes) { scene in
                     if appModel.lessonStore.isSceneUnlocked(scene) {
                         NavigationLink(value: scene.id) { sceneRow(scene, locked: false) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.gbSelection)
+                            .focused($focusedSceneID, equals: scene.id)
                     } else { sceneRow(scene, locked: true) }
                 }
+                }
+#if os(iOS)
                 let learned = LearnQuizPilotData.scenes.filter {
                     appModel.lessonStore.mastery(for: $0.id).map { $0 >= .understood } ?? false
                 }
@@ -51,17 +56,42 @@ struct LessonHomeView: View {
                         Label("Open my Chronicle book", systemImage: "book.closed.fill")
                     }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-chronicle-book")
                 }
+
+#endif
             }
-            .padding(GBSpacing.medium)
-            .frame(maxWidth: 700).frame(maxWidth: .infinity)
+            .padding(context.containerPadding)
+            .frame(maxWidth: context.maxContentWidth).frame(maxWidth: .infinity)
         }
         .accessibilityIdentifier("home-story-scroll")
         .background(GBColor.Background.app)
+        }
+#if os(tvOS)
+        .navigationTitle("")
+#else
         .navigationTitle("Story Time")
+#endif
+#if os(tvOS)
+        .onAppear { if focusedSceneID == nil { focusedSceneID = "primary" } }
+#endif
         .navigationDestination(for: String.self) { sceneID in
             if let scene = appModel.content.scenes.first(where: { $0.id == sceneID }) {
                 SceneLessonView(scene: scene).id(sceneID)
             }
+        }
+    }
+
+    private func recommendedActions(_ scene: StoryScene) -> some View {
+        VStack(alignment: .leading, spacing: GBSpacing.medium) {
+            Text(scene.title).gbDisplay()
+            Text(scene.childSafeSummary).gbStory()
+            NavigationLink(value: scene.id) {
+                Label(primaryTitle(scene), systemImage: "play.fill")
+                    .frame(maxWidth: .infinity, minHeight: GBTouch.primary)
+            }
+            .buttonStyle(.gbPrimary(.story))
+            .focused($focusedSceneID, equals: "primary")
+            .accessibilityIdentifier("home-primary-lesson")
+            LearningNarrationControls(id: "home-" + scene.id, text: scene.title + ". " + scene.childSafeSummary)
         }
     }
 
@@ -74,18 +104,12 @@ struct LessonHomeView: View {
     private func sceneRow(_ scene: StoryScene, locked: Bool) -> some View {
         let mastery = appModel.lessonStore.mastery(for: scene.id)
         let status = locked ? "Ready after the previous chapter" : (mastery.map { $0 >= .understood ? "Completed" : "Started" } ?? "Ready to explore")
-        return HStack {
-            Image(systemName: locked ? "lock.fill" : (mastery.map { $0 >= .understood } == true ? "checkmark.circle.fill" : "book.fill"))
-            VStack(alignment: .leading) {
-                Text("Chapter \(scene.number): \(scene.title)").gbHeadline()
-                Text(status).font(.caption)
-            }
-            Spacer()
-        }
-        .foregroundStyle(locked ? GBColor.Content.secondary : GBColor.Content.primary)
-        .padding(GBSpacing.medium)
-        .frame(minHeight: GBTouch.button)
-        .background(GBColor.Background.surface, in: RoundedRectangle(cornerRadius: GBRadius.card))
-        .accessibilityElement(children: .combine)
+        return GBSelectionCard(title: "Chapter \(scene.number): \(scene.title)",
+            subtitle: status,
+            imageAsset: SampleContent.learningPlan(for: scene).imageAsset,
+            state: locked ? .locked : (mastery.map { $0 >= .understood } == true ? .discovered : .ready),
+            emphasis: .story)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("home-chapter-" + scene.id)
     }
 }

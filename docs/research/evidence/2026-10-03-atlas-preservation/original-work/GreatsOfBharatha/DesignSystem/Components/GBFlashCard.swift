@@ -1,0 +1,279 @@
+import AVFoundation
+import SwiftUI
+
+// ─────────────────────────────────────────────────────────────
+// GBFlashCard.swift — Greats of Bharatha Design System
+// Full-screen swipeable story cards for young learners.
+// Read-aloud narration built-in via GBNarrator.
+// ─────────────────────────────────────────────────────────────
+
+struct GBFlashCardData: Identifiable, Sendable {
+    let id: String
+    let iconName: String
+    let title: String
+    let storyBeat: String
+    var emphasis: GBEmphasis = .story
+    var narrationText: String? = nil
+}
+
+// ── Read-aloud controller ─────────────────────────────────────
+@MainActor
+final class GBNarrator: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+    static let shared = GBNarrator()
+    private let synthesizer = AVSpeechSynthesizer()
+    @Published private(set) var activeCardID: String? = nil
+    @Published private(set) var statusMessage: String? = nil
+    private var lastRequest: (id: String, text: String)?
+
+    override init() {
+        super.init()
+        synthesizer.delegate = self
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            guard let self, !self.synthesizer.isSpeaking else { return }
+            self.activeCardID = nil
+        }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            guard let self, !self.synthesizer.isSpeaking else { return }
+            self.activeCardID = nil
+        }
+    }
+
+    func toggle(cardID: String, text: String) {
+        if activeCardID == cardID, synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+            activeCardID = nil
+            return
+        }
+        speak(id: cardID, text: text)
+    }
+
+    func speak(id: String, text: String) {
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else {
+            statusMessage = "Nothing to read aloud yet."
+            activeCardID = nil
+            return
+        }
+
+        lastRequest = (id: id, text: trimmedText)
+        synthesizer.stopSpeaking(at: .immediate)
+
+        do {
+            try prepareAudioSessionForSpeech()
+            statusMessage = nil
+        } catch {
+            statusMessage = "Narration is unavailable. Check volume and try again."
+        }
+
+        let utterance = AVSpeechUtterance(string: trimmedText)
+        // Child-appropriate rate: 70% from min to default, audible and clear
+        utterance.rate = AVSpeechUtteranceMinimumSpeechRate
+            + (AVSpeechUtteranceDefaultSpeechRate - AVSpeechUtteranceMinimumSpeechRate) * 0.70
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
+            ?? AVSpeechSynthesisVoice(language: "en-US")
+        synthesizer.speak(utterance)
+        activeCardID = id
+    }
+
+    func repeatLast() {
+        guard let lastRequest else { return }
+        speak(id: lastRequest.id, text: lastRequest.text)
+    }
+
+    func stop() {
+        synthesizer.stopSpeaking(at: .immediate)
+        activeCardID = nil
+    }
+
+    private func prepareAudioSessionForSpeech() throws {
+#if os(iOS) || os(tvOS)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try session.setActive(true)
+#endif
+    }
+}
+
+// ── Single flashcard ──────────────────────────────────────────
+struct GBFlashCard: View {
+    let card: GBFlashCardData
+    @EnvironmentObject private var narrator: GBNarrator
+
+    var body: some View {
+        ZStack(alignment: .topTrailing) {
+            RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
+                .fill(GBColor.gradient(for: card.emphasis))
+                .overlay(
+                    RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous)
+                        .fill(Color.black.opacity(0.42))
+                )
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                Image(systemName: card.iconName)
+                    .font(.system(size: 88, weight: .ultraLight))
+                    .foregroundStyle(.white.opacity(0.88))
+                    .padding(.bottom, GBSpacing.large)
+                    .accessibilityHidden(true)
+
+                Text(card.title)
+                    .font(GBFont.display(size: 28, weight: .bold))
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .padding(.horizontal, GBSpacing.large)
+
+                Text(card.storyBeat)
+                    .font(GBFont.story(size: 20, italic: true))
+                    .foregroundStyle(.white.opacity(0.95))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(5)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, GBSpacing.large)
+                    .padding(.top, GBSpacing.small)
+
+                Spacer()
+                Spacer()
+            }
+
+            // Read-aloud button — top-right
+            let isActive = narrator.activeCardID == card.id
+            Button {
+                narrator.toggle(
+                    cardID: card.id,
+                    text: card.narrationText ?? "\(card.title). \(card.storyBeat)"
+                )
+            } label: {
+                Image(systemName: isActive ? "speaker.wave.3.fill" : "speaker.wave.1")
+                    .font(.system(size: 22))
+                    .foregroundStyle(.white)
+                    .frame(width: GBTouch.button, height: GBTouch.button)
+                    .background(.white.opacity(0.16), in: Circle())
+            }
+            .padding(GBSpacing.small)
+            .accessibilityLabel(isActive ? "Stop reading aloud" : "Read aloud")
+        }
+        .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
+        .gbShadow(.card)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(card.title). \(card.storyBeat)")
+    }
+}
+
+// ── Deck: swipeable carousel ──────────────────────────────────
+struct GBFlashCardDeck: View {
+    let cards: [GBFlashCardData]
+    var emphasis: GBEmphasis = .story
+    var onComplete: (() -> Void)?
+
+    @StateObject private var narrator = GBNarrator()
+    @State private var currentIndex = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        VStack(spacing: GBSpacing.medium) {
+            // Card carousel
+            TabView(selection: $currentIndex) {
+                ForEach(Array(cards.enumerated()), id: \.offset) { index, card in
+                    GBFlashCard(card: card)
+                        .padding(.horizontal, GBSpacing.medium)
+                        .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .frame(maxHeight: .infinity)
+            .onChange(of: currentIndex) { _, _ in
+                GBHaptic.stepAdvance()
+                narrator.stop()
+            }
+
+            // Progress dots
+            HStack(spacing: 8) {
+                ForEach(0..<cards.count, id: \.self) { idx in
+                    Capsule()
+                        .fill(idx == currentIndex
+                              ? GBColor.accent(for: emphasis)
+                              : GBColor.Content.tertiary)
+                        .frame(width: idx == currentIndex ? 24 : 7, height: 7)
+                        .animation(GBMotion.quick, value: currentIndex)
+                        .accessibilityHidden(true)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("story-card-carousel-progress")
+            .accessibilityLabel("Story card progress")
+            .accessibilityValue("Card \(min(currentIndex + 1, max(cards.count, 1))) of \(max(cards.count, 1))")
+            .accessibilityHint("Shows your place in the story card carousel.")
+
+            // CTA
+            if currentIndex == cards.count - 1 {
+                Button("Continue") {
+                    narrator.stop()
+                    GBHaptic.stepAdvance()
+                    onComplete?()
+                }
+                .buttonStyle(.gbPrimary(emphasis: emphasis))
+                .padding(.horizontal, GBSpacing.medium)
+                .accessibilityLabel("Continue from story cards")
+                .accessibilityHint("Moves to the next lesson activity.")
+            } else if reduceMotion {
+                Button {
+                    withAnimation(GBMotion.standard) { currentIndex += 1 }
+                    GBHaptic.stepAdvance()
+                } label: {
+                    Label("Next card", systemImage: "arrow.right")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.gbPrimary(emphasis: emphasis))
+                .padding(.horizontal, GBSpacing.medium)
+                .accessibilityLabel("Next story card")
+                .accessibilityHint("Shows the next card in the story carousel.")
+            } else {
+                Label("Swipe to turn the card", systemImage: "hand.draw")
+                    .font(GBFont.ui(size: 13, weight: .bold))
+                    .foregroundStyle(GBColor.Content.secondary)
+            }
+        }
+        .padding(.bottom, GBSpacing.medium)
+        .environmentObject(narrator)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Story card carousel")
+        .accessibilityValue("Card \(min(currentIndex + 1, max(cards.count, 1))) of \(max(cards.count, 1))")
+    }
+}
+
+#Preview("Flash Card Deck") {
+    ZStack {
+        GBColor.Background.app.ignoresSafeArea()
+        GBFlashCardDeck(
+            cards: [
+                GBFlashCardData(
+                    id: "c1", iconName: "building.columns.fill",
+                    title: "Shivneri Fort",
+                    storyBeat: "High in the Sahyadri hills, a brave prince was born.",
+                    emphasis: .story
+                ),
+                GBFlashCardData(
+                    id: "c2", iconName: "mountain.2.fill",
+                    title: "The Fort Trail",
+                    storyBeat: "Young Shivaji climbed these paths and dreamed of freedom.",
+                    emphasis: .story
+                ),
+                GBFlashCardData(
+                    id: "c3", iconName: "crown.fill",
+                    title: "Swarajya Begins",
+                    storyBeat: "With courage, Shivaji started building his own kingdom.",
+                    emphasis: .story
+                )
+            ],
+            emphasis: .story
+        ) {}
+    }
+}

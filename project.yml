@@ -87,6 +87,11 @@ targets:
           - Resources
       - path: GreatsOfBharatha/Shared
       - path: GreatsOfBharatha/DesignSystem/Tokens
+      - path: GreatsOfBharatha/Features/Map/LearningAtlasView.swift
+      - path: GreatsOfBharatha/DesignSystem/Components/GBSelectionCard.swift
+      - path: GreatsOfBharatha/DesignSystem/Foundation/GBButtonStyle.swift
+      - path: GreatsOfBharatha/DesignSystem/Foundation/GBShadow.swift
+      - path: GreatsOfBharatha/DesignSystem/Foundation/GBLayoutContext.swift
       - path: GreatsOfBharatha/Features/LearnQuiz/LearnQuizPilotData.swift
       - path: GreatsOfBharatha/App/DebugNavigationRoute.swift
       - path: GreatsOfBharatha/Resources
@@ -111,6 +116,7 @@ targets:
     platform: tvOS
     sources:
       - path: GreatsOfBharathaTVTests
+      - path: GreatsOfBharathaTests/LearningMapTests.swift
     dependencies:
       - target: GreatsOfBharathaTV
     settings:
