@@ -57,6 +57,56 @@ final class TVChapterKnowledgeUITests: XCTestCase {
         app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
     }
 
+    private func launchCompatibility(_ mode: String, opaque: String = "future") {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launchEnvironment = [
+            "GOB_UI_TEST_SUITE": "gob.tv.ui.knowledge." + UUID().uuidString,
+            "GOB_UI_TEST_RESET": "1",
+            "GOB_UI_TEST_KNOWLEDGE_COMPATIBILITY": mode,
+            "GOB_UI_TEST_KNOWLEDGE_OPAQUE": opaque
+        ]
+        app.launch()
+        app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
+    }
+
+    func testOpaqueKnowledgePreservesNativeStoryAndCompletedRecallContinuation() {
+        for opaque in ["future", "corrupt"] {
+            launchCompatibility("story", opaque: opaque)
+            XCTAssertTrue(app.buttons["tv-lesson-story-next"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.staticTexts["tv-knowledge-teaching-progress"].exists)
+            for _ in 0..<3 { select("tv-lesson-story-next") }
+            XCTAssertTrue(app.staticTexts["Chapter 1 · Discover"].waitForExistence(timeout: 10))
+            app.terminate()
+            app.launch()
+            XCTAssertTrue(app.staticTexts["Chapter 1 · Discover"].waitForExistence(timeout: 10))
+            capture("tv-knowledge-" + opaque + "-legacy-story-continuation")
+
+            launchCompatibility("recall", opaque: opaque)
+            let continuation = app.buttons["tv-recall-continue"]
+            XCTAssertTrue(continuation.waitForExistence(timeout: 10))
+            XCTAssertEqual(continuation.label, "Continue to the little puzzle")
+            select("tv-recall-continue")
+            XCTAssertTrue(app.staticTexts["Chapter 1 · Little puzzle"].waitForExistence(timeout: 10))
+            app.terminate()
+            app.launch()
+            XCTAssertTrue(app.staticTexts["Chapter 1 · Little puzzle"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.staticTexts["tv-knowledge-family-context"].exists)
+            capture("tv-knowledge-" + opaque + "-legacy-recall-continuation")
+        }
+    }
+
+    func testExplicitExploreAgainStartsAtOpeningKnowledgeBeat() {
+        launchCompatibility("replay")
+        select("tv-explore-again")
+        XCTAssertTrue(app.staticTexts["tv-knowledge-beat-scene-1-shivneri-story"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["tv-knowledge-teaching-progress"].label, "Part 1 of 3 · Card 1 of 3")
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.staticTexts["tv-knowledge-beat-scene-1-shivneri-story"].waitForExistence(timeout: 10))
+        capture("tv-knowledge-explicit-replay-opening")
+    }
+
     private func capture(_ name: String) {
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = name
