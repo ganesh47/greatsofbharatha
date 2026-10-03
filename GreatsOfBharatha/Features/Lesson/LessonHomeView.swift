@@ -41,7 +41,7 @@ struct LessonHomeView: View {
                 }
                 if !learned.isEmpty {
                     Text("Play with your story clues").gbTitle()
-                    NavigationLink { ChronicleMatchView(scenes: learned) } label: {
+                    NavigationLink { ChronicleMatchView(scenes: learned, usesLegacyPresentation: true) } label: {
                         Label("Match places", systemImage: "square.grid.2x2.fill")
                     }.buttonStyle(.gbSecondary).accessibilityIdentifier("home-match-places")
                     NavigationLink { FlashcardReviewView(cards: learned.flatMap(\.reviewCards)) } label: {

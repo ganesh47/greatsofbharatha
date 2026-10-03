@@ -38,6 +38,55 @@ private struct TVCardButtonBody: View {
     }
 }
 
+/// Matching cards retain their teaching text after they stop accepting input.
+struct TVMatchCardButtonStyle: ButtonStyle {
+    let chosen: Bool
+    let matched: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        TVMatchCardButtonBody(configuration: configuration, chosen: chosen, matched: matched)
+    }
+}
+
+private struct TVMatchCardButtonBody: View {
+    @Environment(\.isFocused) private var focused
+    let configuration: ButtonStyleConfiguration
+    let chosen: Bool
+    let matched: Bool
+
+    var body: some View {
+        configuration.label
+            .padding(.horizontal, 18).padding(.vertical, 12)
+            .frame(minHeight: 76)
+            .foregroundStyle(focused ? TVTheme.ink : TVTheme.paper)
+            .background(focused ? TVTheme.paper : (chosen ? Color(red: 0.14, green: 0.29, blue: 0.31) : TVTheme.panel),
+                        in: RoundedRectangle(cornerRadius: 18))
+            .overlay(RoundedRectangle(cornerRadius: 18)
+                .stroke(focused ? TVTheme.gold : (chosen ? Color(red: 0.49, green: 0.83, blue: 0.80) : .white.opacity(matched ? 0.30 : 0.16)),
+                        lineWidth: focused ? 5 : (chosen ? 3 : 1)))
+            .opacity(configuration.isPressed ? 0.88 : 1)
+    }
+}
+
+struct TVFireflyCharacter: View {
+    let glowing: Bool
+
+    var body: some View {
+        ZStack {
+            Circle().fill(TVTheme.gold.opacity(glowing ? 0.22 : 0.08)).frame(width: 94, height: 94)
+            Ellipse().fill(.white.opacity(0.75)).frame(width: 38, height: 22).rotationEffect(.degrees(-30)).offset(x: -23, y: -5)
+            Ellipse().fill(.white.opacity(0.75)).frame(width: 38, height: 22).rotationEffect(.degrees(30)).offset(x: 23, y: -5)
+            Capsule().fill(TVTheme.gold).frame(width: 40, height: 64)
+            HStack(spacing: 9) {
+                Circle().fill(TVTheme.ink).frame(width: 5, height: 7)
+                Circle().fill(TVTheme.ink).frame(width: 5, height: 7)
+            }.offset(y: -14)
+            Capsule().fill(TVTheme.ink).frame(width: 12, height: 3).offset(y: -1)
+        }
+        .accessibilityHidden(true)
+    }
+}
+
 struct TVScreen<Content: View>: View {
     @ViewBuilder var content: Content
     var body: some View {
@@ -57,17 +106,7 @@ struct TVFireflyGuide: View {
 
     var body: some View {
         HStack(spacing: 24) {
-            ZStack {
-                Circle().fill(TVTheme.gold.opacity(glowing ? 0.22 : 0.08)).frame(width: 94, height: 94)
-                Ellipse().fill(.white.opacity(0.75)).frame(width: 38, height: 22).rotationEffect(.degrees(-30)).offset(x: -23, y: -5)
-                Ellipse().fill(.white.opacity(0.75)).frame(width: 38, height: 22).rotationEffect(.degrees(30)).offset(x: 23, y: -5)
-                Capsule().fill(TVTheme.gold).frame(width: 40, height: 64)
-                HStack(spacing: 9) {
-                    Circle().fill(TVTheme.ink).frame(width: 5, height: 7)
-                    Circle().fill(TVTheme.ink).frame(width: 5, height: 7)
-                }.offset(y: -14)
-                Capsule().fill(TVTheme.ink).frame(width: 12, height: 3).offset(y: -1)
-            }.accessibilityHidden(true)
+            TVFireflyCharacter(glowing: glowing)
             Text(message).font(.system(size: 29, design: .rounded)).fixedSize(horizontal: false, vertical: true)
         }
         .padding(18)

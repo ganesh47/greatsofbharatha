@@ -10,6 +10,22 @@ final class LearningJourneyUITests: XCTestCase {
         app = XCUIApplication()
         app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.\(UUID().uuidString)"
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
+        app.launchEnvironment["GOB_NAV_TRACE"] = "1"
+        addTeardownBlock { @MainActor [weak self] () async throws -> Void in
+            self?.captureNavigationTrace()
+        }
+    }
+
+    private func captureNavigationTrace() {
+        if let app {
+            let probe = app.descendants(matching: .any)["gob-nav-trace"].firstMatch
+            let text = probe.exists ? (probe.value as? String ?? "trace-value-missing") : "trace-probe-missing\n" + app.debugDescription
+            let attachment = XCTAttachment(string: text)
+            attachment.name = "synthetic-navigation-trace"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            print("GOB_NAV_TRACE\n" + text)
+        }
     }
 
     private func launch(largeText: Bool = false, pilot: Bool = false) {
@@ -116,10 +132,171 @@ final class LearningJourneyUITests: XCTestCase {
         tap("match-tile-match-shivneri-birth-fort-right")
         XCTAssertTrue(app.staticTexts["All pairs matched. Your Chronicle remembers this activity."].exists)
         capture("10-connected-matching")
+        tap("matching-done")
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["matching-done"].exists, "Done must leave the nested quiz and matching destinations")
         app.terminate()
         app.launch()
         XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Torna"))
+    }
+
+    func testResumedMatchingBackReturnsToSceneWithoutPushingAgain() {
+        launch(pilot: true)
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-shivneri")
+        tap("Play a matching game")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        app.terminate()
+        app.launch()
+        tap("pilot-home-continue")
+        let selected = app.buttons["match-tile-match-shivneri-birth-fort-left"]
+        XCTAssertTrue(selected.waitForExistence(timeout: 10))
+        XCTAssertEqual(selected.value as? String, "Selected")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["pilot-quiz-me"].waitForExistence(timeout: 10))
+        XCTAssertFalse(selected.exists, "Back must remain on the scene instead of automatically resuming again")
+        capture("matching-resume-back-to-scene")
+    }
+
+    func testStoryMatchingDonePreservesStoryRoutes() {
+        configureApplication()
+        app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = "1"
+        app.launch()
+        app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
+        let matching = app.buttons["home-match-places"]
+        let scroll = app.scrollViews["home-story-scroll"]
+        for _ in 0..<8 {
+            if matching.exists && matching.isHittable { break }
+            scroll.swipeUp()
+        }
+        tap("home-match-places")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        tap("match-tile-match-shivneri-birth-fort-right")
+        tap("matching-done")
+        XCTAssertTrue(scroll.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["matching-done"].exists)
+        for _ in 0..<8 {
+            if app.buttons["home-primary-lesson"].isHittable { break }
+            scroll.swipeDown()
+        }
+        tap("home-primary-lesson")
+        XCTAssertTrue(app.buttons["story-move-to-place-clues-button"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["pilot-quiz-me"].exists)
+        capture("story-route-after-legacy-matching-done")
+    }
+
+    func testMatchingSwitchRetrySelectionAndDoneSurviveRelaunch() {
+        launch(pilot: true)
+        openSecondMatchingAdventure()
+        XCTAssertTrue(app.otherElements["matching-board-horizontal"].exists)
+        capture("matching-initial-two-panels")
+        let torna = "match-tile-match-torna-first-big-fort-left"
+        let rajgad = "match-tile-match-rajgad-early-capital-left"
+        tap(torna)
+        XCTAssertEqual(app.buttons[torna].value as? String, "Selected")
+        capture("matching-selected")
+        tap(rajgad)
+        XCTAssertEqual(app.buttons[torna].value as? String, "Available")
+        XCTAssertEqual(app.buttons[rajgad].value as? String, "Selected")
+        XCTAssertFalse(app.descendants(matching: .any)["matching-feedback"].firstMatch.label.contains("Try another partner"),
+                       "Switching in one panel must not produce retry feedback")
+        tap("match-tile-match-torna-first-big-fort-right")
+        XCTAssertEqual(app.buttons[rajgad].value as? String, "Selected", "A wrong partner keeps the child's chosen source")
+        XCTAssertEqual(app.buttons["match-tile-match-torna-first-big-fort-right"].value as? String, "Available")
+        capture("matching-gentle-mismatch")
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Torna"), "Resume the partial matching adventure")
+        tap("pilot-home-continue")
+        XCTAssertTrue(app.buttons[rajgad].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.buttons[rajgad].value as? String, "Selected")
+        tap("matching-cancel-selection")
+        XCTAssertEqual(app.buttons[rajgad].value as? String, "Available")
+        tap(torna)
+        tap("match-tile-match-torna-first-big-fort-right")
+        tap(rajgad)
+        tap("match-tile-match-rajgad-early-capital-right")
+        XCTAssertEqual(app.buttons[torna].value as? String, "Matched")
+        XCTAssertEqual(app.buttons[rajgad].value as? String, "Matched")
+        XCTAssertTrue(app.descendants(matching: .any)["matching-recap-match-torna-first-big-fort"].firstMatch.exists)
+        XCTAssertTrue(app.descendants(matching: .any)["matching-recap-match-rajgad-early-capital"].firstMatch.exists)
+        capture("matching-completed-associations")
+        tap("matching-done")
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Pratapgad"))
+        XCTAssertFalse(app.buttons["matching-done"].exists)
+    }
+
+    func testLargeTextMatchingUsesStackedPanelsAndReachableCompletion() {
+        launch(largeText: true, pilot: true)
+        openSecondMatchingAdventure()
+        XCTAssertTrue(app.otherElements["matching-board-stacked"].exists)
+        XCTAssertFalse(app.otherElements["matching-board-horizontal"].exists)
+        tap("listen-matching-instructions")
+        XCTAssertTrue(app.buttons["stop-matching-instructions"].isEnabled)
+        tap("stop-matching-instructions")
+        capture("matching-accessibility-text-stacked")
+        tap("match-tile-match-torna-first-big-fort-left")
+        tap("match-tile-match-torna-first-big-fort-right")
+        tap("match-tile-match-rajgad-early-capital-left")
+        tap("match-tile-match-rajgad-early-capital-right")
+        XCTAssertTrue(app.buttons["matching-done"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["matching-done"].isHittable, "Completion must clear the real tab bar safe area")
+        capture("matching-accessibility-text-completed")
+        tap("matching-done")
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+    }
+
+    func testMatchingMotionAndNarrationFollowParentSettings() {
+        launch(pilot: true)
+        app.buttons["Album"].firstMatch.tap()
+        openParentSettings()
+        let narration = app.switches["parent-narration-toggle"]
+        for _ in 0..<8 {
+            if narration.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertEqual(narration.value as? String, "1")
+        narration.tap()
+        XCTAssertEqual(narration.value as? String, "0")
+        let calm = app.switches["parent-calm-toggle"]
+        XCTAssertTrue(calm.waitForExistence(timeout: 10))
+        XCTAssertEqual(calm.value as? String, "1")
+        calm.tap()
+        XCTAssertEqual(calm.value as? String, "0")
+        tap("Done")
+        app.buttons["Learn"].firstMatch.tap()
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-shivneri")
+        tap("Play a matching game")
+        XCTAssertFalse(app.buttons["listen-matching-instructions"].exists)
+        XCTAssertTrue(app.staticTexts["Read-aloud is off in parent settings."].firstMatch.exists)
+        tap("match-tile-match-shivneri-birth-fort-left")
+        tap("match-tile-match-shivneri-birth-fort-right")
+        XCTAssertTrue(app.descendants(matching: .any)["matching-recap-match-shivneri-birth-fort"].firstMatch.exists)
+        capture("matching-motion-enabled-narration-off-recap")
+        tap("matching-done")
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["pilot-home-continue"].label.contains("Torna"))
+    }
+
+    private func openSecondMatchingAdventure() {
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-shivneri")
+        tap("Play a matching game")
+        tap("match-tile-match-shivneri-birth-fort-left")
+        tap("match-tile-match-shivneri-birth-fort-right")
+        tap("matching-done")
+        XCTAssertTrue(app.buttons["pilot-home-continue"].waitForExistence(timeout: 10))
+        tap("pilot-home-continue")
+        tap("pilot-quiz-me")
+        tap("pilot-choice-rajgad")
+        tap("Play a matching game")
     }
 
     func testLandscapeJourneyCanReachQuiz() {

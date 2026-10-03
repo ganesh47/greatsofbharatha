@@ -123,7 +123,8 @@ final class StateReliabilityTests: XCTestCase {
             checkpoint.matchedPairIDs = ["match-shivneri-birth-fort"]
             checkpoint.selectedTileID = "tv-match-jijabai-guidance-left"
             let point = LessonResumePoint(sceneID: sceneID, phase: .recall, sessionID: sessionID,
-                completedMatchPairIDs: checkpoint.matchedPairIDs, matchEventID: matchID,
+                selectedMatchTileID: "match-shivneri-birth-fort-right",
+                matchEventID: matchID,
                 preferredActivity: .match, tvCheckpoint: checkpoint, updatedAt: now)
             store.saveResumePoint(point)
             XCTAssertTrue(store.recordLearningOutcome(subjectID: sceneID, activity: .match,
@@ -153,6 +154,78 @@ final class StateReliabilityTests: XCTestCase {
                                     sessionID: UUID(), at: now.addingTimeInterval(60))
         XCTAssertEqual(store.mastery(for: sceneID), .remembered)
         XCTAssertEqual(store.chronicleProgress(for: entry).detailLevel, .rememberedAgain)
+    }
+
+    func testMatchingSourceAndAssistanceSurviveRelaunchWithoutPrematureEvidence() throws {
+        let scene = LearnQuizPilotData.scenes[1]
+        let pairs = scene.matchPairs
+        let first = pairs[0]
+        let second = pairs[1]
+        for policy in [LessonPersistencePolicy.standard, .compactTV] {
+            defaults.removePersistentDomain(forName: suiteName)
+            var store = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            var point = LessonResumePoint(sceneID: scene.id, phase: .recall, preferredActivity: .match, updatedAt: now)
+            var state = ChronicleMatchEngine.select(tileID: first.rightID, state: ChronicleMatchState(), pairs: pairs)
+            state = ChronicleMatchEngine.select(tileID: second.leftID, state: state, pairs: pairs)
+            point.selectedMatchTileID = state.selectedTileID
+            point.matchMismatchCount = state.mismatchCount
+            store.saveResumePoint(point)
+
+            store = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            point = try XCTUnwrap(store.resumePoint(for: scene.id))
+            XCTAssertEqual(point.selectedMatchTileID, first.rightID)
+            XCTAssertEqual(point.matchMismatchCount, 1)
+            XCTAssertTrue(store.masteryRecord(for: scene.id)?.evidenceLog.isEmpty ?? true)
+            XCTAssertEqual(store.masteryRecord(for: scene.id)?.successfulReviewCount ?? 0, 0)
+            state = ChronicleMatchState(selectedTileID: point.selectedMatchTileID,
+                completedPairIDs: point.completedMatchPairIDs, mismatchCount: point.matchMismatchCount)
+            state = ChronicleMatchEngine.select(tileID: first.leftID, state: state, pairs: pairs)
+            point.selectedMatchTileID = state.selectedTileID
+            point.completedMatchPairIDs = state.completedPairIDs
+            store.saveResumePoint(point)
+
+            store = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            let partial = try XCTUnwrap(store.resumePoint(for: scene.id))
+            XCTAssertNil(partial.selectedMatchTileID)
+            XCTAssertEqual(partial.completedMatchPairIDs, [first.id])
+            XCTAssertEqual(partial.matchEventID, point.matchEventID)
+            XCTAssertEqual(partial.sessionID, point.sessionID)
+            XCTAssertTrue(store.masteryRecord(for: scene.id)?.evidenceLog.isEmpty ?? true)
+            state = ChronicleMatchState(completedPairIDs: partial.completedMatchPairIDs, mismatchCount: partial.matchMismatchCount)
+            state = ChronicleMatchEngine.select(tileID: second.rightID, state: state, pairs: pairs)
+            state = ChronicleMatchEngine.select(tileID: second.leftID, state: state, pairs: pairs)
+            XCTAssertEqual(state.completedPairIDs, Set(pairs.map(\.id)))
+            XCTAssertTrue(store.recordLearningOutcome(subjectID: scene.id, activity: .match, wasSuccessful: true, support: .hinted,
+                eventID: partial.matchEventID, sessionID: partial.sessionID, at: now))
+
+            // An interrupted screen can recover durable completion with the same event ID.
+            store = ShivajiLessonStore(defaults: defaults, persistencePolicy: policy)
+            let schedule = store.reviewSchedule(for: scene.id)
+            XCTAssertFalse(store.recordLearningOutcome(subjectID: scene.id, activity: .match, wasSuccessful: true, support: .hinted,
+                eventID: partial.matchEventID, sessionID: partial.sessionID, at: now.addingTimeInterval(5)))
+            XCTAssertEqual(store.reviewSchedule(for: scene.id), schedule)
+            let evidence = try XCTUnwrap(store.masteryRecord(for: scene.id)).evidenceLog.filter { $0.type == .matchSuccess }
+            XCTAssertEqual(evidence.count, 1)
+            XCTAssertEqual(evidence.first?.support, .hinted)
+            XCTAssertEqual(evidence.first?.eventID, partial.matchEventID)
+        }
+    }
+
+    func testCompactTVBoundsMatchingSourceWhilePreservingCompletionIdentity() throws {
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let point = LessonResumePoint(sceneID: sceneID, selectedMatchTileID: String(repeating: "a", count: 300_000),
+            preferredActivity: .match, tvCheckpoint: TVActivityCheckpoint(stage: .puzzle), updatedAt: now)
+        store.saveResumePoint(point)
+        let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let saved = try XCTUnwrap(restored.resumePoint(for: sceneID))
+
+        XCTAssertEqual(saved.selectedMatchTileID?.count, 160)
+        XCTAssertEqual(saved.matchEventID, point.matchEventID)
+        XCTAssertEqual(saved.sessionID, point.sessionID)
+        XCTAssertEqual(saved.tvCheckpoint, point.tvCheckpoint)
+        XCTAssertTrue(restored.persistenceDiagnostics.isWithinBudget)
+        XCTAssertLessThanOrEqual(restored.persistenceDiagnostics.appOwnedDefaultsBytes, 256 * 1024)
+        XCTAssertTrue(restored.masteryRecord(for: sceneID)?.evidenceLog.isEmpty ?? true)
     }
 
     func testHintedAndRescuedOutcomesUseTheirOwnScheduleWithoutFakingPlaceKnowledge() throws {
@@ -254,6 +327,7 @@ final class StateReliabilityTests: XCTestCase {
         XCTAssertFalse(point.recallCompleted)
         XCTAssertEqual(point.phase, .recall)
         XCTAssertEqual(point.completedMatchPairIDs, [])
+        XCTAssertNil(point.selectedMatchTileID)
         XCTAssertEqual(point.matchMismatchCount, 0)
     }
 

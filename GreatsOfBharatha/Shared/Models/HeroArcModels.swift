@@ -335,6 +335,7 @@ struct LessonResumePoint: Codable, Equatable {
     var recognitionRescueUnlocked: Bool = false
     var recallCompleted: Bool = false
     var completedMatchPairIDs: Set<String> = []
+    var selectedMatchTileID: String?
     var matchMismatchCount: Int = 0
     var recallEventID: UUID = UUID()
     var matchEventID: UUID = UUID()
@@ -347,7 +348,7 @@ struct LessonResumePoint: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case sceneID, phase, sessionID, storyCardIndex, revealedHintLevel, recognitionRescueUnlocked
-        case recallCompleted, completedMatchPairIDs, matchMismatchCount, recallEventID, matchEventID, preferredActivity
+        case recallCompleted, completedMatchPairIDs, selectedMatchTileID, matchMismatchCount, recallEventID, matchEventID, preferredActivity
         case discoveredDetailIDs, solvedPlaceIDs, helpedPlaceIDs, tvCheckpoint, updatedAt
     }
 
@@ -355,7 +356,8 @@ struct LessonResumePoint: Codable, Equatable {
     // swiftlint:disable:next function_parameter_count
     init(sceneID: String, phase: LessonResumePhase = .story, sessionID: UUID = UUID(), storyCardIndex: Int = 0,
          revealedHintLevel: Int = 0, recognitionRescueUnlocked: Bool = false, recallCompleted: Bool = false,
-         completedMatchPairIDs: Set<String> = [], matchMismatchCount: Int = 0, recallEventID: UUID = UUID(),
+         completedMatchPairIDs: Set<String> = [], selectedMatchTileID: String? = nil,
+         matchMismatchCount: Int = 0, recallEventID: UUID = UUID(),
          matchEventID: UUID = UUID(), preferredActivity: LearningActivityKind? = nil,
          discoveredDetailIDs: Set<String> = [], solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [],
          tvCheckpoint: TVActivityCheckpoint? = nil, updatedAt: Date = Date()) {
@@ -367,6 +369,7 @@ struct LessonResumePoint: Codable, Equatable {
         self.recognitionRescueUnlocked = recognitionRescueUnlocked
         self.recallCompleted = recallCompleted
         self.completedMatchPairIDs = completedMatchPairIDs
+        self.selectedMatchTileID = selectedMatchTileID
         self.matchMismatchCount = max(matchMismatchCount, 0)
         self.recallEventID = recallEventID
         self.matchEventID = matchEventID
@@ -388,6 +391,7 @@ struct LessonResumePoint: Codable, Equatable {
         recognitionRescueUnlocked = try values.decodeIfPresent(Bool.self, forKey: .recognitionRescueUnlocked) ?? false
         recallCompleted = try values.decodeIfPresent(Bool.self, forKey: .recallCompleted) ?? false
         completedMatchPairIDs = try values.decodeIfPresent(Set<String>.self, forKey: .completedMatchPairIDs) ?? []
+        selectedMatchTileID = try values.decodeIfPresent(String.self, forKey: .selectedMatchTileID)
         matchMismatchCount = max(try values.decodeIfPresent(Int.self, forKey: .matchMismatchCount) ?? 0, 0)
         recallEventID = try values.decodeIfPresent(UUID.self, forKey: .recallEventID) ?? UUID()
         matchEventID = try values.decodeIfPresent(UUID.self, forKey: .matchEventID) ?? UUID()
