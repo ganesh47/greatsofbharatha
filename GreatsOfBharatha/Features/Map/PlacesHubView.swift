@@ -264,13 +264,18 @@ struct PlaceDetailView: View {
         .navigationTitle("")
 #endif
         .onAppear {
-            if let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id,
-               let point = appModel.lessonStore.resumePoint(for: sceneID) {
-                solvedPlaceIDs = point.solvedPlaceIDs
-                helpedPlaceIDs = point.helpedPlaceIDs
-                sessionID = point.sessionID
-            }
+            guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
+            var point = appModel.lessonStore.resumePoint(for: sceneID)
+                ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
+            solvedPlaceIDs = point.solvedPlaceIDs
+            helpedPlaceIDs = point.helpedPlaceIDs
+            sessionID = point.sessionID
+            let candidates = Set(LearningAtlasContent.candidates(for: place, places: allStoryPlaces).map(\.id))
+            selectedPlaceID = point.selectedPlaceChoiceIDs[place.id].flatMap { candidates.contains($0) ? $0 : nil }
+            point.selectedPlaceChoiceIDs[place.id] = selectedPlaceID
+            appModel.lessonStore.saveResumePoint(point)
         }
+        .onChange(of: selectedPlaceID) { _, _ in savePlaceCheckpoint() }
         .onChange(of: helpedPlaceIDs) { _, _ in savePlaceCheckpoint() }
         .onChange(of: solvedPlaceIDs) { _, _ in savePlaceCheckpoint() }
 #if os(iOS)
@@ -286,6 +291,7 @@ struct PlaceDetailView: View {
     private func savePlaceCheckpoint() {
         guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
         var point = appModel.lessonStore.resumePoint(for: sceneID) ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
+        point.selectedPlaceChoiceIDs[place.id] = selectedPlaceID
         point.solvedPlaceIDs.formUnion(solvedPlaceIDs)
         point.helpedPlaceIDs.formUnion(helpedPlaceIDs)
         point.updatedAt = Date()

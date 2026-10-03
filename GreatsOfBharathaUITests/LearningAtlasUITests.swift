@@ -27,7 +27,8 @@ final class LearningAtlasUITests: XCTestCase {
             if let targetFrame, frames.isVisible(targetFrame, isButton: isButton), element.isHittable {
                 return
             }
-            guard attempt < 64, !viewport.isNull else { break }
+            guard attempt < 64 else { break }
+            guard !viewport.isNull else { continue }
             let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
             let distance = frames.dragDistance(to: targetFrame, isButton: isButton)
             let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
@@ -159,6 +160,25 @@ final class LearningAtlasUITests: XCTestCase {
             capture("atlas-all-places-" + region)
             app.terminate()
         }
+    }
+
+    func testStandaloneMapActivityRestoresUncheckedChoiceAfterRelaunch() {
+        launch()
+        tap("map-pin-place-shivneri")
+        tap("atlas-open-selected-place")
+        tap("fort-choice-place-torna")
+        XCTAssertEqual(app.buttons["fort-choice-place-torna"].value as? String, "Chosen")
+        XCTAssertFalse(app.staticTexts["fort-found-place-shivneri"].exists)
+        app.terminate()
+        app.launch()
+        tap("map-pin-place-shivneri")
+        tap("atlas-open-selected-place")
+        XCTAssertEqual(app.buttons["fort-choice-place-torna"].value as? String, "Chosen")
+        XCTAssertFalse(app.staticTexts["fort-found-place-shivneri"].exists)
+        tap("fort-check-button")
+        XCTAssertTrue(app.staticTexts["fort-feedback"].label.contains("Let's look again"))
+        XCTAssertFalse(app.staticTexts["fort-found-place-shivneri"].exists)
+        capture("atlas-standalone-unchecked-choice-relaunch")
     }
 
     func testPictureChoiceRequiresConfirmationAndResumesSolvedPlace() {
