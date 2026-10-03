@@ -4,12 +4,15 @@ import XCTest
 final class LearningAtlasUITests: XCTestCase {
     private var app: XCUIApplication!
 
-    private func launch(route: String? = "places-hub", largeText: Bool = false) {
+    private func launch(route: String? = "places-hub", largeText: Bool = false, seedThroughChapter: Int? = nil) {
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
         app = XCUIApplication()
         if let route { app.launchEnvironment["GOB_CAPTURE_ROUTE"] = route }
-        app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.atlas.ui.\(UUID().uuidString)"
+        app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.enrichment.atlas.\(UUID().uuidString)"
+        if let seedThroughChapter {
+            app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = String(seedThroughChapter)
+        }
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
         app.launchEnvironment["GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED"] = "0"
         app.launchArguments = ["-UIPreferredContentSizeCategoryName", largeText ? "UICTContentSizeCategoryAccessibilityXXXL" : "UICTContentSizeCategoryL"]
@@ -89,6 +92,19 @@ final class LearningAtlasUITests: XCTestCase {
         button.tap()
     }
 
+    private func tapTab(_ title: String) {
+        let tab = app.buttons[title].firstMatch
+        XCTAssertTrue(tab.waitForExistence(timeout: 10), title)
+        XCTAssertTrue(tab.isEnabled && tab.isHittable, title)
+        tab.tap()
+    }
+
+    private func goBack() {
+        let back = app.navigationBars.buttons.firstMatch
+        XCTAssertTrue(back.waitForExistence(timeout: 5))
+        back.tap()
+    }
+
     private func capture(_ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = name
@@ -163,7 +179,8 @@ final class LearningAtlasUITests: XCTestCase {
     }
 
     func testStandaloneMapActivityRestoresUncheckedChoiceAfterRelaunch() {
-        launch()
+        launch(route: nil)
+        tapTab("Map")
         tap("map-pin-place-shivneri")
         tap("atlas-open-selected-place")
         tap("fort-choice-place-torna")
@@ -171,6 +188,7 @@ final class LearningAtlasUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["fort-found-place-shivneri"].exists)
         app.terminate()
         app.launch()
+        tapTab("Map")
         tap("map-pin-place-shivneri")
         tap("atlas-open-selected-place")
         XCTAssertEqual(app.buttons["fort-choice-place-torna"].value as? String, "Chosen")
@@ -179,6 +197,52 @@ final class LearningAtlasUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["fort-feedback"].label.contains("Let's look again"))
         XCTAssertFalse(app.staticTexts["fort-found-place-shivneri"].exists)
         capture("atlas-standalone-unchecked-choice-relaunch")
+    }
+
+    func testFreshMapBrowseAndChoiceKeepStoryAtItsFirstStep() {
+        launch(route: nil)
+        let primary = app.buttons["home-primary-lesson"]
+        XCTAssertTrue(primary.waitForExistence(timeout: 10))
+        let initialTitle = primary.label
+        tapTab("Map")
+        tap("map-pin-place-shivneri")
+        tap("atlas-open-selected-place")
+        tap("fort-choice-place-torna")
+        goBack()
+        tapTab("Story")
+        XCTAssertEqual(primary.label, initialTitle)
+        tap("home-primary-lesson")
+        XCTAssertEqual(app.staticTexts["scene-phase-progress"].label, "Step 1 of 4: Discover the story")
+        XCTAssertTrue(app.buttons["story-discovery-hill"].exists)
+        capture("atlas-fresh-map-keeps-story-step-one")
+    }
+
+    func testEarlierMapActivityPreservesLaterStoryContinuationAcrossRelaunch() {
+        launch(route: nil, seedThroughChapter: 1)
+        tap("home-primary-lesson")
+        tap("story-move-to-place-clues-button")
+        XCTAssertEqual(app.staticTexts["scene-phase-progress"].label, "Step 2 of 4: Fort detective")
+        goBack()
+        let primary = app.buttons["home-primary-lesson"]
+        let continuationTitle = primary.label
+        XCTAssertTrue(continuationTitle.contains("Torna"))
+        tapTab("Map")
+        tap("map-pin-place-shivneri")
+        tap("atlas-open-selected-place")
+        tap("fort-choice-place-shivneri")
+        tap("fort-check-button")
+        XCTAssertTrue(app.staticTexts["fort-found-place-shivneri"].exists)
+        goBack()
+        tapTab("Story")
+        XCTAssertEqual(primary.label, continuationTitle)
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(primary.waitForExistence(timeout: 10))
+        XCTAssertEqual(primary.label, continuationTitle)
+        tap("home-primary-lesson")
+        XCTAssertEqual(app.staticTexts["scene-phase-progress"].label, "Step 2 of 4: Fort detective")
+        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "fort-challenge-place-torna").firstMatch.exists)
+        capture("atlas-earlier-map-keeps-later-story-continuation")
     }
 
     func testPictureChoiceRequiresConfirmationAndResumesSolvedPlace() {

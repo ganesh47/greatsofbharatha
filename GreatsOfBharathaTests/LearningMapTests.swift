@@ -149,6 +149,79 @@ final class LearningMapTests: XCTestCase {
         XCTAssertNotEqual(first, LearningMapEvidenceIdentity.eventID(placeID: "place-shivneri", sessionID: UUID()))
     }
 
+    func testStandaloneMapChoiceRestoresWithoutCreatingStoryContinuationOrEvidence() throws {
+        let suite = "gob.map.fresh." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        var point = try XCTUnwrap(store.mapPlaceCheckpoint(for: "place-shivneri"))
+        XCTAssertNil(store.latestResumePoint)
+        point.selectedPlaceID = "place-torna"
+        point.usedHelp = true
+        XCTAssertTrue(store.saveMapPlaceCheckpoint(point, for: "place-shivneri"))
+        XCTAssertNil(store.latestResumePoint)
+        XCTAssertNil(store.masteryRecord(for: "place-shivneri"))
+        let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        XCTAssertEqual(restored.mapPlaceCheckpoint(for: "place-shivneri"), point)
+        XCTAssertNil(restored.latestResumePoint)
+        XCTAssertNil(restored.mapPlaceCheckpoint(for: "unknown-place"))
+        point.selectedPlaceID = "town-pune"
+        XCTAssertFalse(restored.saveMapPlaceCheckpoint(point, for: "place-shivneri"))
+        XCTAssertEqual(restored.mapPlaceCheckpoint(for: "place-shivneri")?.selectedPlaceID, "place-torna")
+    }
+
+    func testEarlierCompletedMapActivityPreservesLaterChapterSessionPhaseAndTimestamp() throws {
+        let suite = "gob.map.continuation." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let earlierID = "scene-1-shivneri"
+        store.recordLearningOutcome(subjectID: earlierID, activity: .recall, wasSuccessful: true, sessionID: UUID())
+        store.saveResumePoint(LessonResumePoint(sceneID: earlierID, phase: .reward))
+        store.clearResumePoint(for: earlierID)
+        let later = LessonResumePoint(sceneID: "scene-2-torna-rajgad", phase: .recall,
+            selectedPlaceChoiceIDs: ["place-torna": "place-torna"], updatedAt: Date(timeIntervalSince1970: 100))
+        store.saveResumePoint(later)
+        var point = try XCTUnwrap(store.mapPlaceCheckpoint(for: "place-shivneri"))
+        point.selectedPlaceID = "place-shivneri"
+        point.usedHelp = true
+        XCTAssertTrue(store.saveMapPlaceCheckpoint(point, for: "place-shivneri"))
+        let eventID = LearningMapEvidenceIdentity.eventID(placeID: "place-shivneri", sessionID: point.sessionID)
+        XCTAssertTrue(store.recordLearningOutcome(subjectID: "place-shivneri", subjectType: .location,
+            activity: .recall, wasSuccessful: true, support: .hinted, eventID: eventID, sessionID: point.sessionID))
+        XCTAssertTrue(store.confirmOptionalLearningEvent(eventID, for: .atlas))
+        point.wasSolved = true
+        point.selectedPlaceID = nil
+        XCTAssertTrue(store.saveMapPlaceCheckpoint(point, for: "place-shivneri"))
+        let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        XCTAssertNil(restored.resumePoint(for: earlierID))
+        XCTAssertEqual(restored.latestResumePoint, later)
+        XCTAssertEqual(restored.mapPlaceCheckpoint(for: "place-shivneri"), point)
+        XCTAssertEqual(restored.mastery(for: earlierID), .understood)
+        XCTAssertEqual(restored.masteryRecord(for: "place-shivneri")?.evidenceLog.last?.support, .hinted)
+        XCTAssertTrue(restored.persistenceDiagnostics.isWithinBudget)
+    }
+
+    func testStandaloneMapReceiptSurvivesCompactHistoryRotation() throws {
+        let suite = "gob.map.receipt." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        var point = try XCTUnwrap(store.mapPlaceCheckpoint(for: "place-shivneri"))
+        point.selectedPlaceID = "place-shivneri"
+        XCTAssertTrue(store.saveMapPlaceCheckpoint(point, for: "place-shivneri"))
+        let eventID = LearningMapEvidenceIdentity.eventID(placeID: "place-shivneri", sessionID: point.sessionID)
+        XCTAssertTrue(store.recordLearningOutcome(subjectID: "place-shivneri", subjectType: .location,
+            activity: .recall, wasSuccessful: true, support: .hinted, eventID: eventID, sessionID: point.sessionID))
+        XCTAssertTrue(store.confirmOptionalLearningEvent(eventID, for: .atlas))
+        for _ in 0..<270 { store.recordStoryExposure(for: "scene-1-shivneri") }
+        let restored = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        XCTAssertTrue(restored.hasRecordedLearningEvent(eventID))
+        XCTAssertFalse(restored.recordLearningOutcome(subjectID: "place-shivneri", subjectType: .location,
+            activity: .recall, wasSuccessful: true, support: .hinted, eventID: eventID, sessionID: point.sessionID))
+        XCTAssertNil(restored.latestResumePoint)
+    }
+
     private func sphericalDistance(_ first: Coordinate, _ second: Coordinate) -> Double {
         let radians = Double.pi / 180
         let haversine = pow(sin((second.latitude - first.latitude) * radians / 2), 2)
