@@ -277,7 +277,9 @@ final class TVLearningJourneyUITests: XCTestCase {
     func testRemotePlayPauseControlsNarration() {
         launch()
         select("tv-home-continue")
-        select("tv-listen-scene-1-shivneri-story")
+        let captionID = "scene-1-shivneri-story-text-caption-0"
+        XCTAssertTrue(app.staticTexts["tv-knowledge-beat-text-" + captionID].waitForExistence(timeout: 10))
+        select("tv-listen-" + captionID)
         let pause = app.buttons["tv-narration-pause"]
         XCTAssertTrue(pause.waitForExistence(timeout: 10))
         remote.press(.playPause)
