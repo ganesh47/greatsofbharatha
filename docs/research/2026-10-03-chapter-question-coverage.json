@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
-  "status": "Final exact copy approved at 650c841; runtime reachability pending",
+  "status": "Final exact copy approved at 650c841; all 24 questions reached after teaching on iOS Story/Pilot and TV locally; exact-head CI and release pending",
   "questionCounts": {
     "new": 24,
     "numeric": 8,

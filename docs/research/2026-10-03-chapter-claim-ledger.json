@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
-  "status": "Final exact child copy independently approved; runtime platform acceptance pending",
+  "status": "Final exact child copy independently approved; local knowledge runtime acceptance complete; exact-head CI and release pending",
   "authoredUTC": "2026-10-03",
   "evidenceScope": "Source and primary/official reference inspection only. No new simulator captures or app behaviour claims.",
   "sources": [

@@ -1,16 +1,16 @@
 # Chapter content richness: independent claim review
 
-Pinned base: `1a5a2a2b62b1ac818450719ce24df217071880ae`. Status: draft, pending independent review.
+Pinned base: `1a5a2a2b62b1ac818450719ce24df217071880ae`. Status: all 36 narrow claims and final child copy independently approved at exact authored commit `650c841fa91353170a4607b0216fb2374d8bbc0b`.
 
-This is source evidence and proposed learning content. No new development build has been inspected. The previous release remains unchanged. The parent verified the user’s TV photo; the original image was not opened on this Mac.
+This review map preserves the source evidence and approved learning content. The baseline inventory was source-only; current development captures and actual tests are recorded in [integration acceptance](../specs/2026-10-03-chapter-richness-integration-checkpoint.md). The previous release remains unchanged by these local changes. The parent verified the user’s TV photo; the original image was not opened on this Mac.
 
 The source inventory contains six chapters, eighteen TV story slides, thirty canonical catalog cards, eighteen shared discoveries, six active pilot questions, and twenty-nine review cards. The iOS pilot opening is one card plus discoveries, rather than the three TV slides.
 
-The proposal adds thirty-six claim records and twenty-four questions: eight numeric and sixteen nonnumeric. Each question references its taught claims and stable story IDs. Each existing story, memory, and meaning slide receives relevant fact content; split content into short additional cards when it cannot be read comfortably. Existing reflection remains separate from historical assertions.
+The approved catalog adds thirty-six claim records and twenty-four questions: eight numeric and sixteen nonnumeric. Each question references its taught claims and stable story IDs. Each existing story, memory, and meaning slide receives relevant fact content; split content into short additional cards when it cannot be read comfortably. Existing reflection remains separate from historical assertions.
 
 ## Review priorities
 
-- All claims remain pending. Confirm or qualify the current-site gate and machi counts.
+- All current claims were approved at their recorded scope. Keep the attributed current-site gate count and the bounded three named machis; do not expand them into historical totals.
 - Year subtraction compares year labels. It does not establish exact elapsed durations.
 - Chapter 5’s fort offices and farming policy are general Swaraj management context, not reforms dated immediately after the Agra return.
 - Birth-year disagreement and Torna’s exact date remain outside required questions. History, tradition, site features, vocabulary, and reflection must stay distinguishable.
@@ -30,7 +30,7 @@ The two textbook PDFs were read locally and are not included in the repository. 
 
 ## Claim and question map
 
-| Chapter | Claim IDs / proposed teaching | New questions |
+| Chapter | Claim IDs / approved teaching | New questions |
 | --- | --- | --- |
 | 1 | birth-place: Shivaji Maharaj was born at Shivneri Fort.<br>junnar: Shivneri is a hill fort near Junnar in Pune district.<br>parents: Jijabai was Shivaji Maharaj’s mother, and Shahaji was his father.<br>seven-gates: The present-day description of Shivneri identifies seven gates on the way into the fort.<br>water-storage: Shivneri has water-storage features, including cisterns and reservoirs.<br>cistern-meaning: A cistern is a place built to collect or store water; stored water helps people living in a fort. | mother: Who was Shivaji Maharaj’s mother?<br>junnar: Which town is close to Shivneri?<br>gates: How many gates does our present-day Shivneri description name?<br>cistern: What is a cistern built to do? |
 | 2 | torna-name: Torna is also known as Prachandgad.<br>first-capital: Rajgad became the first capital of Swaraj.<br>former-name: The earlier fort name Murumbdeo is associated with the site later named Rajgad.<br>named-machis: Three named machis at Rajgad are Padmavati, Sanjivani, and Suvela; the fort also has a citadel.<br>builders: Stone masons, carpenters, blacksmiths, water carriers, and other workers helped build Rajgad.<br>capital-work: A capital is a centre for government work. Rajgad included spaces for administration and storage as well as defence. | torna-name: Which other name belongs to Torna?<br>machis: How many named machis are in our Rajgad list: Padmavati, Sanjivani, and Suvela?<br>capital: What made Rajgad a capital as well as a fort?<br>masons: Which job best matches a stone mason helping to build a fort? |
