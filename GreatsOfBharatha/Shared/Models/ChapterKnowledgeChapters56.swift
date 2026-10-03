@@ -14,7 +14,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 25; PDF page 35")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-5-rajgad-recovery-fact-recaptured-forts", kind: .historical,
                     statement: "The later recovery campaigns regained several forts, including Purandar and Lohagad.",
@@ -23,7 +23,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 25; PDF page 35")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-5-rajgad-recovery-fact-three-named-offices", kind: .historical,
                     statement: "Three named fort offices were Killedar, Sabnis, and Karkhanis; many other people also worked in forts.",
@@ -32,7 +32,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 31; PDF page 41")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-5-rajgad-recovery-fact-stores-care", kind: .historical,
                     statement: "The Karkhanis looked after foodgrain storage and the upkeep of military supplies.",
@@ -41,7 +41,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 31; PDF page 41")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-5-rajgad-recovery-fact-crop-relief", kind: .historical,
                     statement: "Revenue policy allowed relief when crops were lost through excessive rain or drought.",
@@ -50,7 +50,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed pp. 29–30; PDF pages 39–40")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-5-rajgad-recovery-fact-fort-repair", kind: .historical,
                     statement: "Keeping forts ready included building and repairs, food storage, and maintaining supplies.",
@@ -59,7 +59,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 31; PDF page 41")
                     ],
-                    taughtBeatIDs: ["scene-5-rajgad-recovery-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-5-rajgad-recovery-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(
@@ -178,7 +178,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 59; PDF page 69: year 1674")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-6-raigad-coronation-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-6-raigad-coronation-fact-chhatrapati", kind: .historical,
                     statement: "The coronation formally presented Shivaji Maharaj as Chhatrapati, an independent sovereign ruler.",
@@ -187,7 +187,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 26; PDF page 36")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-6-raigad-coronation-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-6-raigad-coronation-fact-eight-ministers", kind: .historical,
                     statement: "The Ashtapradhan Mandal was a council of eight ministers responsible for different departments.",
@@ -199,7 +199,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 70; PDF page 80")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-6-raigad-coronation-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-6-raigad-coronation-fact-coin-materials", kind: .historical,
                     statement: "Two coin examples associated with the coronation are the gold Hon and the copper Shivrai.",
@@ -208,7 +208,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 26; PDF page 36")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-6-raigad-coronation-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-6-raigad-coronation-fact-capital-features", kind: .siteFeature,
                     statement: "Raigad included a palace, marketplace, rainwater-harvesting systems, and government facilities.",
@@ -217,7 +217,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: Raigad")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-6-raigad-coronation-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-6-raigad-coronation-fact-amatya-accounts", kind: .historical,
                     statement: "The Amatya’s work included keeping the accounts of the state.",
@@ -229,7 +229,7 @@ enum ChapterKnowledgeChapters56 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 70; PDF page 80")
                     ],
-                    taughtBeatIDs: ["scene-6-raigad-coronation-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-6-raigad-coronation-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(

@@ -16,7 +16,11 @@ final class ChapterKnowledgeCatalogTests: XCTestCase {
     }
 
     func testPendingChildCopyCannotStartPracticeOrAwardTeaching() {
-        for definition in ChapterKnowledgeCatalog.definitions {
+        for approved in ChapterKnowledgeCatalog.definitions {
+            let definition = ChapterKnowledgeDefinition(sceneID: approved.sceneID, claims: approved.claims.map {
+                ChapterKnowledgeClaim(id: $0.id, kind: $0.kind, statement: $0.statement, citations: $0.citations,
+                    taughtBeatIDs: $0.taughtBeatIDs, reviewStatus: .pendingIndependentReview)
+            }, beats: approved.beats, questions: approved.questions)
             let archive = ChapterKnowledgeArchive()
             let begun = ChapterKnowledgeJourney.begin(archive, definition: definition, sessionID: UUID(), context: .individualRecognition)
             XCTAssertEqual(begun, archive)
@@ -174,7 +178,7 @@ final class ChapterKnowledgeCatalogTests: XCTestCase {
     }
 
     private func approvedFixture(_ original: ChapterKnowledgeDefinition) -> ChapterKnowledgeDefinition {
-        // A test-only approval lets the real content exercise the engine. Production remains pending.
+        // Construct an explicit approved fixture so status changes can be tested separately from the engine.
         ChapterKnowledgeDefinition(sceneID: original.sceneID, claims: original.claims.map {
             ChapterKnowledgeClaim(id: $0.id, kind: $0.kind, statement: $0.statement, citations: $0.citations,
                                   taughtBeatIDs: $0.taughtBeatIDs, reviewStatus: .approved)

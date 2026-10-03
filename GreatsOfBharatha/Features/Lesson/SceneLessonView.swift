@@ -5,6 +5,7 @@ struct SceneLessonView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let scene: StoryScene
+    var initialKnowledgeEntry: ChapterKnowledgeEntryMode?
     @State private var currentPlaceIndex = 0
     @State private var point: LessonResumePoint?
     @State private var selectedChoiceID: String?
@@ -75,6 +76,9 @@ struct SceneLessonView: View {
             Text(plan.teachingText).gbStory().accessibilityIdentifier("lesson-key-fact")
             GBGlossaryTray(terms: GBGlossaryTerm.matching(scene.childSafeSummary + " " + plan.teachingText))
             LearningNarrationControls(id: scene.id + "-story", text: scene.childSafeSummary + " " + plan.teachingText)
+            if let sessionID = point?.sessionID {
+                ChapterKnowledgeChapterLinks(sceneID: scene.id, sessionID: sessionID, initialEntry: initialKnowledgeEntry)
+            }
             if let discoveryContent { ChapterStoryDiscoveryView(content: discoveryContent) }
             Button("Move to place clues") { advance(.place) }
                 .buttonStyle(.gbPrimary(.story))

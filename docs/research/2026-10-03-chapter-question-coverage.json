@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
-  "status": "Draft question coverage; retain all six legacy questions",
+  "status": "Final exact copy approved at 650c841; runtime reachability pending",
   "questionCounts": {
     "new": 24,
     "numeric": 8,
@@ -40,7 +40,7 @@
         "Recall the mother named in this chapter’s family fact."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -75,7 +75,7 @@
         "Look again at the place name beside Shivneri."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -110,7 +110,7 @@
         "Find the number in the gate fact."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -146,7 +146,7 @@
         "The chapter links cisterns with a daily need."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -181,7 +181,7 @@
         "Read the two names placed together in the story."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -216,7 +216,7 @@
         "Count the names in the list one at a time."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -253,7 +253,7 @@
         "Think about the work of running Swaraj."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -288,7 +288,7 @@
         "The first word in the job name tells you its main material."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -326,7 +326,7 @@
         "Move from 1656 to 1657, then 1658, then 1659."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -361,7 +361,7 @@
         "Compare the two year labels."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -396,7 +396,7 @@
         "Look for the kingdom named with Afzal Khan."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -431,7 +431,7 @@
         "Remember the hills and forest in the place fact."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -466,7 +466,7 @@
         "Read the number attached to this treaty, not to all of Swaraj."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -505,7 +505,7 @@
         "1666 is the next year label after 1665."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -540,7 +540,7 @@
         "The chapter names the son who travelled with him."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -575,7 +575,7 @@
         "Find the river name in the Agra place fact."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -610,7 +610,7 @@
         "Count the three job names, not all the people living in a fort."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -646,7 +646,7 @@
         "Look for the fort’s stores manager in the teaching card."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -681,7 +681,7 @@
         "Recall how the policy responded to failed crops."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -716,7 +716,7 @@
         "Look again at the examples of regained forts."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -751,7 +751,7 @@
         "The chapter gives the council’s number and its jobs together."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -786,7 +786,7 @@
         "Match each named coin to its material in the fact card."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -821,7 +821,7 @@
         "It comes after Purandar, Agra, and the recovery phase on the story timeline."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     },
     {
@@ -856,7 +856,7 @@
         "Look for the job that uses records of money and revenue."
       ],
       "retryFeedback": "Let’s look at the clue and try again.",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
     }
   ],

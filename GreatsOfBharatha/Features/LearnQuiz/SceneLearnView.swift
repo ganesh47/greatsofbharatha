@@ -6,6 +6,7 @@ struct SceneLearnView: View {
     @State private var sessionID = UUID()
     @State private var recordedExposure = false
     let scene: LearnQuizPilotScene
+    var initialKnowledgeEntry: ChapterKnowledgeEntryMode?
 
     var body: some View {
         GBLayoutContextReader { context in
@@ -16,6 +17,8 @@ struct SceneLearnView: View {
                         navigation.openQuiz(sceneID: scene.id, sessionID: sessionID)
                     })
                     LearningNarrationControls(id: scene.id + "-pilot-story", text: scene.story + " " + scene.memoryHook)
+
+                    ChapterKnowledgeChapterLinks(sceneID: scene.id, sessionID: sessionID, initialEntry: initialKnowledgeEntry)
 
                     if let content = ChapterDiscoveryContent.chapter(sceneID: scene.id) {
                         ChapterStoryDiscoveryView(content: content)

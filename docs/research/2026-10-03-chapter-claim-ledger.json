@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
-  "status": "Ledger source wording accepted; final teaching copy and runtime approval pending",
+  "status": "Final exact child copy independently approved; runtime platform acceptance pending",
   "authoredUTC": "2026-10-03",
   "evidenceScope": "Source and primary/official reference inspection only. No new simulator captures or app behaviour claims.",
   "sources": [
@@ -112,7 +112,7 @@
         "scene-1-shivneri-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -132,7 +132,7 @@
         "scene-1-shivneri-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -152,7 +152,7 @@
         "scene-1-shivneri-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Guidance and values are child-friendly interpretation, not a verbatim historical speech."
     },
@@ -172,7 +172,7 @@
         "scene-1-shivneri-memory"
       ],
       "confidence": "medium",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Teach a named feature count, not a claim that every gate survives unchanged from Shivaji’s childhood."
     },
@@ -196,7 +196,7 @@
         "scene-1-shivneri-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -216,7 +216,7 @@
         "scene-1-shivneri-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Plain-language interpretation of a storage feature, not an attributed historical quotation."
     },
@@ -236,7 +236,7 @@
         "scene-2-torna-rajgad-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -260,7 +260,7 @@
         "scene-2-torna-rajgad-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -280,7 +280,7 @@
         "scene-2-torna-rajgad-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Spelling variants Murumbdev and Murumbdeo refer to the same older name."
     },
@@ -300,7 +300,7 @@
         "scene-2-torna-rajgad-memory"
       ],
       "confidence": "medium",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Count the three named machis in this list, not all parts, gates, or workers of the fort."
     },
@@ -320,7 +320,7 @@
         "scene-2-torna-rajgad-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Do not infer an exact number of workers or workshops."
     },
@@ -340,7 +340,7 @@
         "scene-2-torna-rajgad-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Functional explanation; do not imply all administration occurred only inside this fort."
     },
@@ -364,7 +364,7 @@
         "scene-3-pratapgad-turning-point-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -388,7 +388,7 @@
         "scene-3-pratapgad-turning-point-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Avoid graphic details and invented dialogue."
     },
@@ -412,7 +412,7 @@
         "scene-3-pratapgad-turning-point-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "1659 − 1656 = 3 is a year-label calculation, not a claim of exactly three elapsed years between dated events."
     },
@@ -432,7 +432,7 @@
         "scene-3-pratapgad-turning-point-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -456,7 +456,7 @@
         "scene-3-pratapgad-turning-point-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Terrain helps explain the place; do not turn an interpretation into a precise reconstructed battle route."
     },
@@ -476,7 +476,7 @@
         "scene-3-pratapgad-turning-point-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "The daily-life conclusion is an interpretation of the site feature."
     },
@@ -500,7 +500,7 @@
         "scene-4-purandar-agra-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -528,7 +528,7 @@
         "scene-4-purandar-agra-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "This counts the forts in that treaty term, not all forts ever held."
     },
@@ -552,7 +552,7 @@
         "scene-4-purandar-agra-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "No exact basket escape method is assessed."
     },
@@ -572,7 +572,7 @@
         "scene-4-purandar-agra-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -592,7 +592,7 @@
         "scene-4-purandar-agra-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "The modern state label is a geographic orientation, not a seventeenth-century political boundary."
     },
@@ -612,7 +612,7 @@
         "scene-4-purandar-agra-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "This is not an exact elapsed duration between events."
     },
@@ -632,7 +632,7 @@
         "scene-5-rajgad-recovery-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -652,7 +652,7 @@
         "scene-5-rajgad-recovery-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Do not attach one unsupported year or fixed total to the whole recovery phase."
     },
@@ -672,7 +672,7 @@
         "scene-5-rajgad-recovery-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Count these three named offices, not the entire fort workforce. This is general Swaraj management, not a claim of new offices created immediately after Agra."
     },
@@ -692,7 +692,7 @@
         "scene-5-rajgad-recovery-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Use a plain-language stores-manager gloss; avoid invented supply quantities."
     },
@@ -712,7 +712,7 @@
         "scene-5-rajgad-recovery-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "General policy context, not a guarantee that every historical official always followed it."
     },
@@ -732,7 +732,7 @@
         "scene-5-rajgad-recovery-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Explain recovery as care and organisation as well as fighting; avoid invented post-Agra dates."
     },
@@ -756,7 +756,7 @@
         "scene-6-raigad-coronation-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Assessment may ask the stable year; the full date is enrichment rather than a required memorisation target."
     },
@@ -776,7 +776,7 @@
         "scene-6-raigad-coronation-story"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Keep the existing Hindu ruler and Swarajya framing without sweeping claims about communities."
     },
@@ -800,7 +800,7 @@
         "scene-6-raigad-coronation-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     },
@@ -820,7 +820,7 @@
         "scene-6-raigad-coronation-memory"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "These are two examples, not a claim that the kingdom used only two coin types."
     },
@@ -840,7 +840,7 @@
         "scene-6-raigad-coronation-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": "Site features support an explanation of everyday work in a capital."
     },
@@ -864,7 +864,7 @@
         "scene-6-raigad-coronation-meaning"
       ],
       "confidence": "high",
-      "reviewStatus": "pendingIndependentReview",
+      "reviewStatus": "approved",
       "assessmentAllowedAfterApproval": true,
       "caution": ""
     }
@@ -1005,5 +1005,15 @@
     "Specifically review gates and machi counts as current site descriptions, year-label subtraction wording, and the management context of chapter 5.",
     "No claim is assessment-eligible until approved and actually taught in the learner archive.",
     "No copyrighted textbook images, pages, dialogue, or question text are proposed for redistribution. Child copy and questions are original paraphrases."
-  ]
+  ],
+  "childCopyReview": {
+    "reviewerThread": "01a10305-2d41-76de-bdbb-a7c28fc86062",
+    "pinnedCopySHA": "650c841fa91353170a4607b0216fb2374d8bbc0b",
+    "acceptedClaims": 36,
+    "revisedClaims": 0,
+    "excludedClaims": 0,
+    "acceptedQuestions": 24,
+    "legacyNarrativesPreserved": 18,
+    "scope": "Exact child prose, paired statements, supplemental vocabulary, questions and source qualifications; does not approve runtime exposure, focus, progress or mastery."
+  }
 }

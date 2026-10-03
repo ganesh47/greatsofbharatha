@@ -17,7 +17,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: Pratapgad")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-3-pratapgad-turning-point-fact-battle-1659", kind: .historical,
                     statement: """
@@ -32,7 +32,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: 1659 battle and Bijapur general")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-3-pratapgad-turning-point-fact-year-label-gap", kind: .derivedReasoning,
                     statement: "On a year-labelled timeline, the difference between 1656 and 1659 is three.",
@@ -44,7 +44,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-3-pratapgad-turning-point-fact-built-before-battle", kind: .derivedReasoning,
                     statement: "The 1656 construction comes before the 1659 battle on the timeline.",
@@ -53,7 +53,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "satara-pratapgad",
                             locator: "construction and encounter years")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-3-pratapgad-turning-point-fact-hill-forest", kind: .siteFeature,
                     statement: "Pratapgad stands in hilly, forested terrain in the Sahyadri region near Mahabaleshwar.",
@@ -65,7 +65,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: forested hill region")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-3-pratapgad-turning-point-fact-water-reservoirs", kind: .siteFeature,
                     statement: "Pratapgad includes water reservoirs, showing that a fort needed supplies as well as protective walls.",
@@ -74,7 +74,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: water reservoirs")
                     ],
-                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-3-pratapgad-turning-point-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(
@@ -188,7 +188,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 25; PDF page 35")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-4-purandar-agra-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-4-purandar-agra-fact-twenty-three-forts", kind: .historical,
                     statement: "The treaty required Shivaji Maharaj to give twenty-three forts to the Mughals.",
@@ -203,7 +203,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "tourism-purandar",
                             locator: "Treaty of Purandar section")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-4-purandar-agra-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-4-purandar-agra-fact-return-1666", kind: .historical,
                     statement: "The Agra visit, custody, and return belong to 1666; the return led back to Rajgad.",
@@ -215,7 +215,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "balbharati-std7",
                             locator: "printed p. 25; PDF page 35")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-4-purandar-agra-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-4-purandar-agra-fact-sambhaji", kind: .historical,
                     statement: "Shivaji Maharaj’s son Sambhaji accompanied him on the journey to Agra.",
@@ -224,7 +224,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 50; PDF page 60")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-4-purandar-agra-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-4-purandar-agra-fact-agra-yamuna", kind: .siteFeature,
                     statement: "Agra is a city on the Yamuna River in present-day Uttar Pradesh.",
@@ -233,7 +233,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "agra-district",
                             locator: "About District paragraph")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-4-purandar-agra-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-4-purandar-agra-fact-year-label-gap", kind: .derivedReasoning,
                     statement: "The year labels 1665 and 1666 differ by one, and Purandar comes before the Agra return.",
@@ -242,7 +242,7 @@ enum ChapterKnowledgeChapters34 {
                             sourceID: "balbharati-std4",
                             locator: "printed pp. 48, 52; PDF pages 58, 62")
                     ],
-                    taughtBeatIDs: ["scene-4-purandar-agra-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-4-purandar-agra-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(

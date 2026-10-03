@@ -4,6 +4,7 @@ import UIKit
 struct TVLessonView: View {
     let sceneID: String
     var restartOnEntry = false
+    var initialKnowledgeEntry: ChapterKnowledgeEntryMode?
     @EnvironmentObject private var appModel: AppModel
     @EnvironmentObject private var narrator: GBNarrator
     @Environment(\.dismiss) private var dismiss
@@ -18,11 +19,56 @@ struct TVLessonView: View {
     @State private var matchState = ChronicleMatchState()
     @State private var sequenceState = TVSequenceState(cardCount: 3)
     @State private var keepsakeSelected = false
+    @State private var knowledgeRequest: TVKnowledgeRequest?
+    @State private var openedInitialKnowledgeEntry = false
     @FocusState private var focus: String?
 
     private var chapter: TVChapter? { TVLearningContent.chapter(sceneID: activeSceneID.isEmpty ? sceneID : activeSceneID) }
 
     var body: some View {
+        Group {
+            if let chapter, checkpoint.stage == .story, restoredSceneID == chapter.id,
+               let definition = ChapterKnowledgeCatalog.definition(sceneID: chapter.id),
+               definition.claims.allSatisfy({ $0.reviewStatus == .approved }) {
+                TVChapterKnowledgeTeachingView(chapter: chapter, definition: definition, sessionID: sessionID,
+                    hooks: knowledgeHooks, onFinished: { move(to: .discover) },
+                    startingAtBeatID: appModel.lessonStore.activityState(ChapterKnowledgeArchive.self, for: .knowledge)?
+                        .teachingBySceneID[chapter.id] == nil ? checkpoint.storyBeatID : nil,
+                    onActiveBeatChanged: { id in
+                        checkpoint.storyBeatID = id
+                        checkpoint.storyBeatIndex = ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: chapter.id,
+                            beatID: id, orderedBeatIDs: definition.beats.map(\.id))
+                        saveCheckpoint()
+                    })
+            } else {
+                legacyContent.onExitCommand(perform: handleBack).onPlayPauseCommand(perform: playPause)
+            }
+        }
+        .sheet(item: $knowledgeRequest) { request in
+            if let chapter {
+                TVChapterKnowledgeFlowView(chapter: chapter, sessionID: sessionID, entry: request.mode, onFinished: {
+                    knowledgeRequest = nil
+                    if request.continueToPuzzle {
+                        checkpoint.knowledgePracticePending = false
+                        move(to: .puzzle)
+                    } else { restoreFocus() }
+                })
+            }
+        }
+        .onAppear {
+            if restartOnEntry, restoredSceneID == nil, let chapter { restartChapter(chapter) } else { loadChapter() }
+        }
+        .onChange(of: activeSceneID) { _, _ in loadChapter() }
+        .onChange(of: scenePhase) { _, phase in if phase != .active { saveCheckpoint(); narrator.stop() } }
+        .onDisappear { saveCheckpoint(); narrator.stop() }
+        .navigationTitle("Learning adventure")
+    }
+
+    private var knowledgeHooks: ChapterKnowledgeHooks {
+        ChapterKnowledgeAdapters.hooks(store: appModel.lessonStore, definitions: ChapterKnowledgeCatalog.definitions)
+    }
+
+    private var legacyContent: some View {
         ScrollView {
             if let chapter {
                 VStack(alignment: .leading, spacing: isMatchingPuzzle ? 18 : 28) {
@@ -32,6 +78,12 @@ struct TVLessonView: View {
                         Text("Choose with Select · Back puts a choice away").font(.system(size: 22)).foregroundStyle(GBColor.Content.secondary)
                     }
                     Text(chapter.title).font(.system(size: 42, weight: .bold)).foregroundStyle(GBColor.Content.primary)
+                    HStack(spacing: 24) {
+                        Button("Explore chapter facts") { openKnowledge(.teaching) }
+                            .accessibilityIdentifier("knowledge-open-teaching-" + chapter.id)
+                        Button("Four family questions") { openKnowledge(.practice) }
+                            .accessibilityIdentifier("knowledge-open-practice-" + chapter.id)
+                    }.buttonStyle(TVCardButtonStyle()).focusSection()
                     if let discovery {
                         discoveryDetail(discovery)
                     } else if let helpText {
@@ -51,15 +103,6 @@ struct TVLessonView: View {
         }
         .background(TVTheme.background)
         .foregroundStyle(TVTheme.paper)
-        .onAppear {
-            if restartOnEntry, restoredSceneID == nil, let chapter { restartChapter(chapter) } else { loadChapter() }
-        }
-        .onChange(of: activeSceneID) { _, _ in loadChapter() }
-        .onChange(of: scenePhase) { _, phase in if phase != .active { saveCheckpoint(); narrator.stop() } }
-        .onDisappear { saveCheckpoint(); narrator.stop() }
-        .onPlayPauseCommand(perform: playPause)
-        .onExitCommand(perform: handleBack)
-        .navigationTitle("Learning adventure")
     }
 
     private var stageTitle: String {
@@ -244,7 +287,11 @@ struct TVLessonView: View {
             if let feedback { Text(feedback).font(.system(size: 28)).accessibilityIdentifier("tv-recall-feedback") }
             if isDone {
                 Text(chapter.pilot.quiz.challenge.feedback.success).font(.system(size: 28)).accessibilityIdentifier("tv-recall-success")
-                Button("Play the little puzzle") { move(to: .puzzle) }
+                Button("Try four family questions") {
+                    checkpoint.knowledgePracticePending = true
+                    saveCheckpoint()
+                    openKnowledge(.practice, continueToPuzzle: true)
+                }
                     .buttonStyle(TVCardButtonStyle()).focused($focus, equals: "recall-continue")
                     .accessibilityIdentifier("tv-recall-continue")
             } else {
@@ -519,6 +566,11 @@ struct TVLessonView: View {
         restoreFocus()
     }
 
+    private func openKnowledge(_ mode: ChapterKnowledgeEntryMode, continueToPuzzle: Bool = false) {
+        narrator.stop()
+        knowledgeRequest = TVKnowledgeRequest(mode: mode, continueToPuzzle: continueToPuzzle)
+    }
+
     private func loadChapter() {
         guard let chapter, restoredSceneID != chapter.id else { return }
         restoredSceneID = chapter.id
@@ -566,6 +618,12 @@ struct TVLessonView: View {
         }
         saveCheckpoint()
         restoreFocus()
+        if let initialKnowledgeEntry, !openedInitialKnowledgeEntry {
+            openedInitialKnowledgeEntry = true
+            openKnowledge(initialKnowledgeEntry)
+        } else if checkpoint.knowledgePracticePending == true {
+            openKnowledge(.practice, continueToPuzzle: true)
+        }
     }
 
     private func restartChapter(_ chapter: TVChapter) {
@@ -671,4 +729,10 @@ struct TVLessonView: View {
             legacyIndex: checkpoint.storyBeatIndex, availableBeatIDs: chapter.storyBeats.map(\.id))
         return chapter.storyBeats.firstIndex { $0.id == resolution.beatID } ?? 0
     }
+}
+
+private struct TVKnowledgeRequest: Identifiable {
+    let id = UUID()
+    let mode: ChapterKnowledgeEntryMode
+    let continueToPuzzle: Bool
 }

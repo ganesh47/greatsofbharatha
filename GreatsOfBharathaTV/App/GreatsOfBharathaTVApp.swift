@@ -29,7 +29,13 @@ struct GreatsOfBharathaTVApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TVHomeView()
+            Group {
+                if let entry = ChapterKnowledgeDebugEntry.current() {
+                    NavigationStack {
+                        TVLessonView(sceneID: entry.sceneID, initialKnowledgeEntry: entry.mode)
+                    }
+                } else { TVHomeView() }
+            }
                 .environmentObject(appModel)
                 .environmentObject(narrator)
                 .preferredColorScheme(.dark)

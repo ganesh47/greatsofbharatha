@@ -14,7 +14,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed pp. 12–13; PDF pages 22–23")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-1-shivneri-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-1-shivneri-fact-junnar", kind: .siteFeature,
                     statement: "Shivneri is a hill fort near Junnar in Pune district.",
@@ -23,7 +23,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 12; PDF page 22")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-1-shivneri-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-1-shivneri-fact-parents", kind: .historical,
                     statement: "Jijabai was Shivaji Maharaj’s mother, and Shahaji was his father.",
@@ -32,7 +32,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed pp. 12–13; PDF pages 22–23")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-1-shivneri-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-1-shivneri-fact-seven-gates", kind: .siteFeature,
                     statement: "The present-day description of Shivneri identifies seven gates on the way into the fort.",
@@ -41,7 +41,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "tourism-shivneri",
                             locator: "architectural highlights: seven gates")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-1-shivneri-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-1-shivneri-fact-water-storage", kind: .siteFeature,
                     statement: "Shivneri has water-storage features, including cisterns and reservoirs.",
@@ -53,7 +53,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "tourism-shivneri",
                             locator: "Badami Talav and water sources")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-1-shivneri-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-1-shivneri-fact-cistern-meaning", kind: .vocabulary,
                     statement: "A cistern is a place built to collect or store water; stored water helps people living in a fort.",
@@ -62,7 +62,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 93; PDF page 2: water cisterns")
                     ],
-                    taughtBeatIDs: ["scene-1-shivneri-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-1-shivneri-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(
@@ -165,7 +165,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 26; PDF page 36")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-2-torna-rajgad-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-2-torna-rajgad-fact-first-capital", kind: .historical,
                     statement: "Rajgad became the first capital of Swaraj.",
@@ -177,7 +177,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: Rajgad")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-story"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-2-torna-rajgad-story"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-2-torna-rajgad-fact-former-name", kind: .historical,
                     statement: "The earlier fort name Murumbdeo is associated with the site later named Rajgad.",
@@ -186,7 +186,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 27; PDF page 37")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-2-torna-rajgad-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-2-torna-rajgad-fact-named-machis", kind: .siteFeature,
                     statement: "Three named machis at Rajgad are Padmavati, Sanjivani, and Suvela; the fort also has a citadel.",
@@ -195,7 +195,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "tourism-rajgad",
                             locator: "features: Padmavati Machi, Sanjivani Machi, Suvela Machi, Balekilla")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-memory"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-2-torna-rajgad-memory"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-2-torna-rajgad-fact-builders", kind: .historical,
                     statement: "Stone masons, carpenters, blacksmiths, water carriers, and other workers helped build Rajgad.",
@@ -204,7 +204,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "balbharati-std4",
                             locator: "printed p. 27; PDF page 37")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-meaning"], reviewStatus: .pendingIndependentReview),
+                    taughtBeatIDs: ["scene-2-torna-rajgad-meaning"], reviewStatus: .approved),
                 ChapterKnowledgeClaim(
                     id: "scene-2-torna-rajgad-fact-capital-work", kind: .vocabulary,
                     statement: """
@@ -216,7 +216,7 @@ enum ChapterKnowledgeChapters12 {
                             sourceID: "icomos-2025",
                             locator: "printed p. 94; PDF page 3: administrative and storage spaces")
                     ],
-                    taughtBeatIDs: ["scene-2-torna-rajgad-meaning"], reviewStatus: .pendingIndependentReview)
+                    taughtBeatIDs: ["scene-2-torna-rajgad-meaning"], reviewStatus: .approved)
             ],
             beats: [
                 ChapterKnowledgeBeat(
