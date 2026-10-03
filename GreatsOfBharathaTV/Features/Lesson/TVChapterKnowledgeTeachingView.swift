@@ -77,7 +77,7 @@ struct TVChapterKnowledgeTeachingView: View {
                                     .focused($focus, equals: "next").accessibilityIdentifier(nextIdentifier)
                                     #if DEBUG
                                     .accessibilityValue(ProcessInfo.processInfo.environment["GOB_UI_TEST_SUITE"]?.hasPrefix("gob.tv.ui.knowledge.") == true
-                                        ? "\(frameDiagnostic) current=\(page?.id ?? "") coverage=\(coverageID)/\(coverage.isComplete) blocked=\(presentation.isBlocked) active=\(scenePhase)" : "")
+                                        ? "\(frameDiagnostic) current=\(page.id) coverage=\(coverageID)/\(coverage.isComplete) blocked=\(presentation.isBlocked) active=\(scenePhase)" : "")
                                     #endif
                                 if pageIndex > 0 || beatIndex > 0 {
                                     Button("Previous card", action: previous)
