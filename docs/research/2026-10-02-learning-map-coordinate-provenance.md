@@ -20,3 +20,5 @@ The local equirectangular projection corrects longitude at each board's central 
 ## Reconciliation verification, 2026-10-03
 
 The references and authored coordinates above were preserved from the 2026-10-02 local prototype. The Wai research-station coordinate was independently confirmed on PDF page 5. Gazetteer endpoints returned timeouts/502, the UNESCO document returned 503, and the Ministry PDF could not reliably reopen its relevant rows. Those coordinates are retained approximate educational references; this reconciliation does not claim a fresh independent verification of their source rows. The Ministry table has Latitude/Longitude headers with longitude-sized first numeric values, so column order must not be inferred from the header alone. Existing fort anchors and historical/tradition distinctions remain unchanged.
+
+Refs #214 — lossless atlas reconciliation and provenance verification.

@@ -94,10 +94,12 @@ final class AtlasRemoteUITests: XCTestCase {
         focus("atlas-close-up")
         XCUIRemote.shared.press(.select)
         XCTAssertTrue(app.staticTexts["Torna & Rajgad close-up"].firstMatch.waitForExistence(timeout: 5))
+        focus("map-pin-place-torna")
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "TV atlas close-up"
         screenshot.lifetime = .keepAlways
         add(screenshot)
+        focus("atlas-close-up")
         XCUIRemote.shared.press(.select)
         XCTAssertTrue(app.buttons["atlas-close-up"].label.contains("close-up"))
     }
@@ -126,6 +128,7 @@ final class AtlasRemoteUITests: XCTestCase {
         select("tv-home-continue")
         XCTAssertEqual(app.buttons["tv-fort-place-shivneri"].value as? String, "Chosen")
         XCTAssertFalse(app.buttons["tv-fort-continue"].exists)
+        capture("TV unchecked atlas choice restored before Check")
         let check = app.buttons["tv-fort-check"]
         XCTAssertTrue(check.waitForExistence(timeout: 5))
         if !check.hasFocus { focus("tv-fort-check") }
