@@ -8,6 +8,8 @@ enum TVActivityStage: String, Codable, CaseIterable, Equatable {
 struct TVActivityCheckpoint: Codable, Equatable {
     var stage: TVActivityStage = .story
     var storyBeatIndex: Int = 0
+    /// Optional in old saves. The index remains a legacy three-beat rollback anchor.
+    var storyBeatID: String?
     var discoveredDetailIDs: Set<String> = []
     var solvedPlaceIDs: Set<String> = []
     var helpedActivityIDs: Set<String> = []

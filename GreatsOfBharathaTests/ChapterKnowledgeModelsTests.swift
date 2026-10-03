@@ -1,5 +1,5 @@
 import XCTest
-@testable import GreatsOfBharatha
+@testable import Greats_Of_Bharatha
 
 final class ChapterKnowledgeModelsTests: XCTestCase {
     private let sceneID = "scene-1-shivneri"
@@ -20,6 +20,15 @@ final class ChapterKnowledgeModelsTests: XCTestCase {
         let result = ChapterStoryBeatMigration.resolve(sceneID: sceneID, persistedBeatID: stableID,
                                                       legacyIndex: 2, availableBeatIDs: [stableID, sceneID + "-story"])
         XCTAssertEqual(result, ChapterStoryBeatResolution(beatID: stableID, reason: .stableID))
+    }
+
+    func testRollbackAnchorUsesLegacyRoleRatherThanExpandedIndex() {
+        let IDs = [sceneID + "-story", sceneID + "-knowledge-a", sceneID + "-memory",
+                   sceneID + "-knowledge-b", sceneID + "-meaning", sceneID + "-knowledge-c"]
+        XCTAssertEqual(ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: sceneID, beatID: IDs[1], orderedBeatIDs: IDs), 0)
+        XCTAssertEqual(ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: sceneID, beatID: IDs[3], orderedBeatIDs: IDs), 1)
+        XCTAssertEqual(ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: sceneID, beatID: IDs[5], orderedBeatIDs: IDs), 2)
+        XCTAssertEqual(ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: sceneID, beatID: IDs[4], orderedBeatIDs: IDs.reversed()), 2)
     }
 
     func testInvalidLegacyIndexClampsWithinFrozenThreeBeats() {

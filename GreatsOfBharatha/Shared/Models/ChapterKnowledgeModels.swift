@@ -153,6 +153,13 @@ struct ChapterStoryBeatResolution: Equatable, Sendable {
 }
 
 enum ChapterStoryBeatMigration {
+    static func legacyIndexForRollback(sceneID: String, beatID: String, orderedBeatIDs: [String]) -> Int {
+        let legacyIDs = [LegacyChapterStoryRole.story, .memory, .meaning].map { $0.beatID(sceneID: sceneID) }
+        if let index = legacyIDs.firstIndex(of: beatID) { return index }
+        guard let currentIndex = orderedBeatIDs.firstIndex(of: beatID) else { return 0 }
+        return orderedBeatIDs.prefix(currentIndex).reversed().compactMap { legacyIDs.firstIndex(of: $0) }.first ?? 0
+    }
+
     static func resolve(sceneID: String, persistedBeatID: String?, legacyIndex: Int,
                         availableBeatIDs: [String]) -> ChapterStoryBeatResolution {
         let available = Set(availableBeatIDs)

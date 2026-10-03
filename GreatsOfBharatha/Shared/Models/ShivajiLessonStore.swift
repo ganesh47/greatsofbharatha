@@ -35,6 +35,7 @@ enum LessonActivityStateKey: String, Codable {
     case timeline = "ios.timeline"
     case review = "learning.review"
     case atlas = "learning.atlas"
+    case knowledge = "learning.knowledge"
 }
 
 final class ShivajiLessonStore: ObservableObject {
@@ -174,7 +175,7 @@ final class ShivajiLessonStore: ObservableObject {
         case .mapPlacement: activity = subjectType == .location ? .mapPlacement : .recall
         case .sequenceSlot: activity = subjectType == .timeline ? .timelinePlacement : .recall
         case .eventToPlaceMatch: activity = subjectType == .location ? .mapPlacement : .match
-        case .openPrompt, .compareFromMemory: activity = .recall
+        case .openPrompt, .compareFromMemory, .recognitionChoice: activity = .recall
         }
         return recordLearningOutcome(subjectID: subjectID, subjectType: subjectType, activity: activity,
                                      wasSuccessful: wasSuccessful, support: support, mastery: mastery,
@@ -302,6 +303,21 @@ final class ShivajiLessonStore: ObservableObject {
         persist()
     }
 
+    /// New teaching routes advance only after the exact checkpoint can be reopened.
+    @discardableResult
+    func saveResumePointConfirmed(_ point: LessonResumePoint) -> Bool {
+        guard isKnownSubject(point.sceneID, type: .scene) else { return false }
+        let previous = resumePointsByScene[point.sceneID]
+        resumePointsByScene[point.sceneID] = point
+        persist()
+        guard let data = defaults.data(forKey: snapshotStorageKey),
+              Self.decodeSnapshot(data)?.resumePoints[point.sceneID] == point else {
+            resumePointsByScene[point.sceneID] = previous
+            return false
+        }
+        return true
+    }
+
     func resumePoint(for sceneID: String) -> LessonResumePoint? { resumePointsByScene[sceneID] }
 
     /// Reading a Map detail does not create or update Story continuation.
@@ -343,6 +359,8 @@ final class ShivajiLessonStore: ObservableObject {
             return (try? JSONDecoder().decode(ReviewJourneyArchive.self, from: data))?.schemaVersion == 1
         case .atlas:
             return (try? JSONDecoder().decode(LearningMapActivityArchive.self, from: data))?.schemaVersion == 1
+        case .knowledge:
+            return (try? JSONDecoder().decode(ChapterKnowledgeArchive.self, from: data))?.isSupported == true
         }
     }
 

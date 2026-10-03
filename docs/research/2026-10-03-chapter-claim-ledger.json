@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
-  "status": "Draft for independent fact review; not runtime-approved content",
+  "status": "Ledger source wording accepted; final teaching copy and runtime approval pending",
   "authoredUTC": "2026-10-03",
   "evidenceScope": "Source and primary/official reference inspection only. No new simulator captures or app behaviour claims.",
   "sources": [
@@ -10,7 +10,7 @@
       "title": "Shivachhatrapati, Environmental Studies Part Two, Standard Four",
       "publisher": "Maharashtra State Bureau of Textbook Production and Curriculum Research",
       "url": "https://books.ebalbharati.in/pdfs/403000542.pdf",
-      "edition": "2014 sanctioned curriculum; downloaded edition inspected",
+      "edition": "First edition 2014; revised September 2016; reprint September 2021 (PDF page 4)",
       "retrieval": "Public PDF downloaded and read with pypdf; web PDF viewer failed",
       "sha256": "140ff5540ab19969d78b608e45e9bff58a70d58c1096ab9ee4e9d2b461cb5f32",
       "cautions": [
@@ -705,7 +705,7 @@
       "citations": [
         {
           "sourceID": "balbharati-std7",
-          "locator": "printed p. 29; PDF page 39"
+          "locator": "printed pp. 29–30; PDF pages 39–40"
         }
       ],
       "taughtBeatIDs": [
@@ -952,6 +952,54 @@
       "sourceIDs": []
     }
   ],
+  "sourceReview": {
+    "reviewedHead": "a2ab62f298d497a6de08f1e4bb6fbb12b1781a53",
+    "dateUTC": "2026-10-03",
+    "acceptedClaimIDs": [
+      "scene-1-shivneri-fact-birth-place",
+      "scene-1-shivneri-fact-junnar",
+      "scene-1-shivneri-fact-parents",
+      "scene-1-shivneri-fact-seven-gates",
+      "scene-1-shivneri-fact-water-storage",
+      "scene-1-shivneri-fact-cistern-meaning",
+      "scene-2-torna-rajgad-fact-torna-name",
+      "scene-2-torna-rajgad-fact-first-capital",
+      "scene-2-torna-rajgad-fact-former-name",
+      "scene-2-torna-rajgad-fact-named-machis",
+      "scene-2-torna-rajgad-fact-builders",
+      "scene-2-torna-rajgad-fact-capital-work",
+      "scene-3-pratapgad-turning-point-fact-built-1656",
+      "scene-3-pratapgad-turning-point-fact-battle-1659",
+      "scene-3-pratapgad-turning-point-fact-year-label-gap",
+      "scene-3-pratapgad-turning-point-fact-built-before-battle",
+      "scene-3-pratapgad-turning-point-fact-hill-forest",
+      "scene-3-pratapgad-turning-point-fact-water-reservoirs",
+      "scene-4-purandar-agra-fact-treaty-1665",
+      "scene-4-purandar-agra-fact-twenty-three-forts",
+      "scene-4-purandar-agra-fact-return-1666",
+      "scene-4-purandar-agra-fact-sambhaji",
+      "scene-4-purandar-agra-fact-agra-yamuna",
+      "scene-4-purandar-agra-fact-year-label-gap",
+      "scene-5-rajgad-recovery-fact-rajgad-return",
+      "scene-5-rajgad-recovery-fact-recaptured-forts",
+      "scene-5-rajgad-recovery-fact-three-named-offices",
+      "scene-5-rajgad-recovery-fact-stores-care",
+      "scene-5-rajgad-recovery-fact-crop-relief",
+      "scene-5-rajgad-recovery-fact-fort-repair",
+      "scene-6-raigad-coronation-fact-coronation-date",
+      "scene-6-raigad-coronation-fact-chhatrapati",
+      "scene-6-raigad-coronation-fact-eight-ministers",
+      "scene-6-raigad-coronation-fact-coin-materials",
+      "scene-6-raigad-coronation-fact-capital-features",
+      "scene-6-raigad-coronation-fact-amatya-accounts"
+    ],
+    "scope": "Independent reviewer accepted all 36 narrowly qualified ledger statements and structural question mapping only. Authored teaching, vocabulary coverage, runtime presentation and UI remain pending.",
+    "mandatoryTeaching": [
+      "Define stone-mason work before the masons question.",
+      "Explain machi, revenue relief, accounts, and custody in child words.",
+      "Introduce chapter 5 governance as wider Swaraj context, not an immediate post-Agra reform."
+    ]
+  },
   "reviewInstructions": [
     "Review source locators and wording independently; record accepted/qualified/rejected per claim ID.",
     "Specifically review gates and machi counts as current site descriptions, year-label subtraction wording, and the management context of chapter 5.",

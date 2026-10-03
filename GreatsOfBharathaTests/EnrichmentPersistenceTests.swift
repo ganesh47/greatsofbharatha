@@ -3,7 +3,7 @@ import XCTest
 
 final class EnrichmentPersistenceTests: XCTestCase {
     func testFutureAndDamagedOptionalPayloadsStayOpaqueAcrossOpeningAndSaveAttempts() throws {
-        for key in [LessonActivityStateKey.timeline, .review, .atlas] {
+        for key in [LessonActivityStateKey.timeline, .review, .atlas, .knowledge] {
             for payload in [Data("{\"schemaVersion\":99,\"futureValue\":\"keep\"}".utf8), Data("not-json".utf8)] {
                 let suite = "gob.enrichment.opaque." + UUID().uuidString
                 let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))

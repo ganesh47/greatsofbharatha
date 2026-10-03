@@ -91,7 +91,7 @@ struct TVLessonView: View {
     }
 
     private func story(_ chapter: TVChapter) -> some View {
-        let index = min(max(checkpoint.storyBeatIndex, 0), chapter.storyBeats.count - 1)
+        let index = currentStoryIndex(chapter)
         let beat = chapter.storyBeats[index]
         return VStack(alignment: .leading, spacing: 28) {
             HStack(alignment: .top, spacing: 40) {
@@ -104,11 +104,16 @@ struct TVLessonView: View {
             TVFireflyGuide(message: "I'm a make-believe firefly guide. We can listen, look, and try together. Read each little part, then choose Next.")
             HStack(spacing: 28) {
                 Button(index == chapter.storyBeats.count - 1 ? "Let's discover" : "Next little part") {
-                    guard checkpoint.stage == .story, checkpoint.storyBeatIndex == index else { return }
-                    complete("story-beat-\(index)", activity: .storyExposure, successful: false, detail: "TV story: " + beat.title)
+                    guard checkpoint.stage == .story, currentStoryIndex(chapter) == index else { return }
+                    let legacyIndex = [LegacyChapterStoryRole.story, .memory, .meaning]
+                        .firstIndex { $0.beatID(sceneID: chapter.id) == beat.id }
+                    let receiptKey = legacyIndex.map { "story-beat-\($0)" } ?? "story-beat-" + beat.id
+                    complete(receiptKey, activity: .storyExposure, successful: false, detail: "TV story: " + beat.title)
                     narrator.stop()
                     if index < chapter.storyBeats.count - 1 {
-                        checkpoint.storyBeatIndex += 1
+                        checkpoint.storyBeatID = chapter.storyBeats[index + 1].id
+                        checkpoint.storyBeatIndex = ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: chapter.id,
+                            beatID: chapter.storyBeats[index + 1].id, orderedBeatIDs: chapter.storyBeats.map(\.id))
                         saveCheckpoint()
                     } else { move(to: .discover) }
                 }
@@ -521,7 +526,15 @@ struct TVLessonView: View {
         let point = appModel.lessonStore.resumePoint(for: chapter.id)
         sessionID = point?.sessionID ?? UUID()
         checkpoint = point?.tvCheckpoint ?? TVActivityCheckpoint()
-        checkpoint.storyBeatIndex = min(checkpoint.storyBeatIndex, chapter.storyBeats.count - 1)
+        let migrated = ChapterStoryBeatMigration.resolve(sceneID: chapter.id,
+            persistedBeatID: checkpoint.storyBeatID ?? point?.storyBeatID,
+            legacyIndex: point?.tvCheckpoint?.storyBeatIndex ?? point?.storyCardIndex ?? 0,
+            availableBeatIDs: chapter.storyBeats.map(\.id))
+        checkpoint.storyBeatID = migrated.beatID
+        if let beatID = migrated.beatID {
+            checkpoint.storyBeatIndex = ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: chapter.id,
+                beatID: beatID, orderedBeatIDs: chapter.storyBeats.map(\.id))
+        }
         feedback = nil
         discovery = nil
         helpText = nil
@@ -574,6 +587,7 @@ struct TVLessonView: View {
         point.sessionID = sessionID
         point.tvCheckpoint = checkpoint
         point.storyCardIndex = checkpoint.storyBeatIndex
+        point.storyBeatID = checkpoint.storyBeatID
         point.recallCompleted = checkpoint.completedActivityIDs.contains("recall")
         point.revealedHintLevel = checkpoint.hintLevels["recall", default: 0]
         point.recognitionRescueUnlocked = checkpoint.helpedActivityIDs.contains("recall-rescued")
@@ -638,7 +652,7 @@ struct TVLessonView: View {
         let text: String
         if let discovery { text = discovery.text } else if let helpText { text = helpText } else {
             switch checkpoint.stage {
-            case .story: text = chapter.storyBeats[min(checkpoint.storyBeatIndex, chapter.storyBeats.count - 1)].text
+            case .story: text = chapter.storyBeats[currentStoryIndex(chapter)].text
             case .discover: text = "Choose a discovery, or continue to become a fort detective."
             case .place: text = feedback ?? chapter.placeClues.first(where: { !checkpoint.solvedPlaceIDs.contains($0.id) })?.clue ?? "Places found. Let's try your memory."
             case .recall: text = feedback ?? chapter.pilot.quiz.question
@@ -650,5 +664,11 @@ struct TVLessonView: View {
             }
         }
         narrator.speak(id: chapter.id + "-visible-" + checkpoint.stage.rawValue, text: text)
+    }
+
+    private func currentStoryIndex(_ chapter: TVChapter) -> Int {
+        let resolution = ChapterStoryBeatMigration.resolve(sceneID: chapter.id, persistedBeatID: checkpoint.storyBeatID,
+            legacyIndex: checkpoint.storyBeatIndex, availableBeatIDs: chapter.storyBeats.map(\.id))
+        return chapter.storyBeats.firstIndex { $0.id == resolution.beatID } ?? 0
     }
 }
