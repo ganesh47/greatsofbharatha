@@ -58,6 +58,7 @@ final class LearningJourneyUITests: XCTestCase {
         tap("story-move-to-place-clues-button")
         capture("03-offline-fort-challenge")
         tap("fort-choice-place-shivneri")
+        tap("fort-check-button")
         tap("place-clues-got-it-button")
         tap("recall-choice-scene-1-shivneri-rajgad")
         tap("recall-check-button")
@@ -150,6 +151,7 @@ final class LearningJourneyUITests: XCTestCase {
         tap("home-primary-lesson")
         tap("story-move-to-place-clues-button")
         tap("fort-choice-place-shivneri")
+        tap("fort-check-button")
         tap("place-clues-got-it-button")
         tap("recall-choice-scene-1-shivneri-shivneri")
         tap("recall-check-button")
@@ -317,6 +319,7 @@ final class LearningJourneyUITests: XCTestCase {
     private func completeRecognition() {
         tap("story-move-to-place-clues-button")
         tap("fort-choice-place-shivneri")
+        tap("fort-check-button")
         tap("place-clues-got-it-button")
         tap("recall-choice-scene-1-shivneri-shivneri")
         tap("recall-check-button")

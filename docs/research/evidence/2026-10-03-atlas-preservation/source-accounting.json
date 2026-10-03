@@ -1,0 +1,357 @@
+{
+  "originalHEAD": "1359c0b2416b7c6188965a54e9388bf2528a94b0",
+  "enrichmentBase": "37198961df8d73285671cd7d5955e3b1cf026def",
+  "fileCount": 50,
+  "files": [
+    {
+      "path": "GreatsOfBharatha.xcodeproj/project.pbxproj",
+      "originalSHA256": "f2add7c60816c68f0ec5a17fad2ec4f41c4952b86189575dbf188701215a1c89",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha.xcodeproj/project.pbxproj",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Regenerated from reconciled project.yml; original prototype project preserved byte-for-byte in archive."
+    },
+    {
+      "path": "GreatsOfBharatha.xcodeproj/xcshareddata/xcschemes/GreatsOfBharathaTV.xcscheme",
+      "originalSHA256": "28d13588d483ca99edbff9b4a541473a67adf73b0669d83755e64170c24ad4ac",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha.xcodeproj/xcshareddata/xcschemes/GreatsOfBharathaTV.xcscheme",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Already byte-identical to current release/enrichment scheme."
+    },
+    {
+      "path": "GreatsOfBharatha/App/CaptureRootView.swift",
+      "originalSHA256": "fb63355610b47cacc13cc590eb67348db5539bbd7a5e586540912b79ba8b4a6e",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/App/CaptureRootView.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Retains current capture routes; atlas capture uses all seven canonical places."
+    },
+    {
+      "path": "GreatsOfBharatha/App/ContentView.swift",
+      "originalSHA256": "d7c914207c580029de43dad7266e52633cb9c02d16d12e3f18cf5521ea1a7052",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/App/ContentView.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "All seven places in Map; current typed Learn and String Story routes retained."
+    },
+    {
+      "path": "GreatsOfBharatha/DesignSystem/Components/GBFlashCard.swift",
+      "originalSHA256": "d4fcc38bde8a0dbed3a80e2ad781470932b845280e03a22d5cb7829f39969eb6",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/DesignSystem/Components/GBFlashCard.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Prototype TV AVAudioSession guard already present in current extracted Shared/Audio/GBNarrator; modern narrator retained."
+    },
+    {
+      "path": "GreatsOfBharatha/DesignSystem/Components/GBSelectionCard.swift",
+      "originalSHA256": "b508aba0854aac0554c04af460ecc850f9c1956a1615ae4582d8c62cd4b8559a",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/DesignSystem/Components/GBSelectionCard.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/DesignSystem/Foundation/GBButtonStyle.swift",
+      "originalSHA256": "a09b886f6dde03a3bcb4a7fe52cae32dc4cf2fee26d396b90936e1b870dfd1fa",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/DesignSystem/Foundation/GBButtonStyle.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/DesignSystem/Foundation/GBLayoutContext.swift",
+      "originalSHA256": "f29b917746bccbe499c14729cc4cfe2251d2867c19062ef0b30449775b56c234",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/DesignSystem/Foundation/GBLayoutContext.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/DesignSystem/Tokens/GBMotion.swift",
+      "originalSHA256": "08b33791558307f373c28c888f37fbc6c792a96ce9a9bb11c72f4bb92ffc2d31",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/DesignSystem/Tokens/GBMotion.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Current iOS-only UIKit/no-op TV haptic guards retained; equivalent platform isolation."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Chronicle/ChronicleView.swift",
+      "originalSHA256": "095d01bf0ddc82d12aa32b9dc3d271b3260ad3919de9b278fa35bd29c90da16a",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Chronicle/ChronicleView.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Lesson/LearningExperienceComponents.swift",
+      "originalSHA256": "7b0245d1d4bb9d1db5d7411658909551a1cca2d8e4d07f813eb4e4a4811ec28e",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Lesson/LearningExperienceComponents.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Atlas selection/check port; authored chapter clues retained; supplement optional/no evidence."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Lesson/LessonHomeView.swift",
+      "originalSHA256": "39e53f2fb9cd753c6a18008f05d582921170bbc3b5530615cd5742d99197cfa4",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Lesson/LessonHomeView.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Clean three-way port of selection cards/adaptive layout; current review and matching routes retained."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Lesson/SceneLessonView.swift",
+      "originalSHA256": "e0b93ebe4fcb6195a7d1dd0266590d71f7205367a7db6f24920e40556529514c",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Lesson/SceneLessonView.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "One place at a time, explicit Check, original canonical discovery and shared supplement, durable choices."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Map/LearningAtlasView.swift",
+      "originalSHA256": "9a8c4d2101398a42f70c953c6288086b9dfe809ceab4ec71a5d2adb88320d72d",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Map/LearningAtlasView.swift",
+      "disposition": "adapted source port",
+      "accounting": "Atlas source retains intended authored content/behavior; exact original is archived."
+    },
+    {
+      "path": "GreatsOfBharatha/Features/Map/PlacesHubView.swift",
+      "originalSHA256": "60ad268f380182bba7d161c8ee32daa9e9df8ff64fae4551a9b9b6cd38f11d96",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Features/Map/PlacesHubView.swift",
+      "disposition": "adapted source port",
+      "accounting": "Atlas source retains intended authored content/behavior; exact original is archived."
+    },
+    {
+      "path": "GreatsOfBharatha/Intelligence/GBIntelligenceHint.swift",
+      "originalSHA256": "dd9d1b7cd8b2eb1294285b7bc82fd1fab8344c8eee1984482cddfbf9a8ca57cb",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Intelligence/GBIntelligenceHint.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Contents.json",
+      "originalSHA256": "753e65fbbd10157b953db871469794450ad5557bca931bb3a7be1ff37c4f3443",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Content.imageset/Contents.json",
+      "originalSHA256": "2c737965e954c4ca947aef18c66761ae001c991c40237a04620568490a657cf9",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Content.imageset/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Content.imageset/image@1x.png",
+      "originalSHA256": "43eb0d70516ce1dabeb4d9d86dfb6a53ff39306ab696d7570efaf7178d006ad5",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Content.imageset/image@1x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Contents.json",
+      "originalSHA256": "3068ae11b833a8ea03990d2ea2a2b5fe7b3c47fbda56de956a4b84888f6c6af8",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Back.imagestacklayer/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Contents.json",
+      "originalSHA256": "93877d7a2f7e4b19e031b18a1d1975cb5160e148f063dbaf704f4381cbeb7189",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Content.imageset/Contents.json",
+      "originalSHA256": "2c737965e954c4ca947aef18c66761ae001c991c40237a04620568490a657cf9",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Content.imageset/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Content.imageset/image@1x.png",
+      "originalSHA256": "91c8d4798b3e89b9d759ac0087536dad1fbca88bbb581a6399389634a8879156",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Content.imageset/image@1x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Contents.json",
+      "originalSHA256": "3068ae11b833a8ea03990d2ea2a2b5fe7b3c47fbda56de956a4b84888f6c6af8",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Large.imagestack/Front.imagestacklayer/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/Contents.json",
+      "originalSHA256": "8f893a822e317ac7cdeee2375bd1981a7ff02b9d76fe279002dfc9ab470b106e",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/image@1x.png",
+      "originalSHA256": "7c4cc7ebaab67e1251ac917b96276f4887a72b01a0cf992cd4a6f49029c294a4",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/image@1x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/image@2x.png",
+      "originalSHA256": "b614ecf3575fb1406fdf0cba2f41867b21a78a7c30976b5d8d268d0c39df9eb3",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Content.imageset/image@2x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Contents.json",
+      "originalSHA256": "3068ae11b833a8ea03990d2ea2a2b5fe7b3c47fbda56de956a4b84888f6c6af8",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Back.imagestacklayer/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Contents.json",
+      "originalSHA256": "93877d7a2f7e4b19e031b18a1d1975cb5160e148f063dbaf704f4381cbeb7189",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/Contents.json",
+      "originalSHA256": "8f893a822e317ac7cdeee2375bd1981a7ff02b9d76fe279002dfc9ab470b106e",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/image@1x.png",
+      "originalSHA256": "6def60b4db0c0193961ce155a532a39b8dcf0e6689ace51840998ff923629c23",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/image@1x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/image@2x.png",
+      "originalSHA256": "db30de34b02d30d62a425de4c168a00fdcc364a127e6e659e01d4e902a6a2904",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Content.imageset/image@2x.png",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Contents.json",
+      "originalSHA256": "3068ae11b833a8ea03990d2ea2a2b5fe7b3c47fbda56de956a4b84888f6c6af8",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Resources/Assets.xcassets/TVAppIcon.brandassets/Small.imagestack/Front.imagestacklayer/Contents.json",
+      "disposition": "preserved prototype asset variant",
+      "accounting": "Released TVAppIcon remains the sole compiled brandasset; original variant archived with all original filenames and bytes."
+    },
+    {
+      "path": "GreatsOfBharatha/Shared/Models/AppleMapsPlaceHandoff.swift",
+      "originalSHA256": "fbec9c228b5bdd166ba99347896677224b2460700bb0485debb967ac9e4f717b",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Shared/Models/AppleMapsPlaceHandoff.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Current TV-unavailable/iOS-only Apple Maps handoff retained; equivalent platform isolation."
+    },
+    {
+      "path": "GreatsOfBharatha/Shared/Models/ContentModels.swift",
+      "originalSHA256": "4f42cce3c0e95e811be6608c91e76b8b401438c0f0a2804ddf31d5ba7ae5f300",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Shared/Models/ContentModels.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharatha/Shared/Models/LearningMapModels.swift",
+      "originalSHA256": "b8ce065f093dd21a6cca7a3256fcd349f92702a0e23898603987742642c0b28b",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Shared/Models/LearningMapModels.swift",
+      "disposition": "adapted source port",
+      "accounting": "Atlas source retains intended authored content/behavior; exact original is archived."
+    },
+    {
+      "path": "GreatsOfBharatha/Shared/Models/SampleContent.swift",
+      "originalSHA256": "d98e0e1bbf65fb23e14791d73c0d0d43f05a1c7680845efeb4369bacfb53c73e",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharatha/Shared/Models/SampleContent.swift",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "GreatsOfBharathaTVUITests/AtlasRemoteUITests.swift",
+      "originalSHA256": "c0ab3c70d145e524a83fc582cacc2201b837476b909ec9f7f64e9ba8fad2f0ee",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaTVUITests/AtlasRemoteUITests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Three original intentions run through real TV Home/lesson routes using native remote only."
+    },
+    {
+      "path": "GreatsOfBharathaTVUITests/StoryRemoteJourneyUITests.swift",
+      "originalSHA256": "4809f684fbcd8066251f5227484ba82640320708fa6e6d7cd94cd61da00a577c",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaTVUITests/StoryRemoteJourneyUITests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Prototype identifiers/app architecture superseded by existing TVLearningJourneyUITests: default native Home, retry/resume/all six keepsakes/Album. Separate focus/choice/check now additionally proved by AtlasRemoteUITests."
+    },
+    {
+      "path": "GreatsOfBharathaTests/AuthoredLearningContentTests.swift",
+      "originalSHA256": "31f093c85750a22ca6fe11ad84826140f1d319a35c86015a2912059ce5f60176",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaTests/AuthoredLearningContentTests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Added original distinct discovery-content assertions while retaining all current matching tests."
+    },
+    {
+      "path": "GreatsOfBharathaTests/LearningMapTests.swift",
+      "originalSHA256": "ff43facb069f66472d5fcc92ba3be0002e6a14b0c79d57c916e360de4bd57bce",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaTests/LearningMapTests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Original eight projection/choice checks plus Codable compatibility and stable interrupted placement receipt checks; also compiled on TV."
+    },
+    {
+      "path": "GreatsOfBharathaUITests/LearningAtlasUITests.swift",
+      "originalSHA256": "501d67aa31d2829907c24387a6a13a33f00c59a3ad9a94ec465f788227700b73",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaUITests/LearningAtlasUITests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Prototype scenarios ported with proven safe viewport/native tap helper and unchecked-choice relaunch."
+    },
+    {
+      "path": "GreatsOfBharathaUITests/LearningJourneyUITests.swift",
+      "originalSHA256": "e493d5aa589fe81ce7394e2f16d54b33e1d85c6e91c82c8920d7c9ec23867f13",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/GreatsOfBharathaUITests/LearningJourneyUITests.swift",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Explicit Check added to existing fully earned journey tests; all current typed/Story route regressions retained."
+    },
+    {
+      "path": "docs/research/2026-10-02-learning-map-coordinate-provenance.md",
+      "originalSHA256": "ef6ef96004704d147a98fa623e6fc038091d9ecaa172fba6b044d652f6535b99",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/2026-10-02-learning-map-coordinate-provenance.md",
+      "disposition": "adapted source port",
+      "accounting": "Atlas source retains intended authored content/behavior; exact original is archived."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-02-learning-atlas/ipad-agra.png",
+      "originalSHA256": "31871fb84f1db6e972e70658adfff38efde4412366a223b2e3ff9c22b20a09a0",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/evidence/2026-10-02-learning-atlas/ipad-agra.png",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-02-learning-atlas/ipad-close-up.png",
+      "originalSHA256": "f7a71d0b8b1622654bf74a382604beb85e7309ad681db651796dc04c0decd777",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/evidence/2026-10-02-learning-atlas/ipad-close-up.png",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-02-learning-atlas/iphone-sahyadri.png",
+      "originalSHA256": "5009b3e60135fb32a11e8aece3cd3452f07f7664a704419df203c9b68e60cc34",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/evidence/2026-10-02-learning-atlas/iphone-sahyadri.png",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-02-learning-atlas/tvos-sahyadri.png",
+      "originalSHA256": "c09ad921c669900c5ecc310d986b910d0deaac302a88739939e675b9865dfbb3",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/evidence/2026-10-02-learning-atlas/tvos-sahyadri.png",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "docs/research/evidence/2026-10-02-learning-atlas/validation.json",
+      "originalSHA256": "877807c179c8a2ef237ac3432166575809023b5fa30ebeddbb008cfb6231e5d3",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/docs/research/evidence/2026-10-02-learning-atlas/validation.json",
+      "disposition": "exact source port",
+      "accounting": "Identical SHA256 in active repository."
+    },
+    {
+      "path": "project.yml",
+      "originalSHA256": "ea9e6e07b89f8b7da4ee6761004f4509d1d75f5d989cdc55033335a909924c44",
+      "archivePath": "docs/research/evidence/2026-10-03-atlas-preservation/original-work/project.yml",
+      "disposition": "semantic port or current equivalent",
+      "accounting": "Current released separate TV app target/bundle identity retained; specific shared atlas UI and common map tests added, version0.2.3."
+    }
+  ]
+}

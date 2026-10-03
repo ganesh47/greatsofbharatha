@@ -184,12 +184,14 @@ final class ChapterDiscoveryUITests: XCTestCase {
                 capture("discovery-chapter-2-selected-detail-relaunch")
             }
             tap("story-move-to-place-clues-button")
-            for placeID in placeIDs[index] {
+            for (placeIndex, placeID) in placeIDs[index].enumerated() {
                 let challenge = app.otherElements["fort-challenge-" + placeID].firstMatch
                 let button = challenge.buttons["fort-choice-" + placeID].firstMatch
                 reveal(button, in: app.scrollViews["scene-lesson-scroll"].firstMatch)
                 XCTAssertTrue(button.isEnabled)
                 button.tap()
+                tap("fort-check-button")
+                if placeIndex < placeIDs[index].count - 1 { tap("place-clues-next-button") }
             }
             tap("place-clues-got-it-button")
             if index == 2 {

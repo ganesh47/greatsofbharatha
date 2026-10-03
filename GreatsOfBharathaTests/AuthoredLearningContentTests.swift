@@ -44,6 +44,26 @@ final class AuthoredLearningContentTests: XCTestCase {
         }
     }
 
+    func testEveryChapterHasThreeDistinctDiscoveriesAndLegacyIDsRemainStable() throws {
+        let scenes = SampleContent.shivajiVerticalSlice.scenes
+        for scene in scenes {
+            let details = SampleContent.learningPlan(for: scene).discoveryDetails
+            XCTAssertEqual(details.count, 3, scene.id)
+            XCTAssertEqual(Set(details.map(\.id)).count, 3, scene.id)
+            XCTAssertEqual(Set(details.map(\.title)).count, 3, scene.id)
+            for detail in details {
+                XCTAssertFalse(detail.text.isEmpty, scene.id)
+                XCTAssertFalse(detail.symbol.isEmpty, scene.id)
+                XCTAssertFalse(detail.title.hasPrefix("place-"), scene.id)
+            }
+        }
+        let first = try XCTUnwrap(scenes.first)
+        XCTAssertEqual(SampleContent.learningPlan(for: first).discoveryDetails.map(\.id), ["hill", "gate", "book"])
+        let fourth = try XCTUnwrap(scenes.first { $0.number == 4 })
+        let order = try XCTUnwrap(SampleContent.learningPlan(for: fourth).discoveryDetails.first { $0.id == "order" })
+        XCTAssertTrue(order.text.contains("Purandar first, Agra later"))
+    }
+
     func testPilotSubjectsAndRewardsResolveToCanonicalRegistry() throws {
         let content = SampleContent.shivajiVerticalSlice
         XCTAssertEqual(LearnQuizPilotData.scenes.count, 6)

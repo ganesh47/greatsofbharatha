@@ -1,9 +1,10 @@
-import MapKit
 import SwiftUI
 
 struct PlacesHubView: View {
     @EnvironmentObject private var appModel: AppModel
     let places: [Place]
+    @State private var selectedAtlasPlace: Place?
+    @State private var showsSelectedPlace = false
 
     private var readyPlaces: [Place] {
         places.filter { appModel.lessonStore.progress(for: $0) != .locked }
@@ -23,38 +24,23 @@ struct PlacesHubView: View {
         GBLayoutContextReader { context in
             ScrollView {
                 VStack(alignment: .leading, spacing: context.sectionSpacing) {
+                    Text("Find the places in our story").gbHeadline()
+                    LearningAtlasView(places: places, selectedPlaceID: selectedAtlasPlace?.id) { place in
+                        selectedAtlasPlace = place
+                    }
+                    if let selectedAtlasPlace {
+                        atlasSelectionCard(for: selectedAtlasPlace)
+                    }
                     heroCard
-
-                    GBSurface(style: .elevated) {
-                        HStack(spacing: GBSpacing.small) {
-                            PlaceSummaryPill(title: "Ready now", value: "\(readyPlaces.count)", emphasis: .place)
-                            PlaceSummaryPill(title: "Clue activities", value: "\(clueActivityCount)", emphasis: .chronicle)
-                            PlaceSummaryPill(title: "Core forts", value: "\(places.filter(\.isCoreReleasePlace).count)", emphasis: .neutral)
-                        }
-                    }
-
-                    GBSurface(style: .elevated) {
-                        VStack(alignment: .leading, spacing: GBSpacing.small) {
-                            GBSectionHeader(
-                                eyebrow: "Quest",
-                                title: "Keep the story on the fort board",
-                                subtitle: "The place trail helps you remember where the story happened before you collect a Chronicle card."
-                            )
-
-                            GBQuestProgress(
-                                steps: [.story, .place, .chronicle],
-                                currentStepID: "place"
-                            )
-                        }
-                    }
 
                     VStack(alignment: .leading, spacing: context.cardSpacing) {
                         GBSectionHeader(
-                            eyebrow: "Fort Trail",
-                            title: "Visit the ready forts in order",
-                            subtitle: "Open any ready fort to pin it on the board and compare it with nearby places."
+                            eyebrow: "Place Trail",
+                            title: "Choose a place to explore",
+                            subtitle: "Pick a ready place and discover its story clue."
                         )
 
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: context.isTelevision ? 400 : 260), spacing: context.cardSpacing)], spacing: context.cardSpacing) {
                         ForEach(Array(places.enumerated()), id: \.element.id) { index, place in
                             let progress = appModel.lessonStore.progress(for: place)
                             Group {
@@ -66,9 +52,10 @@ struct PlacesHubView: View {
                                     } label: {
                                         PlaceTrailCard(place: place, index: index, progress: progress)
                                     }
-                                    .buttonStyle(.plain)
+                                    .buttonStyle(.gbSelection)
                                 }
                             }
+                        }
                         }
                     }
                 }
@@ -78,7 +65,37 @@ struct PlacesHubView: View {
             }
             .background(GBColor.Background.app)
         }
-        .navigationTitle("Places")
+#if os(tvOS)
+        .navigationTitle("")
+#else
+        .navigationTitle("Map")
+#endif
+#if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
+        .navigationDestination(isPresented: $showsSelectedPlace) {
+            if let selectedAtlasPlace, appModel.lessonStore.progress(for: selectedAtlasPlace) != .locked {
+                PlaceDetailView(place: selectedAtlasPlace, progress: appModel.lessonStore.progress(for: selectedAtlasPlace))
+            }
+        }
+    }
+
+    private func atlasSelectionCard(for place: Place) -> some View {
+        GBSurface(style: .elevated) {
+            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                Text(place.name).gbTitle()
+                Text(LearningAtlasContent.relationship(for: place)).gbBody()
+                if appModel.lessonStore.progress(for: place) == .locked {
+                    Text("Finish this place's story to unlock its activity.")
+                        .gbBody()
+                        .accessibilityIdentifier("atlas-locked-place")
+                } else {
+                    Button("Explore \(place.name)") { showsSelectedPlace = true }
+                        .buttonStyle(.gbPrimary(.place))
+                        .accessibilityIdentifier("atlas-open-selected-place")
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -108,7 +125,7 @@ struct PlacesHubView: View {
             eyebrow: "Sahyadri Fort Trail",
             title: "Remember the place, not just the story",
             subtitle: "The forts show where the story happened.",
-            detail: "Pin one fort at a time, compare it with nearby mountains, and keep the map tied to Shivaji Maharaj's journey.",
+            detail: "Explore each location picture, compare nearby towns, and follow Shivaji Maharaj's journey.",
             ctaTitle: ctaTitle,
             badgeTitle: badgeTitle,
             emphasis: .place,
@@ -143,49 +160,12 @@ private struct PlaceTrailCard: View {
     let progress: PlaceProgress
 
     var body: some View {
-        GBSurface(style: progress == .locked ? .elevated : .plain) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .top, spacing: GBSpacing.small) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        HStack(spacing: GBSpacing.xxSmall) {
-                            GBBadge(title: "Stop \(index + 1)", symbol: GBIcon.place, emphasis: .place)
-                            if place.isCoreReleasePlace {
-                                GBBadge(title: "Core fort", symbol: GBIcon.fort, emphasis: .neutral)
-                            }
-                        }
-
-                        Text(place.name)
-                            .gbTitle()
-                            .foregroundStyle(GBColor.Content.primary)
-
-                        Text(place.memoryHook)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(GBColor.Accent.place)
-                    }
-
-                    Spacer()
-
-                    GBBadge(title: progress.rawValue, symbol: progressIcon(progress), emphasis: progressEmphasis(progress))
-                }
-
-                HStack(spacing: GBSpacing.small) {
-                    Label(place.primaryEvent, systemImage: GBIcon.fort)
-                    Label(place.regionLabel, systemImage: GBIcon.region)
-                }
-                .font(.caption)
-                .foregroundStyle(GBColor.Content.secondary)
-
-                HStack {
-                    Text(progress == .locked ? "Finish the story to unlock this fort." : "Open fort board")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(progress == .locked ? GBColor.Content.secondary : GBColor.Content.primary)
-                    Spacer()
-                    Image(systemName: progress == .locked ? GBIcon.locked : GBIcon.next)
-                        .foregroundStyle(progressColor(progress))
-                }
-            }
-            .opacity(progress == .locked ? 0.84 : 1)
-        }
+        GBSelectionCard(title: place.name,
+            subtitle: progress == .locked ? "Discover this place after its story" : place.memoryHook,
+            symbol: place.id == "place-agra" ? "building.2.fill" : GBIcon.fort,
+            state: progress == .locked ? .locked : (progress == .reviewed || progress == .masteredLightly ? .discovered : .ready),
+            emphasis: .place)
+            .accessibilityElement(children: .combine)
     }
 }
 
@@ -196,12 +176,10 @@ struct PlaceDetailView: View {
     @EnvironmentObject private var appModel: AppModel
     @State private var showsMapExplorer = false
     @State private var showsParentGate = false
-    @State private var solvedPlaceIDs: Set<String> = []
-    @State private var helpedPlaceIDs: Set<String> = []
-    @State private var sessionID = UUID()
+    @State private var checkpoint: LearningMapPlaceCheckpoint?
 
-    private var allCorePlaces: [Place] {
-        SampleContent.shivajiVerticalSlice.corePlaces
+    private var allStoryPlaces: [Place] {
+        appModel.content.places
     }
 
     private var placeGlossaryTerms: [GBGlossaryTerm] {
@@ -222,18 +200,24 @@ struct PlaceDetailView: View {
                     // Simplified header: fort icon + name + why it matters
                     simplifiedHeader
 
-                    OfflineFortChallenge(target: place,
-                        candidates: ([place] + appModel.content.corePlaces.filter { $0.id != place.id }.prefix(2)).sorted { $0.name < $1.name },
-                        solvedPlaceIDs: $solvedPlaceIDs, helpedPlaceIDs: $helpedPlaceIDs) { support in
+                    if let checkpoint {
+                        OfflineFortChallenge(target: place,
+                        candidates: LearningAtlasContent.candidates(for: place, places: appModel.content.places),
+                        selectedPlaceID: Binding(get: { self.checkpoint?.selectedPlaceID },
+                            set: { selected in updateMapCheckpoint { $0.selectedPlaceID = selected } }),
+                        solvedPlaceIDs: Binding(get: { self.checkpoint?.wasSolved == true ? [place.id] : [] },
+                            set: { solved in updateMapCheckpoint { $0.wasSolved = solved.contains(place.id) } }),
+                        helpedPlaceIDs: Binding(get: { self.checkpoint?.usedHelp == true ? [place.id] : [] },
+                            set: { helped in updateMapCheckpoint { $0.usedHelp = helped.contains(place.id) } })) { _ in
+                            let eventID = LearningMapEvidenceIdentity.eventID(placeID: place.id, sessionID: checkpoint.sessionID)
                             appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
-                                activity: .recall, wasSuccessful: true, support: support, mastery: .understood,
-                                promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue", sessionID: sessionID)
+                                activity: .recall, wasSuccessful: true, support: .hinted, mastery: .understood,
+                                promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue",
+                                eventID: eventID, sessionID: checkpoint.sessionID)
+                            _ = appModel.lessonStore.confirmOptionalLearningEvent(eventID, for: .atlas)
                         }.padding(.horizontal, context.containerPadding)
-
-                    // Optional online map for exploration.
-                    if place.coordinate != nil {
-                        GBFortMapView(place: place)
-                            .frame(height: 250)
+                    } else if !appModel.lessonStore.activityStateIsAvailable(for: .atlas) {
+                        Text("This saved map activity could not be opened.").gbBody()
                             .padding(.horizontal, context.containerPadding)
                     }
 
@@ -248,11 +232,12 @@ struct PlaceDetailView: View {
                         Button {
                             showsMapExplorer = true
                         } label: {
-                            Label("See all forts on the map", systemImage: "map.fill")
+                            Label("Explore all story places", systemImage: "map.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.gbPrimary(.place))
 
+#if os(iOS)
                         if place.canOpenInAppleMaps {
                             VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
                                 Button {
@@ -270,6 +255,7 @@ struct PlaceDetailView: View {
                                     .foregroundStyle(GBColor.Content.secondary)
                             }
                         }
+#endif
                     }
                     .padding(.horizontal, context.containerPadding)
                 }
@@ -279,35 +265,33 @@ struct PlaceDetailView: View {
             }
             .background(GBColor.Background.app)
         }
-        .navigationTitle(place.name)
 #if os(iOS)
+        .navigationTitle(place.name)
         .navigationBarTitleDisplayMode(.inline)
+#else
+        .navigationTitle("")
 #endif
         .onAppear {
-            if let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id,
-               let point = appModel.lessonStore.resumePoint(for: sceneID) {
-                solvedPlaceIDs = point.solvedPlaceIDs
-                helpedPlaceIDs = point.helpedPlaceIDs
-                sessionID = point.sessionID
-            }
+            guard checkpoint == nil, var point = appModel.lessonStore.mapPlaceCheckpoint(for: place.id) else { return }
+            let candidates = Set(LearningAtlasContent.candidates(for: place, places: allStoryPlaces).map(\.id))
+            point.selectedPlaceID = point.selectedPlaceID.flatMap { candidates.contains($0) ? $0 : nil }
+            checkpoint = point
         }
-        .onChange(of: helpedPlaceIDs) { _, _ in savePlaceCheckpoint() }
-        .onChange(of: solvedPlaceIDs) { _, _ in savePlaceCheckpoint() }
+#if os(iOS)
         .sheet(isPresented: $showsParentGate) {
             ParentGateView { place.appleMapsHandoff.openInAppleMaps() }
         }
-        .sheet(isPresented: $showsMapExplorer) {
-            PlaceMapExplorerSheet(place: place, nearbyPlaces: allCorePlaces)
+        .navigationDestination(isPresented: $showsMapExplorer) {
+            PlaceMapExplorerSheet(place: place, nearbyPlaces: allStoryPlaces)
         }
+#endif
     }
 
-    private func savePlaceCheckpoint() {
-        guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
-        var point = appModel.lessonStore.resumePoint(for: sceneID) ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
-        point.solvedPlaceIDs.formUnion(solvedPlaceIDs)
-        point.helpedPlaceIDs.formUnion(helpedPlaceIDs)
-        point.updatedAt = Date()
-        appModel.lessonStore.saveResumePoint(point)
+    private func updateMapCheckpoint(_ change: (inout LearningMapPlaceCheckpoint) -> Void) {
+        guard var point = checkpoint else { return }
+        change(&point)
+        guard appModel.lessonStore.saveMapPlaceCheckpoint(point, for: place.id) else { return }
+        checkpoint = point
     }
 
     private var simplifiedHeader: some View {
@@ -371,212 +355,40 @@ struct PlaceDetailView: View {
 
 private struct PlaceMapExplorerSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @EnvironmentObject private var appModel: AppModel
-
     let place: Place
     let nearbyPlaces: [Place]
-
-    @State private var cameraPosition: MapCameraPosition
-    @State private var mapQuizState = MapQuizState()
-
-    private var mapQuizPrompts: [MapQuizPlacePrompt] {
-        MapQuizEngine.prompts(for: nearbyPlaces)
-    }
-
-    private var highlightGroups: [MapHighlightGroup] {
-        MapQuizEngine.defaultHighlightGroups(for: nearbyPlaces)
-    }
-
-    init(place: Place, nearbyPlaces: [Place]) {
-        self.place = place
-        self.nearbyPlaces = nearbyPlaces
-        _cameraPosition = State(initialValue: .region(Self.region(for: place, nearbyPlaces: nearbyPlaces)))
-    }
+    @State private var selectedPlace: Place?
 
     var body: some View {
         NavigationStack {
             ScrollView {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                GBSurface(style: .accented(.place)) {
-                    VStack(alignment: .leading, spacing: GBSpacing.small) {
-                        Text("Map explorer")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.84))
-                        Text(place.name)
-                            .font(.system(.title, design: .rounded, weight: .bold))
-                            .foregroundStyle(GBColor.Content.inverse)
-                        Text("Explore the wider area. The offline fort board lets you find a place from its story clue.")
-                            .foregroundStyle(GBColor.Content.inverse.opacity(0.92))
-                    }
-                }
-
-                mapQuizPromptCard
-
-                Map(position: $cameraPosition) {
-                    ForEach(nearbyPlaces.filter { $0.coordinate != nil }) { candidate in
-                        if let coordinate = candidate.coordinate {
-                            Annotation(annotationTitle(for: candidate), coordinate: coordinate) {
-                                Button {
-                                    withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.bounce) {
-                                        mapQuizState = MapQuizEngine.reveal(placeID: candidate.id, in: mapQuizState)
-                                    }
-
-                                } label: {
-                                    mapPin(for: candidate)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(accessibilityLabel(for: candidate))
+                VStack(alignment: .leading, spacing: GBSpacing.medium) {
+                    Text("Compare the places in our story").gbTitle()
+                    LearningAtlasView(places: nearbyPlaces, initialPlace: place,
+                        selectedPlaceID: selectedPlace?.id) { selectedPlace = $0 }
+                    if let selectedPlace {
+                        GBSurface(style: .elevated) {
+                            VStack(alignment: .leading, spacing: GBSpacing.small) {
+                                Text(selectedPlace.name).gbHeadline()
+                                Text(selectedPlace.primaryEvent).gbBody()
+                                Text(LearningAtlasContent.relationship(for: selectedPlace)).gbBody()
                             }
                         }
                     }
                 }
-                .mapStyle(.standard(elevation: .realistic))
-                .frame(height: 320)
-                .clipShape(RoundedRectangle(cornerRadius: GBRadius.hero, style: .continuous))
-
-                GBSurface(style: .elevated) {
-                    VStack(alignment: .leading, spacing: GBSpacing.xxSmall) {
-                        Text("Why this helps")
-                            .font(.headline)
-                        Text(place.primaryEvent)
-                            .font(.subheadline.weight(.semibold))
-                        Text("Memory hook: \(place.memoryHook). Region clue: \(place.regionLabel).")
-                            .font(.subheadline)
-                            .foregroundStyle(GBColor.Content.secondary)
-                    }
-                }
-            }
-            .padding()
+                .padding()
             }
             .background(GBColor.Background.app)
-            .navigationTitle("Map explorer")
+            .navigationTitle("Picture atlas")
 #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
 #endif
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
                 }
             }
         }
-    }
-
-    private static func region(for place: Place, nearbyPlaces: [Place]) -> MKCoordinateRegion {
-        let viewport = Place.explorerViewport(for: place, nearbyPlaces: nearbyPlaces)
-        return MKCoordinateRegion(
-            center: CLLocationCoordinate2D(
-                latitude: viewport.centerLatitude,
-                longitude: viewport.centerLongitude
-            ),
-            span: MKCoordinateSpan(
-                latitudeDelta: viewport.latitudeDelta,
-                longitudeDelta: viewport.longitudeDelta
-            )
-        )
-    }
-
-    private var mapQuizPromptCard: some View {
-        GBSurface(style: .elevated) {
-            VStack(alignment: .leading, spacing: GBSpacing.small) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("Explore map clues")
-                        .font(.headline)
-                    Spacer()
-                    Text("\(mapQuizState.revealedPlaceIDs.count)/\(mapQuizPrompts.count)")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(GBColor.Place.primary)
-                }
-
-                Text(currentQuizClue)
-                    .font(.subheadline)
-                    .foregroundStyle(GBColor.Content.secondary)
-
-                if !highlightGroups.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: GBSpacing.xSmall) {
-                            Button {
-                                withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.spring) {
-                                    mapQuizState = MapQuizEngine.clearHighlights(from: mapQuizState)
-                                }
-                            } label: {
-                                Label("Clear", systemImage: "xmark.circle")
-                            }
-                            .buttonStyle(.gbSecondary)
-
-                            ForEach(highlightGroups) { group in
-                                Button {
-                                    withAnimation(reduceMotion || appModel.parentSettings.calmTransitionsEnabled ? nil : GBMotion.spring) {
-                                        mapQuizState = MapQuizEngine.apply(group: group, to: mapQuizState)
-                                    }
-                                } label: {
-                                    Label(group.title, systemImage: mapQuizState.activeGroupID == group.id ? "mappin.and.ellipse.circle.fill" : "mappin.and.ellipse.circle")
-                                }
-                                .buttonStyle(.gbSecondary)
-                                .accessibilityHint(group.subtitle)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private var currentQuizClue: String {
-        guard let prompt = mapQuizPrompts.first(where: { !mapQuizState.revealedPlaceIDs.contains($0.placeID) }) else {
-            return "Every fort name is revealed. Try a group highlight and compare the places."
-        }
-        return "\(prompt.anchorClue) Hook: \(prompt.memoryHook)."
-    }
-
-    private func mapPin(for candidate: Place) -> some View {
-        let isRevealed = mapQuizState.revealedPlaceIDs.contains(candidate.id)
-        let isHighlighted = mapQuizState.highlightedPlaceIDs.contains(candidate.id)
-        let isFocus = candidate.id == place.id
-
-        return VStack(spacing: 4) {
-            ZStack {
-                if isHighlighted {
-                    Circle()
-                        .stroke(GBColor.Accent.success.opacity(0.65), lineWidth: 4)
-                        .frame(width: 46, height: 46)
-                }
-
-                Image(systemName: pinIcon(for: candidate, isRevealed: isRevealed))
-                    .font(isFocus || isHighlighted ? .title : .title2)
-                    .foregroundStyle(pinColor(isFocus: isFocus, isHighlighted: isHighlighted, isRevealed: isRevealed))
-            }
-
-            Text(isRevealed ? candidate.name : "Mystery fort")
-                .font(.caption2.weight(.bold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
-                .background(.ultraThinMaterial, in: Capsule())
-        }
-    }
-
-    private func annotationTitle(for candidate: Place) -> String {
-        mapQuizState.revealedPlaceIDs.contains(candidate.id) ? candidate.name : "Mystery fort"
-    }
-
-    private func accessibilityLabel(for candidate: Place) -> String {
-        if mapQuizState.revealedPlaceIDs.contains(candidate.id) {
-            return "\(candidate.name), revealed map quiz fort."
-        }
-        return "Mystery fort near \(candidate.regionLabel). Tap to reveal."
-    }
-
-    private func pinIcon(for candidate: Place, isRevealed: Bool) -> String {
-        if !isRevealed { return "questionmark.circle.fill" }
-        return candidate.id == place.id ? "mappin.circle.fill" : "mappin.circle"
-    }
-
-    private func pinColor(isFocus: Bool, isHighlighted: Bool, isRevealed: Bool) -> Color {
-        if isHighlighted { return GBColor.Accent.success }
-        if isFocus { return GBColor.Accent.place }
-        return isRevealed ? GBColor.Content.primary : GBColor.Content.secondary
     }
 }
 

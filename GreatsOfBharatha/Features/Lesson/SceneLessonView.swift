@@ -5,6 +5,7 @@ struct SceneLessonView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let scene: StoryScene
+    @State private var currentPlaceIndex = 0
     @State private var point: LessonResumePoint?
     @State private var selectedChoiceID: String?
     @State private var feedback: String?
@@ -83,30 +84,40 @@ struct SceneLessonView: View {
 
     private var placeStep: some View {
         VStack(alignment: .leading, spacing: GBSpacing.medium) {
-            Text("These places belong to our story.").gbTitle()
-            ForEach(places) { place in
-                let authoredClue = discoveryContent?.placeClue(placeID: place.id)
-                Text("\(place.name): " + (authoredClue?.hint ?? place.primaryEvent)).gbStory()
+            Text("Find the places in our story").gbTitle()
+            if places.indices.contains(currentPlaceIndex) {
+                let place = places[currentPlaceIndex]
+                Text("Place \(currentPlaceIndex + 1) of \(places.count)").gbBody()
                 OfflineFortChallenge(target: place, candidates: candidates(for: place),
-                    authoredClue: authoredClue,
+                    authoredClue: discoveryContent?.placeClue(placeID: place.id),
+                    selectedPlaceID: Binding(get: { point?.selectedPlaceChoiceIDs[place.id] }, set: { id in mutatePoint { $0.selectedPlaceChoiceIDs[place.id] = id } }),
                     solvedPlaceIDs: Binding(get: { point?.solvedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.solvedPlaceIDs = ids } }),
                     helpedPlaceIDs: Binding(get: { point?.helpedPlaceIDs ?? [] }, set: { ids in mutatePoint { $0.helpedPlaceIDs = ids } })) { support in
+                        guard let sessionID = point?.sessionID else { return }
                         appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
                             activity: .recall, wasSuccessful: true, support: support, mastery: .understood,
                             promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue on the offline board",
+                            eventID: LearningMapEvidenceIdentity.eventID(placeID: place.id, sessionID: sessionID),
                             sessionID: point?.sessionID)
-                    }
+                    }.id(place.id)
+                if currentPlaceIndex < places.count - 1 {
+                    Button("Find the next place") { currentPlaceIndex += 1 }
+                        .buttonStyle(.gbPrimary(.place))
+                        .disabled(point?.solvedPlaceIDs.contains(place.id) != true)
+                        .accessibilityIdentifier("place-clues-next-button")
+                }
             }
-            Button("Got it! Try my memory") { advance(.recall) }
-                .buttonStyle(.gbPrimary(.place))
-                .disabled(!places.allSatisfy { point?.solvedPlaceIDs.contains($0.id) == true })
-                .accessibilityIdentifier("place-clues-got-it-button")
+            if currentPlaceIndex >= places.count - 1 {
+                Button("Got it! Try my memory") { advance(.recall) }
+                    .buttonStyle(.gbPrimary(.place))
+                    .disabled(!places.allSatisfy { point?.solvedPlaceIDs.contains($0.id) == true })
+                    .accessibilityIdentifier("place-clues-got-it-button")
+            }
         }
     }
 
     private func candidates(for target: Place) -> [Place] {
-        let others = appModel.content.corePlaces.filter { $0.id != target.id }.prefix(2)
-        return ([target] + others).sorted { $0.name < $1.name }
+        LearningAtlasContent.candidates(for: target, places: appModel.content.places)
     }
 
     private var recall: some View {
@@ -206,6 +217,7 @@ struct SceneLessonView: View {
         point = appModel.lessonStore.resumePoint(for: scene.id) ?? LessonResumePoint(sceneID: scene.id)
         completionEventID = point?.recallEventID ?? UUID()
         usedHelp = (point?.revealedHintLevel ?? 0) > 0
+        currentPlaceIndex = places.firstIndex(where: { point?.solvedPlaceIDs.contains($0.id) != true }) ?? max(places.count - 1, 0)
         shuffledChoices = plan.choices.shuffled()
         // Persist success checkpoint before reward so interruption cannot require a second award.
         let durableSuccess = appModel.lessonStore.masteryRecord(for: scene.id)?.evidenceLog.contains {

@@ -84,6 +84,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         for _ in 0..<3 { select("tv-lesson-story-next") }
         select("tv-discovery-continue")
         select("tv-fort-place-shivneri")
+        select("tv-fort-check")
         select("tv-fort-continue")
         XCTAssertTrue(app.buttons["tv-recall-scene-1-shivneri-shivneri"].waitForExistence(timeout: 10))
     }
@@ -191,6 +192,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         for _ in 0..<3 { select("tv-lesson-story-next") }
         select("tv-discovery-continue")
         select("tv-fort-place-pratapgad")
+        select("tv-fort-check")
         select("tv-fort-continue")
         select("tv-recall-" + chapter.id + "-pratapgad")
         select("tv-recall-check")
@@ -314,7 +316,9 @@ final class TVLearningJourneyUITests: XCTestCase {
         for _ in 0..<3 { select("tv-lesson-story-next") }
         select("tv-discovery-continue")
         select("tv-fort-place-purandar")
+        select("tv-fort-check")
         select("tv-fort-place-agra")
+        select("tv-fort-check")
         select("tv-fort-continue")
         select("tv-recall-scene-4-purandar-agra-purandar")
         select("tv-recall-check")
@@ -381,7 +385,10 @@ final class TVLearningJourneyUITests: XCTestCase {
             XCTAssertTrue(app.buttons["tv-discovery-close"].waitForExistence(timeout: 10))
             remote.press(.menu)
             select("tv-discovery-continue")
-            for placeID in chapter.places { select("tv-fort-" + placeID) }
+            for placeID in chapter.places {
+                select("tv-fort-" + placeID)
+                select("tv-fort-check")
+            }
             select("tv-fort-continue")
             if index == 0 {
                 select("tv-recall-scene-1-shivneri-rajgad")

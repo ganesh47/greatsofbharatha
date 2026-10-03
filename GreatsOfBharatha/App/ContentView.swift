@@ -21,7 +21,7 @@ struct ContentView: View {
 
             // ── Tab 2: Map ────────────────────────────────────
             NavigationStack {
-                PlacesHubView(places: SampleContent.shivajiVerticalSlice.corePlaces)
+                PlacesHubView(places: SampleContent.shivajiVerticalSlice.places)
             }
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(DebugTabRoute.places)

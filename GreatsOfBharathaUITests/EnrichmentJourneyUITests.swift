@@ -83,6 +83,12 @@ final class EnrichmentJourneyUITests: XCTestCase {
         let rootTab = ["Story", "Learn", "Map", "Timeline", "Album"].contains(id)
         if rootTab || id == "review-dismiss-keyboard" {
             XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND hittable == true"), object: button)
+            if XCTWaiter.wait(for: [ready], timeout: 5) != .completed {
+                captureInteractionFailure(button, in: app.scrollViews.firstMatch)
+                XCTFail("Native control did not settle: " + id)
+                return
+            }
         } else {
             let container = scroll.isEmpty ? app.scrollViews.firstMatch : app.scrollViews[scroll].firstMatch
             reveal(button, in: container)

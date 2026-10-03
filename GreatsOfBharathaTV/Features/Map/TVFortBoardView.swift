@@ -5,7 +5,7 @@ struct TVFortBoardView: View {
     @EnvironmentObject private var narrator: GBNarrator
     @State private var selectedPlaceID: String?
 
-    private var selectedPlace: Place? { appModel.content.corePlaces.first { $0.id == selectedPlaceID } }
+    private var selectedPlace: Place? { appModel.content.places.first { $0.id == selectedPlaceID } }
 
     var body: some View {
         TVScreen {
@@ -14,23 +14,12 @@ struct TVFortBoardView: View {
                     Text("Explore the fort board").font(.system(size: 52, weight: .bold, design: .serif))
                     TVFireflyGuide(message: "Choose a fort to hear its story. In the chapters, you’ll find places from clues!")
                     HStack(alignment: .top, spacing: 44) {
-                        VStack(alignment: .leading, spacing: 26) {
-                            Text("Sahyadri hills and the journey beyond").font(.system(size: 29, weight: .semibold, design: .serif))
-                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 24) {
-                                ForEach(appModel.content.corePlaces) { place in
-                                    Button {
-                                        selectedPlaceID = place.id
-                                        narrator.stop()
-                                    } label: {
-                                        VStack(spacing: 12) {
-                                            Image(systemName: "mountain.2.fill").font(.system(size: 42)).foregroundStyle(TVTheme.gold)
-                                            Text(place.name)
-                                            Text(place.regionLabel).font(.system(size: 23)).lineLimit(2)
-                                        }.frame(maxWidth: .infinity, minHeight: 138)
-                                    }.buttonStyle(TVCardButtonStyle()).accessibilityIdentifier("tv-map-" + place.id)
-                                }
+                        LearningAtlasView(places: appModel.content.places, selectedPlaceID: selectedPlaceID,
+                            identifierPrefix: "tv-map-") { place in
+                                selectedPlaceID = place.id
+                                narrator.stop()
                             }
-                        }.frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity)
                         VStack(alignment: .leading, spacing: 24) {
                             if let place = selectedPlace {
                                 Text(place.name).font(.system(size: 40, weight: .bold, design: .serif))
@@ -46,6 +35,7 @@ struct TVFortBoardView: View {
                             }
                         }.frame(width: 520, alignment: .leading).padding(30)
                             .background(TVTheme.panel, in: RoundedRectangle(cornerRadius: 26))
+                            .focusSection()
                     }
                 }.padding(12)
             }
