@@ -108,6 +108,19 @@ struct ChapterKnowledgeArchive: Codable, Equatable, Sendable {
 enum ChapterKnowledgeJourney {
     static let maximumAttemptsPerTurn = 3
 
+    /// Navigation alone saves a stable position without claiming that any copy was seen.
+    static func activateTeachingBeat(_ beatID: String, archive: ChapterKnowledgeArchive,
+                                     definition: ChapterKnowledgeDefinition) -> ChapterKnowledgeArchive {
+        guard canChange(archive, definition: definition), definition.beats.contains(where: { $0.id == beatID }) else {
+            return archive
+        }
+        var next = archive
+        var point = next.teachingBySceneID[definition.sceneID] ?? ChapterKnowledgeTeachingCheckpoint(sceneID: definition.sceneID)
+        point.activeBeatID = beatID
+        next.teachingBySceneID[definition.sceneID] = point
+        return next
+    }
+
     static func begin(_ archive: ChapterKnowledgeArchive, definition: ChapterKnowledgeDefinition,
                       sessionID: UUID, context: ChapterKnowledgeResponseContext,
                       restartCompleted: Bool = false) -> ChapterKnowledgeArchive {
