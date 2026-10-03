@@ -9,7 +9,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             // ── Tab 1: Story ──────────────────────────────────
-            LearnNavigationStack {
+            LearnNavigationStack(registerPilotRoutes: FeatureFlags.historyLearnQuizResetEnabled) {
                 if FeatureFlags.historyLearnQuizResetEnabled {
                     LearnQuizHomeView()
                 } else {
@@ -25,6 +25,10 @@ struct ContentView: View {
             }
             .tabItem { Label("Map", systemImage: "map.fill") }
             .tag(DebugTabRoute.places)
+
+            NavigationStack { TimelineLearningEntry() }
+                .tabItem { Label("Timeline", systemImage: "point.3.connected.trianglepath.dotted") }
+                .tag(DebugTabRoute.timeline)
 
             // ── Tab 3: Album (Chronicle + Parent gear) ────────
             NavigationStack {

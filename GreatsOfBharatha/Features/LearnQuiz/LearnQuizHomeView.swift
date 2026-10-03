@@ -18,7 +18,6 @@ struct LearnQuizHomeView: View {
         if let unfinishedMatch { return unfinishedMatch }
         return scenes.first { appModel.lessonStore.mastery(for: $0.id).map { $0 < .understood } ?? true } ?? scenes.first
     }
-    private var reviewCards: [LearnQuizReviewCard] { learned.flatMap(\.reviewCards) }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: GBSpacing.medium) {
@@ -43,14 +42,13 @@ struct LearnQuizHomeView: View {
                     }.buttonStyle(.gbPrimary(.place))
                     NavigationLink(value: LearnRoute.review) {
                         Label("Review my story cards", systemImage: "rectangle.on.rectangle")
-                    }.buttonStyle(.gbSecondary)
+                    }.buttonStyle(.gbSecondary).accessibilityIdentifier("pilot-home-review")
                 }
                 NavigationLink(value: LearnRoute.chronicle) {
                     Label("Open my Chronicle", systemImage: "book.closed.fill")
                 }.buttonStyle(.gbPrimary(.chronicle))
             }.padding(GBSpacing.medium).frame(maxWidth: 700).frame(maxWidth: .infinity)
         }.accessibilityIdentifier("pilot-home-scroll").background(GBColor.Background.app).navigationTitle("Learn & Play")
-        .onAppear { navigation.trace("home.appear", sceneID: next?.id) }
     }
 }
 

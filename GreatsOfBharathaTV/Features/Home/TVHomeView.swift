@@ -50,6 +50,8 @@ struct TVHomeView: View {
                             destination("Story timeline", symbol: "clock.fill", route: .timeline, id: "tv-home-timeline")
                             destination("Grown-ups", symbol: "gearshape.fill", route: .parent, id: "tv-home-parent")
                         }
+                        destination("Review story cards", symbol: "rectangle.on.rectangle", route: .review, id: "tv-home-review")
+                            .frame(maxWidth: 640)
                         Text("Six chapters to discover").font(.system(size: 36, weight: .bold, design: .serif))
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 28) {
                             ForEach(appModel.content.scenes) { scene in
@@ -68,6 +70,12 @@ struct TVHomeView: View {
                 case .map: TVFortBoardView()
                 case .timeline: TVTimelineView()
                 case .parent: TVParentView()
+                case .review:
+                    if appModel.lessonStore.activityStateIsAvailable(for: .review) {
+                        TVReviewJourneyView(hooks: LearningActivityAdapters.reviewHooks(store: appModel.lessonStore))
+                    } else {
+                        TVScreen { Text("Your saved review uses a format this app cannot open. Its data and chapter progress are preserved.").font(.system(size: 32)) }
+                    }
                 }
             }
             .onChange(of: path) { _, _ in narrator.clearCurrent() }

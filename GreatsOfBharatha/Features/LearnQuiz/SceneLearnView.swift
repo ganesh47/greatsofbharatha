@@ -17,6 +17,10 @@ struct SceneLearnView: View {
                     })
                     LearningNarrationControls(id: scene.id + "-pilot-story", text: scene.story + " " + scene.memoryHook)
 
+                    if let content = ChapterDiscoveryContent.chapter(sceneID: scene.id) {
+                        ChapterStoryDiscoveryView(content: content)
+                    }
+
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 112), spacing: GBSpacing.xSmall)], spacing: GBSpacing.xSmall) {
                         NavigationLink(value: LearnRoute.quiz(sceneID: scene.id, sessionID: sessionID)) {
                             Label("Quiz", systemImage: "questionmark.bubble.fill")
@@ -33,6 +37,7 @@ struct SceneLearnView: View {
                             Label("Cards", systemImage: "rectangle.on.rectangle.angled")
                         }
                         .buttonStyle(.gbSecondary)
+                        .accessibilityIdentifier("pilot-scene-review")
                     }
 
                     NavigationLink(value: LearnRoute.chronicle) {

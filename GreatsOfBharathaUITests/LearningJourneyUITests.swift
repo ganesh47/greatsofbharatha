@@ -10,22 +10,6 @@ final class LearningJourneyUITests: XCTestCase {
         app = XCUIApplication()
         app.launchEnvironment["GOB_UI_TEST_SUITE"] = "gob.ui.\(UUID().uuidString)"
         app.launchEnvironment["GOB_UI_TEST_RESET"] = "1"
-        app.launchEnvironment["GOB_NAV_TRACE"] = "1"
-        addTeardownBlock { @MainActor [weak self] () async throws -> Void in
-            self?.captureNavigationTrace()
-        }
-    }
-
-    private func captureNavigationTrace() {
-        if let app {
-            let probe = app.descendants(matching: .any)["gob-nav-trace"].firstMatch
-            let text = probe.exists ? (probe.value as? String ?? "trace-value-missing") : "trace-probe-missing\n" + app.debugDescription
-            let attachment = XCTAttachment(string: text)
-            attachment.name = "synthetic-navigation-trace"
-            attachment.lifetime = .keepAlways
-            add(attachment)
-            print("GOB_NAV_TRACE\n" + text)
-        }
     }
 
     private func launch(largeText: Bool = false, pilot: Bool = false) {
@@ -162,8 +146,7 @@ final class LearningJourneyUITests: XCTestCase {
 
     func testStoryMatchingDonePreservesStoryRoutes() {
         launch()
-        // Earn a learned chapter through the real Story journey. The TV-only seed
-        // environment variable does not seed iOS progress.
+        // Earn a learned chapter through the real Story journey before checking matching and routes.
         tap("home-primary-lesson")
         tap("story-move-to-place-clues-button")
         tap("fort-choice-place-shivneri")
