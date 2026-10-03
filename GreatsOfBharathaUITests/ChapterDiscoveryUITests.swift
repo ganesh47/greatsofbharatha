@@ -27,11 +27,13 @@ final class ChapterDiscoveryUITests: XCTestCase {
             let targetFrame = measuredFrame.flatMap { $0.isEmpty || $0.isNull ? nil : $0 }
             let frames = scrollFrames(in: scroll)
             let viewport = frames.viewport
-            let isButton = targetFrame != nil && element.elementType == .button
+            let isButton = targetFrame != nil && (element.elementType == .button || element.elementType == .switch)
             if let targetFrame, frames.isVisible(targetFrame, isButton: isButton), element.isHittable {
                 return
             }
-            guard attempt < 64, !viewport.isNull else { break }
+            guard attempt < 64 else { break }
+            // Native navigation can expose a target before its new scroll viewport settles.
+            guard !viewport.isNull else { continue }
             let towardEnd = targetFrame.map { $0.midY > viewport.midY } ?? (attempt < 32)
             let distance = frames.dragDistance(to: targetFrame, isButton: isButton)
             let startY = viewport.midY + (towardEnd ? distance / 2 : -distance / 2)
@@ -133,10 +135,7 @@ final class ChapterDiscoveryUITests: XCTestCase {
                 XCTFail("Missing parent preference \(identifier)")
                 return
             }
-            for _ in 0..<20 {
-                if toggle.isHittable { break }
-                app.swipeUp()
-            }
+            reveal(toggle, in: app.scrollViews.firstMatch)
             guard toggle.isHittable else {
                 captureInteractionFailure(toggle, in: app.scrollViews.firstMatch, expectedValue: expectedValue)
                 XCTFail("Unreachable parent preference \(identifier)")
