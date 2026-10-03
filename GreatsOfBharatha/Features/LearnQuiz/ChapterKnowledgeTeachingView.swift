@@ -265,18 +265,33 @@ struct ChapterKnowledgeTeachingView: View {
     private func details(page: ChapterKnowledgeTeachingPage) -> some View {
         VStack(alignment: .leading, spacing: GBSpacing.medium) {
             if let claim = page.claim {
-                DisclosureGroup("Sources and detail", isExpanded: $sourcesExpanded) {
+                Button {
+                    sourcesExpanded.toggle()
+                } label: {
+                    Label("Sources and detail", systemImage: sourcesExpanded ? "chevron.up" : "chevron.down")
+                }
+                .buttonStyle(.gbSecondary)
+                .accessibilityValue(sourcesExpanded ? "Expanded" : "Collapsed")
+                .accessibilityIdentifier("knowledge-sources-" + claim.id)
+                if sourcesExpanded {
                     ChapterKnowledgeCitationList(claim: claim, sourceLookup: sourceLookup)
                 }
-                .accessibilityIdentifier("knowledge-sources-" + claim.id)
             }
             if !vocabulary.isEmpty {
-                DisclosureGroup("Words to explore", isExpanded: $glossaryExpanded) {
+                Button {
+                    glossaryExpanded.toggle()
+                } label: {
+                    Label("Words to explore", systemImage: glossaryExpanded ? "chevron.up" : "chevron.down")
+                }
+                .buttonStyle(.gbSecondary)
+                .accessibilityValue(glossaryExpanded ? "Expanded" : "Collapsed")
+                .accessibilityIdentifier("knowledge-glossary")
+                if glossaryExpanded {
                     ForEach(vocabulary) { claim in
                         Text(claim.statement).gbStory().padding(.vertical, GBSpacing.xSmall)
                             .accessibilityIdentifier("knowledge-word-" + claim.id)
                     }
-                }.accessibilityIdentifier("knowledge-glossary")
+                }
             }
         }
     }
