@@ -161,10 +161,18 @@ final class LearningJourneyUITests: XCTestCase {
     }
 
     func testStoryMatchingDonePreservesStoryRoutes() {
-        configureApplication()
-        app.launchEnvironment["GOB_UI_TEST_SEED_THROUGH_CHAPTER"] = "1"
+        launch()
+        // Earn a learned chapter through the real Story journey. The TV-only seed
+        // environment variable does not seed iOS progress.
+        tap("home-primary-lesson")
+        tap("story-move-to-place-clues-button")
+        tap("fort-choice-place-shivneri")
+        tap("place-clues-got-it-button")
+        tap("recall-choice-scene-1-shivneri-shivneri")
+        tap("recall-check-button")
+        tap("recall-reward-button")
+        app.terminate()
         app.launch()
-        app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
         let matching = app.buttons["home-match-places"]
         let scroll = app.scrollViews["home-story-scroll"]
         for _ in 0..<8 {
