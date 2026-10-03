@@ -39,6 +39,53 @@ final class ChapterKnowledgeUITests: XCTestCase {
         allChapters(route: "pilot")
     }
 
+    func testOrdinaryStoryAndPilotEntriesCanOpenTeachingPauseAndRequireUntaughtPractice() {
+        for route in ["story", "pilot"] {
+            continueAfterFailure = false
+            XCUIDevice.shared.orientation = .portrait
+            app = XCUIApplication()
+            app.launchEnvironment = [
+                "GOB_UI_TEST_SUITE": "gob.ui.knowledge." + UUID().uuidString,
+                "GOB_UI_TEST_RESET": "1",
+                "GOB_HISTORY_LEARN_QUIZ_RESET_ENABLED": route == "pilot" ? "1" : "0"
+            ]
+            app.launch()
+            app.launchEnvironment.removeValue(forKey: "GOB_UI_TEST_RESET")
+            tap(route == "pilot" ? "pilot-home-continue" : "home-primary-lesson",
+                scrollID: route == "pilot" ? "pilot-home-scroll" : "home-story-scroll")
+            let parentScroll = route == "pilot" ? "pilot-scene-scroll" : "scene-lesson-scroll"
+            tap("knowledge-open-teaching-" + chapters[0].id, scrollID: parentScroll)
+            XCTAssertTrue(app.staticTexts["knowledge-beat-" + chapters[0].id + "-story"].waitForExistence(timeout: 10))
+            tap("knowledge-teaching-pause", scrollID: "knowledge-teaching-scroll")
+            tap("knowledge-open-practice-" + chapters[0].id, scrollID: parentScroll)
+            XCTAssertTrue(app.staticTexts["knowledge-practice-needs-teaching"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.buttons["knowledge-practice-check"].exists, "Opening and pausing a card cannot teach its facts")
+            capture("knowledge-ordinary-" + route + "-entry-without-receipt")
+        }
+    }
+
+    func testTeachingChoicesAndFeedbackPassNativeAccessibilityAudits() throws {
+        launch(sceneID: chapters[0].id, entry: "teaching")
+        XCTAssertTrue(app.staticTexts["knowledge-beat-" + chapters[0].id + "-story"].waitForExistence(timeout: 10))
+        try app.performAccessibilityAudit(for: [.hitRegion, .sufficientElementDescription, .trait])
+        readTeachingCardAndContinue()
+        let fact = app.staticTexts["knowledge-fact-" + chapters[0].id + "-fact-birth-place"]
+        XCTAssertTrue(fact.waitForExistence(timeout: 10))
+        try app.performAccessibilityAudit(for: [.hitRegion, .sufficientElementDescription, .trait])
+        finishTeaching()
+        let id = chapters[0].id + "-knowledge-question-mother"
+        let choiceID = "knowledge-choice-" + id + "-choice-1"
+        XCTAssertFalse(app.buttons["knowledge-practice-check"].isEnabled)
+        tap(choiceID, scrollID: "knowledge-practice-scroll")
+        XCTAssertEqual(app.buttons[choiceID].value as? String, "Selected")
+        XCTAssertFalse(app.staticTexts["knowledge-practice-result-title"].exists)
+        try app.performAccessibilityAudit(for: [.hitRegion, .sufficientElementDescription, .trait])
+        tap("knowledge-practice-check", scrollID: "knowledge-practice-scroll")
+        XCTAssertEqual(app.staticTexts["knowledge-practice-result-title"].label, "Your choice matched")
+        try app.performAccessibilityAudit(for: [.hitRegion, .sufficientElementDescription, .trait])
+        capture("knowledge-native-accessibility-audit-feedback")
+    }
+
     private func allChapters(route: String) {
         for (index, chapter) in chapters.enumerated() {
             launch(sceneID: chapter.id, entry: "teaching", route: route)
@@ -188,7 +235,11 @@ final class ChapterKnowledgeUITests: XCTestCase {
             let source = app.descendants(matching: .any)["knowledge-sources-" + claimID].firstMatch
             reveal(source, scrollID: "knowledge-teaching-scroll")
             source.tap()
-            XCTAssertTrue(app.descendants(matching: .any)["knowledge-citation-" + claimID].exists)
+            let citation = app.descendants(matching: .any)["knowledge-citation-" + claimID].firstMatch
+            guard citation.waitForExistence(timeout: 5) else {
+                failWithEvidence("Expanded source citation is missing for " + claimID)
+                return
+            }
             capture("knowledge-large-text-source-" + claimID)
         }
         tap("knowledge-teaching-next", scrollID: "knowledge-teaching-scroll")
