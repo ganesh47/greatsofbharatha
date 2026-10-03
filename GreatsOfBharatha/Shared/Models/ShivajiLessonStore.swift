@@ -34,6 +34,7 @@ struct LessonPersistenceDiagnostics: Equatable {
 enum LessonActivityStateKey: String, Codable {
     case timeline = "ios.timeline"
     case review = "learning.review"
+    case atlas = "learning.atlas"
 }
 
 final class ShivajiLessonStore: ObservableObject {
@@ -303,6 +304,26 @@ final class ShivajiLessonStore: ObservableObject {
 
     func resumePoint(for sceneID: String) -> LessonResumePoint? { resumePointsByScene[sceneID] }
 
+    /// Reading a Map detail does not create or update Story continuation.
+    func mapPlaceCheckpoint(for placeID: String) -> LearningMapPlaceCheckpoint? {
+        guard content.places.contains(where: { $0.id == placeID }), activityStateIsAvailable(for: .atlas) else { return nil }
+        return activityState(LearningMapActivityArchive.self, for: .atlas)?.placesByID[placeID]
+            ?? LearningMapPlaceCheckpoint()
+    }
+
+    @discardableResult
+    func saveMapPlaceCheckpoint(_ point: LearningMapPlaceCheckpoint, for placeID: String) -> Bool {
+        guard let place = content.places.first(where: { $0.id == placeID }), activityStateIsAvailable(for: .atlas) else { return false }
+        let candidates = Set(LearningAtlasContent.candidates(for: place, places: content.places).map(\.id))
+        guard point.selectedPlaceID.map(candidates.contains) ?? true else { return false }
+        var archive = activityState(LearningMapActivityArchive.self, for: .atlas) ?? LearningMapActivityArchive()
+        archive.placesByID[placeID] = point
+        let receipts = Set(archive.placesByID.map { id, saved in
+            LearningMapEvidenceIdentity.eventID(placeID: id, sessionID: saved.sessionID)
+        })
+        return saveActivityState(archive, for: .atlas, retainingEventIDs: receipts)
+    }
+
     func activityState<State: Decodable>(_ type: State.Type, for key: LessonActivityStateKey) -> State? {
         guard let data = activityStateData[key.rawValue] else { return nil }
         return try? JSONDecoder().decode(type, from: data)
@@ -320,6 +341,8 @@ final class ShivajiLessonStore: ObservableObject {
             return (try? JSONDecoder().decode(TimelineActivityCheckpoint.self, from: data))?.schemaVersion == 1
         case .review:
             return (try? JSONDecoder().decode(ReviewJourneyArchive.self, from: data))?.schemaVersion == 1
+        case .atlas:
+            return (try? JSONDecoder().decode(LearningMapActivityArchive.self, from: data))?.schemaVersion == 1
         }
     }
 

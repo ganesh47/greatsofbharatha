@@ -189,3 +189,16 @@ enum LearningMapEvidenceIdentity {
                            bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 }
+
+/// Standalone Map choices have their own session and never select a chapter phase.
+struct LearningMapPlaceCheckpoint: Codable, Equatable {
+    var sessionID = UUID()
+    var selectedPlaceID: String?
+    var wasSolved = false
+    var usedHelp = false
+}
+
+struct LearningMapActivityArchive: Codable, Equatable {
+    var schemaVersion = 1
+    var placesByID: [String: LearningMapPlaceCheckpoint] = [:]
+}

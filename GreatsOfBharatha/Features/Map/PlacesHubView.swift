@@ -176,10 +176,7 @@ struct PlaceDetailView: View {
     @EnvironmentObject private var appModel: AppModel
     @State private var showsMapExplorer = false
     @State private var showsParentGate = false
-    @State private var selectedPlaceID: String?
-    @State private var solvedPlaceIDs: Set<String> = []
-    @State private var helpedPlaceIDs: Set<String> = []
-    @State private var sessionID = UUID()
+    @State private var checkpoint: LearningMapPlaceCheckpoint?
 
     private var allStoryPlaces: [Place] {
         appModel.content.places
@@ -203,15 +200,26 @@ struct PlaceDetailView: View {
                     // Simplified header: fort icon + name + why it matters
                     simplifiedHeader
 
-                    OfflineFortChallenge(target: place,
+                    if let checkpoint {
+                        OfflineFortChallenge(target: place,
                         candidates: LearningAtlasContent.candidates(for: place, places: appModel.content.places),
-                        selectedPlaceID: $selectedPlaceID,
-                        solvedPlaceIDs: $solvedPlaceIDs, helpedPlaceIDs: $helpedPlaceIDs) { support in
+                        selectedPlaceID: Binding(get: { self.checkpoint?.selectedPlaceID },
+                            set: { selected in updateMapCheckpoint { $0.selectedPlaceID = selected } }),
+                        solvedPlaceIDs: Binding(get: { self.checkpoint?.wasSolved == true ? [place.id] : [] },
+                            set: { solved in updateMapCheckpoint { $0.wasSolved = solved.contains(place.id) } }),
+                        helpedPlaceIDs: Binding(get: { self.checkpoint?.usedHelp == true ? [place.id] : [] },
+                            set: { helped in updateMapCheckpoint { $0.usedHelp = helped.contains(place.id) } })) { _ in
+                            let eventID = LearningMapEvidenceIdentity.eventID(placeID: place.id, sessionID: checkpoint.sessionID)
                             appModel.lessonStore.recordLearningOutcome(subjectID: place.id, subjectType: .location,
                                 activity: .recall, wasSuccessful: true, support: .hinted, mastery: .understood,
                                 promptType: .eventToPlaceMatch, detail: "Found a fort from an authored clue",
-                                eventID: LearningMapEvidenceIdentity.eventID(placeID: place.id, sessionID: sessionID), sessionID: sessionID)
+                                eventID: eventID, sessionID: checkpoint.sessionID)
+                            _ = appModel.lessonStore.confirmOptionalLearningEvent(eventID, for: .atlas)
                         }.padding(.horizontal, context.containerPadding)
+                    } else if !appModel.lessonStore.activityStateIsAvailable(for: .atlas) {
+                        Text("This saved map activity could not be opened.").gbBody()
+                            .padding(.horizontal, context.containerPadding)
+                    }
 
                     // Kid-friendly fact card
                     kidFactCard(padding: context.containerPadding)
@@ -264,20 +272,11 @@ struct PlaceDetailView: View {
         .navigationTitle("")
 #endif
         .onAppear {
-            guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
-            var point = appModel.lessonStore.resumePoint(for: sceneID)
-                ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
-            solvedPlaceIDs = point.solvedPlaceIDs
-            helpedPlaceIDs = point.helpedPlaceIDs
-            sessionID = point.sessionID
+            guard checkpoint == nil, var point = appModel.lessonStore.mapPlaceCheckpoint(for: place.id) else { return }
             let candidates = Set(LearningAtlasContent.candidates(for: place, places: allStoryPlaces).map(\.id))
-            selectedPlaceID = point.selectedPlaceChoiceIDs[place.id].flatMap { candidates.contains($0) ? $0 : nil }
-            point.selectedPlaceChoiceIDs[place.id] = selectedPlaceID
-            appModel.lessonStore.saveResumePoint(point)
+            point.selectedPlaceID = point.selectedPlaceID.flatMap { candidates.contains($0) ? $0 : nil }
+            checkpoint = point
         }
-        .onChange(of: selectedPlaceID) { _, _ in savePlaceCheckpoint() }
-        .onChange(of: helpedPlaceIDs) { _, _ in savePlaceCheckpoint() }
-        .onChange(of: solvedPlaceIDs) { _, _ in savePlaceCheckpoint() }
 #if os(iOS)
         .sheet(isPresented: $showsParentGate) {
             ParentGateView { place.appleMapsHandoff.openInAppleMaps() }
@@ -288,14 +287,11 @@ struct PlaceDetailView: View {
 #endif
     }
 
-    private func savePlaceCheckpoint() {
-        guard let sceneID = appModel.content.scenes.first(where: { $0.mapAnchors.contains(place.id) })?.id else { return }
-        var point = appModel.lessonStore.resumePoint(for: sceneID) ?? LessonResumePoint(sceneID: sceneID, phase: .place, sessionID: sessionID)
-        point.selectedPlaceChoiceIDs[place.id] = selectedPlaceID
-        point.solvedPlaceIDs.formUnion(solvedPlaceIDs)
-        point.helpedPlaceIDs.formUnion(helpedPlaceIDs)
-        point.updatedAt = Date()
-        appModel.lessonStore.saveResumePoint(point)
+    private func updateMapCheckpoint(_ change: (inout LearningMapPlaceCheckpoint) -> Void) {
+        guard var point = checkpoint else { return }
+        change(&point)
+        guard appModel.lessonStore.saveMapPlaceCheckpoint(point, for: place.id) else { return }
+        checkpoint = point
     }
 
     private var simplifiedHeader: some View {
