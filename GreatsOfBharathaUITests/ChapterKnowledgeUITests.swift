@@ -49,9 +49,9 @@ final class ChapterKnowledgeUITests: XCTestCase {
                 XCTAssertTrue(prompt.waitForExistence(timeout: 10), "Question is unreachable: " + id)
                 XCTAssertEqual(app.staticTexts["knowledge-practice-progress"].label, "Question \(questionIndex + 1) of 4")
                 XCTAssertFalse(app.buttons["knowledge-practice-check"].isEnabled)
-                tap("knowledge-choice-" + id + "-" + id + "-choice-\(descriptor.choice)", scrollID: "knowledge-practice-scroll")
+                tap("knowledge-choice-" + id + "-choice-\(descriptor.choice)", scrollID: "knowledge-practice-scroll")
                 XCTAssertFalse(app.staticTexts["knowledge-practice-result-title"].exists, "Selecting must not check the answer")
-                XCTAssertEqual(app.buttons["knowledge-choice-" + id + "-" + id + "-choice-\(descriptor.choice)"].value as? String, "Selected")
+                XCTAssertEqual(app.buttons["knowledge-choice-" + id + "-choice-\(descriptor.choice)"].value as? String, "Selected")
                 tap("knowledge-practice-check", scrollID: "knowledge-practice-scroll")
                 let explanation = app.staticTexts["knowledge-explanation-" + id]
                 XCTAssertTrue(explanation.waitForExistence(timeout: 10))
@@ -75,7 +75,7 @@ final class ChapterKnowledgeUITests: XCTestCase {
         tap("knowledge-practice-teach", scrollID: "knowledge-practice-scroll")
         finishTeaching()
         tap("knowledge-practice-help", scrollID: "knowledge-practice-scroll")
-        let wrongID = "knowledge-choice-" + questionID + "-" + questionID + "-choice-2"
+        let wrongID = "knowledge-choice-" + questionID + "-choice-2"
         tap(wrongID, scrollID: "knowledge-practice-scroll")
         XCTAssertFalse(app.staticTexts["knowledge-practice-result-title"].exists)
         app.terminate()
@@ -95,7 +95,7 @@ final class ChapterKnowledgeUITests: XCTestCase {
         tap("knowledge-practice-try-again", scrollID: "knowledge-practice-scroll")
         XCTAssertTrue(app.staticTexts["knowledge-practice-hint"].exists, "Help remains sticky after retry")
         XCTAssertTrue(app.staticTexts["knowledge-practice-seen-answer"].exists)
-        tap("knowledge-choice-" + questionID + "-" + questionID + "-choice-1", scrollID: "knowledge-practice-scroll")
+        tap("knowledge-choice-" + questionID + "-choice-1", scrollID: "knowledge-practice-scroll")
         tap("knowledge-practice-check", scrollID: "knowledge-practice-scroll")
         XCTAssertEqual(app.staticTexts["knowledge-practice-result-title"].label, "Your choice matched after seeing the answer")
         capture("knowledge-seen-answer-remains-supported")
@@ -112,7 +112,7 @@ final class ChapterKnowledgeUITests: XCTestCase {
         finishTeaching(inspectSources: true)
         XCTAssertEqual(app.keyboards.count, 0)
         let id = chapters[0].id + "-knowledge-question-mother"
-        tap("knowledge-choice-" + id + "-" + id + "-choice-1", scrollID: "knowledge-practice-scroll")
+        tap("knowledge-choice-" + id + "-choice-1", scrollID: "knowledge-practice-scroll")
         tap("knowledge-practice-help", scrollID: "knowledge-practice-scroll")
         tap("knowledge-practice-check", scrollID: "knowledge-practice-scroll")
         let explanation = app.staticTexts["knowledge-explanation-" + id]
@@ -128,7 +128,7 @@ final class ChapterKnowledgeUITests: XCTestCase {
         finishTeaching()
         let id = chapters[0].id + "-knowledge-question-mother"
         for attempt in 0..<3 {
-            tap("knowledge-choice-" + id + "-" + id + "-choice-2", scrollID: "knowledge-practice-scroll")
+            tap("knowledge-choice-" + id + "-choice-2", scrollID: "knowledge-practice-scroll")
             tap("knowledge-practice-check", scrollID: "knowledge-practice-scroll")
             XCTAssertEqual(app.staticTexts["knowledge-practice-result-title"].label, "Let’s look together")
             traverseText(app.staticTexts["knowledge-explanation-" + id], scrollID: "knowledge-practice-scroll")
@@ -154,7 +154,7 @@ final class ChapterKnowledgeUITests: XCTestCase {
         capture("knowledge-stable-beat-relaunch")
         finishTeaching()
         let id = chapters[0].id + "-knowledge-question-mother"
-        let choiceID = "knowledge-choice-" + id + "-" + id + "-choice-1"
+        let choiceID = "knowledge-choice-" + id + "-choice-1"
         tap(choiceID, scrollID: "knowledge-practice-scroll")
         tap("knowledge-practice-pause", scrollID: "knowledge-practice-scroll")
         app.launchEnvironment["GOB_UI_TEST_KNOWLEDGE_ENTRY"] = "practice"

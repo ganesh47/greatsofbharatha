@@ -158,7 +158,7 @@ struct ChapterKnowledgePracticeView: View {
         .accessibilityLabel(choice.text)
         .accessibilityValue(selected ? "Selected" : "Not selected")
         .accessibilityAddTraits(selected ? .isSelected : [])
-        .accessibilityIdentifier("knowledge-choice-" + question.id + "-" + choice.id)
+        .accessibilityIdentifier("knowledge-choice-" + choice.id)
     }
 
     private func hint(_ question: ChapterKnowledgeQuestion) -> some View {
