@@ -1,0 +1,880 @@
+{
+  "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
+  "evidence": "Fresh source-only inventory. No current simulator build/capture; original user photo was not opened on this Mac. Parent description is verified externally.",
+  "counts": {
+    "chapters": 6,
+    "TVStorySlides": 18,
+    "canonicalCatalogCards": 30,
+    "sharedDiscoveries": 18,
+    "optionalPictureClues": 18,
+    "activePilotQuestions": 6,
+    "authoredPilotQuestions": 6,
+    "reviewCards": 29
+  },
+  "chapters": [
+    {
+      "number": 1,
+      "sceneID": "scene-1-shivneri",
+      "pilotID": "reset-scene-1-shivneri",
+      "title": "Shivneri - Birth Fort",
+      "memoryHook": "Birth Fort",
+      "timeMarker": "Beginning of the journey",
+      "TVStorySlides": [
+        {
+          "id": "scene-1-shivneri-story",
+          "title": "The story",
+          "text": "Shivaji Maharaj's story begins at Shivneri Fort. Jijabai's guidance helped him grow with courage, care, and responsibility."
+        },
+        {
+          "id": "scene-1-shivneri-memory",
+          "title": "Remember this",
+          "text": "Shivaji Maharaj was born at Shivneri Fort, and Jijabai shaped his early values. Shivneri is the Birth Fort near Junnar. Jijabai's guidance taught courage, care, and responsibility."
+        },
+        {
+          "id": "scene-1-shivneri-meaning",
+          "title": "Why it matters",
+          "text": "Shivneri matters because it marks the beginning of the journey and the values Shivaji Maharaj carried forward."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "Shivaji Maharaj's story begins at Shivneri Fort. Jijabai's guidance helped him grow with courage, care, and responsibility.",
+        "meaning": "Shivneri matters because it marks the beginning of the journey and the values Shivaji Maharaj carried forward.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "At Shivneri Fort, young Shivaji began his journey. Jijabai helped him grow brave, caring, and ready to lead.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-1-shivneri-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "A child named Shivaji begins at a hill fort above Junnar.",
+          "line": 681,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-1-shivneri-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "Great journeys begin in real places, with real guidance and strong values.",
+          "line": 682,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-1-shivneri-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Remember Shivneri as the Birth Fort.",
+          "line": 683,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-1-shivneri-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "Name the fort where Shivaji Maharaj was born.",
+          "line": 684,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-1-shivneri-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Unlock the Birth Fort keepsake in the Chronicle.",
+          "line": 685,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-1-shivneri-discovery-1",
+          "title": "Look at the hills",
+          "text": "Shivneri is a hill fort near Junnar. The hills help us remember a real place where the journey began."
+        },
+        {
+          "id": "scene-1-shivneri-discovery-2",
+          "title": "Meet Jijabai",
+          "text": "Jijabai guided young Shivaji with courage, care, and responsibility."
+        },
+        {
+          "id": "scene-1-shivneri-discovery-3",
+          "title": "Keep a memory",
+          "text": "Birth Fort is a short memory hook for Shivneri."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-shivneri-birth-fort",
+          "prompt": "Where does Shivaji Maharaj's story begin?",
+          "acceptedAnswers": [
+            "Shivneri",
+            "Shivneri Fort"
+          ],
+          "options": [
+            "Shivneri",
+            "Rajgad",
+            "Pratapgad"
+          ],
+          "successExplanation": "Yes. Shivneri is the Birth Fort where Shivaji Maharaj's story begins.",
+          "retryExplanation": "Remember the hook: Birth Fort means Shivneri.",
+          "line": 26
+        }
+      ],
+      "activePilotQuestionID": "quiz-shivneri-birth-fort",
+      "activeCanonicalQuestionID": "scene-1-shivneri-recall",
+      "reviewCards": [
+        {
+          "id": "review-shivneri-birth-fort",
+          "front": "Birth Fort",
+          "back": "Shivneri"
+        },
+        {
+          "id": "review-shivneri-place-to-hook",
+          "front": "Shivneri",
+          "back": "Birth Fort"
+        },
+        {
+          "id": "review-shivneri-jijabai",
+          "front": "Who taught Shivaji Maharaj courage and duty?",
+          "back": "Jijabai \u2014 at Shivneri"
+        },
+        {
+          "id": "review-shivneri-event-to-place",
+          "front": "Where the journey begins / Jijabai's guidance",
+          "back": "Shivneri"
+        },
+        {
+          "id": "review-shivneri-meaning",
+          "front": "What does Shivneri teach?",
+          "back": "Great journeys begin in real places with real guidance."
+        }
+      ],
+      "familyPrompt": "Tell someone: where did the journey begin, and who helped Shivaji grow?",
+      "sourceLines": {
+        "pilot": 14,
+        "canonical": 670,
+        "discoveries": 81
+      }
+    },
+    {
+      "number": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "pilotID": "reset-scene-2-torna-rajgad",
+      "title": "Torna and Rajgad - Early Forts",
+      "memoryHook": "First Big Fort",
+      "timeMarker": "Early building for Swarajya",
+      "TVStorySlides": [
+        {
+          "id": "scene-2-torna-rajgad-story",
+          "title": "The story",
+          "text": "Shivaji Maharaj began building Swarajya, or self-rule, through important forts. Torna was an early win, and Rajgad became a planning home base."
+        },
+        {
+          "id": "scene-2-torna-rajgad-memory",
+          "title": "Remember this",
+          "text": "Torna was an early win, and Rajgad became an early capital, or main home base for planning. Torna is remembered as the First Big Fort. Rajgad is remembered as the Early Capital and planning base. First came Shivneri, then the early forts."
+        },
+        {
+          "id": "scene-2-torna-rajgad-meaning",
+          "title": "Why it matters",
+          "text": "These forts matter because the story is not only about winning a fort. It is also about building a stronger home base."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "Shivaji Maharaj began building Swarajya, or self-rule, through important forts. Torna was an early win, and Rajgad became a planning home base.",
+        "meaning": "These forts matter because the story is not only about winning a fort. It is also about building a stronger home base.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "Shivaji Maharaj began building Swarajya, or self-rule, by winning key forts and planning from the mountains.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-2-torna-rajgad-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "The map moves from childhood to action at Torna and Rajgad.",
+          "line": 719,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-2-torna-rajgad-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "Winning and caring for forts made planning and protection possible.",
+          "line": 720,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-2-torna-rajgad-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Torna comes first. Rajgad becomes the early capital.",
+          "line": 721,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-2-torna-rajgad-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "Which fort became the early capital?",
+          "line": 722,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-2-torna-rajgad-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Collect the First Big Fort keepsake and planning symbols.",
+          "line": 723,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-2-torna-rajgad-discovery-1",
+          "title": "First Big Fort",
+          "text": "Torna marks an early win in building Swarajya, or self-rule."
+        },
+        {
+          "id": "scene-2-torna-rajgad-discovery-2",
+          "title": "Planning home",
+          "text": "Rajgad became the early capital, a home base for careful planning."
+        },
+        {
+          "id": "scene-2-torna-rajgad-discovery-3",
+          "title": "Two different jobs",
+          "text": "Torna means First Big Fort. Rajgad means Early Capital. A first win and a strong home base both matter."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-rajgad-early-capital",
+          "prompt": "Which fort became an early capital?",
+          "acceptedAnswers": [
+            "Rajgad"
+          ],
+          "options": [
+            "Torna",
+            "Rajgad",
+            "Shivneri"
+          ],
+          "successExplanation": "Yes. Rajgad became an early capital and planning base.",
+          "retryExplanation": "Remember the pair: Torna is First Big Fort, Rajgad is Early Capital.",
+          "line": 119
+        }
+      ],
+      "activePilotQuestionID": "quiz-rajgad-early-capital",
+      "activeCanonicalQuestionID": "scene-2-torna-rajgad-recall",
+      "reviewCards": [
+        {
+          "id": "review-torna-rajgad-pair",
+          "front": "First Big Fort / Early Capital",
+          "back": "Torna / Rajgad"
+        },
+        {
+          "id": "review-torna-hook",
+          "front": "Torna",
+          "back": "First Big Fort"
+        },
+        {
+          "id": "review-rajgad-hook",
+          "front": "Rajgad",
+          "back": "Early Capital"
+        },
+        {
+          "id": "review-rajgad-planning-base",
+          "front": "Which fort became the planning base?",
+          "back": "Rajgad"
+        },
+        {
+          "id": "review-torna-rajgad-meaning",
+          "front": "What does building Torna and Rajgad teach?",
+          "back": "Not just winning places \u2014 building a stronger base."
+        }
+      ],
+      "familyPrompt": "Give Torna and Rajgad different jobs in your retelling: first big fort and planning home.",
+      "sourceLines": {
+        "pilot": 106,
+        "canonical": 708,
+        "discoveries": 97
+      }
+    },
+    {
+      "number": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "pilotID": "reset-scene-3-pratapgad",
+      "title": "Pratapgad - Turning Point",
+      "memoryHook": "Turning Point",
+      "timeMarker": "Major rise and turning point",
+      "TVStorySlides": [
+        {
+          "id": "scene-3-pratapgad-turning-point-story",
+          "title": "The story",
+          "text": "At Pratapgad, careful planning, courage, and hill terrain \u2014 the shape of the land \u2014 mattered in a dangerous moment. The story stays focused on preparation and wise choices."
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-memory",
+          "title": "Remember this",
+          "text": "The dangerous meeting near Pratapgad in 1659 became a major turning point in Shivaji Maharaj's rise. Pratapgad is the Turning Point. Hill terrain means the shape of the land; careful planning means being prepared. First came Shivneri, then the early forts, and then Pratapgad in 1659."
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-meaning",
+          "title": "Why it matters",
+          "text": "Pratapgad matters because the hill terrain and careful planning changed what happened next."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "At Pratapgad, careful planning, courage, and hill terrain \u2014 the shape of the land \u2014 mattered in a dangerous moment. The story stays focused on preparation and wise choices.",
+        "meaning": "Pratapgad matters because the hill terrain and careful planning changed what happened next.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "At Pratapgad, Shivaji Maharaj used planning, local terrain, and courage in a dangerous moment.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-3-pratapgad-turning-point-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "Mist, hills, and lookout points make the mountain fort feel tense and important.",
+          "line": 757,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "Preparation and terrain \u2014 the land shape \u2014 can change what happens next.",
+          "line": 758,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Remember Pratapgad as the turning point fort.",
+          "line": 759,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "Name the fort where the turning point happened.",
+          "line": 760,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Unlock the Turning Point keepsake and terrain badge.",
+          "line": 761,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-3-pratapgad-turning-point-discovery-1",
+          "title": "Read the land",
+          "text": "Terrain means the shape of the land. The hills mattered at Pratapgad."
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-discovery-2",
+          "title": "Make a plan",
+          "text": "Careful planning means being prepared and making wise choices."
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-discovery-3",
+          "title": "A turning point",
+          "text": "Pratapgad changed what happened next, after the early forts."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-pratapgad-turning-point",
+          "prompt": "Which fort is remembered as the turning point?",
+          "acceptedAnswers": [
+            "Pratapgad"
+          ],
+          "options": [
+            "Pratapgad",
+            "Shivneri",
+            "Rajgad"
+          ],
+          "successExplanation": "Yes. Pratapgad is remembered as the turning point.",
+          "retryExplanation": "Remember the hook: Turning Point means Pratapgad.",
+          "line": 212
+        }
+      ],
+      "activePilotQuestionID": "quiz-pratapgad-turning-point",
+      "activeCanonicalQuestionID": "scene-3-pratapgad-turning-point-recall",
+      "reviewCards": [
+        {
+          "id": "review-pratapgad-turning-point",
+          "front": "Turning Point",
+          "back": "Pratapgad"
+        },
+        {
+          "id": "review-pratapgad-place-to-hook",
+          "front": "Pratapgad",
+          "back": "Turning Point"
+        },
+        {
+          "id": "review-pratapgad-what-changed",
+          "front": "What changed at Pratapgad?",
+          "back": "Planning and hill terrain changed what happened next."
+        },
+        {
+          "id": "review-pratapgad-sequence",
+          "front": "Where does Pratapgad come in the journey?",
+          "back": "After Torna and Rajgad."
+        },
+        {
+          "id": "review-pratapgad-meaning",
+          "front": "What does Pratapgad teach?",
+          "back": "Knowing the land is a form of preparation."
+        }
+      ],
+      "familyPrompt": "Explain what terrain means. How could knowing the land help someone prepare?",
+      "sourceLines": {
+        "pilot": 200,
+        "canonical": 746,
+        "discoveries": 117
+      }
+    },
+    {
+      "number": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "pilotID": "reset-scene-4-purandar-agra",
+      "title": "Purandar and Agra - Pressure and Return",
+      "memoryHook": "Pressure Fort",
+      "timeMarker": "Pressure, setback, and patient return",
+      "TVStorySlides": [
+        {
+          "id": "scene-4-purandar-agra-story",
+          "title": "The story",
+          "text": "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement at Purandar. Later, he found a clever way to return home from Agra."
+        },
+        {
+          "id": "scene-4-purandar-agra-memory",
+          "title": "Remember this",
+          "text": "Purandar brought heavy pressure, and Agra was the northern city where Shivaji Maharaj was kept under close watch before returning home. First came the agreement at Purandar; later came Agra and the return home. After Pratapgad in 1659 came pressure and a difficult agreement at Purandar in 1665. Later came Agra, a northern city, in 1666 and the return home. Purandar comes before Agra."
+        },
+        {
+          "id": "scene-4-purandar-agra-meaning",
+          "title": "Why it matters",
+          "text": "This scene matters because leaders can face pressure, make hard choices, and still find a way back with patience and planning."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement at Purandar. Later, he found a clever way to return home from Agra.",
+        "meaning": "This scene matters because leaders can face pressure, make hard choices, and still find a way back with patience and planning.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "Sometimes leaders face hard pressure. Shivaji Maharaj made a difficult agreement, then later found a clever way to return home.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-4-purandar-agra-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "The journey moves far from Maharashtra to the northern city of Agra.",
+          "line": 795,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-4-purandar-agra-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "Setbacks do not end the story when patience and planning stay alive.",
+          "line": 796,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-4-purandar-agra-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Purandar brings pressure. Agra is the northern city under watch.",
+          "line": 797,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-4-purandar-agra-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "Which happened first, Purandar or Agra?",
+          "line": 798,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-4-purandar-agra-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Earn the Escape and Return keepsake and northern route ribbon.",
+          "line": 799,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-4-purandar-agra-discovery-1",
+          "title": "A hard choice",
+          "text": "At Purandar, Shivaji Maharaj made a difficult agreement under pressure."
+        },
+        {
+          "id": "scene-4-purandar-agra-discovery-2",
+          "title": "A northern city",
+          "text": "Agra is a city in northern India. After Purandar came Agra and the return home."
+        },
+        {
+          "id": "scene-4-purandar-agra-discovery-3",
+          "title": "Patience helps",
+          "text": "Patience and planning helped Shivaji Maharaj keep going through a setback and return home."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-purandar-agra-sequence",
+          "prompt": "Which happened first \u2014 Purandar or Agra?",
+          "acceptedAnswers": [
+            "Purandar"
+          ],
+          "options": [
+            "Purandar",
+            "Agra",
+            "Rajgad"
+          ],
+          "successExplanation": "Yes. The difficult agreement at Purandar came before the period at Agra.",
+          "retryExplanation": "Remember: Purandar brings pressure first, then Agra and the return.",
+          "line": 305
+        }
+      ],
+      "activePilotQuestionID": "quiz-purandar-agra-sequence",
+      "activeCanonicalQuestionID": "scene-4-purandar-agra-recall",
+      "reviewCards": [
+        {
+          "id": "review-purandar-hook",
+          "front": "Pressure Fort",
+          "back": "Purandar"
+        },
+        {
+          "id": "review-agra-hook",
+          "front": "Northern Court",
+          "back": "Agra"
+        },
+        {
+          "id": "review-purandar-agra-sequence",
+          "front": "Which came first \u2014 Purandar or Agra?",
+          "back": "Purandar, then Agra."
+        },
+        {
+          "id": "review-purandar-agra-pair",
+          "front": "Hard agreement / Under watch in the north",
+          "back": "Purandar / Agra"
+        },
+        {
+          "id": "review-agra-meaning",
+          "front": "What does the Agra episode teach?",
+          "back": "Setbacks don't end the story when patience stays alive."
+        }
+      ],
+      "familyPrompt": "Retell the order with three words: Pratapgad, Purandar, Agra. What helped through the setback?",
+      "sourceLines": {
+        "pilot": 292,
+        "canonical": 784,
+        "discoveries": 134
+      }
+    },
+    {
+      "number": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "pilotID": "reset-scene-5-rajgad-recovery",
+      "title": "Recovery - Rebuilding After Agra",
+      "memoryHook": "Comeback",
+      "timeMarker": "Comeback and rebuilding",
+      "TVStorySlides": [
+        {
+          "id": "scene-5-rajgad-recovery-story",
+          "title": "The story",
+          "text": "After a difficult time in Agra, Shivaji Maharaj did not give up. He returned to Rajgad, rebuilt his strength, reorganized, and grew stronger again."
+        },
+        {
+          "id": "scene-5-rajgad-recovery-memory",
+          "title": "Remember this",
+          "text": "After Agra, Shivaji Maharaj rebuilt strength, reorganized, and returned to growth. Rajgad now has a second memory hook: Comeback. Rebuilding strength and reorganizing mean steady recovery after a setback. This happened after the return from Agra."
+        },
+        {
+          "id": "scene-5-rajgad-recovery-meaning",
+          "title": "Why it matters",
+          "text": "Recovery matters because strength can be rebuilt through steady organization, not only dramatic moments."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "After a difficult time in Agra, Shivaji Maharaj did not give up. He returned to Rajgad, rebuilt his strength, reorganized, and grew stronger again.",
+        "meaning": "Recovery matters because strength can be rebuilt through steady organization, not only dramatic moments.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "After a difficult time, Shivaji Maharaj did not give up. He rebuilt, reorganized, and grew stronger again.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-5-rajgad-recovery-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "The network of forts begins to glow again as the comeback starts.",
+          "line": 833,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "Good leaders keep going and rebuild after a setback.",
+          "line": 834,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Remember Rajgad as the comeback place.",
+          "line": 835,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "What did Shivaji Maharaj do after returning from Agra?",
+          "line": 836,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Collect the Comeback keepsake and rebuilding symbols.",
+          "line": 837,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-5-rajgad-recovery-discovery-1",
+          "title": "Rajgad returns",
+          "text": "Rajgad first appeared as Early Capital. In this chapter, it is the Comeback place."
+        },
+        {
+          "id": "scene-5-rajgad-recovery-discovery-2",
+          "title": "Build again",
+          "text": "After returning from Agra, Shivaji Maharaj rebuilt strength and grew stronger."
+        },
+        {
+          "id": "scene-5-rajgad-recovery-discovery-3",
+          "title": "Steady organization",
+          "text": "Reorganizing and planning again helped the recovery. Steady work can matter as much as a dramatic moment."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-rajgad-comeback",
+          "prompt": "What did Shivaji Maharaj do after returning from Agra?",
+          "acceptedAnswers": [
+            "He rebuilt strength",
+            "He rebuilt and reorganized",
+            "Rebuilt and grew stronger"
+          ],
+          "options": [
+            "Rebuilt and grew stronger",
+            "Gave up the fight",
+            "Left Maharashtra"
+          ],
+          "successExplanation": "Yes. After Agra, Shivaji Maharaj rebuilt strength, reorganized, and grew stronger again.",
+          "retryExplanation": "The comeback scene is about rebuilding and returning to growth.",
+          "line": 398
+        }
+      ],
+      "activePilotQuestionID": "quiz-rajgad-comeback",
+      "activeCanonicalQuestionID": "scene-5-rajgad-recovery-recall",
+      "reviewCards": [
+        {
+          "id": "review-rajgad-comeback-hook",
+          "front": "Comeback",
+          "back": "Rajgad \u2014 the recovery place."
+        },
+        {
+          "id": "review-rajgad-what-happened",
+          "front": "What did Shivaji Maharaj do after returning from Agra?",
+          "back": "Rebuilt strength, planned again, and grew stronger."
+        },
+        {
+          "id": "review-rajgad-comeback-compare",
+          "front": "Which fort is the comeback place?",
+          "back": "Rajgad"
+        },
+        {
+          "id": "review-rajgad-comeback-meaning",
+          "front": "What does the comeback teach?",
+          "back": "Resilience is part of leadership, especially after a setback."
+        }
+      ],
+      "familyPrompt": "Tell a comeback story: how did planning and steady work help after Agra?",
+      "sourceLines": {
+        "pilot": 386,
+        "canonical": 822,
+        "discoveries": 154
+      }
+    },
+    {
+      "number": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "pilotID": "reset-scene-6-raigad-coronation",
+      "title": "Raigad - Coronation as Chhatrapati",
+      "memoryHook": "Coronation Capital",
+      "timeMarker": "Big final moment of the journey",
+      "TVStorySlides": [
+        {
+          "id": "scene-6-raigad-coronation-story",
+          "title": "The story",
+          "text": "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati in a coronation, or crowning ceremony. It marked Swarajya \u2014 self-rule for the people."
+        },
+        {
+          "id": "scene-6-raigad-coronation-memory",
+          "title": "Remember this",
+          "text": "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati in a coronation, or crowning ceremony, for Swarajya. First came the return from Agra, then rebuilding at Rajgad, and then the coronation at Raigad in 1674. Coronation means a crowning ceremony. Swarajya means self-rule, with responsibility and care for people."
+        },
+        {
+          "id": "scene-6-raigad-coronation-meaning",
+          "title": "Why it matters",
+          "text": "Raigad matters because the coronation shows the big idea of Swarajya and the duty to care for people."
+        }
+      ],
+      "iOSPilotOpening": {
+        "story": "At Raigad in 1674, Shivaji Maharaj was crowned Chhatrapati in a coronation, or crowning ceremony. It marked Swarajya \u2014 self-rule for the people.",
+        "meaning": "Raigad matters because the coronation shows the big idea of Swarajya and the duty to care for people.",
+        "presentation": "SceneLearnCard plus shared discoveries; not three TV slides"
+      },
+      "canonicalStoryOpening": "At Raigad, Shivaji Maharaj was crowned Chhatrapati. The coronation, or crowning ceremony, marked Swarajya \u2014 self-rule.",
+      "canonicalCatalogCards": [
+        {
+          "id": "scene-6-raigad-coronation-story",
+          "kind": "story",
+          "title": "Hook",
+          "text": "The journey comes together at Raigad for the coronation.",
+          "line": 871,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-6-raigad-coronation-meaning",
+          "kind": "meaning",
+          "title": "Why this matters",
+          "text": "The coronation shows self-rule, dignity, and responsibility.",
+          "line": 872,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-6-raigad-coronation-anchor",
+          "kind": "anchor",
+          "title": "Memory clue",
+          "text": "Remember Raigad as the Coronation Capital.",
+          "line": 873,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-6-raigad-coronation-recall",
+          "kind": "recall",
+          "title": "Recall",
+          "text": "At which fort was Shivaji Maharaj crowned Chhatrapati?",
+          "line": 874,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        },
+        {
+          "id": "scene-6-raigad-coronation-reward",
+          "kind": "reward",
+          "title": "Reward",
+          "text": "Complete the Chronicle page with the Chhatrapati Crown.",
+          "line": 875,
+          "presentation": "source catalog; current primary views use summary/plan/adapters rather than these five cards directly"
+        }
+      ],
+      "sharedDiscoveries": [
+        {
+          "id": "scene-6-raigad-coronation-discovery-1",
+          "title": "A crowning ceremony",
+          "text": "In 1674 at Raigad, Shivaji Maharaj was crowned Chhatrapati. Coronation means a crowning ceremony."
+        },
+        {
+          "id": "scene-6-raigad-coronation-discovery-2",
+          "title": "What is Swarajya?",
+          "text": "Swarajya means self-rule: people guiding and caring for their own land with dignity."
+        },
+        {
+          "id": "scene-6-raigad-coronation-discovery-3",
+          "title": "Remember the whole path",
+          "text": "The coronation came after the return from Agra and the comeback at Rajgad."
+        }
+      ],
+      "optionalPictureClueCount": 3,
+      "authoredPilotQuestions": [
+        {
+          "id": "quiz-raigad-coronation",
+          "prompt": "At which fort was Shivaji Maharaj crowned Chhatrapati?",
+          "acceptedAnswers": [
+            "Raigad"
+          ],
+          "options": [
+            "Raigad",
+            "Rajgad",
+            "Pratapgad"
+          ],
+          "successExplanation": "Yes. Raigad is the Coronation Capital, the main fort for this crowning moment of Swarajya.",
+          "retryExplanation": "Remember: Raigad is the Coronation Capital \u2014 the final fort in the journey.",
+          "line": 480
+        }
+      ],
+      "activePilotQuestionID": "quiz-raigad-coronation",
+      "activeCanonicalQuestionID": "scene-6-raigad-coronation-recall",
+      "reviewCards": [
+        {
+          "id": "review-raigad-hook-to-place",
+          "front": "Coronation Capital",
+          "back": "Raigad"
+        },
+        {
+          "id": "review-raigad-place-to-hook",
+          "front": "Raigad",
+          "back": "Coronation Capital"
+        },
+        {
+          "id": "review-raigad-what-happened",
+          "front": "What happened at Raigad in 1674?",
+          "back": "Shivaji Maharaj was crowned Chhatrapati."
+        },
+        {
+          "id": "review-swarajya-meaning",
+          "front": "What does Swarajya mean?",
+          "back": "Self-rule \u2014 people caring for and guiding their own land with dignity."
+        },
+        {
+          "id": "review-raigad-sequence",
+          "front": "Where does Raigad come in the journey?",
+          "back": "Last \u2014 the big final moment after the comeback."
+        }
+      ],
+      "familyPrompt": "Retell return, recovery, and coronation. What does self-rule mean, and how can people care for one another?",
+      "sourceLines": {
+        "pilot": 468,
+        "canonical": 860,
+        "discoveries": 171
+      }
+    }
+  ],
+  "adapterRisks": [
+    "TV duplicates discovery text in authoredDetails; shared source parity is tested but requires manual maintenance.",
+    "LearnQuizPilotData.makeScene selects quizItems.first: adding questions to the existing array alone does not present them.",
+    "TV uses one chapter.plan question: a new question bank needs a shared adapter and durable question cursor.",
+    "TV checkpoint.storyBeatIndex and shared resume.storyCardIndex are integers: inserting slides requires explicit identity migration, or preserving old leading indices.",
+    "Current TV story beat exposure receipt uses an index string; new identity-based receipts must preserve prior receipts and avoid repeated mastery credit.",
+    "Both route families remain active: pilot SceneLearnView/ChronicleQuizView and Story SceneLessonView. Shared additions must cover both."
+  ]
+}

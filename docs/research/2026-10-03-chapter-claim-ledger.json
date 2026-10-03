@@ -1,0 +1,961 @@
+{
+  "schemaVersion": 1,
+  "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
+  "status": "Draft for independent fact review; not runtime-approved content",
+  "authoredUTC": "2026-10-03",
+  "evidenceScope": "Source and primary/official reference inspection only. No new simulator captures or app behaviour claims.",
+  "sources": [
+    {
+      "id": "balbharati-std4",
+      "title": "Shivachhatrapati, Environmental Studies Part Two, Standard Four",
+      "publisher": "Maharashtra State Bureau of Textbook Production and Curriculum Research",
+      "url": "https://books.ebalbharati.in/pdfs/403000542.pdf",
+      "edition": "2014 sanctioned curriculum; downloaded edition inspected",
+      "retrieval": "Public PDF downloaded and read with pypdf; web PDF viewer failed",
+      "sha256": "140ff5540ab19969d78b608e45e9bff58a70d58c1096ab9ee4e9d2b461cb5f32",
+      "cautions": [
+        "School history includes dramatized dialogue and devotional retellings. These are not eyewitness quotations."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "balbharati-std7",
+      "title": "History and Civics, Standard Seven",
+      "publisher": "Maharashtra State Bureau of Textbook Production and Curriculum Research",
+      "url": "https://books.ebalbharati.in/pdfs/703000584.pdf",
+      "edition": "First edition 2017; reprint October 2021",
+      "retrieval": "Public PDF downloaded and read with pypdf; web PDF viewer failed",
+      "sha256": "7a5bd3a4b2d7db75eb22cca16072341981694a123a4755a4331db595daaf6e74",
+      "cautions": [
+        "Separate attributed chronicler counts from independently established totals."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "icomos-2025",
+      "title": "ICOMOS evaluation: Maratha Military Landscapes of India",
+      "publisher": "ICOMOS, hosted by UNESCO World Heritage Centre",
+      "url": "https://whc.unesco.org/document/222061",
+      "edition": "12 March 2025 advisory evaluation",
+      "retrieval": "Web PDF text inspected",
+      "cautions": [
+        "Lists birth in 1627, unlike state schoolbooks and tourism page. Do not use its birth year as settled."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "tourism-shivneri",
+      "title": "Shivneri Fort",
+      "publisher": "Maharashtra Tourism",
+      "url": "https://maharashtratourism.gov.in/fort/shivneri/",
+      "retrieval": "Official web text inspected",
+      "cautions": [
+        "Site features describe the fort today; birth-year and devotional narratives need separate qualification."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "tourism-rajgad",
+      "title": "Rajgad Fort",
+      "publisher": "Maharashtra Tourism",
+      "url": "https://maharashtratourism.gov.in/fort/rajgad/",
+      "retrieval": "Official web text inspected",
+      "cautions": [
+        "Do not adopt its capital duration, move date, or 40 km base-diameter claim without stronger corroboration."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "satara-pratapgad",
+      "title": "Pratapgad",
+      "publisher": "District Satara, Government of Maharashtra",
+      "url": "https://www.satara.gov.in/en/tourist-place/pratapgad/",
+      "retrieval": "Official web text inspected",
+      "cautions": [],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "tourism-purandar",
+      "title": "Purandar Fort",
+      "publisher": "Maharashtra Tourism",
+      "url": "https://maharashtratourism.gov.in/fort/purandar/",
+      "retrieval": "Official web text inspected",
+      "cautions": [
+        "Origin-period narrative is not used."
+      ],
+      "accessedUTC": "2026-10-03"
+    },
+    {
+      "id": "agra-district",
+      "title": "About District: Agra",
+      "publisher": "District Administration Agra, Government of Uttar Pradesh",
+      "url": "https://agra.nic.in/",
+      "retrieval": "Official web text inspected; About District paragraph",
+      "cautions": [],
+      "accessedUTC": "2026-10-03"
+    }
+  ],
+  "claims": [
+    {
+      "id": "scene-1-shivneri-fact-birth-place",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "Shivaji Maharaj was born at Shivneri Fort.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed pp. 12–13; PDF pages 22–23"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-1-shivneri-fact-junnar",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "Shivneri is a hill fort near Junnar in Pune district.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 12; PDF page 22"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-1-shivneri-fact-parents",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "Jijabai was Shivaji Maharaj’s mother, and Shahaji was his father.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed pp. 12–13; PDF pages 22–23"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Guidance and values are child-friendly interpretation, not a verbatim historical speech."
+    },
+    {
+      "id": "scene-1-shivneri-fact-seven-gates",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "The present-day description of Shivneri identifies seven gates on the way into the fort.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "tourism-shivneri",
+          "locator": "architectural highlights: seven gates"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-memory"
+      ],
+      "confidence": "medium",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Teach a named feature count, not a claim that every gate survives unchanged from Shivaji’s childhood."
+    },
+    {
+      "id": "scene-1-shivneri-fact-water-storage",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "Shivneri has water-storage features, including cisterns and reservoirs.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 93; PDF page 2: Shivneri water cisterns"
+        },
+        {
+          "sourceID": "tourism-shivneri",
+          "locator": "Badami Talav and water sources"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-1-shivneri-fact-cistern-meaning",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "statement": "A cistern is a place built to collect or store water; stored water helps people living in a fort.",
+      "kind": "vocabulary",
+      "citations": [
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 93; PDF page 2: water cisterns"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-1-shivneri-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Plain-language interpretation of a storage feature, not an attributed historical quotation."
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-torna-name",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "Torna is also known as Prachandgad.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 26; PDF page 36"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-first-capital",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "Rajgad became the first capital of Swaraj.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 27; PDF page 37"
+        },
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: Rajgad"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-former-name",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "The earlier fort name Murumbdeo is associated with the site later named Rajgad.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 27; PDF page 37"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Spelling variants Murumbdev and Murumbdeo refer to the same older name."
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-named-machis",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "Three named machis at Rajgad are Padmavati, Sanjivani, and Suvela; the fort also has a citadel.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "tourism-rajgad",
+          "locator": "features: Padmavati Machi, Sanjivani Machi, Suvela Machi, Balekilla"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-memory"
+      ],
+      "confidence": "medium",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Count the three named machis in this list, not all parts, gates, or workers of the fort."
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-builders",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "Stone masons, carpenters, blacksmiths, water carriers, and other workers helped build Rajgad.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 27; PDF page 37"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Do not infer an exact number of workers or workshops."
+    },
+    {
+      "id": "scene-2-torna-rajgad-fact-capital-work",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "statement": "A capital is a centre for government work. Rajgad included spaces for administration and storage as well as defence.",
+      "kind": "vocabulary",
+      "citations": [
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: administrative and storage spaces"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-2-torna-rajgad-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Functional explanation; do not imply all administration occurred only inside this fort."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-built-1656",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "Pratapgad was built in 1656.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "satara-pratapgad",
+          "locator": "main description: construction in 1656"
+        },
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: Pratapgad"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-battle-1659",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "The encounter and battle associated with Shivaji Maharaj and Afzal Khan at Pratapgad occurred in 1659; Afzal Khan served Bijapur.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "satara-pratapgad",
+          "locator": "main description: 10 November 1659"
+        },
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: 1659 battle and Bijapur general"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Avoid graphic details and invented dialogue."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-year-label-gap",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "On a year-labelled timeline, the difference between 1656 and 1659 is three.",
+      "kind": "derivedReasoning",
+      "citations": [
+        {
+          "sourceID": "satara-pratapgad",
+          "locator": "1656 construction and 1659 encounter"
+        },
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "1659 − 1656 = 3 is a year-label calculation, not a claim of exactly three elapsed years between dated events."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-built-before-battle",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "The 1656 construction comes before the 1659 battle on the timeline.",
+      "kind": "derivedReasoning",
+      "citations": [
+        {
+          "sourceID": "satara-pratapgad",
+          "locator": "construction and encounter years"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-hill-forest",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "Pratapgad stands in hilly, forested terrain in the Sahyadri region near Mahabaleshwar.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "satara-pratapgad",
+          "locator": "location near Mahabaleshwar"
+        },
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: forested hill region"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Terrain helps explain the place; do not turn an interpretation into a precise reconstructed battle route."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-fact-water-reservoirs",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "statement": "Pratapgad includes water reservoirs, showing that a fort needed supplies as well as protective walls.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: water reservoirs"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-3-pratapgad-turning-point-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "The daily-life conclusion is an interpretation of the site feature."
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-treaty-1665",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "The Treaty of Purandar was agreed in 1665 following negotiations with Jai Singh.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 48; PDF page 58"
+        },
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 25; PDF page 35"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-twenty-three-forts",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "The treaty required Shivaji Maharaj to give twenty-three forts to the Mughals.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 48; PDF page 58"
+        },
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 25; PDF page 35"
+        },
+        {
+          "sourceID": "tourism-purandar",
+          "locator": "Treaty of Purandar section"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "This counts the forts in that treaty term, not all forts ever held."
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-return-1666",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "The Agra visit, custody, and return belong to 1666; the return led back to Rajgad.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed pp. 50–52; PDF pages 60–62"
+        },
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 25; PDF page 35"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "No exact basket escape method is assessed."
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-sambhaji",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "Shivaji Maharaj’s son Sambhaji accompanied him on the journey to Agra.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 50; PDF page 60"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-agra-yamuna",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "Agra is a city on the Yamuna River in present-day Uttar Pradesh.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "agra-district",
+          "locator": "About District paragraph"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "The modern state label is a geographic orientation, not a seventeenth-century political boundary."
+    },
+    {
+      "id": "scene-4-purandar-agra-fact-year-label-gap",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "statement": "The year labels 1665 and 1666 differ by one, and Purandar comes before the Agra return.",
+      "kind": "derivedReasoning",
+      "citations": [
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed pp. 48, 52; PDF pages 58, 62"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-4-purandar-agra-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "This is not an exact elapsed duration between events."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-rajgad-return",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "Shivaji Maharaj reached Rajgad after leaving custody at Agra.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 25; PDF page 35"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-recaptured-forts",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "The later recovery campaigns regained several forts, including Purandar and Lohagad.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 25; PDF page 35"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Do not attach one unsupported year or fixed total to the whole recovery phase."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-three-named-offices",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "Three named fort offices were Killedar, Sabnis, and Karkhanis; many other people also worked in forts.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 31; PDF page 41"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Count these three named offices, not the entire fort workforce. This is general Swaraj management, not a claim of new offices created immediately after Agra."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-stores-care",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "The Karkhanis looked after foodgrain storage and the upkeep of military supplies.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 31; PDF page 41"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Use a plain-language stores-manager gloss; avoid invented supply quantities."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-crop-relief",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "Revenue policy allowed relief when crops were lost through excessive rain or drought.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 29; PDF page 39"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "General policy context, not a guarantee that every historical official always followed it."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-fact-fort-repair",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "statement": "Keeping forts ready included building and repairs, food storage, and maintaining supplies.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 31; PDF page 41"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-5-rajgad-recovery-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Explain recovery as care and organisation as well as fighting; avoid invented post-Agra dates."
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-coronation-date",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "Shivaji Maharaj was crowned at Raigad on 6 June 1674.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 26; PDF page 36"
+        },
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 59; PDF page 69: year 1674"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Assessment may ask the stable year; the full date is enrichment rather than a required memorisation target."
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-chhatrapati",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "The coronation formally presented Shivaji Maharaj as Chhatrapati, an independent sovereign ruler.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 26; PDF page 36"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-story"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Keep the existing Hindu ruler and Swarajya framing without sweeping claims about communities."
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-eight-ministers",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "The Ashtapradhan Mandal was a council of eight ministers responsible for different departments.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 29; PDF page 39"
+        },
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 70; PDF page 80"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-coin-materials",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "Two coin examples associated with the coronation are the gold Hon and the copper Shivrai.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 26; PDF page 36"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-memory"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "These are two examples, not a claim that the kingdom used only two coin types."
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-capital-features",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "Raigad included a palace, marketplace, rainwater-harvesting systems, and government facilities.",
+      "kind": "siteFeature",
+      "citations": [
+        {
+          "sourceID": "icomos-2025",
+          "locator": "printed p. 94; PDF page 3: Raigad"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": "Site features support an explanation of everyday work in a capital."
+    },
+    {
+      "id": "scene-6-raigad-coronation-fact-amatya-accounts",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "statement": "The Amatya’s work included keeping the accounts of the state.",
+      "kind": "historical",
+      "citations": [
+        {
+          "sourceID": "balbharati-std7",
+          "locator": "printed p. 29; PDF page 39"
+        },
+        {
+          "sourceID": "balbharati-std4",
+          "locator": "printed p. 70; PDF page 80"
+        }
+      ],
+      "taughtBeatIDs": [
+        "scene-6-raigad-coronation-meaning"
+      ],
+      "confidence": "high",
+      "reviewStatus": "pendingIndependentReview",
+      "assessmentAllowedAfterApproval": true,
+      "caution": ""
+    }
+  ],
+  "heldOrExcluded": [
+    {
+      "id": "birth-year-and-age",
+      "decision": "holdAssessment",
+      "reason": "State schoolbooks and tourism use 1630; the ICOMOS evaluation uses 1627. Keep existing commemorative wording; do not derive an exact age.",
+      "sourceIDs": [
+        "balbharati-std4",
+        "icomos-2025",
+        "tourism-shivneri"
+      ]
+    },
+    {
+      "id": "torna-exact-date",
+      "decision": "holdAssessment",
+      "reason": "Existing curation records 1646/1647 uncertainty. Do not quiz the exact capture year or age sixteen.",
+      "sourceIDs": [
+        "balbharati-std4"
+      ]
+    },
+    {
+      "id": "rajgad-duration-and-diameter",
+      "decision": "exclude",
+      "reason": "Tourism page’s capital duration, capital move date, and base diameter are not sufficiently reliable for this pass.",
+      "sourceIDs": [
+        "tourism-rajgad"
+      ]
+    },
+    {
+      "id": "treasure-pots-and-divine-causation",
+      "decision": "excludeFromFactualAssessment",
+      "reason": "School retelling combines a treasure story with devotional attribution; do not present divine causation or a pot count as established history.",
+      "sourceIDs": [
+        "balbharati-std4"
+      ]
+    },
+    {
+      "id": "agra-basket-method",
+      "decision": "excludeFromFactualAssessment",
+      "reason": "Teach custody, safe return, and resilience. An exact escape method is not needed and should not become an unquestioned fact.",
+      "sourceIDs": [
+        "balbharati-std4",
+        "balbharati-std7"
+      ]
+    },
+    {
+      "id": "twenty-seven-in-four-months",
+      "decision": "holdAssessment",
+      "reason": "The Standard Seven text explicitly attributes this count to chronicler Sabhasad. Do not turn a reported figure into an unqualified quiz total.",
+      "sourceIDs": [
+        "balbharati-std7"
+      ]
+    },
+    {
+      "id": "fort-and-fleet-totals",
+      "decision": "holdAssessment",
+      "reason": "Approximate or reported totals are not suitable fixed-answer counts. Count only clearly bounded named features or offices.",
+      "sourceIDs": [
+        "balbharati-std7"
+      ]
+    },
+    {
+      "id": "throne-mass-and-workshop-count",
+      "decision": "holdAssessment",
+      "reason": "No need for uncertain measurements or a single-source workshop total; they add memorisation without useful understanding.",
+      "sourceIDs": [
+        "balbharati-std4"
+      ]
+    },
+    {
+      "id": "invented-dialogue",
+      "decision": "exclude",
+      "reason": "Dramatized speeches and the fictional guide are not eyewitness historical sources.",
+      "sourceIDs": [
+        "balbharati-std4"
+      ]
+    },
+    {
+      "id": "unesco-twelve-forts",
+      "decision": "excludeFromHistoricalTotal",
+      "reason": "Twelve is a modern World Heritage serial-property count, not the total number of forts held in Shivaji’s reign.",
+      "sourceIDs": []
+    }
+  ],
+  "reviewInstructions": [
+    "Review source locators and wording independently; record accepted/qualified/rejected per claim ID.",
+    "Specifically review gates and machi counts as current site descriptions, year-label subtraction wording, and the management context of chapter 5.",
+    "No claim is assessment-eligible until approved and actually taught in the learner archive.",
+    "No copyrighted textbook images, pages, dialogue, or question text are proposed for redistribution. Child copy and questions are original paraphrases."
+  ]
+}
