@@ -209,10 +209,16 @@ final class ChapterKnowledgeUITests: XCTestCase {
 
     private func tap(_ id: String, scrollID: String) {
         let button = app.buttons[id].firstMatch
-        XCTAssertTrue(button.waitForExistence(timeout: 10), "Missing " + id)
+        guard button.waitForExistence(timeout: 10) else {
+            failWithEvidence("Missing " + id)
+            return
+        }
         reveal(button, scrollID: scrollID)
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: button)
-        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 5), .completed, "Disabled " + id)
+        guard XCTWaiter.wait(for: [enabled], timeout: 5) == .completed else {
+            failWithEvidence("Disabled " + id + ": " + String(describing: button.value))
+            return
+        }
         button.tap()
     }
 

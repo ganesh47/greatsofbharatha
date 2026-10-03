@@ -169,7 +169,9 @@ struct TVChapterKnowledgePracticeView: View {
                 .accessibilityIdentifier("tv-knowledge-explanation-" + question.id)
                 .background(GeometryReader { geometry in
                     Color.clear.preference(key: TVKnowledgeTextFrameKey.self,
-                        value: TVKnowledgeTextFrame(id: resultID, frame: geometry.frame(in: .global)))
+                        value: scenePhase == .active
+                            ? TVKnowledgeTextFrame(id: resultID, frame: geometry.frame(in: .global))
+                            : TVKnowledgeTextFrameKey.defaultValue)
                 })
             if point?.currentResult?.wasSuccessful == false {
                 Text(question.retryFeedback).font(.system(size: 28))

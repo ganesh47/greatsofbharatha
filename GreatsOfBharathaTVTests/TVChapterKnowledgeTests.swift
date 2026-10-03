@@ -3,6 +3,81 @@ import XCTest
 
 @MainActor
 final class TVChapterKnowledgeTests: XCTestCase {
+    func testEmptySiblingPreferencesCannotEraseTheTVCaptionFrame() {
+        let actual = TVKnowledgeTextFrame(id: "caption", frame: CGRect(x: 76, y: 300, width: 1000, height: 240))
+        var reduced = TVKnowledgeTextFrameKey.defaultValue
+        TVKnowledgeTextFrameKey.reduce(value: &reduced) { actual }
+        TVKnowledgeTextFrameKey.reduce(value: &reduced) { TVKnowledgeTextFrameKey.defaultValue }
+        XCTAssertEqual(reduced, actual)
+    }
+
+    func testUnsupportedOptionalDataKeepsFreshStoryAndCompletedRecallContinuations() throws {
+        for payload in [Data("not-json".utf8), Data("{\"schemaVersion\":99,\"futureField\":\"preserve\"}".utf8)] {
+            for stage in [TVActivityStage.story, .recall] {
+                let suite = "gob.tv.knowledge.fallback." + UUID().uuidString
+                let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+                defer { defaults.removePersistentDomain(forName: suite) }
+                let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+                let definition = ChapterKnowledgeCatalog.definitions[0]
+                var point = LessonResumePoint(sceneID: definition.sceneID)
+                var checkpoint = TVActivityCheckpoint()
+                checkpoint.stage = stage
+                if stage == .recall {
+                    checkpoint.completedActivityIDs = ["recall"]
+                    checkpoint.knowledgePracticePending = true
+                }
+                point.tvCheckpoint = checkpoint
+                XCTAssertTrue(store.saveResumePointConfirmed(point))
+                var snapshot = try XCTUnwrap(JSONSerialization.jsonObject(with:
+                    XCTUnwrap(defaults.data(forKey: "shivajiLessonStore.snapshot.v1"))) as? [String: Any])
+                snapshot["activityStateData"] = [LessonActivityStateKey.knowledge.rawValue: payload.base64EncodedString()]
+                defaults.set(try JSONSerialization.data(withJSONObject: snapshot), forKey: "shivajiLessonStore.snapshot.v1")
+                let reopened = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+                XCTAssertFalse(TVChapterKnowledgeContinuation.isAvailable(store: reopened, definition: definition))
+                XCTAssertTrue(TVChapterKnowledgeContinuation.restartTeachingPosition(store: reopened, definition: definition))
+                XCTAssertEqual(reopened.resumePoint(for: point.sceneID), point)
+                point.tvCheckpoint?.stage = stage == .story ? .discover : .puzzle
+                XCTAssertTrue(reopened.saveResumePointConfirmed(point))
+                let afterContinuation = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+                XCTAssertEqual(afterContinuation.resumePoint(for: point.sceneID), point)
+                XCTAssertEqual(afterContinuation.activityStateData[LessonActivityStateKey.knowledge.rawValue], payload)
+            }
+        }
+    }
+
+    func testExplicitReplayOnlyResetsActiveKnowledgePositionAndPreservesTimeline() throws {
+        let suite = "gob.tv.knowledge.replay." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ShivajiLessonStore(defaults: defaults, persistencePolicy: .compactTV)
+        let definition = ChapterKnowledgeCatalog.definitions[0]
+        let hooks = ChapterKnowledgeAdapters.hooks(store: store, definitions: ChapterKnowledgeCatalog.definitions)
+        var archive = hooks.load()
+        for beat in definition.beats {
+            archive = try XCTUnwrap(ChapterKnowledgePersistence.saveAndReplay(ChapterKnowledgeJourney.presentedBeat(beat.id,
+                visibleClaimIDs: Set(beat.claimIDs), sessionID: UUID(), archive: archive,
+                definition: definition, now: Date()), hooks: hooks))
+        }
+        XCTAssertEqual(archive.teachingBySceneID[definition.sceneID]?.activeBeatID, definition.beats.last?.id)
+        let before = archive
+        XCTAssertTrue(TVChapterKnowledgeContinuation.restartTeachingPosition(store: store, definition: definition))
+        archive = hooks.load()
+        var expected = before
+        expected.teachingBySceneID[definition.sceneID]?.activeBeatID = definition.beats[0].id
+        XCTAssertEqual(archive, expected)
+        var prior = TVActivityCheckpoint()
+        prior.stage = .keepsake
+        prior.timelineCheckpoint = TVTimelineCheckpoint()
+        prior.completedActivityIDs = ["recall", "timeline-round-1"]
+        prior.helpedActivityIDs = ["puzzle", "timeline-round-1"]
+        prior.completionEventIDs = ["recall": UUID(), "timeline-round-1": UUID()]
+        let restarted = TVChapterKnowledgeContinuation.restartedCheckpoint(preserving: prior)
+        XCTAssertEqual(restarted.stage, .story)
+        XCTAssertEqual(restarted.completedActivityIDs, ["timeline-round-1"])
+        XCTAssertEqual(restarted.helpedActivityIDs, ["timeline-round-1"])
+        XCTAssertEqual(restarted.completionEventIDs, prior.completionEventIDs.filter { $0.key.hasPrefix("timeline-") })
+        XCTAssertEqual(restarted.timelineCheckpoint, prior.timelineCheckpoint)
+    }
     func testCaptionPagesKeepEveryNarrativeAndFactWordBeforeReceipt() {
         for definition in ChapterKnowledgeCatalog.definitions {
             for beat in definition.beats {

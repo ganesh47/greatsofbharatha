@@ -149,8 +149,10 @@ struct TVChapterKnowledgeTeachingView: View {
                 Text(page.text).font(.system(size: 33)).fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(page.claim.map { "tv-knowledge-fact-" + $0.id } ?? "tv-knowledge-beat-text-" + page.id)
                     .background(GeometryReader { geometry in
-                        Color.clear.preference(key: TVKnowledgeTextFrameKey.self,
-                            value: TVKnowledgeTextFrame(id: page.id, frame: geometry.frame(in: .global)))
+                    Color.clear.preference(key: TVKnowledgeTextFrameKey.self,
+                        value: scenePhase == .active
+                            ? TVKnowledgeTextFrame(id: page.id, frame: geometry.frame(in: .global))
+                            : TVKnowledgeTextFrameKey.defaultValue)
                     })
             }.frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -237,5 +239,8 @@ struct TVKnowledgeTextFrame: Equatable {
 
 struct TVKnowledgeTextFrameKey: PreferenceKey {
     static let defaultValue = TVKnowledgeTextFrame(id: "", frame: .zero)
-    static func reduce(value: inout TVKnowledgeTextFrame, nextValue: () -> TVKnowledgeTextFrame) { value = nextValue() }
+    static func reduce(value: inout TVKnowledgeTextFrame, nextValue: () -> TVKnowledgeTextFrame) {
+        let sample = nextValue()
+        if !sample.id.isEmpty { value = sample }
+    }
 }

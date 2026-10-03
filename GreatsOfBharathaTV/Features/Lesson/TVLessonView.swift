@@ -29,7 +29,7 @@ struct TVLessonView: View {
         Group {
             if let chapter, checkpoint.stage == .story, restoredSceneID == chapter.id,
                let definition = ChapterKnowledgeCatalog.definition(sceneID: chapter.id),
-               definition.claims.allSatisfy({ $0.reviewStatus == .approved }) {
+               TVChapterKnowledgeContinuation.isAvailable(store: appModel.lessonStore, definition: definition) {
                 TVChapterKnowledgeTeachingView(chapter: chapter, definition: definition, sessionID: sessionID,
                     hooks: knowledgeHooks, onFinished: { move(to: .discover) },
                     startingAtBeatID: appModel.lessonStore.activityState(ChapterKnowledgeArchive.self, for: .knowledge)?
@@ -287,10 +287,15 @@ struct TVLessonView: View {
             if let feedback { Text(feedback).font(.system(size: 28)).accessibilityIdentifier("tv-recall-feedback") }
             if isDone {
                 Text(chapter.pilot.quiz.challenge.feedback.success).font(.system(size: 28)).accessibilityIdentifier("tv-recall-success")
-                Button("Try four family questions") {
-                    checkpoint.knowledgePracticePending = true
-                    saveCheckpoint()
-                    openKnowledge(.practice, continueToPuzzle: true)
+                Button(knowledgeIsAvailable(chapter) ? "Try four family questions" : "Continue to the little puzzle") {
+                    if knowledgeIsAvailable(chapter) {
+                        checkpoint.knowledgePracticePending = true
+                        saveCheckpoint()
+                        openKnowledge(.practice, continueToPuzzle: true)
+                    } else {
+                        checkpoint.knowledgePracticePending = false
+                        move(to: .puzzle)
+                    }
                 }
                     .buttonStyle(TVCardButtonStyle()).focused($focus, equals: "recall-continue")
                     .accessibilityIdentifier("tv-recall-continue")
@@ -411,13 +416,17 @@ struct TVLessonView: View {
         return LearningAtlasContent.candidates(for: target, places: appModel.content.places)
     }
 
-    private func choosePlace(_ id: String, clue: TVPlaceClue) {
+}
+
+private extension TVLessonView {
+    func choosePlace(_ id: String, clue: TVPlaceClue) {
         guard !checkpoint.solvedPlaceIDs.contains(clue.id) else { return }
         guard placeChoices(for: clue).contains(where: { $0.id == id }) else { return }
         checkpoint.selectedTileID = nil
         let key = "place-" + clue.id
         if id == clue.id {
-            let support: LearningSupport = checkpoint.helpedActivityIDs.contains("place-rescued-" + clue.id) ? .rescued : (checkpoint.helpedActivityIDs.contains(key) ? .hinted : .independent)
+            let support: LearningSupport = checkpoint.helpedActivityIDs.contains("place-rescued-" + clue.id)
+                ? .rescued : (checkpoint.helpedActivityIDs.contains(key) ? .hinted : .independent)
             complete(key, subjectID: clue.id, subjectType: .location, activity: .mapPlacement, successful: true,
                      support: support, promptType: .eventToPlaceMatch, detail: clue.clue)
             checkpoint.solvedPlaceIDs.insert(clue.id)
@@ -442,7 +451,8 @@ struct TVLessonView: View {
         let quiz = ChronicleQuizState(revealedHintCount: level,
                                       recognitionRescueUnlocked: checkpoint.helpedActivityIDs.contains("recall-rescued") || level > chapter.pilot.quiz.hintLadder.count)
         let result = ChronicleQuizEngine.evaluate(state: quiz, challenge: chapter.pilot.quiz.challenge, selectedAnswer: choice.title)
-        let support: LearningSupport = result.nextState.recognitionRescueUnlocked ? .rescued : (level > 0 || checkpoint.helpedActivityIDs.contains("recall") ? .hinted : .independent)
+        let support: LearningSupport = result.nextState.recognitionRescueUnlocked
+            ? .rescued : (level > 0 || checkpoint.helpedActivityIDs.contains("recall") ? .hinted : .independent)
         feedback = result.feedback
         if result.isCorrect {
             let prior = TVLearningContent.hasCheckedLearning(chapter, store: appModel.lessonStore)
@@ -477,7 +487,8 @@ struct TVLessonView: View {
             checkpoint.hintLevels["puzzle", default: 0] += 1
         }
         if matchState.completedPairIDs.count == pairs.count {
-            let support: LearningSupport = checkpoint.helpedActivityIDs.contains("puzzle-rescued") ? .rescued : (checkpoint.helpedActivityIDs.contains("puzzle") ? .hinted : .independent)
+            let support: LearningSupport = checkpoint.helpedActivityIDs.contains("puzzle-rescued")
+                ? .rescued : (checkpoint.helpedActivityIDs.contains("puzzle") ? .hinted : .independent)
             complete("puzzle", activity: .match, successful: true, support: support,
                      promptType: .eventToPlaceMatch, detail: "Completed TV authored matching set")
             focus = "puzzle-continue"
@@ -508,7 +519,8 @@ struct TVLessonView: View {
         checkpoint.helpedActivityIDs.insert("puzzle-rescued")
         matchState.completedPairIDs.insert(pair.id)
         matchState.selectedTileID = nil
-        matchState.lastOutcome = .matched(pairID: pair.id, feedback: "We placed this pair together. " + pair.teachingClue, completedSet: matchState.completedPairIDs.count == pairs.count)
+        matchState.lastOutcome = .matched(pairID: pair.id, feedback: "We placed this pair together. " + pair.teachingClue,
+            completedSet: matchState.completedPairIDs.count == pairs.count)
         updateMatch(pairs)
     }
 
@@ -621,21 +633,30 @@ struct TVLessonView: View {
         if let initialKnowledgeEntry, !openedInitialKnowledgeEntry {
             openedInitialKnowledgeEntry = true
             openKnowledge(initialKnowledgeEntry)
-        } else if checkpoint.knowledgePracticePending == true {
+        } else if checkpoint.knowledgePracticePending == true, knowledgeIsAvailable(chapter) {
             openKnowledge(.practice, continueToPuzzle: true)
         }
     }
 
     private func restartChapter(_ chapter: TVChapter) {
         narrator.stop()
-        checkpoint = TVActivityCheckpoint()
-        preserveTimeline(from: appModel.lessonStore.resumePoint(for: chapter.id)?.tvCheckpoint)
-        sessionID = UUID()
+        guard TVChapterKnowledgeContinuation.restartTeachingPosition(store: appModel.lessonStore,
+            definition: ChapterKnowledgeCatalog.definition(sceneID: chapter.id)) else { loadChapter(); return }
+        let previous = appModel.lessonStore.resumePoint(for: chapter.id)
+        var point = LessonResumePoint(sceneID: chapter.id, sessionID: UUID())
+        let restarted = TVChapterKnowledgeContinuation.restartedCheckpoint(preserving: previous?.tvCheckpoint)
+        point.tvCheckpoint = restarted
+        guard appModel.lessonStore.saveResumePointConfirmed(point) else { loadChapter(); return }
+        checkpoint = restarted
+        preserveTimeline(from: previous?.tvCheckpoint)
+        sessionID = point.sessionID
         restoredSceneID = nil
-        var point = LessonResumePoint(sceneID: chapter.id, sessionID: sessionID)
-        point.tvCheckpoint = checkpoint
-        appModel.lessonStore.saveResumePoint(point)
         loadChapter()
+    }
+
+    private func knowledgeIsAvailable(_ chapter: TVChapter) -> Bool {
+        TVChapterKnowledgeContinuation.isAvailable(store: appModel.lessonStore,
+            definition: ChapterKnowledgeCatalog.definition(sceneID: chapter.id))
     }
 
     private func saveCheckpoint() {
@@ -652,7 +673,8 @@ struct TVLessonView: View {
         point.completedMatchPairIDs = checkpoint.matchedPairIDs
         point.discoveredDetailIDs = checkpoint.discoveredDetailIDs
         point.solvedPlaceIDs = checkpoint.solvedPlaceIDs
-        point.phase = checkpoint.stage == .story || checkpoint.stage == .discover ? .story : (checkpoint.stage == .place ? .place : (checkpoint.stage == .recall ? .recall : .reward))
+        point.phase = checkpoint.stage == .story || checkpoint.stage == .discover ? .story :
+            (checkpoint.stage == .place ? .place : (checkpoint.stage == .recall ? .recall : .reward))
         point.updatedAt = Date()
         appModel.lessonStore.saveResumePoint(point)
     }
@@ -667,7 +689,9 @@ struct TVLessonView: View {
         checkpoint.completionEventIDs = checkpoint.completionEventIDs.filter { !$0.key.hasPrefix("timeline-") }
         checkpoint.completedActivityIDs.formUnion(prior.completedActivityIDs.filter { $0.hasPrefix("timeline-") })
         checkpoint.helpedActivityIDs.formUnion(prior.helpedActivityIDs.filter { $0.hasPrefix("timeline-") })
-        for (key, id) in prior.completionEventIDs where key.hasPrefix("timeline-") { checkpoint.completionEventIDs[key] = id }
+        for (key, id) in prior.completionEventIDs where key.hasPrefix("timeline-") {
+            checkpoint.completionEventIDs[key] = id
+        }
     }
 
     private func restoreFocus() {
@@ -679,7 +703,9 @@ struct TVLessonView: View {
             if let clue = chapter.placeClues.first(where: { !checkpoint.solvedPlaceIDs.contains($0.id) }) {
                 focus = checkpoint.selectedTileID != nil ? "fort-check" : nil
             } else { focus = "fort-continue" }
-        case .recall: focus = checkpoint.completedActivityIDs.contains("recall") ? "recall-continue" : (checkpoint.selectedTileID == nil ? chapter.plan.choices.first?.id : "recall-check")
+        case .recall:
+            focus = checkpoint.completedActivityIDs.contains("recall") ? "recall-continue" :
+                (checkpoint.selectedTileID == nil ? chapter.plan.choices.first?.id : "recall-check")
         case .puzzle: focus = checkpoint.completedActivityIDs.contains("puzzle") ? "puzzle-continue" : nil
         case .keepsake: focus = checkpoint.completedActivityIDs.contains("album") ? "all-done" : "keepsake-select"
         }
@@ -735,4 +761,37 @@ private struct TVKnowledgeRequest: Identifiable {
     let id = UUID()
     let mode: ChapterKnowledgeEntryMode
     let continueToPuzzle: Bool
+}
+
+/// Optional knowledge data must never remove an existing chapter continuation.
+@MainActor
+enum TVChapterKnowledgeContinuation {
+    static func isAvailable(store: ShivajiLessonStore, definition: ChapterKnowledgeDefinition?) -> Bool {
+        guard store.activityStateIsAvailable(for: .knowledge), let definition else { return false }
+        return definition.validationIssues.isEmpty && !definition.beats.isEmpty &&
+            definition.claims.allSatisfy { $0.reviewStatus == .approved }
+    }
+
+    static func restartTeachingPosition(store: ShivajiLessonStore, definition: ChapterKnowledgeDefinition?) -> Bool {
+        // A legacy replay is still available when extra saved data cannot be read.
+        guard isAvailable(store: store, definition: definition), let definition,
+              let opening = definition.beats.first else { return true }
+        let hooks = ChapterKnowledgeAdapters.hooks(store: store, definitions: ChapterKnowledgeCatalog.definitions)
+        guard let confirmed = ChapterKnowledgePersistence.saveAndReplay(hooks.load(), hooks: hooks),
+              confirmed.pendingEvidence.isEmpty else { return false }
+        let restarted = ChapterKnowledgeJourney.activateTeachingBeat(opening.id, archive: confirmed, definition: definition)
+        guard restarted.teachingBySceneID[definition.sceneID]?.activeBeatID == opening.id,
+              let saved = ChapterKnowledgePersistence.saveAndReplay(restarted, hooks: hooks) else { return false }
+        return saved.pendingEvidence.isEmpty
+    }
+
+    static func restartedCheckpoint(preserving previous: TVActivityCheckpoint?) -> TVActivityCheckpoint {
+        var result = TVActivityCheckpoint()
+        guard let previous else { return result }
+        result.timelineCheckpoint = previous.timelineCheckpoint
+        result.completedActivityIDs = Set(previous.completedActivityIDs.filter { $0.hasPrefix("timeline-") })
+        result.helpedActivityIDs = Set(previous.helpedActivityIDs.filter { $0.hasPrefix("timeline-") })
+        result.completionEventIDs = previous.completionEventIDs.filter { $0.key.hasPrefix("timeline-") }
+        return result
+    }
 }

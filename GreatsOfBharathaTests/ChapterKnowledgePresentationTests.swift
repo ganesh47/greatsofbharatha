@@ -3,6 +3,15 @@ import XCTest
 
 @MainActor
 final class ChapterKnowledgePresentationTests: XCTestCase {
+    #if os(iOS)
+    func testEmptySiblingPreferencesCannotEraseTheAuthoredTextFrame() {
+        let actual = ChapterKnowledgeTextFrame(id: "authored-page", frame: CGRect(x: 20, y: 140, width: 320, height: 100))
+        var reduced = ChapterKnowledgeTextFrameKey.defaultValue
+        ChapterKnowledgeTextFrameKey.reduce(value: &reduced) { actual }
+        ChapterKnowledgeTextFrameKey.reduce(value: &reduced) { ChapterKnowledgeTextFrameKey.defaultValue }
+        XCTAssertEqual(reduced, actual)
+    }
+    #endif
     private let definition = ChapterKnowledgeTestContent.definition()
     private let now = Date(timeIntervalSince1970: 2_000)
 

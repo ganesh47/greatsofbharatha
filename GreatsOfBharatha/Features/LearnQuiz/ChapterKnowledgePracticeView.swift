@@ -111,12 +111,13 @@ struct ChapterKnowledgePracticeView: View {
         GBSurface(style: .elevated) {
             VStack(alignment: .leading, spacing: GBSpacing.medium) {
                 Text("Learn this first").gbTitle().accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("knowledge-practice-needs-teaching")
                 Text("Let’s explore the chapter cards for this question, then come back to try it.").gbStory()
                 Button("Show the chapter cards") { openTeaching(question) }
                     .buttonStyle(.gbPrimary(.story)).disabled(presentation.isBlocked)
                     .accessibilityIdentifier("knowledge-practice-teach")
             }
-        }.accessibilityIdentifier("knowledge-practice-needs-teaching")
+        }
     }
 
     private func prompt(_ question: ChapterKnowledgeQuestion) -> some View {
@@ -187,7 +188,9 @@ struct ChapterKnowledgePracticeView: View {
                     .accessibilityIdentifier("knowledge-explanation-" + question.id)
                     .background(GeometryReader { geometry in
                         Color.clear.preference(key: ChapterKnowledgeTextFrameKey.self,
-                            value: ChapterKnowledgeTextFrame(id: resultID, frame: geometry.frame(in: .global)))
+                            value: scenePhase == .active
+                                ? ChapterKnowledgeTextFrame(id: resultID, frame: geometry.frame(in: .global))
+                                : ChapterKnowledgeTextFrameKey.defaultValue)
                     })
                 if point?.currentResult?.wasSuccessful == false {
                     Text(question.retryFeedback).gbStory().fixedSize(horizontal: false, vertical: true)

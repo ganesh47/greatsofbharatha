@@ -120,6 +120,9 @@ struct ChapterKnowledgeTeachingView: View {
     @State private var sourcesExpanded = false
     @State private var glossaryExpanded = false
     @State private var started = false
+    #if DEBUG
+    @State private var frameDiagnostic = "No text sample"
+    #endif
 
     let scene: LearnQuizPilotScene
     let definition: ChapterKnowledgeDefinition
@@ -188,6 +191,9 @@ struct ChapterKnowledgeTeachingView: View {
                     }
                     .accessibilityIdentifier("knowledge-teaching-scroll")
                     .onPreferenceChange(ChapterKnowledgeTextFrameKey.self) { sample in
+                        #if DEBUG
+                        frameDiagnostic = "sample=\(sample.id) frame=\(sample.frame) viewport=\(viewport.frame(in: .global)) phase=\(scenePhase)"
+                        #endif
                         guard scenePhase == .active, available, sample.id == page?.id else { return }
                         if coveragePageID != sample.id {
                             coverage = ChapterKnowledgeTextCoverage()
@@ -248,7 +254,9 @@ struct ChapterKnowledgeTeachingView: View {
                     .accessibilityIdentifier(page.claim.map { "knowledge-fact-" + $0.id } ?? "knowledge-beat-text-" + beat.id)
                     .background(GeometryReader { geometry in
                         Color.clear.preference(key: ChapterKnowledgeTextFrameKey.self,
-                            value: ChapterKnowledgeTextFrame(id: page.id, frame: geometry.frame(in: .global)))
+                            value: scenePhase == .active
+                                ? ChapterKnowledgeTextFrame(id: page.id, frame: geometry.frame(in: .global))
+                                : ChapterKnowledgeTextFrameKey.defaultValue)
                     })
             }
         }
@@ -284,6 +292,10 @@ struct ChapterKnowledgeTeachingView: View {
             .buttonStyle(.gbPrimary(.story))
             .disabled(presentation.isBlocked || !pageWasPresented)
             .accessibilityIdentifier("knowledge-teaching-next")
+            #if DEBUG
+            .accessibilityValue(ProcessInfo.processInfo.environment["GOB_UI_TEST_SUITE"]?.hasPrefix("gob.ui.knowledge.") == true
+                ? "\(frameDiagnostic) current=\(page?.id ?? "") coverage=\(coveragePageID)/\(coverage.isComplete) blocked=\(presentation.isBlocked) active=\(scenePhase)" : "")
+            #endif
             if pageIndex > 0 || beatIndex > 0 {
                 Button("Previous card") { previousCard() }
                     .buttonStyle(.gbSecondary).disabled(presentation.isBlocked)
@@ -366,7 +378,10 @@ struct ChapterKnowledgeTextFrame: Equatable {
 
 struct ChapterKnowledgeTextFrameKey: PreferenceKey {
     static let defaultValue = ChapterKnowledgeTextFrame(id: "", frame: .zero)
-    static func reduce(value: inout ChapterKnowledgeTextFrame, nextValue: () -> ChapterKnowledgeTextFrame) { value = nextValue() }
+    static func reduce(value: inout ChapterKnowledgeTextFrame, nextValue: () -> ChapterKnowledgeTextFrame) {
+        let sample = nextValue()
+        if !sample.id.isEmpty { value = sample }
+    }
 }
 
 struct ChapterKnowledgeSaveStatus: View {
