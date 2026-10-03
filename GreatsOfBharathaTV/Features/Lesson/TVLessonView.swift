@@ -39,7 +39,7 @@ struct TVLessonView: View {
                         checkpoint.storyBeatIndex = ChapterStoryBeatMigration.legacyIndexForRollback(sceneID: chapter.id,
                             beatID: id, orderedBeatIDs: definition.beats.map(\.id))
                         saveCheckpoint()
-                    })
+                    }, nextIdentifier: "tv-lesson-story-next")
             } else {
                 legacyContent.onExitCommand(perform: handleBack).onPlayPauseCommand(perform: playPause)
             }

@@ -81,7 +81,7 @@ final class TVLearningJourneyUITests: XCTestCase {
 
     private func reachFirstRecall() {
         select("tv-home-continue")
-        for _ in 0..<3 { select("tv-lesson-story-next") }
+        TVKnowledgeUITestJourney.finishStory(app: app, select: { select($0) })
         select("tv-discovery-continue")
         select("tv-fort-place-shivneri")
         select("tv-fort-check")
@@ -94,6 +94,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         select("tv-recall-scene-1-shivneri-shivneri")
         select("tv-recall-check")
         select("tv-recall-continue")
+        TVKnowledgeUITestJourney.finishPractice(app: app, select: { select($0) })
         XCTAssertTrue(app.staticTexts["tv-match-left-title"].waitForExistence(timeout: 10))
     }
 
@@ -189,7 +190,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         launch()
         let chapter = chapters[2]
         select("tv-home-chapter-" + chapter.id)
-        for _ in 0..<3 { select("tv-lesson-story-next") }
+        TVKnowledgeUITestJourney.finishStory(app: app, select: { select($0) })
         select("tv-discovery-continue")
         select("tv-fort-place-pratapgad")
         select("tv-fort-check")
@@ -197,6 +198,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         select("tv-recall-" + chapter.id + "-pratapgad")
         select("tv-recall-check")
         select("tv-recall-continue")
+        TVKnowledgeUITestJourney.finishPractice(app: app, select: { select($0) })
         XCTAssertEqual(app.staticTexts["tv-match-left-title"].label, "Story cards")
         XCTAssertEqual(app.staticTexts["tv-match-right-title"].label, "What they mean")
         capture("matching-three-pairs-readable-entry")
@@ -313,7 +315,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         launch()
         XCTAssertTrue(app.buttons["tv-home-continue"].label.contains("Purandar"))
         select("tv-home-continue")
-        for _ in 0..<3 { select("tv-lesson-story-next") }
+        TVKnowledgeUITestJourney.finishStory(app: app, select: { select($0) })
         select("tv-discovery-continue")
         select("tv-fort-place-purandar")
         select("tv-fort-check")
@@ -323,6 +325,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         select("tv-recall-scene-4-purandar-agra-purandar")
         select("tv-recall-check")
         select("tv-recall-continue")
+        TVKnowledgeUITestJourney.finishPractice(app: app, select: { select($0) })
         select("tv-sequence-card-timeline-agra-and-return")
         select("tv-sequence-slot-0")
         XCTAssertFalse(app.buttons["tv-puzzle-continue"].exists)
@@ -380,7 +383,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         for (index, chapter) in chapters.enumerated() {
             XCTAssertTrue(app.buttons["tv-lesson-story-next"].waitForExistence(timeout: 10))
             capture("story-chapter-" + String(index + 1))
-            for _ in 0..<3 { select("tv-lesson-story-next") }
+            TVKnowledgeUITestJourney.finishStory(app: app, select: { select($0) })
             select("tv-discovery-" + chapter.id + "-discovery-1")
             XCTAssertTrue(app.buttons["tv-discovery-close"].waitForExistence(timeout: 10))
             remote.press(.menu)
@@ -403,6 +406,7 @@ final class TVLearningJourneyUITests: XCTestCase {
             select("tv-recall-check")
             XCTAssertTrue(app.staticTexts["tv-recall-success"].waitForExistence(timeout: 10))
             select("tv-recall-continue")
+        TVKnowledgeUITestJourney.finishPractice(app: app, select: { select($0) })
             if !chapter.pairIDs.isEmpty {
                 if index == 0 {
                     select("tv-puzzle-left-" + chapter.pairIDs[0])
@@ -485,7 +489,10 @@ final class TVLearningJourneyUITests: XCTestCase {
         capture("09-tv-album-after-relaunch")
     }
 
-    private func completeRestoredFullTimeline() {
+}
+
+private extension TVLearningJourneyUITests {
+    func completeRestoredFullTimeline() {
         select("tv-home-timeline")
         for (roundIndex, round) in fullTimelineRounds.enumerated() {
             if roundIndex == 0 {
@@ -511,7 +518,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         select("tv-timeline-done")
     }
 
-    private func verifyFinalAdventureReturnsToKeepsake() {
+    func verifyFinalAdventureReturnsToKeepsake() {
         select("tv-next-chapter")
         XCTAssertTrue(app.staticTexts["Explore the fort board"].waitForExistence(timeout: 10),
                       "The final chapter's next adventure should open the fort board")
@@ -521,7 +528,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["tv-keepsake-success"].waitForExistence(timeout: 10))
     }
 
-    private struct ChapterFixture {
+    struct ChapterFixture {
         let id: String
         let places: [String]
         let answer: String
@@ -529,7 +536,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         var sequenceIDs: [String] = []
     }
 
-    private var chapters: [ChapterFixture] {
+    var chapters: [ChapterFixture] {
         [
             ChapterFixture(id: "scene-1-shivneri", places: ["place-shivneri"], answer: "shivneri",
                            pairIDs: ["match-shivneri-birth-fort", "tv-match-jijabai-guidance"]),
@@ -546,7 +553,7 @@ final class TVLearningJourneyUITests: XCTestCase {
         ]
     }
 
-    private var fullTimelineRounds: [[String]] {
+    var fullTimelineRounds: [[String]] {
         [
             ["timeline-born-at-shivneri", "timeline-early-forts", "timeline-pratapgad-turning-point"],
             ["timeline-pratapgad-turning-point", "timeline-pressure-at-purandar", "timeline-agra-and-return"],

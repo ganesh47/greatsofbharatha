@@ -21,10 +21,12 @@ struct TVChapterKnowledgeTeachingView: View {
     var now: () -> Date
     var startingAtBeatID: String?
     var onActiveBeatChanged: (String) -> Void
+    var nextIdentifier: String
 
     init(chapter: TVChapter, definition: ChapterKnowledgeDefinition, sessionID: UUID,
          hooks: ChapterKnowledgeHooks, onFinished: @escaping () -> Void, now: @escaping () -> Date = Date.init,
-         startingAtBeatID: String? = nil, onActiveBeatChanged: @escaping (String) -> Void = { _ in }) {
+         startingAtBeatID: String? = nil, onActiveBeatChanged: @escaping (String) -> Void = { _ in },
+         nextIdentifier: String = "tv-knowledge-teaching-next") {
         self.chapter = chapter
         self.definition = definition
         self.sessionID = sessionID
@@ -32,6 +34,7 @@ struct TVChapterKnowledgeTeachingView: View {
         self.now = now
         self.startingAtBeatID = startingAtBeatID
         self.onActiveBeatChanged = onActiveBeatChanged
+        self.nextIdentifier = nextIdentifier
         _presentation = StateObject(wrappedValue: ChapterKnowledgePresentationSession(hooks: hooks))
     }
 
@@ -68,7 +71,7 @@ struct TVChapterKnowledgeTeachingView: View {
                                 Button(pageIndex < pages.count - 1 ? "Next card" :
                                     (beatIndex < definition.beats.count - 1 ? "Next part" : "Continue")) { continueReading() }
                                     .disabled(presentation.isBlocked || !pageWasPresented)
-                                    .focused($focus, equals: "next").accessibilityIdentifier("tv-knowledge-teaching-next")
+                                    .focused($focus, equals: "next").accessibilityIdentifier(nextIdentifier)
                                 if pageIndex > 0 || beatIndex > 0 {
                                     Button("Previous card", action: previous)
                                         .disabled(presentation.isBlocked).focused($focus, equals: "previous")
