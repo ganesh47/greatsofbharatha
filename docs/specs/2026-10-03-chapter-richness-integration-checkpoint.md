@@ -48,3 +48,5 @@ Evidence root: /tmp/gob-content-richness-20261003. Current bundles under validat
 Project regeneration has zero drift. All 77 release-verification tests, actionlint, strict lint for 22 new Swift files and normal repository SwiftLint pass. The full strict scan reports existing warnings; the normal gate has zero errors and fewer warnings than the released base. No broad style cleanup or global toolchain change occurred.
 
 All owned simulators are shut down; GoB holds zero heavy slots. Original user WIP and other repositories/devices are preserved. The PR body and release handoff are prepared locally. After parent publication clearance: publish the draft, pass exact-PR-head checks, merge the reviewed green head, pass exact-main release gates, and use existing authorized Apple workflows to verify both TestFlight builds. Internal Apple evidence remains local; no new credentials or grants are needed.
+
+Linked issue: none; this user-requested enhancement is tracked by [PR #216](https://github.com/ganesh47/greatsofbharatha/pull/216).

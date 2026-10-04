@@ -53,3 +53,5 @@ The two textbook PDFs were read locally and are not included in the repository. 
 - **unesco-twelve-forts** — Twelve is a modern World Heritage serial-property count, not the total number of forts held in Shivaji’s reign.
 
 Machine-readable evidence: [claim ledger](2026-10-03-chapter-claim-ledger.json), [question coverage](2026-10-03-chapter-question-coverage.json), and [fresh source inventory](2026-10-03-chapter-richness-inventory.json).
+
+Linked issue: none; this user-requested enhancement is tracked by [PR #216](https://github.com/ganesh47/greatsofbharatha/pull/216).

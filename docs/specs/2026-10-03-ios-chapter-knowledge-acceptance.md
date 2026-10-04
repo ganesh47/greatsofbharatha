@@ -94,3 +94,5 @@ At tested development head `6a95310dedfe6ca07f735b206e2d4dd5bea14c36`, the dedic
 The original compact-phone 5/6 result is retained; its citation-identity failure was corrected from live AX evidence and passed the focused rerun. Representative portrait practice/feedback and direct simulator landscape teaching images were inspected. Landscape XCTest attachments have a capture-transform artifact and are not used to infer app clipping. Native audits cover hit regions, descriptions and traits; they do not establish a manual spoken VoiceOver walkthrough.
 
 [Shared integration acceptance](2026-10-03-chapter-richness-integration-checkpoint.md) records exact timings, TV parity/legacy/4K evidence, local artifact paths and limitations. Full legacy iOS UI coverage and all required checks remain exact-head hosted gates. Public PR, merge and TestFlight publication await the parent's explicit clearance; this is development evidence rather than a released-app claim.
+
+Linked issue: none; this user-requested enhancement is tracked by [PR #216](https://github.com/ganesh47/greatsofbharatha/pull/216).

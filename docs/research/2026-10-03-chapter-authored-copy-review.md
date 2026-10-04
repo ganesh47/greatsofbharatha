@@ -471,3 +471,5 @@ Explanation: The Amatya kept the state’s accounts. Different offices had diffe
 Clue: Look for the job that uses records of money and revenue.
 Retry: Let’s look at the clue and try again.
 Required teaching: `scene-6-raigad-coronation-meaning`.
+
+Linked issue: none; this user-requested enhancement is tracked by [PR #216](https://github.com/ganesh47/greatsofbharatha/pull/216).
