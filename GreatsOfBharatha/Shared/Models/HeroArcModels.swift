@@ -171,6 +171,7 @@ enum RecallPromptType: String, Codable, CaseIterable, Equatable {
     case sequenceSlot
     case eventToPlaceMatch
     case compareFromMemory
+    case recognitionChoice
 }
 
 struct RecallChallenge: Identifiable, Equatable {
@@ -214,7 +215,7 @@ enum MasteryEvidenceType: String, Codable, CaseIterable, Equatable {
 }
 
 enum LearningParticipation: String, Codable {
-    case typedResponse, sharedFamilyRecognition
+    case typedResponse, individualRecognition, sharedFamilyRecognition
 }
 
 struct MasteryEvidence: Codable, Equatable {
@@ -339,6 +340,7 @@ struct LessonResumePoint: Codable, Equatable {
     var phase: LessonResumePhase = .story
     var sessionID: UUID = UUID()
     var storyCardIndex: Int = 0
+    var storyBeatID: String?
     var revealedHintLevel: Int = 0
     var recognitionRescueUnlocked: Bool = false
     var recallCompleted: Bool = false
@@ -358,7 +360,7 @@ struct LessonResumePoint: Codable, Equatable {
     var updatedAt: Date = Date()
 
     private enum CodingKeys: String, CodingKey {
-        case sceneID, phase, sessionID, storyCardIndex, revealedHintLevel, recognitionRescueUnlocked
+        case sceneID, phase, sessionID, storyCardIndex, storyBeatID, revealedHintLevel, recognitionRescueUnlocked
         case recallCompleted, completedMatchPairIDs, selectedMatchTileID, matchMismatchCount, recallEventID, matchEventID, preferredActivity
         case selectedAtlasDiscoveryID, selectedPlaceChoiceIDs
         case discoveredDetailIDs, selectedDiscoveryDetailID, solvedPlaceIDs, helpedPlaceIDs, tvCheckpoint, updatedAt
@@ -374,11 +376,12 @@ struct LessonResumePoint: Codable, Equatable {
          discoveredDetailIDs: Set<String> = [], selectedDiscoveryDetailID: String? = nil,
          selectedAtlasDiscoveryID: String? = nil, selectedPlaceChoiceIDs: [String: String] = [:],
          solvedPlaceIDs: Set<String> = [], helpedPlaceIDs: Set<String> = [],
-         tvCheckpoint: TVActivityCheckpoint? = nil, updatedAt: Date = Date()) {
+         tvCheckpoint: TVActivityCheckpoint? = nil, storyBeatID: String? = nil, updatedAt: Date = Date()) {
         self.sceneID = sceneID
         self.phase = phase
         self.sessionID = sessionID
         self.storyCardIndex = max(storyCardIndex, 0)
+        self.storyBeatID = storyBeatID
         self.revealedHintLevel = max(revealedHintLevel, 0)
         self.recognitionRescueUnlocked = recognitionRescueUnlocked
         self.recallCompleted = recallCompleted
@@ -404,6 +407,7 @@ struct LessonResumePoint: Codable, Equatable {
         phase = try values.decodeIfPresent(LessonResumePhase.self, forKey: .phase) ?? .story
         sessionID = try values.decodeIfPresent(UUID.self, forKey: .sessionID) ?? UUID()
         storyCardIndex = max(try values.decodeIfPresent(Int.self, forKey: .storyCardIndex) ?? 0, 0)
+        storyBeatID = try values.decodeIfPresent(String.self, forKey: .storyBeatID)
         revealedHintLevel = max(try values.decodeIfPresent(Int.self, forKey: .revealedHintLevel) ?? 0, 0)
         recognitionRescueUnlocked = try values.decodeIfPresent(Bool.self, forKey: .recognitionRescueUnlocked) ?? false
         recallCompleted = try values.decodeIfPresent(Bool.self, forKey: .recallCompleted) ?? false

@@ -71,10 +71,12 @@ enum TVLearningContent {
         guard let scene = SampleContent.shivajiVerticalSlice.scenes.first(where: { $0.id == pilot.id }) else { return nil }
         let plan = SampleContent.learningPlan(for: scene)
         let extra = authoredDetails(number: pilot.number)
-        let beats = [
+        let beats = ChapterKnowledgeCatalog.definition(sceneID: scene.id)?.beats.map {
+            TVStoryBeat(id: $0.id, title: $0.title, text: $0.text)
+        } ?? [
             TVStoryBeat(id: scene.id + "-story", title: "The story", text: pilot.story),
             TVStoryBeat(id: scene.id + "-memory", title: "Remember this", text: plan.teachingText + " " + extra.teaching),
-            TVStoryBeat(id: scene.id + "-meaning", title: "Why it matters", text: pilot.meaning),
+            TVStoryBeat(id: scene.id + "-meaning", title: "Why it matters", text: pilot.meaning)
         ]
         let discoveries = extra.discoveries.enumerated().map { index, discovery in
             TVDiscovery(id: scene.id + "-discovery-\(index + 1)", title: discovery.0, symbol: discovery.1, text: discovery.2)

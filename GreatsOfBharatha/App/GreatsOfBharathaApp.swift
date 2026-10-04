@@ -35,7 +35,8 @@ private struct AppEntryContent: View {
     let appModel: AppModel
     var body: some View {
         Group {
-            if let captureRoute { CaptureRootView(route: captureRoute) }
+            if let knowledge = ChapterKnowledgeDebugEntry.current() { ChapterKnowledgeDebugRoot(entry: knowledge) }
+            else if let captureRoute { CaptureRootView(route: captureRoute) }
             else { ContentView() }
         }
         .environmentObject(appModel)

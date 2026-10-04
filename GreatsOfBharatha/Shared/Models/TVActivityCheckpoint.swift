@@ -8,6 +8,8 @@ enum TVActivityStage: String, Codable, CaseIterable, Equatable {
 struct TVActivityCheckpoint: Codable, Equatable {
     var stage: TVActivityStage = .story
     var storyBeatIndex: Int = 0
+    /// Optional in old saves. The index remains a legacy three-beat rollback anchor.
+    var storyBeatID: String?
     var discoveredDetailIDs: Set<String> = []
     var solvedPlaceIDs: Set<String> = []
     var helpedActivityIDs: Set<String> = []
@@ -18,6 +20,8 @@ struct TVActivityCheckpoint: Codable, Equatable {
     var completionEventIDs: [String: UUID] = [:]
     var selectedTileID: String?
     var timelineCheckpoint: TVTimelineCheckpoint?
+    /// Optional in earlier saves. A family practice interruption resumes before the puzzle.
+    var knowledgePracticePending: Bool?
 
     /// Keep IDs stable between Select, persistence, and a process relaunch.
     mutating func eventID(for activityID: String) -> UUID {

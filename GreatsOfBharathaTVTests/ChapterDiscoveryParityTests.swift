@@ -2,11 +2,17 @@ import XCTest
 @testable import GreatsOfBharathaTV
 
 final class ChapterDiscoveryParityTests: XCTestCase {
-    func testSharedDiscoveryCatalogExactlyMatchesAllSixAuthoredTVChapters() throws {
+    func testSharedDiscoveriesAndApprovedTeachingPreserveAllSixLegacyChapters() throws {
         XCTAssertEqual(ChapterDiscoveryContent.chapters.map(\.id), TVLearningContent.chapters.map(\.id))
         for chapter in TVLearningContent.chapters {
             let shared = try XCTUnwrap(ChapterDiscoveryContent.chapter(sceneID: chapter.id))
-            XCTAssertEqual(chapter.storyBeats[1].text, chapter.plan.teachingText + " " + shared.teachingText)
+            let definition = try XCTUnwrap(ChapterKnowledgeCatalog.definition(sceneID: chapter.id))
+            XCTAssertEqual(chapter.storyBeats.map(\.id), definition.beats.map(\.id))
+            XCTAssertEqual(chapter.storyBeats.map(\.title), definition.beats.map(\.title))
+            XCTAssertEqual(chapter.storyBeats.map(\.text), definition.beats.map(\.text))
+            XCTAssertTrue(chapter.storyBeats[0].text.hasPrefix(chapter.pilot.story))
+            XCTAssertTrue(chapter.storyBeats[1].text.hasPrefix(chapter.plan.teachingText + " " + shared.teachingText))
+            XCTAssertTrue(chapter.storyBeats[2].text.hasPrefix(chapter.pilot.meaning))
             XCTAssertEqual(shared.familyPrompt, chapter.familyPrompt)
             XCTAssertEqual(shared.discoveries.map(\.id), chapter.discoveries.map(\.id))
             XCTAssertEqual(shared.discoveries.map(\.title), chapter.discoveries.map(\.title))

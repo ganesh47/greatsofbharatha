@@ -231,7 +231,7 @@ final class TVReviewJourneyUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tv-home-continue"].label.contains("Purandar"))
         select("tv-home-continue")
         XCTAssertTrue(app.buttons["tv-lesson-story-next"].waitForExistence(timeout: 10))
-        select("tv-lesson-story-next")
+        TVKnowledgeUITestJourney.finishStory(app: app, untilTitle: "Remember this", select: { select($0) })
         XCTAssertTrue(app.staticTexts["Remember this"].waitForExistence(timeout: 10))
         remote.press(.menu)
         XCTAssertTrue(app.buttons["tv-home-review"].waitForExistence(timeout: 10))

@@ -1,0 +1,877 @@
+{
+  "schemaVersion": 1,
+  "baseSHA": "1a5a2a2b62b1ac818450719ce24df217071880ae",
+  "status": "Final exact copy approved at 650c841; all 24 questions reached after teaching on iOS Story/Pilot and TV locally; exact-head CI and release pending",
+  "questionCounts": {
+    "new": 24,
+    "numeric": 8,
+    "nonNumeric": 16
+  },
+  "questions": [
+    {
+      "id": "scene-1-shivneri-knowledge-question-mother",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "kind": "identity",
+      "prompt": "Who was Shivaji Maharaj’s mother?",
+      "choices": [
+        {
+          "id": "scene-1-shivneri-knowledge-question-mother-choice-1",
+          "text": "Jijabai"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-mother-choice-2",
+          "text": "Saibai"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-mother-choice-3",
+          "text": "Soyarabai"
+        }
+      ],
+      "correctChoiceID": "scene-1-shivneri-knowledge-question-mother-choice-1",
+      "claimIDs": [
+        "scene-1-shivneri-fact-parents"
+      ],
+      "requiredBeatIDs": [
+        "scene-1-shivneri-memory"
+      ],
+      "explanation": "Jijabai was his mother. Shahaji was his father.",
+      "hints": [
+        "Recall the mother named in this chapter’s family fact."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-1-shivneri-knowledge-question-junnar",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "kind": "geography",
+      "prompt": "Which town is close to Shivneri?",
+      "choices": [
+        {
+          "id": "scene-1-shivneri-knowledge-question-junnar-choice-3",
+          "text": "Mahabaleshwar"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-junnar-choice-1",
+          "text": "Junnar"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-junnar-choice-2",
+          "text": "Agra"
+        }
+      ],
+      "correctChoiceID": "scene-1-shivneri-knowledge-question-junnar-choice-1",
+      "claimIDs": [
+        "scene-1-shivneri-fact-junnar"
+      ],
+      "requiredBeatIDs": [
+        "scene-1-shivneri-story"
+      ],
+      "explanation": "Shivneri stands near Junnar in Pune district.",
+      "hints": [
+        "Look again at the place name beside Shivneri."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-1-shivneri-knowledge-question-gates",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "kind": "numericCount",
+      "prompt": "How many gates does our present-day Shivneri description name?",
+      "choices": [
+        {
+          "id": "scene-1-shivneri-knowledge-question-gates-choice-3",
+          "text": "Nine"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-gates-choice-1",
+          "text": "Five"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-gates-choice-2",
+          "text": "Seven"
+        }
+      ],
+      "correctChoiceID": "scene-1-shivneri-knowledge-question-gates-choice-2",
+      "claimIDs": [
+        "scene-1-shivneri-fact-seven-gates"
+      ],
+      "requiredBeatIDs": [
+        "scene-1-shivneri-memory"
+      ],
+      "explanation": "The site description identifies seven gates. This is a feature count, not a date.",
+      "hints": [
+        "Find the number in the gate fact."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-1-shivneri-knowledge-question-cistern",
+      "chapter": 1,
+      "sceneID": "scene-1-shivneri",
+      "kind": "meaning",
+      "prompt": "What is a cistern built to do?",
+      "choices": [
+        {
+          "id": "scene-1-shivneri-knowledge-question-cistern-choice-1",
+          "text": "Store water"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-cistern-choice-2",
+          "text": "Keep written accounts"
+        },
+        {
+          "id": "scene-1-shivneri-knowledge-question-cistern-choice-3",
+          "text": "House horses"
+        }
+      ],
+      "correctChoiceID": "scene-1-shivneri-knowledge-question-cistern-choice-1",
+      "claimIDs": [
+        "scene-1-shivneri-fact-water-storage",
+        "scene-1-shivneri-fact-cistern-meaning"
+      ],
+      "requiredBeatIDs": [
+        "scene-1-shivneri-meaning"
+      ],
+      "explanation": "A cistern collects or stores water for people to use.",
+      "hints": [
+        "The chapter links cisterns with a daily need."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-2-torna-rajgad-knowledge-question-torna-name",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "kind": "identity",
+      "prompt": "Which other name belongs to Torna?",
+      "choices": [
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-torna-name-choice-3",
+          "text": "Purandar"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-torna-name-choice-1",
+          "text": "Prachandgad"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-torna-name-choice-2",
+          "text": "Pratapgad"
+        }
+      ],
+      "correctChoiceID": "scene-2-torna-rajgad-knowledge-question-torna-name-choice-1",
+      "claimIDs": [
+        "scene-2-torna-rajgad-fact-torna-name"
+      ],
+      "requiredBeatIDs": [
+        "scene-2-torna-rajgad-story"
+      ],
+      "explanation": "Torna is also known as Prachandgad.",
+      "hints": [
+        "Read the two names placed together in the story."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-2-torna-rajgad-knowledge-question-machis",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "kind": "numericCount",
+      "prompt": "How many named machis are in our Rajgad list: Padmavati, Sanjivani, and Suvela?",
+      "choices": [
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-machis-choice-3",
+          "text": "Four"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-machis-choice-1",
+          "text": "Two"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-machis-choice-2",
+          "text": "Three"
+        }
+      ],
+      "correctChoiceID": "scene-2-torna-rajgad-knowledge-question-machis-choice-2",
+      "claimIDs": [
+        "scene-2-torna-rajgad-fact-named-machis"
+      ],
+      "requiredBeatIDs": [
+        "scene-2-torna-rajgad-memory"
+      ],
+      "explanation": "There are three named machis in this list. Rajgad also has other features, including a citadel.",
+      "hints": [
+        "Count the names in the list one at a time."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-2-torna-rajgad-knowledge-question-capital",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "kind": "meaning",
+      "prompt": "What made Rajgad a capital as well as a fort?",
+      "choices": [
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-capital-choice-1",
+          "text": "Government planning and administration"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-capital-choice-2",
+          "text": "Only a place to store grain"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-capital-choice-3",
+          "text": "Only a place to keep horses"
+        }
+      ],
+      "correctChoiceID": "scene-2-torna-rajgad-knowledge-question-capital-choice-1",
+      "claimIDs": [
+        "scene-2-torna-rajgad-fact-first-capital",
+        "scene-2-torna-rajgad-fact-capital-work"
+      ],
+      "requiredBeatIDs": [
+        "scene-2-torna-rajgad-meaning",
+        "scene-2-torna-rajgad-story"
+      ],
+      "explanation": "A capital is a centre for government work. Rajgad also had defence and storage spaces.",
+      "hints": [
+        "Think about the work of running Swaraj."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-2-torna-rajgad-knowledge-question-masons",
+      "chapter": 2,
+      "sceneID": "scene-2-torna-rajgad",
+      "kind": "application",
+      "prompt": "Which job best matches a stone mason helping to build a fort?",
+      "choices": [
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-masons-choice-3",
+          "text": "Caring for horses"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-masons-choice-1",
+          "text": "Shaping and placing stone"
+        },
+        {
+          "id": "scene-2-torna-rajgad-knowledge-question-masons-choice-2",
+          "text": "Keeping the state’s accounts"
+        }
+      ],
+      "correctChoiceID": "scene-2-torna-rajgad-knowledge-question-masons-choice-1",
+      "claimIDs": [
+        "scene-2-torna-rajgad-fact-builders"
+      ],
+      "requiredBeatIDs": [
+        "scene-2-torna-rajgad-meaning"
+      ],
+      "explanation": "A stone mason works with stone. Many kinds of workers helped build Rajgad.",
+      "hints": [
+        "The first word in the job name tells you its main material."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-knowledge-question-year-gap",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "kind": "numericYearLabelGap",
+      "prompt": "Pratapgad’s timeline labels are 1656 for building and 1659 for the battle. What is 1659 − 1656?",
+      "choices": [
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-year-gap-choice-3",
+          "text": "Four"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-year-gap-choice-1",
+          "text": "Two"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-year-gap-choice-2",
+          "text": "Three"
+        }
+      ],
+      "correctChoiceID": "scene-3-pratapgad-turning-point-knowledge-question-year-gap-choice-2",
+      "claimIDs": [
+        "scene-3-pratapgad-turning-point-fact-built-1656",
+        "scene-3-pratapgad-turning-point-fact-battle-1659",
+        "scene-3-pratapgad-turning-point-fact-year-label-gap"
+      ],
+      "requiredBeatIDs": [
+        "scene-3-pratapgad-turning-point-memory",
+        "scene-3-pratapgad-turning-point-story"
+      ],
+      "explanation": "The year labels differ by three. We are comparing labels, not claiming an exact elapsed duration.",
+      "hints": [
+        "Move from 1656 to 1657, then 1658, then 1659."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-knowledge-question-before",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "kind": "sequence",
+      "prompt": "Which comes first on this timeline?",
+      "choices": [
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-before-choice-1",
+          "text": "Building Pratapgad in 1656"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-before-choice-2",
+          "text": "The battle at Pratapgad in 1659"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-before-choice-3",
+          "text": "Both have the same year label"
+        }
+      ],
+      "correctChoiceID": "scene-3-pratapgad-turning-point-knowledge-question-before-choice-1",
+      "claimIDs": [
+        "scene-3-pratapgad-turning-point-fact-built-before-battle"
+      ],
+      "requiredBeatIDs": [
+        "scene-3-pratapgad-turning-point-memory"
+      ],
+      "explanation": "1656 comes before 1659, so the fort’s construction is earlier.",
+      "hints": [
+        "Compare the two year labels."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-knowledge-question-bijapur",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "kind": "identity",
+      "prompt": "Afzal Khan came from the forces of which kingdom?",
+      "choices": [
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-bijapur-choice-3",
+          "text": "The Portuguese"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-bijapur-choice-1",
+          "text": "Bijapur"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-bijapur-choice-2",
+          "text": "The Mughals"
+        }
+      ],
+      "correctChoiceID": "scene-3-pratapgad-turning-point-knowledge-question-bijapur-choice-1",
+      "claimIDs": [
+        "scene-3-pratapgad-turning-point-fact-battle-1659"
+      ],
+      "requiredBeatIDs": [
+        "scene-3-pratapgad-turning-point-story"
+      ],
+      "explanation": "Afzal Khan served Bijapur. The chapter’s turning point is associated with Pratapgad in 1659.",
+      "hints": [
+        "Look for the kingdom named with Afzal Khan."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-3-pratapgad-turning-point-knowledge-question-terrain",
+      "chapter": 3,
+      "sceneID": "scene-3-pratapgad-turning-point",
+      "kind": "geography",
+      "prompt": "Which landscape best fits Pratapgad?",
+      "choices": [
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-terrain-choice-2",
+          "text": "An open sea shore"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-terrain-choice-3",
+          "text": "A broad, flat plain"
+        },
+        {
+          "id": "scene-3-pratapgad-turning-point-knowledge-question-terrain-choice-1",
+          "text": "Forested hills"
+        }
+      ],
+      "correctChoiceID": "scene-3-pratapgad-turning-point-knowledge-question-terrain-choice-1",
+      "claimIDs": [
+        "scene-3-pratapgad-turning-point-fact-hill-forest"
+      ],
+      "requiredBeatIDs": [
+        "scene-3-pratapgad-turning-point-meaning"
+      ],
+      "explanation": "Pratapgad stands in hilly, forested Sahyadri terrain near Mahabaleshwar.",
+      "hints": [
+        "Remember the hills and forest in the place fact."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-4-purandar-agra-knowledge-question-forts",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "kind": "numericCount",
+      "prompt": "How many forts were included in the Treaty of Purandar’s transfer term?",
+      "choices": [
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-forts-choice-2",
+          "text": "Twenty-three"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-forts-choice-3",
+          "text": "Thirty-three"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-forts-choice-1",
+          "text": "Thirteen"
+        }
+      ],
+      "correctChoiceID": "scene-4-purandar-agra-knowledge-question-forts-choice-2",
+      "claimIDs": [
+        "scene-4-purandar-agra-fact-twenty-three-forts"
+      ],
+      "requiredBeatIDs": [
+        "scene-4-purandar-agra-story"
+      ],
+      "explanation": "The treaty term named twenty-three forts. This is not the total number of forts in the whole kingdom.",
+      "hints": [
+        "Read the number attached to this treaty, not to all of Swaraj."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-4-purandar-agra-knowledge-question-year-gap",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "kind": "numericYearLabelGap",
+      "prompt": "Purandar is labelled 1665 and the Agra return 1666. What is 1666 − 1665?",
+      "choices": [
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-year-gap-choice-3",
+          "text": "Three"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-year-gap-choice-1",
+          "text": "One"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-year-gap-choice-2",
+          "text": "Two"
+        }
+      ],
+      "correctChoiceID": "scene-4-purandar-agra-knowledge-question-year-gap-choice-1",
+      "claimIDs": [
+        "scene-4-purandar-agra-fact-treaty-1665",
+        "scene-4-purandar-agra-fact-return-1666",
+        "scene-4-purandar-agra-fact-year-label-gap"
+      ],
+      "requiredBeatIDs": [
+        "scene-4-purandar-agra-meaning",
+        "scene-4-purandar-agra-memory",
+        "scene-4-purandar-agra-story"
+      ],
+      "explanation": "The labels differ by one. Year labels alone do not give an exact elapsed duration.",
+      "hints": [
+        "1666 is the next year label after 1665."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-4-purandar-agra-knowledge-question-sambhaji",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "kind": "identity",
+      "prompt": "Which member of Shivaji Maharaj’s family accompanied him to Agra?",
+      "choices": [
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-sambhaji-choice-2",
+          "text": "His mother Jijabai"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-sambhaji-choice-3",
+          "text": "His father Shahaji"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-sambhaji-choice-1",
+          "text": "His son Sambhaji"
+        }
+      ],
+      "correctChoiceID": "scene-4-purandar-agra-knowledge-question-sambhaji-choice-1",
+      "claimIDs": [
+        "scene-4-purandar-agra-fact-sambhaji"
+      ],
+      "requiredBeatIDs": [
+        "scene-4-purandar-agra-memory"
+      ],
+      "explanation": "His son Sambhaji accompanied him on the journey to Agra.",
+      "hints": [
+        "The chapter names the son who travelled with him."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-4-purandar-agra-knowledge-question-river",
+      "chapter": 4,
+      "sceneID": "scene-4-purandar-agra",
+      "kind": "geography",
+      "prompt": "Agra is on the banks of which river?",
+      "choices": [
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-river-choice-1",
+          "text": "Yamuna"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-river-choice-2",
+          "text": "Godavari"
+        },
+        {
+          "id": "scene-4-purandar-agra-knowledge-question-river-choice-3",
+          "text": "Krishna"
+        }
+      ],
+      "correctChoiceID": "scene-4-purandar-agra-knowledge-question-river-choice-1",
+      "claimIDs": [
+        "scene-4-purandar-agra-fact-agra-yamuna"
+      ],
+      "requiredBeatIDs": [
+        "scene-4-purandar-agra-meaning"
+      ],
+      "explanation": "Agra lies on the Yamuna. Present-day Uttar Pradesh helps us locate the city today.",
+      "hints": [
+        "Find the river name in the Agra place fact."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-knowledge-question-offices",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "kind": "numericCount",
+      "prompt": "How many fort offices are named in our list: Killedar, Sabnis, and Karkhanis?",
+      "choices": [
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-offices-choice-1",
+          "text": "Two"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-offices-choice-2",
+          "text": "Three"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-offices-choice-3",
+          "text": "Four"
+        }
+      ],
+      "correctChoiceID": "scene-5-rajgad-recovery-knowledge-question-offices-choice-2",
+      "claimIDs": [
+        "scene-5-rajgad-recovery-fact-three-named-offices"
+      ],
+      "requiredBeatIDs": [
+        "scene-5-rajgad-recovery-memory"
+      ],
+      "explanation": "The list names three offices. Many other people also helped a fort work.",
+      "hints": [
+        "Count the three job names, not all the people living in a fort."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-knowledge-question-stores",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "kind": "application",
+      "prompt": "A fort needs its grain kept safely and supplies maintained. Which named office fits this task?",
+      "choices": [
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-stores-choice-2",
+          "text": "Killedar"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-stores-choice-3",
+          "text": "Sabnis"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-stores-choice-1",
+          "text": "Karkhanis"
+        }
+      ],
+      "correctChoiceID": "scene-5-rajgad-recovery-knowledge-question-stores-choice-1",
+      "claimIDs": [
+        "scene-5-rajgad-recovery-fact-three-named-offices",
+        "scene-5-rajgad-recovery-fact-stores-care"
+      ],
+      "requiredBeatIDs": [
+        "scene-5-rajgad-recovery-memory"
+      ],
+      "explanation": "The Karkhanis looked after foodgrain stores and military supplies.",
+      "hints": [
+        "Look for the fort’s stores manager in the teaching card."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-knowledge-question-crop-relief",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "kind": "application",
+      "prompt": "A village loses its crops in a drought. Which response matches the revenue policy taught here?",
+      "choices": [
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-crop-relief-choice-1",
+          "text": "Allow relief in the revenue payment"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-crop-relief-choice-2",
+          "text": "Collect more than the fixed amount"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-crop-relief-choice-3",
+          "text": "Ignore the crop loss"
+        }
+      ],
+      "correctChoiceID": "scene-5-rajgad-recovery-knowledge-question-crop-relief-choice-1",
+      "claimIDs": [
+        "scene-5-rajgad-recovery-fact-crop-relief"
+      ],
+      "requiredBeatIDs": [
+        "scene-5-rajgad-recovery-meaning"
+      ],
+      "explanation": "The policy allowed revenue relief for crop loss from drought or excessive rain. This shows care for farming communities.",
+      "hints": [
+        "Recall how the policy responded to failed crops."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-5-rajgad-recovery-knowledge-question-recovery",
+      "chapter": 5,
+      "sceneID": "scene-5-rajgad-recovery",
+      "kind": "identity",
+      "prompt": "Which fort named in this chapter was regained during the recovery campaigns?",
+      "choices": [
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-recovery-choice-3",
+          "text": "Raigad"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-recovery-choice-1",
+          "text": "Purandar"
+        },
+        {
+          "id": "scene-5-rajgad-recovery-knowledge-question-recovery-choice-2",
+          "text": "Shivneri"
+        }
+      ],
+      "correctChoiceID": "scene-5-rajgad-recovery-knowledge-question-recovery-choice-1",
+      "claimIDs": [
+        "scene-5-rajgad-recovery-fact-recaptured-forts"
+      ],
+      "requiredBeatIDs": [
+        "scene-5-rajgad-recovery-story"
+      ],
+      "explanation": "Purandar is one of the forts named in the recovery account, along with Lohagad.",
+      "hints": [
+        "Look again at the examples of regained forts."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-6-raigad-coronation-knowledge-question-ministers",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "kind": "numericCount",
+      "prompt": "How many ministers were in the Ashtapradhan Mandal?",
+      "choices": [
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-ministers-choice-3",
+          "text": "Ten"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-ministers-choice-1",
+          "text": "Six"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-ministers-choice-2",
+          "text": "Eight"
+        }
+      ],
+      "correctChoiceID": "scene-6-raigad-coronation-knowledge-question-ministers-choice-2",
+      "claimIDs": [
+        "scene-6-raigad-coronation-fact-eight-ministers"
+      ],
+      "requiredBeatIDs": [
+        "scene-6-raigad-coronation-memory"
+      ],
+      "explanation": "Ashtapradhan Mandal means the council of eight ministers. Their departments had different jobs.",
+      "hints": [
+        "The chapter gives the council’s number and its jobs together."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-6-raigad-coronation-knowledge-question-shivrai",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "kind": "material",
+      "prompt": "Which material belongs to the Shivrai coin example?",
+      "choices": [
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-shivrai-choice-1",
+          "text": "Copper"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-shivrai-choice-2",
+          "text": "Gold"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-shivrai-choice-3",
+          "text": "Silver"
+        }
+      ],
+      "correctChoiceID": "scene-6-raigad-coronation-knowledge-question-shivrai-choice-1",
+      "claimIDs": [
+        "scene-6-raigad-coronation-fact-coin-materials"
+      ],
+      "requiredBeatIDs": [
+        "scene-6-raigad-coronation-memory"
+      ],
+      "explanation": "The Shivrai example is copper; the Hon example is gold.",
+      "hints": [
+        "Match each named coin to its material in the fact card."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-6-raigad-coronation-knowledge-question-year",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "kind": "numericDate",
+      "prompt": "Which year belongs to the coronation at Raigad?",
+      "choices": [
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-year-choice-2",
+          "text": "1666"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-year-choice-3",
+          "text": "1674"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-year-choice-1",
+          "text": "1665"
+        }
+      ],
+      "correctChoiceID": "scene-6-raigad-coronation-knowledge-question-year-choice-3",
+      "claimIDs": [
+        "scene-6-raigad-coronation-fact-coronation-date"
+      ],
+      "requiredBeatIDs": [
+        "scene-6-raigad-coronation-story"
+      ],
+      "explanation": "The coronation took place at Raigad in 1674. Its full date is 6 June 1674.",
+      "hints": [
+        "It comes after Purandar, Agra, and the recovery phase on the story timeline."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    },
+    {
+      "id": "scene-6-raigad-coronation-knowledge-question-accounts",
+      "chapter": 6,
+      "sceneID": "scene-6-raigad-coronation",
+      "kind": "application",
+      "prompt": "Which task belongs to the Amatya?",
+      "choices": [
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-accounts-choice-2",
+          "text": "Looking after a fort’s grain store"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-accounts-choice-3",
+          "text": "Organising the army"
+        },
+        {
+          "id": "scene-6-raigad-coronation-knowledge-question-accounts-choice-1",
+          "text": "Keeping the state’s accounts"
+        }
+      ],
+      "correctChoiceID": "scene-6-raigad-coronation-knowledge-question-accounts-choice-1",
+      "claimIDs": [
+        "scene-6-raigad-coronation-fact-amatya-accounts"
+      ],
+      "requiredBeatIDs": [
+        "scene-6-raigad-coronation-meaning"
+      ],
+      "explanation": "The Amatya kept the state’s accounts. Different offices had different responsibilities.",
+      "hints": [
+        "Look for the job that uses records of money and revenue."
+      ],
+      "retryFeedback": "Let’s look at the clue and try again.",
+      "reviewStatus": "approved",
+      "eligibility": "Approved claims AND all required beats shown in this learner archive; legacy completion alone is insufficient."
+    }
+  ],
+  "legacyQuestionIDs": [
+    "quiz-shivneri-birth-fort",
+    "quiz-rajgad-early-capital",
+    "quiz-pratapgad-turning-point",
+    "quiz-purandar-agra-sequence",
+    "quiz-rajgad-comeback",
+    "quiz-raigad-coronation"
+  ],
+  "legacyPreservation": [
+    "Retain all 29 existing review card IDs and their due dates.",
+    "Retain canonical scene, story/memory/meaning, discovery, place, matching and keepsake IDs.",
+    "Existing earned completion remains earned; new practice does not revoke it.",
+    "A legacy completion is not proof that newly added facts were shown."
+  ]
+}

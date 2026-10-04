@@ -17,7 +17,7 @@ final class AtlasRemoteUITests: XCTestCase {
             select("tv-home-map")
         } else {
             select("tv-home-continue")
-            for _ in 0..<3 { select("tv-lesson-story-next") }
+            TVKnowledgeUITestJourney.finishStory(app: app, select: { select($0) })
             select("tv-discovery-continue")
         }
     }

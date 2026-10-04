@@ -93,6 +93,7 @@ targets:
       - path: GreatsOfBharatha/DesignSystem/Foundation/GBShadow.swift
       - path: GreatsOfBharatha/DesignSystem/Foundation/GBLayoutContext.swift
       - path: GreatsOfBharatha/Features/LearnQuiz/LearnQuizPilotData.swift
+      - path: GreatsOfBharatha/Features/LearnQuiz/ChapterKnowledgeTeachingView.swift
       - path: GreatsOfBharatha/App/DebugNavigationRoute.swift
       - path: GreatsOfBharatha/Resources
         buildPhase: resources
